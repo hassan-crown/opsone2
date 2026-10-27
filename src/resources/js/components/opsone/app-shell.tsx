@@ -7,6 +7,7 @@ import { Icon } from '@/components/opsone/icon';
 import { LanguageSwitch } from '@/components/opsone/language-switch';
 import { LicenseBanner } from '@/components/opsone/license-banner';
 import { Logo } from '@/components/opsone/logo';
+import { NotificationsBell } from '@/components/opsone/notifications-bell';
 import { ThemeSwitch } from '@/components/opsone/theme-switch';
 import { Button } from '@/components/ui/button';
 import {
@@ -194,6 +195,7 @@ export function AppShell({
                         <Breadcrumbs breadcrumbs={breadcrumbs} />
                     </div>
                     <div className="ms-auto flex items-center gap-1">
+                        <NotificationsBell />
                         <LanguageSwitch />
                         <ThemeSwitch />
                         <UserMenu />

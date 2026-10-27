@@ -4,6 +4,8 @@ import {
     CreditCard,
     KeyRound,
     MonitorSmartphone,
+    Bell,
+    Mail,
     Palette,
     ShieldCheck,
     Store,
@@ -15,6 +17,8 @@ import { Icon } from '@/components/opsone/icon';
 import { PageHeader } from '@/components/opsone/page-header';
 import { Badge } from '@/components/ui/badge';
 import { useT } from '@/lib/i18n';
+import { edit as integrations } from '@/routes/integrations';
+import { preferences as notificationPrefs } from '@/routes/notifications';
 import { show as ownership } from '@/routes/ownership';
 import { show as plan } from '@/routes/plan';
 import { edit as appearance } from '@/routes/appearance';
@@ -131,6 +135,15 @@ export default function SettingsHome({
             }),
         });
     }
+    if (can.editProfile) {
+        facilityCards.push({
+            key: 'integrations',
+            href: integrations(),
+            icon: Mail,
+            title: t('account.home.integrations.title'),
+            description: t('account.home.integrations.description'),
+        });
+    }
     if (can.transferOwnership || pendingTransferForMe) {
         facilityCards.push({
             key: 'ownership',
@@ -187,6 +200,13 @@ export default function SettingsHome({
             icon: MonitorSmartphone,
             title: t('account.home.sessions.title'),
             description: t('account.home.sessions.description'),
+        },
+        {
+            key: 'notifications',
+            href: notificationPrefs(),
+            icon: Bell,
+            title: t('account.home.notifications.title'),
+            description: t('account.home.notifications.description'),
         },
         {
             key: 'appearance',
