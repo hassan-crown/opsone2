@@ -1,4 +1,12 @@
-import { GitBranch, Inbox, LayoutGrid, ScrollText, Users } from 'lucide-react';
+import {
+    GitBranch,
+    Inbox,
+    LayoutGrid,
+    Package,
+    ScrollText,
+    Users,
+} from 'lucide-react';
+import CatalogHomeController from '@/actions/App/Http/Controllers/Catalog/CatalogHomeController';
 import CustomerController from '@/actions/App/Http/Controllers/Customers/CustomerController';
 import InterestController from '@/actions/App/Http/Controllers/Customers/InterestController';
 import AuditLogController from '@/actions/App/Http/Controllers/Audit/AuditLogController';
@@ -11,7 +19,7 @@ import type { NavItem } from '@/types';
 export type LocalizedNavItem = Omit<NavItem, 'title'> & {
     label: TranslationKey;
     /** Shown only when the server's Gate allows it (`orgNav` shared prop); routes still enforce access. */
-    access?: 'team' | 'branches' | 'audit' | 'customers';
+    access?: 'team' | 'branches' | 'audit' | 'customers' | 'catalog';
 };
 
 /** Primary navigation (5–7 items max; settings live in the footer / user menu). */
@@ -34,6 +42,12 @@ export const mainNav: LocalizedNavItem[] = [
         href: TeamController.index(),
         icon: Users,
         access: 'team',
+    },
+    {
+        label: 'catalog.nav',
+        href: CatalogHomeController.url(),
+        icon: Package,
+        access: 'catalog',
     },
     {
         label: 'org.nav.branches',

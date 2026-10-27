@@ -66,6 +66,20 @@ enum AuditAction: string
     case InterestConverted = 'interest.converted';
     case InterestClosed = 'interest.closed';
     case InterestReopened = 'interest.reopened';
+    case CatalogProductCreated = 'catalog_product.created';
+    case CatalogProductUpdated = 'catalog_product.updated';
+    case CatalogProductDisabled = 'catalog_product.disabled';
+    case CatalogProductEnabled = 'catalog_product.enabled';
+    case CatalogMaterialCreated = 'catalog_material.created';
+    case CatalogMaterialUpdated = 'catalog_material.updated';
+    case CatalogMaterialDisabled = 'catalog_material.disabled';
+    case CatalogMaterialEnabled = 'catalog_material.enabled';
+    case CatalogReadyCreated = 'catalog_ready.created';
+    case CatalogReadyUpdated = 'catalog_ready.updated';
+    case CatalogReadyStatusChanged = 'catalog_ready.status_changed';
+    case CatalogVariantCreated = 'catalog_variant.created';
+    case CatalogVariantUpdated = 'catalog_variant.updated';
+    case CatalogVariantStatusChanged = 'catalog_variant.status_changed';
 
     public function area(): string
     {
@@ -88,6 +102,10 @@ enum AuditAction: string
             self::CustomerContactPrimaryChanged, self::CustomerContactRemoved => 'customers',
             self::InterestCreated, self::InterestUpdated, self::InterestFollowed, self::InterestConverted,
             self::InterestClosed, self::InterestReopened => 'interests',
+            self::CatalogProductCreated, self::CatalogProductUpdated, self::CatalogProductDisabled, self::CatalogProductEnabled,
+            self::CatalogMaterialCreated, self::CatalogMaterialUpdated, self::CatalogMaterialDisabled, self::CatalogMaterialEnabled,
+            self::CatalogReadyCreated, self::CatalogReadyUpdated, self::CatalogReadyStatusChanged,
+            self::CatalogVariantCreated, self::CatalogVariantUpdated, self::CatalogVariantStatusChanged => 'catalog',
         };
     }
 
