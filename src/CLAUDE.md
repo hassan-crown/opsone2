@@ -33,6 +33,7 @@
   rule, signed links re-checking access on the owner, `storage_mb` quota) — `docs/decisions/0006-audit-and-attachments.md`.
 - `app/SupportAccess` + `M38SupportAccess` — OpsOne support delegation: `is_support` identities act only through a live,
   time-boxed, read-only grant (`EnforceSupportAccess`) — `docs/decisions/0008-support-access.md`.
+- `app/Customers`, `app/Actions/Customers`, `M03Interest` — customers, contacts and interests (phone normalization, scoped lists via `Access\ScopedQuery`, hidden fields per P-10) — `docs/decisions/0009-customers-and-interests.md`. Bilingual JSON columns use `App\Support\Translatable\TranslatableString`.
 - `app/Actions/Fortify` — Fortify actions; `app/Http/{Controllers,Requests,Middleware}`; `app/Concerns` — shared validation rules.
 - `resources/js/pages` — Inertia pages; `resources/js/components/ui` — shadcn/ui components.
 - `routes/web.php`, `routes/settings.php`, `routes/account.php` (facility settings, plan/usage, ownership transfer, my sessions). Use `Route::get($uri, fn () => redirect($to))`, not `Route::redirect()`.
