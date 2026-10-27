@@ -16,6 +16,7 @@ class DatabaseSeeder extends Seeder
             FacilitySeeder::class,
             RoleTemplateSeeder::class,
             OwnerSeeder::class,
+            HelpSeeder::class,
         ]);
 
         if (app()->environment('local')) {

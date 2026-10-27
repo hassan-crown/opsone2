@@ -3,11 +3,13 @@ import { ChevronsUpDown, Menu as MenuIcon, Settings } from 'lucide-react';
 import { useState } from 'react';
 import type { ReactNode } from 'react';
 import { Breadcrumbs } from '@/components/opsone/breadcrumbs';
+import { HelpLink } from '@/components/opsone/help-link';
 import { Icon } from '@/components/opsone/icon';
 import { LanguageSwitch } from '@/components/opsone/language-switch';
 import { LicenseBanner } from '@/components/opsone/license-banner';
 import { Logo } from '@/components/opsone/logo';
 import { NotificationsBell } from '@/components/opsone/notifications-bell';
+import { ShellSearch } from '@/components/opsone/shell-search';
 import { ThemeSwitch } from '@/components/opsone/theme-switch';
 import { Button } from '@/components/ui/button';
 import {
@@ -194,7 +196,9 @@ export function AppShell({
                     <div className="min-w-0 max-lg:hidden">
                         <Breadcrumbs breadcrumbs={breadcrumbs} />
                     </div>
-                    <div className="ms-auto flex items-center gap-1">
+                    <div className="ms-auto flex min-w-0 flex-1 items-center justify-end gap-1">
+                        <ShellSearch />
+                        <HelpLink />
                         <NotificationsBell />
                         <LanguageSwitch />
                         <ThemeSwitch />
