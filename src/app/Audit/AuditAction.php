@@ -53,6 +53,21 @@ enum AuditAction: string
     case SupportSignedIn = 'support_access.signed_in';
     case SupportViewed = 'support_access.viewed';
 
+    case CatalogProductCreated = 'catalog_product.created';
+    case CatalogProductUpdated = 'catalog_product.updated';
+    case CatalogProductDisabled = 'catalog_product.disabled';
+    case CatalogProductEnabled = 'catalog_product.enabled';
+    case CatalogMaterialCreated = 'catalog_material.created';
+    case CatalogMaterialUpdated = 'catalog_material.updated';
+    case CatalogMaterialDisabled = 'catalog_material.disabled';
+    case CatalogMaterialEnabled = 'catalog_material.enabled';
+    case CatalogReadyCreated = 'catalog_ready.created';
+    case CatalogReadyUpdated = 'catalog_ready.updated';
+    case CatalogReadyStatusChanged = 'catalog_ready.status_changed';
+    case CatalogVariantCreated = 'catalog_variant.created';
+    case CatalogVariantUpdated = 'catalog_variant.updated';
+    case CatalogVariantStatusChanged = 'catalog_variant.status_changed';
+
     public function area(): string
     {
         return match ($this) {
@@ -70,6 +85,10 @@ enum AuditAction: string
             self::SupportRequestSubmitted, self::SupportAccessRequested, self::SupportAccessGranted,
             self::SupportAccessRejected, self::SupportAccessRevoked, self::SupportAccessExpired,
             self::SupportSignedIn, self::SupportViewed => 'support',
+            self::CatalogProductCreated, self::CatalogProductUpdated, self::CatalogProductDisabled, self::CatalogProductEnabled,
+            self::CatalogMaterialCreated, self::CatalogMaterialUpdated, self::CatalogMaterialDisabled, self::CatalogMaterialEnabled,
+            self::CatalogReadyCreated, self::CatalogReadyUpdated, self::CatalogReadyStatusChanged,
+            self::CatalogVariantCreated, self::CatalogVariantUpdated, self::CatalogVariantStatusChanged => 'catalog',
         };
     }
 

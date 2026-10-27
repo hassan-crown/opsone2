@@ -31,6 +31,7 @@
 - `app/Audit` — append-only audit trail: `Audit::record(AuditAction::X, $subject, $actor, before:, after:)` INSIDE the
   change's transaction; `AuditLog` screen (P-63). `app/Files` — private attachments (`AttachmentService`, `AllowedAttachment`
   rule, signed links re-checking access on the owner, `storage_mb` quota) — `docs/decisions/0006-audit-and-attachments.md`.
+- `app/Catalog` + `app/Actions/Catalog` + `routes/catalog.php` — made-to-order products, materials, ready goods/variants (P-11/P-12/P-13, `ready_goods`): money in minor units (`MinorUnits`), JSON `{ar,en}` text (`App\Support\Translatable`), append-only `catalog_versions`, soft-disable, single write path `CatalogWriter` — `docs/decisions/0010-catalog-versioning.md`.
 - `app/SupportAccess` + `M38SupportAccess` — OpsOne support delegation: `is_support` identities act only through a live,
   time-boxed, read-only grant (`EnforceSupportAccess`) — `docs/decisions/0008-support-access.md`.
 - `app/Actions/Fortify` — Fortify actions; `app/Http/{Controllers,Requests,Middleware}`; `app/Concerns` — shared validation rules.
