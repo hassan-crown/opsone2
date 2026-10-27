@@ -38,6 +38,16 @@ return [
             'report' => false,
         ],
 
+        // Private attachments (config/attachments.php): never served directly, only through signed download links.
+        'attachments' => [
+            'driver' => 'local',
+            'root' => storage_path('app/private/attachments'),
+            'visibility' => 'private',
+            'serve' => false,
+            'throw' => true,
+            'report' => false,
+        ],
+
         'public' => [
             'driver' => 'local',
             'root' => storage_path('app/public'),

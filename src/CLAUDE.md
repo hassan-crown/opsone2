@@ -27,6 +27,9 @@
 - `app/Actions/StateMachines/M{nn}*/T{nn}*` — one Action per transition; log via `TransitionRecorder` (`state_transitions`).
 - `app/Licensing` — signed-license verification (ADR-0004); use `CurrentLicense` (`allows()`, `limit()`, `status()`), never read the file.
   The Gate's license step and seat/branch limits (`Access\LicenseLimits`, inside the adding transaction) are in ADR-0005.
+- `app/Audit` — append-only audit trail: `Audit::record(AuditAction::X, $subject, $actor, before:, after:)` INSIDE the
+  change's transaction; `AuditLog` screen (P-63). `app/Files` — private attachments (`AttachmentService`, `AllowedAttachment`
+  rule, signed links re-checking access on the owner, `storage_mb` quota) — `docs/decisions/0006-audit-and-attachments.md`.
 - `app/Actions/Fortify` — Fortify actions; `app/Http/{Controllers,Requests,Middleware}`; `app/Concerns` — shared validation rules.
 - `resources/js/pages` — Inertia pages; `resources/js/components/ui` — shadcn/ui components.
 - `routes/web.php`, `routes/settings.php`, `routes/account.php` (facility settings, plan/usage, ownership transfer, my sessions). Use `Route::get($uri, fn () => redirect($to))`, not `Route::redirect()`.
