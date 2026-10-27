@@ -15,10 +15,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('help/whats-new', [HelpController::class, 'whatsNew'])->name('help.whats-new');
     Route::get('help/context', [HelpController::class, 'context'])->name('help.context');
     Route::get('help/support', [SupportRequestController::class, 'create'])->name('help.support');
-    Route::post('help/support', [SupportRequestController::class, 'store'])->middleware('throttle:5,1')->name('help.support.store');
+    Route::post('help/support', [SupportRequestController::class, 'store'])->middleware('throttle:support-request')->name('help.support.store');
     Route::get('help/category/{category}', [HelpController::class, 'category'])->name('help.category');
     Route::get('help/{article:slug}', [HelpController::class, 'article'])->name('help.article');
 
-    Route::get('search', [SearchController::class, 'index'])->name('search.index');
-    Route::get('search/suggest', [SearchController::class, 'suggest'])->middleware('throttle:60,1')->name('search.suggest');
+    Route::get('search', [SearchController::class, 'index'])->middleware('throttle:search')->name('search.index');
+    Route::get('search/suggest', [SearchController::class, 'suggest'])->middleware('throttle:search')->name('search.suggest');
 });

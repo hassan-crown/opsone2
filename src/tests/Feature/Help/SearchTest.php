@@ -2,6 +2,7 @@
 
 use App\Models\Branch;
 use App\Models\HelpArticle;
+use App\Models\User;
 use App\Search\SearchService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\Support\Org;
@@ -104,4 +105,26 @@ it('keeps branches in the query when matching the owner by code', function () {
     $groups = app(SearchService::class)->search($this->org->owner, $code);
 
     expect(titles($groups, 'branches'))->not->toBeEmpty();
+});
+
+it('rate-limits the search page and the suggestions in their own bucket', function () {
+    $this->actingAs($this->org->owner);
+
+    foreach (range(1, 30) as $i) {
+        $this->get(route('search.index', ['q' => 'zebra']))->assertOk();
+        $this->getJson(route('search.suggest', ['q' => 'zebra']))->assertOk();
+    }
+    $this->get(route('search.index', ['q' => 'zebra']))->assertTooManyRequests();
+    $this->getJson(route('search.suggest', ['q' => 'zebra']))->assertTooManyRequests();
+
+    // Another throttled feature keeps its own budget.
+    $this->post(route('help.support.store'), ['category' => 'question', 'subject' => 'Still works', 'message' => 'Another bucket entirely.'])
+        ->assertRedirect();
+});
+
+it('gives a support identity only what its live grant opens', function () {
+    $support = User::factory()->create();
+    $support->forceFill(['is_support' => true])->save();
+
+    expect(app(SearchService::class)->search($support, 'zebra'))->toBe([]);
 });

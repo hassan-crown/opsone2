@@ -31,6 +31,8 @@
 - `app/Audit` — append-only audit trail: `Audit::record(AuditAction::X, $subject, $actor, before:, after:)` INSIDE the
   change's transaction; `AuditLog` screen (P-63). `app/Files` — private attachments (`AttachmentService`, `AllowedAttachment`
   rule, signed links re-checking access on the owner, `storage_mb` quota) — `docs/decisions/0006-audit-and-attachments.md`.
+- `app/SupportAccess` + `M38SupportAccess` — OpsOne support delegation: `is_support` identities act only through a live,
+  time-boxed, read-only grant (`EnforceSupportAccess`) — `docs/decisions/0008-support-access.md`.
 - `app/Actions/Fortify` — Fortify actions; `app/Http/{Controllers,Requests,Middleware}`; `app/Concerns` — shared validation rules.
 - `resources/js/pages` — Inertia pages; `resources/js/components/ui` — shadcn/ui components.
 - `routes/web.php`, `routes/settings.php`, `routes/account.php` (facility settings, plan/usage, ownership transfer, my sessions). Use `Route::get($uri, fn () => redirect($to))`, not `Route::redirect()`.

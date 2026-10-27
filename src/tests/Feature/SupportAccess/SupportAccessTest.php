@@ -239,3 +239,24 @@ describe('SupportAccess screen', function () {
         expect($grant->refresh()->status)->toBe(SupportGrantStatus::Requested);
     });
 });
+
+describe('platform commands', function () {
+    it('creates a support identity and requests access from the shell', function () {
+        $this->artisan('support:identity', ['email' => 'second@opsone.test', 'name' => 'Second'])->assertSuccessful();
+        $this->artisan('support:identity', ['email' => $this->org->owner->email, 'name' => 'X'])->assertFailed();
+
+        $this->artisan('support:request-access', ['email' => 'second@opsone.test', '--area' => ['audit'], '--hours' => 8, '--reason' => 'Slow reports'])
+            ->assertSuccessful();
+        expect(SupportGrant::query()->sole()->requested_areas)->toBe(['audit']);
+
+        $this->artisan('support:request-access', ['email' => 'second@opsone.test', '--area' => ['audit'], '--reason' => ''])->assertFailed();
+    });
+
+    it('expires due grants from the scheduler command', function () {
+        $grant = grantAccess($this->org->owner, requestAccess($this->support), ['settings'], 1);
+        $this->travel(2)->hours();
+
+        $this->artisan('support:expire')->assertSuccessful();
+        expect($grant->refresh()->status)->toBe(SupportGrantStatus::Expired);
+    });
+});

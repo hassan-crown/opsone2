@@ -69,11 +69,14 @@ Artisan::command('support:request-access {email} {--area=*} {--hours=24} {--reas
 
         return 1;
     }
-    $reference = (string) $this->option('request');
+    $reference = is_string($this->option('request')) ? $this->option('request') : '';
     $supportRequest = preg_match('/^SR-0*(\d+)$/', $reference, $m) === 1 ? SupportRequest::query()->find((int) $m[1]) : null;
 
+    $reason = is_string($this->option('reason')) ? $this->option('reason') : '';
+    $areas = array_values(array_filter((array) $this->option('area'), is_string(...)));
+
     try {
-        $grant = $request->handle($support, array_values((array) $this->option('area')), (int) $this->option('hours'), (string) $this->option('reason'), $supportRequest);
+        $grant = $request->handle($support, $areas, (int) $this->option('hours'), $reason, $supportRequest);
     } catch (InvalidArgumentException $e) {
         $this->error($e->getMessage());
 
