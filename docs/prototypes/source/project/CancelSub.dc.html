@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>إلغاء طلب الاشتراك</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/opsone/tokens.css">
+<link rel="stylesheet" href="ds/opsone/components/bundle.css">
+<script src="ds/opsone/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:var(--link)}a:hover{color:var(--brand-hover)}
+</style>
+</helmet>
+<div dir="rtl" data-surface="panel" style="position: relative; width: 1440px; height: 1000px; overflow: hidden; background: var(--background); color: var(--text-strong); font-family: var(--font-sans); font-size: 14px; line-height: 24px;">
+  <div aria-hidden="true" inert="" style="position: absolute; inset: 0;">
+    <dc-import name="OrderTrack" hint-size="1440px,1000px"></dc-import>
+  </div>
+  <div aria-hidden="true" style="position: absolute; inset: 0; background: var(--overlay);"></div>
+
+  <div role="dialog" aria-modal="true" aria-labelledby="d-t" aria-describedby="d-d" class="o1-dialog" style="position: absolute; inset: 0; margin: auto; height: fit-content;">
+    <div class="o1-dialog-inner">
+    <div class="o1-dialog-head">
+      <h2 id="d-t" class="o1-dialog-title">إلغاء طلب SUB-1046؟</h2>
+      <button type="button" class="o1-dialog-close" aria-label="إغلاق"><x-import component-from-global-scope="OpsOne.Icon" name="x"></x-import></button>
+    </div>
+    <p id="d-d" class="o1-dialog-desc">قبل تسليم المنصة فقط.</p>
+    
+    <x-import component-from-global-scope="OpsOne.SelectField" label="السبب" options="{{ rs }}" default-value="r1" required="{{ yes }}"></x-import>
+    <div style="display: flex; flex-direction: column; gap: 8px; padding: 12px 16px; background: var(--fill); border-radius: 8px;">
+      <span style="font-weight: 600;">عند الإلغاء</span>
+      <span style="display: flex; gap: 8px;"><span style="color: var(--success-text); display: inline-flex;"><x-import component-from-global-scope="OpsOne.Icon" name="check" size="{{ s16 }}"></x-import></span><span>يتوقف تجهيز منصتك فورًا، ولا يبدأ أي اشتراك.</span></span>
+      <span style="display: flex; gap: 8px;"><span style="color: var(--info-text); display: inline-flex;"><x-import component-from-global-scope="OpsOne.Icon" name="info" size="{{ s16 }}"></x-import></span><span>المبلغ المدفوع 6,900.00 ر.س يُراجع للاسترداد حسب سياسة الشراء، ويصلك القرار بالبريد. لا رد تلقائي.</span></span>
+      <span style="display: flex; gap: 8px;"><span style="color: var(--info-text); display: inline-flex;"><x-import component-from-global-scope="OpsOne.Icon" name="info" size="{{ s16 }}"></x-import></span><span>بعد التسليم لا يُلغى الطلب من هنا؛ اطلب الدعم من داخل منصتك.</span></span>
+    </div>
+    <div class="o1-dialog-foot">
+      <x-import component-from-global-scope="OpsOne.Button" variant="ghost" href="OrderTrack.dc.html">تراجع</x-import><x-import component-from-global-scope="OpsOne.Button" variant="danger" href="OrderTrack.dc.html">إلغاء الطلب</x-import>
+    </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview": {"width": 1440, "height": 1000}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const noop = () => {};
+    return { yes: true, no: false, h28: 28, h24: 24, s16: 16, s24: 24, rs: [ { value: 'r1', label: 'غيّرت رأيي' }, { value: 'r2', label: 'اخترت باقة غير مناسبة' }, { value: 'r3', label: 'سبب آخر' } ] };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>الدعم</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/opsone/tokens.css">
+<link rel="stylesheet" href="ds/opsone/components/bundle.css">
+<script src="ds/opsone/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:var(--link)}a:hover{color:var(--brand-hover)}
+</style>
+</helmet>
+<div dir="rtl" data-surface="panel" style="width: 1440px; min-height: 600px; display: flex; background: var(--background); color: var(--text-strong); font-family: var(--font-sans); font-size: 14px; line-height: 24px;"><aside class="o1-sidebar" style="position: relative; height: auto; display: flex;"><div class="o1-sidebar-brand"><x-import component-from-global-scope="OpsOne.Logo" height="{{ h28 }}"></x-import></div><div style="display: flex; flex-direction: column; gap: 2px; padding: 0 12px 16px; margin-bottom: 8px; border-bottom: 1px solid var(--stroke-weak);"><span style="font-weight: 600;">تشغيل OpsOne</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">دعم OpsOne</span></div><nav class="o1-nav" aria-label="القائمة الرئيسية"><ul><sc-for list="{{ nav }}" as="item" hint-placeholder-count="4"><li><x-import component-from-global-scope="OpsOne.NavItem" label="{{ item.label }}" icon="{{ item.icon }}" href="{{ item.href }}" active="{{ item.active }}"></x-import></li></sc-for></ul></nav></aside><div class="o1-shell-main" style="flex: 1; min-width: 0; display: flex; flex-direction: column;"><header class="o1-topbar" style="position: relative; gap: 12px;"><div style="width: 440px;"><x-import component-from-global-scope="OpsOne.SearchField" label="البحث" placeholder="رقم الطلب أو المنشأة أو البريد"></x-import></div><div class="o1-topbar-end"><x-import component-from-global-scope="OpsOne.Button" variant="ghost" icon="bell" icon-only="{{ yes }}" aria-label="الإشعارات"></x-import><x-import component-from-global-scope="OpsOne.Avatar" name="طلال الحمدان" size="sm"></x-import></div></header><main class="o1-main" style="max-width: none; padding: 32px; display: flex; flex-direction: column; gap: 20px;"><div class="o1-pagehead" style="margin-bottom: 0;"><div class="o1-pagehead-text"><h1 class="o1-pagehead-title">الدعم</h1><p class="o1-pagehead-desc">طلبات دعم المنشآت. بيانات المنشأة لا تُفتح إلا بتفويض فعال من مالكها، وبنطاقه ومدته.</p></div><div class="o1-pagehead-actions"></div></div><div class="o1-table-wrap"><table class="o1-table"><caption class="o1-sr">طلبات الدعم</caption><thead><tr><th scope="col">الطلب</th><th scope="col">الموضوع</th><th scope="col">التفويض</th><th scope="col"></th></tr></thead><tbody><tr><td><bdi dir="ltr" style="font-family: var(--font-mono); white-space: nowrap;">SR-0088</bdi></td><td><span style="display: flex; flex-direction: column;"><span style="font-weight: 500;">رسائل SMS لا تصل لعملائنا</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">مطابخ الركن الحديث</span></span></td><td><x-import component-from-global-scope="OpsOne.Badge" tone="success">تفويض فعال، 46 ساعة</x-import></td><td><x-import component-from-global-scope="OpsOne.Button" variant="secondary" size="sm" href="SupportSession.dc.html">فتح جلسة الدعم</x-import></td></tr><tr><td><bdi dir="ltr" style="font-family: var(--font-mono); white-space: nowrap;">SR-0087</bdi></td><td><span style="display: flex; flex-direction: column;"><span style="font-weight: 500;">لا أستطيع إكمال بيانات منصتي</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">ستائر لمسة</span></span></td><td><x-import component-from-global-scope="OpsOne.Badge" tone="neutral">من بريد المشترك، بلا تفويض</x-import></td><td><x-import component-from-global-scope="OpsOne.Button" variant="ghost" size="sm">رد</x-import></td></tr><tr><td><bdi dir="ltr" style="font-family: var(--font-mono); white-space: nowrap;">SR-0085</bdi></td><td><span style="display: flex; flex-direction: column;"><span style="font-weight: 500;">بطء في تحميل الملفات</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">نجارة الأصيل</span></span></td><td><x-import component-from-global-scope="OpsOne.Badge" tone="warning">طُلب تفويض، بانتظار المالك</x-import></td><td><x-import component-from-global-scope="OpsOne.Button" variant="ghost" size="sm" href="SupportReply.dc.html">رد</x-import></td></tr></tbody></table></div><span style="color: var(--text-weak);">كل دخول وفعل بتفويض يُسجل في سجل تغييرات المنشأة باسمك، والمالك يسحب التفويض متى شاء فتنتهي الجلسة.</span></main></div></div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview": {"width": 1440, "height": 600}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const noop = () => {};
+    return { yes: true, no: false, h28: 28, h24: 24, s16: 16, s24: 24, noop, nav: [ { label: 'الرئيسية', icon: 'layout-dashboard', href: 'OpsDash.dc.html', active: false }, { label: 'المنشآت', icon: 'users', href: 'Tenants.dc.html', active: false }, { label: 'الدعم', icon: 'phone', href: 'SupportInbox.dc.html', active: true } ] };
+  }
+}
+</script>
+</body>
+</html>

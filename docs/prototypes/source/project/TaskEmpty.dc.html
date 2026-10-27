@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>المهام: لا مهام اليوم</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/opsone/tokens.css">
+<link rel="stylesheet" href="ds/opsone/components/bundle.css">
+<script src="ds/opsone/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:var(--link)}a:hover{color:var(--brand-hover)}
+</style>
+</helmet>
+<div dir="rtl" data-surface="panel" style="width: 1440px; min-height: 800px; display: flex; background: var(--background); color: var(--text-strong); font-family: var(--font-sans); font-size: 14px; line-height: 24px;">
+
+<aside class="o1-sidebar" style="position: relative; height: auto; display: flex;">
+  <div class="o1-sidebar-brand"><x-import component-from-global-scope="OpsOne.Logo" height="{{ h28 }}"></x-import></div>
+  <div style="display: flex; flex-direction: column; gap: 2px; padding: 0 12px 16px; margin-bottom: 8px; border-bottom: 1px solid var(--stroke-weak);">
+    <span style="font-weight: 600;">مطابخ الركن الحديث</span>
+    <span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">قسم التصنيع والتركيب</span>
+  </div>
+  <nav class="o1-nav" aria-label="القائمة الرئيسية"><ul>
+    <sc-for list="{{ nav }}" as="item" hint-placeholder-count="8">
+      <li><x-import component-from-global-scope="OpsOne.NavItem" label="{{ item.label }}" icon="{{ item.icon }}" href="{{ item.href }}" active="{{ item.active }}"></x-import></li>
+    </sc-for>
+  </ul></nav>
+  <div class="o1-sidebar-foot">
+    <x-import component-from-global-scope="OpsOne.NavItem" label="الإعدادات" icon="settings" href="#"></x-import>
+  </div>
+</aside>
+
+<div class="o1-shell-main" style="flex: 1; min-width: 0; display: flex; flex-direction: column;">
+  <header class="o1-topbar" style="position: relative; gap: 12px;">
+    <div style="width: 440px;"><x-import component-from-global-scope="OpsOne.SearchField" label="البحث العام" placeholder="رقم الطلب أو اسم العميل أو الجوال أو المستند"></x-import></div>
+    <div class="o1-topbar-end">
+      <x-import component-from-global-scope="OpsOne.Button" variant="ghost" icon="info" icon-only="{{ yes }}" aria-label="مساعدة هذه الصفحة"></x-import>
+      <x-import component-from-global-scope="OpsOne.Button" variant="ghost" icon="bell" icon-only="{{ yes }}" aria-label="الإشعارات"></x-import>
+      <x-import component-from-global-scope="OpsOne.Avatar" name="بندر القرني" size="sm"></x-import>
+    </div>
+  </header>
+
+  <main class="o1-main" style="max-width: none; padding: 32px; display: flex; flex-direction: column; gap: 20px;">
+    <div class="o1-pagehead" style="margin-bottom: 0;"><div class="o1-pagehead-text"><h1 class="o1-pagehead-title">المهام والمواعيد</h1><p class="o1-pagehead-desc">الخميس 22 أكتوبر.</p></div><div class="o1-pagehead-actions"></div></div>
+    <div role="group" aria-label="تصفية" style="display: flex; gap: 8px; flex-wrap: wrap;"><button type="button" aria-pressed="true" class="o1-btn o1-btn--secondary o1-btn--sm">اليوم</button><button type="button" aria-pressed="false" class="o1-btn o1-btn--secondary o1-btn--sm">القادمة</button><button type="button" aria-pressed="false" class="o1-btn o1-btn--secondary o1-btn--sm">المكتملة</button></div>
+    <div class="o1-card" style="padding: 48px 24px;"><div class="o1-empty"><span class="o1-empty-icon" aria-hidden="true"><x-import component-from-global-scope="OpsOne.Icon" name="check" size="{{ s24 }}"></x-import></span><p class="o1-empty-title">لا مهام عليك اليوم</p><p class="o1-empty-desc">المهمة القادمة: تركيب الخزائن، الأحد 25 أكتوبر 09:00.</p><div class="o1-empty-action"><x-import component-from-global-scope="OpsOne.Button" variant="secondary" icon="calendar">عرض القادمة</x-import></div></div></div>
+  </main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview": {"width": 1440, "height": 800}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const noop = () => {};
+    return { yes: true, no: false, h28: 28, h24: 24, s16: 16, s24: 24, nav: [ { label: 'الرئيسية', icon: 'layout-dashboard', href: 'ExecHomeMobile.dc.html', active: false }, { label: 'المهام والمواعيد', icon: 'calendar', href: 'TaskPage.dc.html', active: true } ] };
+  }
+}
+</script>
+</body>
+</html>

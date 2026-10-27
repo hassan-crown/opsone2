@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>العملاء على الجوال</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/opsone/tokens.css">
+<link rel="stylesheet" href="ds/opsone/components/bundle.css">
+<script src="ds/opsone/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:var(--link)}a:hover{color:var(--brand-hover)}
+</style>
+</helmet>
+<div dir="rtl" data-surface="panel" style="width: 390px; min-height: 1500px; display: flex; flex-direction: column; background: var(--background); color: var(--text-strong); font-family: var(--font-sans); font-size: 14px; line-height: 24px;">
+  <header style="display: flex; align-items: center; gap: 4px; min-height: 64px; padding-inline: 8px 16px; background: var(--surface); border-bottom: 1px solid var(--stroke-weak);">
+    <x-import component-from-global-scope="OpsOne.Button" variant="ghost" icon="menu" icon-only="{{ yes }}" aria-label="فتح القائمة" href="ShellMobileNav.dc.html"></x-import>
+    <x-import component-from-global-scope="OpsOne.Logo" height="{{ h24 }}"></x-import>
+    <div style="margin-inline-start: auto; display: flex;">
+      <x-import component-from-global-scope="OpsOne.Button" variant="ghost" icon="search" icon-only="{{ yes }}" aria-label="البحث العام" href="ShellMobileSearch.dc.html"></x-import>
+      <x-import component-from-global-scope="OpsOne.Button" variant="ghost" icon="bell" icon-only="{{ yes }}" aria-label="الإشعارات" href="ShellMobileNotifications.dc.html"></x-import>
+    </div>
+  </header>
+  <main style="padding: 16px; display: flex; flex-direction: column; gap: 12px;">
+    <h1 style="margin: 0; font-size: 24px; line-height: 36px; font-weight: 700;">العملاء</h1>
+    <x-import component-from-global-scope="OpsOne.Button" variant="primary" icon="plus" block="{{ yes }}">عميل جديد</x-import>
+    <div role="tablist" aria-label="أقسام العملاء" class="o1-tablist">
+      <a role="tab" href="#" aria-selected="true" class="o1-tab" style="position: relative; display: inline-flex; align-items: center; min-height: 44px; padding: 0 12px; text-decoration: none; color: var(--text-strong);">العملاء</a>
+      <a role="tab" href="InterestsMobile.dc.html" aria-selected="false" class="o1-tab" style="position: relative; display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 12px; text-decoration: none; color: var(--text-weak);">الاهتمامات <x-import component-from-global-scope="OpsOne.Counter" value="4"></x-import></a>
+    </div>
+    <x-import component-from-global-scope="OpsOne.SearchField" label="البحث في العملاء" placeholder="الاسم أو الجوال أو البريد"></x-import>
+    <sc-for list="{{ rows }}" as="r" hint-placeholder-count="7">
+      <a href="{{ r.href }}" style="display: grid; grid-template-columns: 40px minmax(0, 1fr) 20px; gap: 12px; align-items: center; padding: 12px 16px; min-height: 44px; background: var(--surface); border: 1px solid var(--stroke-weak); border-radius: 12px; color: var(--text-strong); text-decoration: none;">
+        <x-import component-from-global-scope="OpsOne.Avatar" name="{{ r.name }}" size="md" decorative="{{ yes }}"></x-import>
+        <span style="display: flex; flex-direction: column; min-width: 0;">
+          <span style="font-weight: 600;">{{ r.name }}</span>
+          <bdi dir="ltr" style="text-align: start; font-size: 13px; line-height: 20px; color: var(--text-weak);">{{ r.phone }}</bdi>
+          <span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">{{ r.orders }}</span>
+        </span>
+        <span style="color: var(--text-weak); display: inline-flex;"><x-import component-from-global-scope="OpsOne.Icon" name="chevron-right" size="{{ s16 }}"></x-import></span>
+      </a>
+    </sc-for>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":1500}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {
+      yes: true, h24: 24, s16: 16,
+      rows: this.links([
+        { name: 'منيرة الشمري', phone: '+966 55 214 7781', orders: 'طلبان جاريان، وطلب مقفل' },
+        { name: 'شركة دار الإعمار للمقاولات', phone: '+966 50 662 1847', orders: 'طلبان جاريان', href: 'CustomerCompanyMobile.dc.html' },
+        { name: 'سلطان البقمي', phone: '+966 55 190 3418', orders: 'طلب جارٍ' },
+        { name: 'تركي العسيري', phone: '+966 50 733 1204', orders: 'طلبان جاريان' },
+        { name: 'عبدالرحمن الفيفي', phone: '+966 56 482 9915', orders: 'طلب جارٍ، وطلب منتهي التنفيذ' },
+        { name: 'أمل السديري', phone: '+966 54 318 6620', orders: 'طلبان جاريان، وطلب مقفل' },
+        { name: 'لطيفة الحربي', phone: '+966 50 418 2236', orders: 'طلب جارٍ، وطلب جاهز، واهتمام جديد' }
+      ])
+    };
+  }
+  links(rows) { return rows.map((r) => ({ href: 'CustomerMobile.dc.html', ...r })); }
+}
+</script>
+</body>
+</html>

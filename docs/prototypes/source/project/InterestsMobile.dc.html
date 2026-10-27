@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>الاهتمامات على الجوال</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/opsone/tokens.css">
+<link rel="stylesheet" href="ds/opsone/components/bundle.css">
+<script src="ds/opsone/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:var(--link)}a:hover{color:var(--brand-hover)}
+</style>
+</helmet>
+<div dir="rtl" data-surface="panel" style="width: 390px; min-height: 1300px; display: flex; flex-direction: column; background: var(--background); color: var(--text-strong); font-family: var(--font-sans); font-size: 14px; line-height: 24px;">
+  <header style="display: flex; align-items: center; gap: 4px; min-height: 64px; padding-inline: 8px 16px; background: var(--surface); border-bottom: 1px solid var(--stroke-weak);">
+    <x-import component-from-global-scope="OpsOne.Button" variant="ghost" icon="menu" icon-only="{{ yes }}" aria-label="فتح القائمة" href="ShellMobileNav.dc.html"></x-import>
+    <x-import component-from-global-scope="OpsOne.Logo" height="{{ h24 }}"></x-import>
+    <div style="margin-inline-start: auto; display: flex;">
+      <x-import component-from-global-scope="OpsOne.Button" variant="ghost" icon="search" icon-only="{{ yes }}" aria-label="البحث العام" href="ShellMobileSearch.dc.html"></x-import>
+      <x-import component-from-global-scope="OpsOne.Button" variant="ghost" icon="bell" icon-only="{{ yes }}" aria-label="الإشعارات، 5 غير مقروءة" href="ShellMobileNotifications.dc.html"></x-import>
+    </div>
+  </header>
+  <main style="padding: 16px; display: flex; flex-direction: column; gap: 16px;">
+    <h1 style="margin: 0; font-size: 24px; line-height: 36px; font-weight: 700;">العملاء</h1>
+    <x-import component-from-global-scope="OpsOne.Button" variant="primary" icon="plus" block="{{ yes }}">تسجيل اهتمام</x-import>
+    <div role="tablist" aria-label="أقسام العملاء" class="o1-tablist">
+      <a role="tab" href="CustomersMobile.dc.html" aria-selected="false" class="o1-tab" style="position: relative; display: inline-flex; align-items: center; min-height: 44px; padding: 0 12px; text-decoration: none; color: var(--text-weak);">العملاء</a>
+      <a role="tab" href="InterestsMobile.dc.html" aria-selected="true" class="o1-tab" style="position: relative; display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 12px; text-decoration: none; color: var(--text-strong);">الاهتمامات <x-import component-from-global-scope="OpsOne.Counter" value="4"></x-import></a>
+    </div>
+    <x-import component-from-global-scope="OpsOne.SelectField" label="الحالة" options="{{ st }}" default-value="open"></x-import>
+    <div style="display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--stroke-weak); border-radius: 12px; gap: 6px; padding: 12px 16px;">
+      <span style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;"><x-import component-from-global-scope="OpsOne.Ref" href="#">INT-1047</x-import><span style="font-weight: 600;">لطيفة الحربي</span><x-import component-from-global-scope="OpsOne.Badge" tone="info">جديد</x-import></span>
+      <span>خزانة ملابس بأبواب منزلقة</span>
+      <span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">نموذج الموقع، قبل ساعتين</span>
+      <div style="display: flex; gap: 8px;"><x-import component-from-global-scope="OpsOne.Button" variant="secondary" size="sm" href="#">تولي المتابعة</x-import></div>
+    </div>
+    <div style="display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--stroke-weak); border-radius: 12px; gap: 6px; padding: 12px 16px;">
+      <span style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;"><x-import component-from-global-scope="OpsOne.Ref" href="#">INT-1048</x-import><span style="font-weight: 600;">بدر القحطاني</span><x-import component-from-global-scope="OpsOne.Badge" tone="info">جديد</x-import></span>
+      <span>باب خشبي رئيسي مع إطار</span>
+      <span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">اتصال هاتفي، أمس</span>
+      <div style="display: flex; gap: 8px;"><x-import component-from-global-scope="OpsOne.Button" variant="secondary" size="sm" href="#">تولي المتابعة</x-import></div>
+    </div>
+    <div style="display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--stroke-weak); border-radius: 12px; gap: 6px; padding: 12px 16px;">
+      <span style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;"><x-import component-from-global-scope="OpsOne.Ref" href="#">INT-1042</x-import><span style="font-weight: 600;">منيرة الشمري</span><x-import component-from-global-scope="OpsOne.Badge" tone="neutral">قيد المتابعة</x-import></span>
+      <span>أبواب داخلية لثلاث غرف</span>
+      <span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">نورة الدوسري، قبل 5 أيام</span>
+      <div style="display: flex; gap: 8px;"><x-import component-from-global-scope="OpsOne.Button" variant="primary" size="sm" href="ConvertInterest.dc.html">تحويل إلى طلب</x-import><x-import component-from-global-scope="OpsOne.Button" variant="ghost" size="sm" href="InterestClose.dc.html">إغلاق</x-import></div>
+    </div>
+    <div style="display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--stroke-weak); border-radius: 12px; gap: 6px; padding: 12px 16px;">
+      <span style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;"><x-import component-from-global-scope="OpsOne.Ref" href="#">INT-0981</x-import><span style="font-weight: 600;">منيرة الشمري</span><x-import component-from-global-scope="OpsOne.Badge" tone="success">محول</x-import></span>
+      <span>مطبخ علوي وسفلي مع جزيرة</span>
+      <span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">حُوّل في 8 أكتوبر</span>
+      <div style="display: flex; gap: 8px;"><x-import component-from-global-scope="OpsOne.Button" variant="ghost" size="sm" href="OrderMobile.dc.html">فتح ORD-24518</x-import></div>
+    </div>
+
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":1300}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const noop = () => {};
+    return { yes: true, h24: 24, st: [ { value: 'open', label: 'المفتوحة: جديد وقيد المتابعة' }, { value: 'all', label: 'الكل' }, { value: 'converted', label: 'محول' }, { value: 'closed', label: 'مغلق' } ] };
+  }
+}
+</script>
+</body>
+</html>

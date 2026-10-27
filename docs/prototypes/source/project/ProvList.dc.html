@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>التجهيز</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/opsone/tokens.css">
+<link rel="stylesheet" href="ds/opsone/components/bundle.css">
+<script src="ds/opsone/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:var(--link)}a:hover{color:var(--brand-hover)}
+</style>
+</helmet>
+<div dir="rtl" data-surface="panel" style="width: 1440px; min-height: 950px; display: flex; background: var(--background); color: var(--text-strong); font-family: var(--font-sans); font-size: 14px; line-height: 24px;"><aside class="o1-sidebar" style="position: relative; height: auto; display: flex;"><div class="o1-sidebar-brand"><x-import component-from-global-scope="OpsOne.Logo" height="{{ h28 }}"></x-import></div><div style="display: flex; flex-direction: column; gap: 2px; padding: 0 12px 16px; margin-bottom: 8px; border-bottom: 1px solid var(--stroke-weak);"><span style="font-weight: 600;">تشغيل OpsOne</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">تشغيل وسيرفر</span></div><nav class="o1-nav" aria-label="القائمة الرئيسية"><ul><sc-for list="{{ nav }}" as="item" hint-placeholder-count="4"><li><x-import component-from-global-scope="OpsOne.NavItem" label="{{ item.label }}" icon="{{ item.icon }}" href="{{ item.href }}" active="{{ item.active }}"></x-import></li></sc-for></ul></nav></aside><div class="o1-shell-main" style="flex: 1; min-width: 0; display: flex; flex-direction: column;"><header class="o1-topbar" style="position: relative; gap: 12px;"><div style="width: 440px;"><x-import component-from-global-scope="OpsOne.SearchField" label="البحث" placeholder="رقم الطلب أو المنشأة أو البريد"></x-import></div><div class="o1-topbar-end"><x-import component-from-global-scope="OpsOne.Button" variant="ghost" icon="bell" icon-only="{{ yes }}" aria-label="الإشعارات"></x-import><x-import component-from-global-scope="OpsOne.Avatar" name="يزيد القرشي" size="sm"></x-import></div></header><main class="o1-main" style="max-width: none; padding: 32px; display: flex; flex-direction: column; gap: 20px;"><div class="o1-pagehead"><div class="o1-pagehead-text"><h1 class="o1-pagehead-title">التجهيز</h1><p class="o1-pagehead-desc">أوامر التجهيز المسندة وغير المسندة. كل أمر خطوات بنتائج مسجلة، والإسناد بمسؤول وبيئة وإصدار معتمد.</p></div></div><div role="group" aria-label="تصفية" style="display: flex; gap: 8px; flex-wrap: wrap;"><button type="button" aria-pressed="true" class="o1-btn o1-btn--secondary o1-btn--sm">المفتوحة 3</button><button type="button" aria-pressed="false" class="o1-btn o1-btn--secondary o1-btn--sm">جاهز للإسناد 0</button><button type="button" aria-pressed="false" class="o1-btn o1-btn--secondary o1-btn--sm">متعثر 1</button><button type="button" aria-pressed="false" class="o1-btn o1-btn--secondary o1-btn--sm">جاهز بانتظار التسليم 1</button></div><div class="o1-table-wrap"><table class="o1-table"><caption class="o1-sr">التجهيز</caption><thead><tr><th scope="col">الأمر</th><th scope="col">المنشأة</th><th scope="col">الحالة</th><th scope="col">المسؤول</th><th scope="col">آخر تحديث</th><th scope="col"></th></tr></thead><tbody><tr><td><a href="ProvOrder.dc.html"><bdi dir="ltr">PRV-0212</bdi></a></td><td><span style="display: flex; flex-direction: column;"><span style="font-weight: 500;">ورشة الأفق للأثاث</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">SUB-1046، نمو</span></span></td><td><x-import component-from-global-scope="OpsOne.Badge" tone="info">قيد التجهيز</x-import></td><td>يزيد القرشي</td><td>اليوم 10:22</td><td></td></tr><tr><td><a href="ProvStalled.dc.html"><bdi dir="ltr">PRV-0209</bdi></a></td><td><span style="display: flex; flex-direction: column;"><span style="font-weight: 500;">مطابخ الديار</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">SUB-1043، نمو</span></span></td><td><x-import component-from-global-scope="OpsOne.Badge" tone="danger">متعثر</x-import></td><td>يزيد القرشي</td><td>أمس 16:40</td><td><x-import component-from-global-scope="OpsOne.Button" variant="secondary" size="sm" href="ProvStalled.dc.html">استئناف</x-import></td></tr><tr><td><a href="ProvDeliver.dc.html"><bdi dir="ltr">PRV-0207</bdi></a></td><td><span style="display: flex; flex-direction: column;"><span style="font-weight: 500;">ألمنيوم الصفوة</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">SUB-1041، أساس</span></span></td><td><x-import component-from-global-scope="OpsOne.Badge" tone="info">جاهز بانتظار التسليم</x-import></td><td>مازن العقيل</td><td>اليوم 08:40</td><td></td></tr></tbody></table></div><span style="color: var(--text-weak);">الأمر الجديد يظهر هنا «جاهز للإسناد» بزر «إسناد»، كما أُسند أمر ورشة الأفق صباح اليوم (<a href="OpsAssign.dc.html">إسناد التجهيز</a>). أمر ستائر لمسة ينشأ حين تكتمل بياناتها.</span></main></div></div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview": {"width": 1440, "height": 950}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const noop = () => {};
+    return { yes: true, no: false, h28: 28, h24: 24, s16: 16, s24: 24, noop, nav: [ { label: 'الرئيسية', icon: 'layout-dashboard', href: 'OpsDash.dc.html', active: false }, { label: 'المنشآت', icon: 'users', href: 'Tenants.dc.html', active: false }, { label: 'التجهيز', icon: 'clipboard-list', href: 'ProvList.dc.html', active: true } ], v3: 3, v8: 8, crumbs: [ { label: 'التجهيز', href: '#' }, { label: 'PRV-0212' } ] };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>عميل جديد: جهة تجارية</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/opsone/tokens.css">
+<link rel="stylesheet" href="ds/opsone/components/bundle.css">
+<script src="ds/opsone/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:var(--link)}a:hover{color:var(--brand-hover)}
+</style>
+</helmet>
+<div dir="rtl" data-surface="panel" style="position: relative; width: 1440px; height: 1400px; overflow: hidden; background: var(--background); color: var(--text-strong); font-family: var(--font-sans); font-size: 14px; line-height: 24px;">
+  <div aria-hidden="true" inert="" style="position: absolute; inset: 0;">
+    <dc-import name="CustomersList" hint-size="1440px,1100px"></dc-import>
+  </div>
+  <div aria-hidden="true" style="position: absolute; inset: 0; background: var(--overlay);"></div>
+
+  <div role="dialog" aria-modal="true" aria-labelledby="cc-t" style="position: absolute; inset-block-start: 96px; inset-inline-start: 50%; transform: translateX(50%); width: 760px; box-sizing: border-box; display: flex; flex-direction: column; gap: 16px; padding: 24px; background: var(--raised); border: 1px solid var(--stroke-weak); border-radius: 12px; box-shadow: var(--shadow-raised);">
+    <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 16px;">
+      <h2 id="cc-t" style="margin: 0; font-size: 16px; line-height: 26px; font-weight: 600;">عميل جديد</h2>
+      <x-import component-from-global-scope="OpsOne.Button" variant="ghost" icon="x" icon-only="{{ yes }}" aria-label="إغلاق"></x-import>
+    </div>
+    <x-import component-from-global-scope="OpsOne.RadioGroup" label="النوع" options="{{ kind }}" default-value="company" inline="{{ yes }}"></x-import>
+    <x-import component-from-global-scope="OpsOne.TextField" label="اسم الجهة" default-value="شركة دار الإعمار للمقاولات" required="{{ yes }}"></x-import>
+    <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 20px;">
+      <x-import component-from-global-scope="OpsOne.TextField" label="رقم الجوال" default-value="+966 50 662 1847" dir="ltr" input-mode="tel" required="{{ yes }}" hint="يُستخدم للتحقق وتفعيل حساب الجهة"></x-import>
+      <x-import component-from-global-scope="OpsOne.TextField" label="البريد الإلكتروني" default-value="procurement@daralemar.sa" dir="ltr" input-mode="email" required="{{ yes }}"></x-import>
+      <x-import component-from-global-scope="OpsOne.TextField" label="اسم صاحب الجوال" default-value="م. عادل الشهري" optional="{{ yes }}" hint="يصبح شخص الاتصال الرئيسي"></x-import>
+      <x-import component-from-global-scope="OpsOne.TextField" label="صفته" default-value="مسؤول المشتريات" optional="{{ yes }}"></x-import>
+      <x-import component-from-global-scope="OpsOne.TextField" label="هاتف المكتب" default-value="+966 11 465 2290" dir="ltr" input-mode="tel" optional="{{ yes }}"></x-import>
+    </div>
+
+    <fieldset style="margin: 0; padding: 16px; border: 1px solid var(--stroke-weak); border-radius: 8px; display: flex; flex-direction: column; gap: 12px;">
+      <legend style="padding: 0 4px; font-weight: 600;">البيانات التجارية <span style="font-weight: 400; color: var(--text-weak);">(اختياري)</span></legend>
+      <p style="margin: 0; color: var(--text-weak);">تظهر في العقد، وفي الفاتورة إن طلبت الجهة فاتورة ضريبية. يمكن إكمالها لاحقًا.</p>
+      <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 20px;">
+        <x-import component-from-global-scope="OpsOne.TextField" label="السجل التجاري" default-value="1010587342" dir="ltr" input-mode="numeric" hint="10 أرقام"></x-import>
+        <x-import component-from-global-scope="OpsOne.TextField" label="الرقم الضريبي" default-value="3104587123" dir="ltr" input-mode="numeric" error="الرقم الضريبي 15 رقمًا يبدأ وينتهي بالرقم 3. أكمله أو اتركه فارغًا لإضافته لاحقًا."></x-import>
+      </div>
+    </fieldset>
+
+    <fieldset style="margin: 0; padding: 16px; border: 1px solid var(--stroke-weak); border-radius: 8px; display: flex; flex-direction: column; gap: 12px;">
+      <legend style="padding: 0 4px; font-weight: 600;">العنوان <span style="font-weight: 400; color: var(--text-weak);">(اختياري)</span></legend>
+      <p style="margin: 0; color: var(--text-weak);">يُحفظ «المقر» عنوانًا افتراضيًا للعقد والفاتورة. مواقع التنفيذ الأخرى تضاف من ملف الجهة أو من الطلب.</p>
+      <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 20px;">
+        <x-import component-from-global-scope="OpsOne.SelectField" label="المدينة" options="{{ cities }}" default-value="riyadh"></x-import>
+        <x-import component-from-global-scope="OpsOne.TextField" label="الحي" default-value="حي العليا"></x-import>
+      </div>
+      <x-import component-from-global-scope="OpsOne.TextField" label="العنوان التفصيلي" default-value="طريق الملك فهد، برج الإعمار، الدور 7"></x-import>
+      <div><x-import component-from-global-scope="OpsOne.Button" variant="ghost" size="sm" icon="map-pin">تحديد الموقع على الخريطة</x-import></div>
+    </fieldset>
+
+    <div style="display: flex; justify-content: flex-end; gap: 8px; padding-top: 4px;">
+      <x-import component-from-global-scope="OpsOne.Button" variant="ghost" href="CustomersList.dc.html">إلغاء</x-import>
+      <x-import component-from-global-scope="OpsOne.Button" variant="primary" href="CustomerCompany.dc.html">حفظ العميل</x-import>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1400}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {
+      yes: true,
+      kind: [ { value: 'person', label: 'فرد' }, { value: 'company', label: 'جهة تجارية' } ],
+      cities: [ { value: 'riyadh', label: 'الرياض' }, { value: 'jeddah', label: 'جدة' }, { value: 'dammam', label: 'الدمام' } ]
+    };
+  }
+}
+</script>
+</body>
+</html>

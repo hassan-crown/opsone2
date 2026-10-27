@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>الطلبات على الجوال</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/opsone/tokens.css">
+<link rel="stylesheet" href="ds/opsone/components/bundle.css">
+<script src="ds/opsone/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:var(--link)}a:hover{color:var(--brand-hover)}
+</style>
+</helmet>
+<div dir="rtl" data-surface="panel" style="width: 390px; min-height: 1500px; display: flex; flex-direction: column; background: var(--background); color: var(--text-strong); font-family: var(--font-sans); font-size: 14px; line-height: 24px;">
+  <header style="display: flex; align-items: center; gap: 4px; min-height: 64px; padding-inline: 8px 16px; background: var(--surface); border-bottom: 1px solid var(--stroke-weak);">
+    <x-import component-from-global-scope="OpsOne.Button" variant="ghost" icon="menu" icon-only="{{ yes }}" aria-label="فتح القائمة"></x-import>
+    <x-import component-from-global-scope="OpsOne.Logo" height="{{ h24 }}"></x-import>
+    <div style="margin-inline-start: auto; display: flex; align-items: center;">
+      <x-import component-from-global-scope="OpsOne.Button" variant="ghost" icon="search" icon-only="{{ yes }}" aria-label="البحث العام" href="ShellMobileSearch.dc.html"></x-import>
+      <x-import component-from-global-scope="OpsOne.Button" variant="ghost" icon="bell" icon-only="{{ yes }}" aria-label="الإشعارات" href="ShellMobileNotifications.dc.html"></x-import>
+    </div>
+  </header>
+
+  <main style="padding: 16px; display: flex; flex-direction: column; gap: 12px;">
+    <h1 style="margin: 0; font-size: 24px; line-height: 36px; font-weight: 700;">الطلبات</h1>
+    <x-import component-from-global-scope="OpsOne.Button" variant="primary" icon="plus" block="{{ yes }}" href="CreateOrderMobile.dc.html">طلب مخصص جديد</x-import>
+    <x-import component-from-global-scope="OpsOne.SearchField" label="البحث في الطلبات" placeholder="رقم الطلب أو اسم العميل أو الجوال"></x-import>
+    <div role="group" aria-label="مرشحات سريعة" style="display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; margin-inline: -16px; padding-inline: 16px;">
+      <button type="button" aria-pressed="true" class="o1-btn o1-btn--secondary o1-btn--sm" style="min-height: 44px; background: var(--brand-subtle); color: var(--brand-subtle-text); border-color: var(--brand);">تحتاج إجراء 14</button>
+      <button type="button" aria-pressed="false" class="o1-btn o1-btn--secondary o1-btn--sm" style="min-height: 44px;">طلباتي 11</button>
+      <button type="button" aria-pressed="false" class="o1-btn o1-btn--secondary o1-btn--sm" style="min-height: 44px;">متأخر 6</button>
+      <button type="button" aria-pressed="false" class="o1-btn o1-btn--secondary o1-btn--sm" style="min-height: 44px; flex: none;">غير مسند 2</button>
+    </div>
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+      <span style="color: var(--text-weak);">14 طلبًا</span>
+      <x-import component-from-global-scope="OpsOne.Button" variant="ghost" size="sm" icon="filter">التصفية</x-import>
+    </div>
+
+    <sc-for list="{{ rows }}" as="r" hint-placeholder-count="6">
+      <a href="OrderMobile.dc.html" style="display: flex; flex-direction: column; gap: 6px; padding: 16px; background: var(--surface); border: 1px solid var(--stroke-weak); border-radius: 12px; color: var(--text-strong); text-decoration: none;">
+        <span style="display: flex; justify-content: space-between; align-items: center; gap: 8px;">
+          <bdi dir="ltr" style="font-family: var(--font-mono); font-weight: 500; color: var(--link);">{{ r.ref }}</bdi>
+          <x-import component-from-global-scope="OpsOne.Badge" tone="{{ r.tone }}">{{ r.status }}</x-import>
+        </span>
+        <span style="font-weight: 600; font-size: 15px;">{{ r.customer }}</span>
+        <span style="color: var(--text-weak);">{{ r.stage }}</span>
+        <span style="color: {{ r.whereColor }};">{{ r.where }}</span>
+        <span style="display: flex; justify-content: space-between; align-items: center; padding-top: 6px; border-top: 1px solid var(--stroke-weak); font-size: 13px; line-height: 20px; color: var(--text-weak);">
+          <span>{{ r.owner }}</span>
+          <span>المتبقي <x-import component-from-global-scope="OpsOne.Amount" value="{{ r.left }}"></x-import></span>
+        </span>
+      </a>
+    </sc-for>
+    <x-import component-from-global-scope="OpsOne.Pagination" page="{{ p1 }}" page-count="{{ p2 }}" total="{{ p14 }}" page-size="{{ p10 }}" on-change="{{ noop }}"></x-import>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":1500}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {
+      yes: true, h24: 24, p1: 1, p2: 2, p14: 14, p10: 10, noop: () => {},
+      rows: [
+        { ref: 'ORD-24490', customer: 'سلطان البقمي', stage: 'التركيب والتسليم، 5 من 5', where: 'بانتظار قرار السماح ببدء التركيب', whereColor: 'var(--warning-text)', owner: 'خالد الزهراني', status: 'جارٍ', tone: 'info', left: '6,200.00' },
+        { ref: 'ORD-24518', customer: 'منيرة الشمري', stage: 'الاتفاق والدفعة الأولى، 3 من 5', where: 'بانتظار دفع 5,000 ر.س', whereColor: 'var(--warning-text)', owner: 'نورة الدوسري', status: 'جارٍ', tone: 'info', left: '18,450.00' },
+        { ref: 'ORD-24467', customer: 'تركي العسيري', stage: 'التصنيع، 4 من 5', where: 'طلب إلغاء بانتظار القرار', whereColor: 'var(--warning-text)', owner: 'سارة القحطاني', status: 'إلغاء قيد المعالجة', tone: 'warning', left: '17,600.00' },
+        { ref: 'ORD-24502', customer: 'ناصر العمري', stage: 'التصنيع، 4 من 5', where: 'متأخر 4 أيام عن المدة المستهدفة', whereColor: 'var(--danger-text)', owner: 'خالد الزهراني', status: 'جارٍ', tone: 'info', left: '9,800.00' },
+        { ref: 'ORD-24495', customer: 'وليد السهلي', stage: 'التصنيع، 4 من 5', where: 'موقوف: بانتظار توفر خامة', whereColor: 'var(--warning-text)', owner: 'سارة القحطاني', status: 'موقوف', tone: 'warning', left: '11,250.00' },
+        { ref: 'ORD-24480', customer: 'عبدالرحمن الفيفي', stage: 'انتهى التشغيل', where: 'مستحق 3,450 ر.س منذ 9 أيام', whereColor: 'var(--danger-text)', owner: 'نورة الدوسري', status: 'منتهي التنفيذ', tone: 'success', left: '3,450.00' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

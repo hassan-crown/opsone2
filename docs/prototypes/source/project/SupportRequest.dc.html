@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>طلب دعم OpsOne</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/opsone/tokens.css">
+<link rel="stylesheet" href="ds/opsone/components/bundle.css">
+<script src="ds/opsone/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:var(--link)}a:hover{color:var(--brand-hover)}
+</style>
+</helmet>
+<div dir="rtl" data-surface="panel" style="position: relative; width: 1440px; height: 1100px; overflow: hidden; background: var(--background); color: var(--text-strong); font-family: var(--font-sans); font-size: 14px; line-height: 24px;">
+  <div aria-hidden="true" inert="" style="position: absolute; inset: 0;">
+    <dc-import name="FinHome" hint-size="1440px,1300px"></dc-import>
+  </div>
+  <div aria-hidden="true" style="position: absolute; inset: 0; background: var(--overlay);"></div>
+
+  <div role="dialog" aria-modal="true" aria-labelledby="d-t" aria-describedby="d-d" class="o1-dialog" style="position: absolute; inset: 0; margin: auto; height: fit-content;">
+    <div class="o1-dialog-inner">
+    <div class="o1-dialog-head">
+      <h2 id="d-t" class="o1-dialog-title">طلب دعم OpsOne</h2>
+      <button type="button" class="o1-dialog-close" aria-label="إغلاق"><x-import component-from-global-scope="OpsOne.Icon" name="x"></x-import></button>
+    </div>
+    <p id="d-d" class="o1-dialog-desc">لمشكلة في المنصة أو الاشتراك. تذاكر عملائك تصل لفريقك من «العملاء»، تبويب «التذاكر».</p>
+    
+    <x-import component-from-global-scope="OpsOne.SelectField" label="الموضوع" options="{{ sub }}" default-value="pay" required="{{ yes }}"></x-import>
+    <x-import component-from-global-scope="OpsOne.TextField" label="ماذا حدث" default-value="رسائل SMS لا تصل لعملائنا منذ أمس 18:00، والرصيد في حسابنا لدى المزود كافٍ." multiline="{{ yes }}" required="{{ yes }}"></x-import>
+    <x-import component-from-global-scope="OpsOne.FileUpload" label="لقطة شاشة" files="{{ shot }}" on-select="{{ noop }}" on-remove="{{ noop }}" optional="{{ yes }}"></x-import>
+    <fieldset style="margin: 0; padding: 12px 16px; border: 1px solid var(--stroke-weak); border-radius: 8px; display: flex; flex-direction: column; gap: 12px;"><legend style="padding: 0 4px; font-weight: 600;">وصول الدعم إلى بيانات الجهة</legend><x-import component-from-global-scope="OpsOne.Switch" label="السماح بوصول مؤقت" description="بدونه لا يرى الدعم بياناتك ولا ملفات عملائك." default-checked="{{ yes }}"></x-import><div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 20px;">
+      <x-import component-from-global-scope="OpsOne.SelectField" label="المدة" options="{{ dur }}" default-value="48"></x-import>
+      <x-import component-from-global-scope="OpsOne.SelectField" label="النطاق" options="{{ scope }}" default-value="fin"></x-import>
+    </div></fieldset>
+    <div style="display: flex; flex-direction: column; gap: 8px; padding: 12px 16px; background: var(--fill); border-radius: 8px;">
+      <span style="font-weight: 600;">عند الإرسال</span>
+      <span style="display: flex; gap: 8px;"><span style="color: var(--success-text); display: inline-flex;"><x-import component-from-global-scope="OpsOne.Icon" name="check" size="{{ s16 }}"></x-import></span><span>يصلك رد على بريدك وفي الإشعارات.</span></span>
+      <span style="display: flex; gap: 8px;"><span style="color: var(--info-text); display: inline-flex;"><x-import component-from-global-scope="OpsOne.Icon" name="info" size="{{ s16 }}"></x-import></span><span>كل دخول وفعل للدعم مسجل في سجل التغييرات، وتسحب الإذن متى شئت من <a href="SupportAccess.dc.html">تفويضات دعم OpsOne</a> في «المساعدة».</span></span>
+      <span style="display: flex; gap: 8px;"><span style="color: var(--info-text); display: inline-flex;"><x-import component-from-global-scope="OpsOne.Icon" name="info" size="{{ s16 }}"></x-import></span><span>الإذن للمالك وحده؛ غيره يرسل الطلب دون إذن.</span></span>
+    </div>
+    <div class="o1-dialog-foot">
+      <x-import component-from-global-scope="OpsOne.Button" variant="ghost" href="HelpPanel.dc.html">إلغاء</x-import><x-import component-from-global-scope="OpsOne.Button" variant="primary">إرسال الطلب</x-import>
+    </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview": {"width": 1440, "height": 1100}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const noop = () => {};
+    return { yes: true, no: false, h28: 28, h24: 24, s16: 16, s24: 24, noop, sub: [ { value: 'pay', label: 'الإشعارات والتكاملات' } ], dur: [ { value: '48', label: '48 ساعة' } ], scope: [ { value: 'fin', label: 'الإشعارات والتكاملات فقط' } ], shot: [] };
+  }
+}
+</script>
+</body>
+</html>

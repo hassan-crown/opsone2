@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>إكمال المرحلة</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/opsone/tokens.css">
+<link rel="stylesheet" href="ds/opsone/components/bundle.css">
+<script src="ds/opsone/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:var(--link)}a:hover{color:var(--brand-hover)}
+</style>
+</helmet>
+<div dir="rtl" data-surface="panel" style="position: relative; width: 1440px; height: 1100px; overflow: hidden; background: var(--background); color: var(--text-strong); font-family: var(--font-sans); font-size: 14px; line-height: 24px;">
+  <div aria-hidden="true" inert="" style="position: absolute; inset: 0;">
+    <dc-import name="OrderStages" hint-size="1440px,1900px"></dc-import>
+  </div>
+  <div aria-hidden="true" style="position: absolute; inset: 0; background: var(--overlay);"></div>
+
+  <div role="dialog" aria-modal="true" aria-labelledby="dlg-t" aria-describedby="dlg-d" class="o1-dialog o1-dialog--lg" style="position: absolute; inset: 0; margin: auto; height: fit-content;">
+    <div class="o1-dialog-inner">
+    <div class="o1-dialog-head">
+      <h2 id="dlg-t" class="o1-dialog-title">إكمال مرحلة «الاتفاق والدفعة الأولى»؟</h2>
+      <button type="button" class="o1-dialog-close" aria-label="إغلاق"><x-import component-from-global-scope="OpsOne.Icon" name="x"></x-import></button>
+    </div>
+    <p id="dlg-d" class="o1-dialog-desc">فحص الإجراءات المطلوبة في هذه المرحلة الآن.</p>
+
+    <ul style="list-style: none; margin: 0; padding: 0; border: 1px solid var(--stroke-weak); border-radius: 8px;">
+      <li style="display: grid; grid-template-columns: 24px minmax(0, 1fr) auto; gap: 12px; align-items: start; padding: 12px 16px;">
+        <span style="color: var(--success-text); display: inline-flex;"><x-import component-from-global-scope="OpsOne.Icon" name="circle-check"></x-import></span>
+        <span style="display: flex; flex-direction: column;"><span style="font-weight: 500;">موافقة العميل على العرض</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">QUO-3307، 19 أكتوبر</span></span>
+        <x-import component-from-global-scope="OpsOne.Badge" tone="success">متحقق</x-import>
+      </li>
+      <li style="display: grid; grid-template-columns: 24px minmax(0, 1fr) auto; gap: 12px; align-items: start; padding: 12px 16px; border-top: 1px solid var(--stroke-weak);">
+        <span style="color: var(--warning-text); display: inline-flex;"><x-import component-from-global-scope="OpsOne.Icon" name="triangle-alert"></x-import></span>
+        <span style="display: flex; flex-direction: column;"><span style="font-weight: 500;">تحقق التحصيل: الدفعة الأولى 5,000.00 ر.س</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">صافي المقبوض 0.00 ر.س. الإيصال المرفوع قيد التحقق ولا يحتسب.</span></span>
+        <x-import component-from-global-scope="OpsOne.Badge" tone="warning">بانتظار نتيجة</x-import>
+      </li>
+      <li style="display: grid; grid-template-columns: 24px minmax(0, 1fr) auto; gap: 12px; align-items: start; padding: 12px 16px; border-top: 1px solid var(--stroke-weak);">
+        <span style="color: var(--text-weak); display: inline-flex;"><x-import component-from-global-scope="OpsOne.Icon" name="minus"></x-import></span>
+        <span style="display: flex; flex-direction: column;"><span style="font-weight: 500;">موافقة العميل على العقد</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">اختياري. تبقى مهمته مفتوحة تحت متابعة نورة الدوسري.</span></span>
+        <x-import component-from-global-scope="OpsOne.Badge" tone="neutral">لا يمنع</x-import>
+      </li>
+    </ul>
+
+    <x-import component-from-global-scope="OpsOne.Alert" tone="warning">لا تكتمل المرحلة قبل تأكيد الدفعة الأولى، أو منح سماح بالمتابعة لهذا الشرط وحده.</x-import>
+
+    <fieldset style="margin: 0; padding: 16px; border: 1px solid var(--stroke-weak); border-radius: 8px; display: flex; flex-direction: column; gap: 12px;">
+      <legend style="padding: 0 4px; font-weight: 600;">السماح بالمتابعة</legend>
+      <x-import component-from-global-scope="OpsOne.Checkbox" label="السماح ببدء التصنيع قبل تأكيد الدفعة الأولى" default-checked="{{ yes }}"></x-import>
+      <x-import component-from-global-scope="OpsOne.TextField" label="السبب" multiline="{{ yes }}" required="{{ yes }}" default-value="حولت العميلة المبلغ وننتظر ظهوره في كشف البنك، وجدول التصنيع لا يحتمل التأخير."></x-import>
+      <div><x-import component-from-global-scope="OpsOne.Button" variant="ghost" size="sm" icon="paperclip">إرفاق إثبات (اختياري)</x-import></div>
+      <p style="margin: 0; color: var(--text-weak);">يبقى مبلغ 5,000.00 ر.س مستحقًا ويظهر الاستثناء في نشاط الطلب. تُفتح مرحلة التصنيع وتصل مهمة «تصنيع الوحدات» إلى صندوق قسم التصنيع والتركيب.</p>
+    </fieldset>
+
+    <div class="o1-dialog-foot">
+      <x-import component-from-global-scope="OpsOne.Button" variant="ghost" href="OrderStages.dc.html">إلغاء</x-import>
+      <x-import component-from-global-scope="OpsOne.Button" variant="secondary" href="FinReceiptReview.dc.html">مراجعة الإيصال بدلًا من ذلك</x-import>
+      <x-import component-from-global-scope="OpsOne.Button" variant="primary">السماح وإكمال المرحلة</x-import>
+    </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1100}}'>
+class Component extends DCLogic {
+  renderVals() { return { yes: true }; }
+}
+</script>
+</body>
+</html>

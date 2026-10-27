@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<title>Order ORD-24518</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/opsone/tokens.css">
+<link rel="stylesheet" href="ds/opsone/components/bundle.css">
+<script src="ds/opsone/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:var(--link)}a:hover{color:var(--brand-hover)}
+</style>
+</helmet>
+<div dir="ltr" lang="en" data-surface="panel" style="width: 1440px; min-height: 1700px; display: flex; background: var(--background); color: var(--text-strong); font-family: var(--font-latin); font-size: 14px; line-height: 24px;">
+
+<aside class="o1-sidebar" style="position: relative; height: auto; display: flex;">
+  <div class="o1-sidebar-brand"><x-import component-from-global-scope="OpsOne.Logo" height="{{ h28 }}"></x-import></div>
+  <div style="display: flex; flex-direction: column; gap: 2px; padding: 0 12px 16px; margin-bottom: 8px; border-bottom: 1px solid var(--stroke-weak);">
+    <span style="font-weight: 600;">Al Rukn Modern Kitchens</span>
+    <span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">Growth plan</span>
+  </div>
+  <nav class="o1-nav" aria-label="Main menu"><ul>
+    <sc-for list="{{ nav }}" as="item" hint-placeholder-count="8">
+      <li><x-import component-from-global-scope="OpsOne.NavItem" label="{{ item.label }}" icon="{{ item.icon }}" href="{{ item.href }}" active="{{ item.active }}"></x-import></li>
+    </sc-for>
+  </ul></nav>
+  <div class="o1-sidebar-foot">
+    <x-import component-from-global-scope="OpsOne.NavItem" label="Settings" icon="settings" href="#"></x-import>
+  </div>
+</aside>
+
+<div class="o1-shell-main" style="flex: 1; min-width: 0; display: flex; flex-direction: column;">
+  <header class="o1-topbar" style="position: relative; gap: 12px;">
+    <div style="width: 440px;"><x-import component-from-global-scope="OpsOne.SearchField" label="Search" placeholder="Order number, customer name, phone or document"></x-import></div>
+    <x-import component-from-global-scope="OpsOne.Button" variant="secondary" icon-end="chevron-down" aria-label="Branch scope: all branches">All branches</x-import>
+    <div class="o1-topbar-end">
+      <x-import component-from-global-scope="OpsOne.Button" variant="ghost" icon="info" icon-only="{{ yes }}" aria-label="Help for this page"></x-import>
+      <div style="position: relative; display: inline-flex;">
+        <x-import component-from-global-scope="OpsOne.Button" variant="ghost" icon="bell" icon-only="{{ yes }}" aria-label="Notifications, 5 unread"></x-import>
+        <span style="position: absolute; inset-block-start: 2px; inset-inline-end: 0;"><x-import component-from-global-scope="OpsOne.Counter" value="5"></x-import></span>
+      </div>
+      <button type="button" aria-label="Account menu" style="display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 8px; border: 0; border-radius: 8px; background: transparent; color: var(--text-strong); font: inherit; cursor: pointer;">
+        <x-import component-from-global-scope="OpsOne.Avatar" name="Fahad Alotaibi" size="sm" decorative="{{ yes }}"></x-import>
+        <span style="font-weight: 500;">Fahad Alotaibi</span>
+      </button>
+    </div>
+  </header>
+
+  <main class="o1-main" style="max-width: none; padding: 24px 32px 32px; display: flex; flex-direction: column; gap: 20px;">
+    <x-import component-from-global-scope="OpsOne.Breadcrumbs" items="{{ crumbs }}"></x-import>
+
+    <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap;">
+      <div style="display: flex; flex-direction: column; gap: 8px;">
+        <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+          <h1 style="margin: 0; font-size: 24px; line-height: 36px; font-weight: 700;"><span style="font-family: var(--font-mono); font-weight: 600;">ORD-24518</span> Munira Alshammari</h1>
+          <x-import component-from-global-scope="OpsOne.Badge" tone="brand">Custom</x-import>
+          <x-import component-from-global-scope="OpsOne.Badge" tone="info">In progress</x-import>
+        </div>
+        <div style="display: flex; gap: 24px; flex-wrap: wrap; color: var(--text-weak);">
+          <span>Branch <strong style="color: var(--text-strong); font-weight: 500;">Olaya</strong></span>
+          <span>Owner <strong style="color: var(--text-strong); font-weight: 500;">Noura Aldosari</strong></span>
+          <span>Created <strong style="color: var(--text-strong); font-weight: 500;">8 October 2026</strong> from interest <span style="font-family: var(--font-mono);">INT-0981</span></span>
+        </div>
+      </div>
+      <div style="display: flex; gap: 8px;">
+        <x-import component-from-global-scope="OpsOne.Button" variant="secondary" icon="phone">Call customer</x-import>
+        <x-import component-from-global-scope="OpsOne.Menu" label="Order actions" items="{{ orderMenu }}" variant="secondary"></x-import>
+      </div>
+    </div>
+
+    <section aria-labelledby="now-h" style="display: flex; flex-direction: column; gap: 16px; padding: 20px 24px; background: var(--surface); border: 1px solid var(--stroke-weak); border-radius: 12px;">
+      <h2 id="now-h" class="o1-sr">Where the order stands</h2>
+      <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px;">
+        <div style="display: flex; flex-direction: column; gap: 4px;"><span style="font-size: 14px; line-height: 20px; font-weight: 500; color: var(--text-weak);">Current stage</span><span style="font-weight: 600; font-size: 16px;">Agreement and first payment</span><span style="display: flex; gap: 8px; align-items: center;"><x-import component-from-global-scope="OpsOne.Badge" tone="warning">Waiting on a requirement</x-import><span style="font-size: 13px; color: var(--text-weak);">3 of 5</span></span></div>
+        <div style="display: flex; flex-direction: column; gap: 4px;"><span style="font-size: 14px; line-height: 20px; font-weight: 500; color: var(--text-weak);">Needed now</span><span style="font-weight: 600; font-size: 16px;">Confirm the first payment</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">Customer uploaded a transfer receipt on 20 October</span></div>
+        <div style="display: flex; flex-direction: column; gap: 4px;"><span style="font-size: 14px; line-height: 20px; font-weight: 500; color: var(--text-weak);">Blocked by</span><span style="display: flex; gap: 6px; align-items: center; font-weight: 600; font-size: 16px; color: var(--warning-text);"><x-import component-from-global-scope="OpsOne.Icon" name="triangle-alert"></x-import>Awaiting SAR 5,000 payment</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">The receipt is under review and does not count yet</span></div>
+        <div style="display: flex; flex-direction: column; gap: 4px;"><span style="font-size: 14px; line-height: 20px; font-weight: 500; color: var(--text-weak);">Owner</span><span style="display: flex; gap: 8px; align-items: center;"><x-import component-from-global-scope="OpsOne.Avatar" name="Noura Aldosari" size="sm" decorative="{{ yes }}"></x-import><span style="font-weight: 600;">Noura Aldosari</span></span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">Payment confirmation by the owner or Hind Alanazi</span></div>
+      </div>
+      <div style="display: flex; gap: 8px; flex-wrap: wrap; padding-top: 16px; border-top: 1px solid var(--stroke-weak);">
+        <x-import component-from-global-scope="OpsOne.Button" variant="primary" icon="receipt">Review receipt</x-import>
+        <x-import component-from-global-scope="OpsOne.Button" variant="secondary">Record received payment</x-import>
+        <x-import component-from-global-scope="OpsOne.Button" variant="ghost">Complete stage</x-import>
+      </div>
+    </section>
+
+    <x-import component-from-global-scope="OpsOne.Steps" steps="{{ steps }}" current="{{ two }}" label="Order stages"></x-import>
+
+    <div role="tablist" aria-label="Order sections" class="o1-tablist">
+      <sc-for list="{{ tabs }}" as="t" hint-placeholder-count="6">
+        <a role="tab" href="#" aria-selected="{{ t.sel }}" class="o1-tab" style="position: relative; display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 12px; text-decoration: none; color: {{ t.color }};">{{ t.label }}<sc-if value="{{ t.count }}" hint-placeholder-val="{{ no }}"><x-import component-from-global-scope="OpsOne.Counter" value="{{ t.count }}"></x-import></sc-if></a>
+      </sc-for>
+    </div>
+
+    <div style="display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 24px; align-items: start;">
+      <div style="display: flex; flex-direction: column; gap: 24px;">
+        <section class="o1-card o1-card--flush" aria-labelledby="ms-h">
+          <div class="o1-card-head" style="padding: 20px 24px 0; margin-bottom: 8px;">
+            <div class="o1-card-heading"><h2 id="ms-h" class="o1-card-title">Measurements</h2><p class="o1-card-desc">Approved quote QUO-3307 was built on these. Correcting them shows the impact on the agreement before saving.</p></div>
+            <x-import component-from-global-scope="OpsOne.Button" variant="ghost" size="sm" icon="plus">Record measurement</x-import>
+          </div>
+          <table class="o1-table">
+            <caption class="o1-sr">Order measurements</caption>
+            <thead><tr><th scope="col">Item</th><th scope="col">Type</th><th scope="col">Values</th><th scope="col">Recorded by</th><th scope="col">Attachment</th></tr></thead>
+            <tbody>
+              <tr><td style="font-weight: 500;">Upper and lower kitchen units</td><td><x-import component-from-global-scope="OpsOne.Badge" tone="success">Final</x-import></td><td>Wall A 4.20 m, wall B 3.10 m, height 2.80 m</td><td style="color: var(--text-weak);">Omar Almutairi, 12 October</td><td><a href="#" style="display: inline-flex; align-items: center; min-height: 44px; font-weight: 500;">Measurement sketch</a></td></tr>
+              <tr><td style="font-weight: 500;">Centre island with drawers</td><td><x-import component-from-global-scope="OpsOne.Badge" tone="success">Final</x-import></td><td>2.40 × 1.10 m</td><td style="color: var(--text-weak);">Omar Almutairi, 12 October</td><td><a href="#" style="display: inline-flex; align-items: center; min-height: 44px; font-weight: 500;">2 photos</a></td></tr>
+            </tbody>
+          </table>
+        </section>
+        <section class="o1-card o1-card--flush" aria-labelledby="it-h">
+          <div class="o1-card-head" style="padding: 20px 24px 0; margin-bottom: 8px;"><h2 id="it-h" class="o1-card-title">Items</h2><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">Fixed with approved quote QUO-3307</span></div>
+          <table class="o1-table">
+            <caption class="o1-sr">Order items</caption>
+            <thead><tr><th scope="col">Item</th><th scope="col">Specification</th><th scope="col">Quantity</th></tr></thead>
+            <tbody>
+              <tr><td style="font-weight: 500;">Upper and lower kitchen units</td><td style="color: var(--text-weak);">Matte white lacquered MDF, grey quartz top, hidden handles</td><td>1 unit</td></tr>
+              <tr><td style="font-weight: 500;">Centre island with drawers</td><td style="color: var(--text-weak);">Natural walnut, 4 soft-close drawers</td><td>1 unit</td></tr>
+            </tbody>
+          </table>
+        </section>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 24px;">
+        <section class="o1-card" aria-labelledby="fin-h">
+          <div class="o1-card-head" style="margin-bottom: 12px;"><h2 id="fin-h" class="o1-card-title">Finance</h2><a href="#" style="min-height: 44px; display: inline-flex; align-items: center; font-weight: 500;">Open finance</a></div>
+          <dl style="margin: 0; display: flex; flex-direction: column;">
+            <div style="display: flex; justify-content: space-between; padding: 8px 0;"><dt style="color: var(--text-weak);">Agreement total</dt><dd style="margin: 0;"><x-import component-from-global-scope="OpsOne.Amount" value="18,450.00" strong="{{ yes }}"></x-import></dd></div>
+            <div style="display: flex; justify-content: space-between; padding: 8px 0; border-top: 1px solid var(--stroke-weak);"><dt style="color: var(--text-weak);">Net received</dt><dd style="margin: 0;"><x-import component-from-global-scope="OpsOne.Amount" value="0.00"></x-import></dd></div>
+            <div style="display: flex; justify-content: space-between; padding: 8px 0; border-top: 1px solid var(--stroke-weak);"><dt style="color: var(--text-weak);">Remaining</dt><dd style="margin: 0;"><x-import component-from-global-scope="OpsOne.Amount" value="18,450.00"></x-import></dd></div>
+            <div style="display: flex; justify-content: space-between; padding: 8px 0; border-top: 1px solid var(--stroke-weak);"><dt style="font-weight: 600;">Due now</dt><dd style="margin: 0;"><x-import component-from-global-scope="OpsOne.Amount" value="5,000.00" strong="{{ yes }}"></x-import></dd></div>
+          </dl>
+          <div style="margin-top: 12px; display: flex; justify-content: space-between; gap: 12px; align-items: center; padding: 12px; background: var(--warning-bg); border-radius: 8px;">
+            <span style="display: flex; flex-direction: column;"><span style="font-weight: 500;">Receipt under review</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">Not counted until confirmed</span></span>
+            <x-import component-from-global-scope="OpsOne.Amount" value="5,000.00"></x-import>
+          </div>
+        </section>
+        <section class="o1-card" aria-labelledby="cu-h">
+          <div class="o1-card-head" style="margin-bottom: 12px;"><h2 id="cu-h" class="o1-card-title">Customer</h2><a href="#" style="min-height: 44px; display: inline-flex; align-items: center; font-weight: 500;">Open profile</a></div>
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            <span style="font-weight: 600;">Munira Alshammari</span>
+            <span>+966 55 214 7781</span>
+            <span style="color: var(--text-weak);">Al Yasmin, Prince Saud bin Abdullah St, Riyadh</span>
+          </div>
+        </section>
+      </div>
+    </div>
+  </main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1700}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const noop = () => {};
+    return {
+      yes: true, no: false, h28: 28, two: 2,
+      crumbs: [ { label: 'Orders', href: '#' }, { label: 'ORD-24518' } ],
+      orderMenu: [
+        { id: 'pause', label: 'Pause order', icon: 'clock', onSelect: noop },
+        { id: 'rework', label: 'Rework a completed action', icon: 'refresh-cw', onSelect: noop },
+        { id: 'future', label: 'Edit upcoming work', icon: 'pencil', onSelect: noop },
+        { id: 'branch', label: 'Move to another branch', icon: 'map-pin', onSelect: noop },
+        { separator: true },
+        { id: 'cancel', label: 'Record cancellation request', icon: 'circle-x', danger: true, onSelect: noop }
+      ],
+      steps: [
+        { label: 'Measurement and survey', description: 'Completed 12 October' },
+        { label: 'Design and quote', description: 'Completed 18 October' },
+        { label: 'Agreement and first payment', description: 'Waiting on a requirement' },
+        { label: 'Production', description: 'Target 14 days' },
+        { label: 'Installation and delivery', description: 'Not started' }
+      ],
+      tabs: [
+        { label: 'Overview', sel: 'true', color: 'var(--text-strong)', count: '' },
+        { label: 'Stages and tasks', sel: 'false', color: 'var(--text-weak)', count: '2' },
+        { label: 'Agreement and documents', sel: 'false', color: 'var(--text-weak)', count: '' },
+        { label: 'Finance', sel: 'false', color: 'var(--text-weak)', count: '' },
+        { label: 'Delivery', sel: 'false', color: 'var(--text-weak)', count: '' },
+        { label: 'Activity', sel: 'false', color: 'var(--text-weak)', count: '' }
+      ],
+      actions: [
+        { icon: 'circle-check', iconColor: 'var(--success-text)', name: 'Customer approval of quote QUO-3307', result: 'Met', tone: 'success', cat: 'Approval, required', meta: 'Approved from her account on 19 October', btn: '' },
+        { icon: 'clock', iconColor: 'var(--warning-text)', name: 'Payment check: first payment SAR 5,000.00', result: 'Awaiting result', tone: 'warning', cat: 'Finance, required', meta: 'Transfer receipt under review since 20 October', btn: 'Review receipt' },
+        { icon: 'paperclip', iconColor: 'var(--info-text)', name: 'Attach signed contract', result: 'Ready to work', tone: 'info', cat: 'Documents, optional', meta: 'In the Sales department inbox, unassigned', btn: 'Assign' }
+      ],
+      nav: [
+        { label: 'Home', icon: 'layout-dashboard', href: '#', active: false },
+        { label: 'Orders', icon: 'clipboard-list', href: '#', active: true },
+        { label: 'Customers', icon: 'users', href: '#', active: false },
+        { label: 'Tasks and appointments', icon: 'calendar', href: '#', active: false },
+        { label: 'Finance', icon: 'receipt', href: '#', active: false },
+        { label: 'Inventory and supply', icon: 'package', href: '#', active: false },
+        { label: 'Website', icon: 'file-text', href: '#', active: false },
+        { label: 'Reports', icon: 'trending-up', href: '#', active: false }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

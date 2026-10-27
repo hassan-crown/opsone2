@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>صفحة المهمة على الجوال</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/opsone/tokens.css">
+<link rel="stylesheet" href="ds/opsone/components/bundle.css">
+<script src="ds/opsone/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:var(--link)}a:hover{color:var(--brand-hover)}
+</style>
+</helmet>
+<div dir="rtl" data-surface="panel" style="width: 390px; min-height: 1500px; display: flex; flex-direction: column; background: var(--background); color: var(--text-strong); font-family: var(--font-sans); font-size: 14px; line-height: 24px;">
+  <header style="display: flex; align-items: center; gap: 4px; min-height: 64px; padding-inline: 8px 8px; background: var(--surface); border-bottom: 1px solid var(--stroke-weak);">
+    <x-import component-from-global-scope="OpsOne.Button" variant="ghost" icon="arrow-left" icon-only="{{ yes }}" aria-label="رجوع إلى الرئيسية" href="ExecHomeMobile.dc.html"></x-import>
+    <span style="font-weight: 600;">مهمتي</span>
+    <div style="margin-inline-start: auto; display: flex;"></div>
+  </header>
+  <main style="padding: 16px; display: flex; flex-direction: column; gap: 16px;">
+    <div style="display: flex; flex-direction: column; gap: 6px;"><h1 style="margin: 0; font-size: 24px; line-height: 36px; font-weight: 700;">تركيب الخزائن</h1><span style="display: flex; gap: 8px; align-items: center;"><x-import component-from-global-scope="OpsOne.Badge" tone="info">قيد التنفيذ</x-import><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">ORD-24476، التركيب والتسليم</span></span></div>
+    <section aria-labelledby="t1" style="display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--stroke-weak); border-radius: 12px;">
+      <h2 id="t1" style="margin: 0; padding: 12px 16px 8px; font-size: 16px; line-height: 26px; font-weight: 600;">الزيارة</h2>
+      <div style="display: flex; flex-direction: column; gap: 6px; padding: 12px 16px; border-top: 1px solid var(--stroke-weak);">
+        <span style="font-weight: 600;">اليوم 13:30، ساعتان ونصف</span>
+        <span style="color: var(--text-weak);">لطيفة الحربي. حي الملقا، شارع أنس بن مالك، فيلا 14</span>
+        <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px;"><x-import component-from-global-scope="OpsOne.Button" variant="secondary" icon="phone" block="{{ yes }}">اتصال</x-import><x-import component-from-global-scope="OpsOne.Button" variant="secondary" icon="map-pin" block="{{ yes }}">الخرائط</x-import></div>
+      </div>
+    </section>
+    <section aria-labelledby="t2" style="display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--stroke-weak); border-radius: 12px;">
+      <h2 id="t2" style="margin: 0; padding: 12px 16px 8px; font-size: 16px; line-height: 26px; font-weight: 600;">المطلوب</h2>
+      <div style="display: flex; flex-direction: column; gap: 6px; padding: 12px 16px; border-top: 1px solid var(--stroke-weak);">
+        <span>خزانة ملابس بأبواب منزلقة <bdi dir="ltr">1</bdi>، وحدة تلفاز معلقة <bdi dir="ltr">1</bdi>، رف مكتب <bdi dir="ltr">2</bdi>.</span>
+        <a href="#" style="display: inline-flex; align-items: center; gap: 8px; min-height: 44px; font-weight: 500;"><x-import component-from-global-scope="OpsOne.Icon" name="file-text"></x-import>التصميم المعتمد</a>
+      </div>
+    </section>
+    <section aria-labelledby="t3" style="display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--stroke-weak); border-radius: 12px;">
+      <h2 id="t3" style="margin: 0; padding: 12px 16px 8px; font-size: 16px; line-height: 26px; font-weight: 600;">النتيجة</h2>
+      <div style="display: flex; flex-direction: column; gap: 6px; padding: 12px 16px; border-top: 1px solid var(--stroke-weak);">
+        <x-import component-from-global-scope="OpsOne.TextField" label="ملاحظات" default-value="رُكبت الخزانة والوحدة ورف واحد. الرف الثاني تالف من النقل." multiline="{{ yes }}"></x-import>
+        <x-import component-from-global-scope="OpsOne.FileUpload" label="صور بعد التركيب" files="{{ photos }}" on-select="{{ noop }}" on-remove="{{ noop }}"></x-import>
+      </div>
+    </section>
+    <div style="display: flex; flex-direction: column; gap: 8px;"><x-import component-from-global-scope="OpsOne.Button" variant="primary" icon="check" block="{{ yes }}">إتمام المهمة</x-import><x-import component-from-global-scope="OpsOne.Button" variant="secondary" href="DelMobile.dc.html" block="{{ yes }}">تسجيل التسليم</x-import><x-import component-from-global-scope="OpsOne.Button" variant="ghost" icon="clock" href="TaskWaiting.dc.html" block="{{ yes }}">بانتظار حاجة</x-import></div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview": {"width": 390, "height": 1500}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const noop = () => {};
+    return { yes: true, no: false, h28: 28, h24: 24, s16: 16, noop, photos: [ { id: 'p1', name: 'خزانة-بعد-التركيب.jpg', size: 1840220, status: 'done' } ] };
+  }
+}
+</script>
+</body>
+</html>

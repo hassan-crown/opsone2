@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>حالات الموقع والتذاكر</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/opsone/tokens.css">
+<link rel="stylesheet" href="ds/opsone/components/bundle.css">
+<script src="ds/opsone/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:var(--link)}a:hover{color:var(--brand-hover)}
+</style>
+</helmet>
+<div dir="rtl" data-surface="panel" style="width: 1440px; min-height: 1100px; box-sizing: border-box; padding: 40px; display: flex; flex-direction: column; gap: 24px; background: var(--background); color: var(--text-strong); font-family: var(--font-sans); font-size: 14px; line-height: 24px;"><h1 style="margin: 0; font-size: 24px; line-height: 36px; font-weight: 700;">حالات الموقع والتذاكر</h1><section class="o1-card o1-card--flush" aria-label="تذكرة العميل"><div class="o1-card-head" style="padding: 20px 24px 0; margin-bottom: 8px;"><h2 class="o1-card-title">تذكرة العميل</h2></div><table class="o1-table"><caption class="o1-sr">تذكرة العميل</caption><thead><tr><th scope="col" style="width: 220px;">الحالة</th><th scope="col">ما تعنيه</th><th scope="col">ما يتاح</th></tr></thead><tbody><tr><td><x-import component-from-global-scope="OpsOne.Badge" tone="info">جديدة</x-import></td><td>وصلت من حساب العميل؛ مسؤولها مسؤول الطلب، أو مسؤول التذاكر العامة إن لم ترتبط بطلب.</td><td style="color: var(--text-weak);">تولي، رد</td></tr><tr><td><x-import component-from-global-scope="OpsOne.Badge" tone="info">قيد المعالجة</x-import></td><td>يعمل عليها المسؤول.</td><td style="color: var(--text-weak);">رد، طلب معلومات، إنشاء مهمة، حل</td></tr><tr><td><x-import component-from-global-scope="OpsOne.Badge" tone="warning">بانتظار العميل</x-import></td><td>سؤال للعميل؛ رده يعيدها للمعالجة.</td><td style="color: var(--text-weak);">تذكير</td></tr><tr><td><x-import component-from-global-scope="OpsOne.Badge" tone="success">محلولة</x-import></td><td>بوصف المعالجة؛ ليست تسوية مالية ولا تسليمًا.</td><td style="color: var(--text-weak);">إغلاق، إعادة فتح برد العميل</td></tr><tr><td><x-import component-from-global-scope="OpsOne.Badge" tone="neutral">مغلقة</x-import></td><td>انتهت.</td><td style="color: var(--text-weak);">إعادة فتح لمشكلة مستمرة</td></tr></tbody></table></section><section class="o1-card o1-card--flush" aria-label="صفحة الموقع"><div class="o1-card-head" style="padding: 20px 24px 0; margin-bottom: 8px;"><h2 class="o1-card-title">صفحة الموقع</h2></div><table class="o1-table"><caption class="o1-sr">صفحة الموقع</caption><thead><tr><th scope="col" style="width: 220px;">الحالة</th><th scope="col">ما تعنيه</th><th scope="col">ما يتاح</th></tr></thead><tbody><tr><td><x-import component-from-global-scope="OpsOne.Badge" tone="neutral">مسودة</x-import></td><td>لم تُنشر بعد.</td><td style="color: var(--text-weak);">معاينة، نشر</td></tr><tr><td><x-import component-from-global-scope="OpsOne.Badge" tone="success">منشور</x-import></td><td>ظاهر للزوار.</td><td style="color: var(--text-weak);">تحرير، إلغاء النشر إن سمحت السياسة، أرشفة لصفحة المحتوى</td></tr><tr><td><x-import component-from-global-scope="OpsOne.Badge" tone="warning">منشور مع مسودة تعديل</x-import></td><td>المنشور ظاهر، والتعديل مسودة للمعاينة.</td><td style="color: var(--text-weak);">نشر التعديل، تجاهل المسودة</td></tr><tr><td><x-import component-from-global-scope="OpsOne.Badge" tone="neutral">مؤرشف</x-import></td><td>مخفية؛ رابطها يتحول للرئيسية.</td><td style="color: var(--text-weak);">استعادة، تعود مسودة</td></tr></tbody></table></section><section class="o1-card o1-card--flush" aria-label="هوية الموقع"><div class="o1-card-head" style="padding: 20px 24px 0; margin-bottom: 8px;"><h2 class="o1-card-title">هوية الموقع</h2></div><table class="o1-table"><caption class="o1-sr">هوية الموقع</caption><thead><tr><th scope="col" style="width: 220px;">الحالة</th><th scope="col">ما تعنيه</th><th scope="col">ما يتاح</th></tr></thead><tbody><tr><td><x-import component-from-global-scope="OpsOne.Badge" tone="success">منشور افتراضي</x-import></td><td>الهوية الافتراضية (Alpha) كما سُلمت.</td><td style="color: var(--text-weak);">تحرير</td></tr><tr><td><x-import component-from-global-scope="OpsOne.Badge" tone="success">منشور مخصص</x-import></td><td>هوية الجهة مطبقة.</td><td style="color: var(--text-weak);">تحرير، استعادة الافتراضي</td></tr><tr><td><x-import component-from-global-scope="OpsOne.Badge" tone="warning">منشور مع مسودة تعديل</x-import></td><td>المنشور ظاهر، والمسودة للمعاينة فقط.</td><td style="color: var(--text-weak);">تطبيق، تجاهل المسودة</td></tr></tbody></table></section></div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview": {"width": 1440, "height": 1100}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const noop = () => {};
+    return { yes: true, no: false, h28: 28, h24: 24, s16: 16, s24: 24 };
+  }
+}
+</script>
+</body>
+</html>

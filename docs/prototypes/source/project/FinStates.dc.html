@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>حالات المالية</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/opsone/tokens.css">
+<link rel="stylesheet" href="ds/opsone/components/bundle.css">
+<script src="ds/opsone/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:var(--link)}a:hover{color:var(--brand-hover)}
+</style>
+</helmet>
+<div dir="rtl" data-surface="panel" style="width: 1440px; min-height: 3200px; box-sizing: border-box; padding: 40px; display: flex; flex-direction: column; gap: 24px; background: var(--background); color: var(--text-strong); font-family: var(--font-sans); font-size: 14px; line-height: 24px;">
+  <h1 style="margin: 0; font-size: 24px; line-height: 36px; font-weight: 700;">حالات المالية</h1>
+  <section class="o1-card o1-card--flush" aria-label="إثبات تحويل العميل">
+      <div class="o1-card-head" style="padding: 20px 24px 0; margin-bottom: 8px;"><h2 class="o1-card-title">إثبات تحويل العميل</h2></div>
+      <table class="o1-table">
+        <caption class="o1-sr">إثبات تحويل العميل</caption>
+        <thead><tr><th scope="col" style="width: 180px;">الحالة</th><th scope="col">ما تعنيه</th><th scope="col">ما يتاح</th></tr></thead>
+        <tbody>
+          <tr><td><x-import component-from-global-scope="OpsOne.Badge" tone="warning">قيد المراجعة</x-import></td><td>رفعه العميل ولا يُحتسب.</td><td style="color: var(--text-weak);">تأكيد الاستلام، طلب تصحيح، إلغاء</td></tr>
+          <tr><td><x-import component-from-global-scope="OpsOne.Badge" tone="warning">يحتاج تصحيحًا</x-import></td><td>وصل العميل سبب واضح ليرفع بديلًا؛ السابق محفوظ.</td><td style="color: var(--text-weak);">انتظار البديل، إلغاء</td></tr>
+          <tr><td><x-import component-from-global-scope="OpsOne.Badge" tone="success">مؤكد</x-import></td><td>نشأ منه مقبوض وسند واحد مرتبطان به.</td><td style="color: var(--text-weak);">تصحيح من سجل القبض فقط</td></tr>
+          <tr><td><x-import component-from-global-scope="OpsOne.Badge" tone="danger">ملغى</x-import></td><td>أُلغي قبل نشوء قبض.</td><td style="color: var(--text-weak);">عرض فقط</td></tr>
+        </tbody>
+      </table>
+    </section>
+  <section class="o1-card o1-card--flush" aria-label="معاملة التحصيل">
+      <div class="o1-card-head" style="padding: 20px 24px 0; margin-bottom: 8px;"><h2 class="o1-card-title">معاملة التحصيل</h2></div>
+      <table class="o1-table">
+        <caption class="o1-sr">معاملة التحصيل</caption>
+        <thead><tr><th scope="col" style="width: 180px;">الحالة</th><th scope="col">ما تعنيه</th><th scope="col">ما يتاح</th></tr></thead>
+        <tbody>
+          <tr><td><x-import component-from-global-scope="OpsOne.Badge" tone="neutral">مسجلة</x-import></td><td>أُدخلت يدويًا ولم تُؤكد بعد.</td><td style="color: var(--text-weak);">تأكيد، إلغاء</td></tr>
+          <tr><td><x-import component-from-global-scope="OpsOne.Badge" tone="warning">قيد التأكيد</x-import></td><td>دفع إلكتروني بانتظار نتيجة المزود؛ صفحة الرجوع لا تكفي.</td><td style="color: var(--text-weak);">انتظار، إلغاء إن لم يحصل مال</td></tr>
+          <tr><td><x-import component-from-global-scope="OpsOne.Badge" tone="warning">غير محسومة</x-import></td><td>انقطع الاتصال؛ لا نجاح ولا فشل مفترض.</td><td style="color: var(--text-weak);">استعلام بالمرجع نفسه</td></tr>
+          <tr><td><x-import component-from-global-scope="OpsOne.Badge" tone="success">مؤكدة</x-import></td><td>مقبوض بسند مرقم ومخصص مرة واحدة.</td><td style="color: var(--text-weak);">تصحيح، طلب استرداد، نزاع</td></tr>
+          <tr><td><x-import component-from-global-scope="OpsOne.Badge" tone="danger">فاشلة</x-import></td><td>لم يحصل مال، ولا سند.</td><td style="color: var(--text-weak);">عرض فقط</td></tr>
+          <tr><td><x-import component-from-global-scope="OpsOne.Badge" tone="danger">ملغاة</x-import></td><td>أُلغيت قبل حصول مال.</td><td style="color: var(--text-weak);">عرض فقط</td></tr>
+          <tr><td><x-import component-from-global-scope="OpsOne.Badge" tone="neutral">مصححة</x-import></td><td>لها حركة تصحيح مرتبطة، والسند الأصلي باقٍ.</td><td style="color: var(--text-weak);">عرض فقط</td></tr>
+        </tbody>
+      </table>
+    </section>
+  <section class="o1-card o1-card--flush" aria-label="الاسترداد">
+      <div class="o1-card-head" style="padding: 20px 24px 0; margin-bottom: 8px;"><h2 class="o1-card-title">الاسترداد</h2></div>
+      <table class="o1-table">
+        <caption class="o1-sr">الاسترداد</caption>
+        <thead><tr><th scope="col" style="width: 180px;">الحالة</th><th scope="col">ما تعنيه</th><th scope="col">ما يتاح</th></tr></thead>
+        <tbody>
+          <tr><td><x-import component-from-global-scope="OpsOne.Badge" tone="warning">مطلوب</x-import></td><td>طُلب الرد ولم يُنفذ؛ المبلغ محجوز من القابل للرد ولم ينقص المقبوض.</td><td style="color: var(--text-weak);">تنفيذ، عدول</td></tr>
+          <tr><td><x-import component-from-global-scope="OpsOne.Badge" tone="info">قيد التنفيذ</x-import></td><td>أُرسل للمزود أو للتنفيذ الخارجي.</td><td style="color: var(--text-weak);">تأكيد النتيجة</td></tr>
+          <tr><td><x-import component-from-global-scope="OpsOne.Badge" tone="warning">غير محسوم</x-import></td><td>النتيجة مجهولة؛ يبقى المبلغ محجوزًا.</td><td style="color: var(--text-weak);">استعلام، لا رد جديد</td></tr>
+          <tr><td><x-import component-from-global-scope="OpsOne.Badge" tone="success">منفذ</x-import></td><td>نقص صافي المقبوض مرة واحدة بإثبات.</td><td style="color: var(--text-weak);">عرض فقط</td></tr>
+          <tr><td><x-import component-from-global-scope="OpsOne.Badge" tone="danger">فاشل</x-import></td><td>لم يخرج مال، وحُرر الحجز.</td><td style="color: var(--text-weak);">إعادة المحاولة بعد فحص الحد</td></tr>
+          <tr><td><x-import component-from-global-scope="OpsOne.Badge" tone="danger">ملغى</x-import></td><td>عدول قبل إرسال أي رد.</td><td style="color: var(--text-weak);">عرض فقط</td></tr>
+        </tbody>
+      </table>
+    </section>
+  <section class="o1-card o1-card--flush" aria-label="صرف العمولة">
+      <div class="o1-card-head" style="padding: 20px 24px 0; margin-bottom: 8px;"><h2 class="o1-card-title">صرف العمولة</h2></div>
+      <table class="o1-table">
+        <caption class="o1-sr">صرف العمولة</caption>
+        <thead><tr><th scope="col" style="width: 180px;">الحالة</th><th scope="col">ما تعنيه</th><th scope="col">ما يتاح</th></tr></thead>
+        <tbody>
+          <tr><td><x-import component-from-global-scope="OpsOne.Badge" tone="neutral">مسودة</x-import></td><td>قائمة صرف قيد الإعداد.</td><td style="color: var(--text-weak);">اعتماد، عدول</td></tr>
+          <tr><td><x-import component-from-global-scope="OpsOne.Badge" tone="warning">محجوز</x-import></td><td>المبلغ محجوز من المتاح لهذا الصرف.</td><td style="color: var(--text-weak);">إثبات الصرف، عدول</td></tr>
+          <tr><td><x-import component-from-global-scope="OpsOne.Badge" tone="success">مصروف</x-import></td><td>خرج المال بإثبات ومرجع.</td><td style="color: var(--text-weak);">تصحيح الصرف</td></tr>
+          <tr><td><x-import component-from-global-scope="OpsOne.Badge" tone="danger">ملغى</x-import></td><td>عدول قبل الصرف وحُرر الحجز.</td><td style="color: var(--text-weak);">عرض فقط</td></tr>
+          <tr><td><x-import component-from-global-scope="OpsOne.Badge" tone="neutral">مصحح</x-import></td><td>له حركة تصحيح مرتبطة، والأصل محفوظ.</td><td style="color: var(--text-weak);">عرض فقط</td></tr>
+        </tbody>
+      </table>
+    </section>
+  <section class="o1-card o1-card--flush" aria-label="استحقاق الدفعة">
+      <div class="o1-card-head" style="padding: 20px 24px 0; margin-bottom: 8px;"><h2 class="o1-card-title">استحقاق الدفعة</h2></div>
+      <table class="o1-table">
+        <caption class="o1-sr">استحقاق الدفعة</caption>
+        <thead><tr><th scope="col" style="width: 180px;">الحالة</th><th scope="col">ما تعنيه</th><th scope="col">ما يتاح</th></tr></thead>
+        <tbody>
+          <tr><td><x-import component-from-global-scope="OpsOne.Badge" tone="neutral">غير مستحق</x-import></td><td>لم يحل تاريخه أو حدثه.</td><td style="color: var(--text-weak);">تعديل الجدول</td></tr>
+          <tr><td><x-import component-from-global-scope="OpsOne.Badge" tone="warning">مستحق</x-import></td><td>حل موعده ولم يُسدد. يُعلّم متأخرًا بعد الموعد.</td><td style="color: var(--text-weak);">تسجيل دفعة، تذكير</td></tr>
+          <tr><td><x-import component-from-global-scope="OpsOne.Badge" tone="warning">مسدد جزئيًا</x-import></td><td>خُصص له جزء من مقبوض مؤكد.</td><td style="color: var(--text-weak);">تسجيل الباقي</td></tr>
+          <tr><td><x-import component-from-global-scope="OpsOne.Badge" tone="success">مسدد</x-import></td><td>غطاه مقبوض مؤكد؛ الإيصال المعلق لا يكفي.</td><td style="color: var(--text-weak);">عرض فقط</td></tr>
+        </tbody>
+      </table>
+    </section>
+  <section class="o1-card o1-card--flush" aria-label="مستند محاسبة خارجي">
+      <div class="o1-card-head" style="padding: 20px 24px 0; margin-bottom: 8px;"><h2 class="o1-card-title">مستند محاسبة خارجي</h2></div>
+      <table class="o1-table">
+        <caption class="o1-sr">مستند محاسبة خارجي</caption>
+        <thead><tr><th scope="col" style="width: 180px;">الحالة</th><th scope="col">ما تعنيه</th><th scope="col">ما يتاح</th></tr></thead>
+        <tbody>
+          <tr><td><x-import component-from-global-scope="OpsOne.Badge" tone="warning">مطلوب</x-import></td><td>حدث فوترة بلا مستند مربوط.</td><td style="color: var(--text-weak);">ربط فاتورة</td></tr>
+          <tr><td><x-import component-from-global-scope="OpsOne.Badge" tone="warning">مرفق بانتظار المراجعة</x-import></td><td>رُبط ولم يُراجع.</td><td style="color: var(--text-weak);">قبول، طلب تصحيح</td></tr>
+          <tr><td><x-import component-from-global-scope="OpsOne.Badge" tone="success">مقبول</x-import></td><td>رُبط وروجع داخليًا؛ ليس إثبات امتثال.</td><td style="color: var(--text-weak);">عرض فقط</td></tr>
+          <tr><td><x-import component-from-global-scope="OpsOne.Badge" tone="warning">يحتاج تصحيحًا</x-import></td><td>ينقصه ملف أو بيان.</td><td style="color: var(--text-weak);">تصحيح الربط</td></tr>
+        </tbody>
+      </table>
+    </section>
+  <section class="o1-card o1-card--flush" aria-label="النزاع المالي">
+      <div class="o1-card-head" style="padding: 20px 24px 0; margin-bottom: 8px;"><h2 class="o1-card-title">النزاع المالي</h2></div>
+      <table class="o1-table">
+        <caption class="o1-sr">النزاع المالي</caption>
+        <thead><tr><th scope="col" style="width: 180px;">الحالة</th><th scope="col">ما تعنيه</th><th scope="col">ما يتاح</th></tr></thead>
+        <tbody>
+          <tr><td><x-import component-from-global-scope="OpsOne.Badge" tone="warning">مفتوح</x-import></td><td>يمنع إقفال الطلب، ويحجز عمولة الجزء المتأثر.</td><td style="color: var(--text-weak);">معالجة، حسم بإثبات</td></tr>
+          <tr><td><x-import component-from-global-scope="OpsOne.Badge" tone="warning">بانتظار جهة خارجية</x-import></td><td>ينتظر البنك أو المزود.</td><td style="color: var(--text-weak);">متابعة، حسم بإثبات</td></tr>
+          <tr><td><x-import component-from-global-scope="OpsOne.Badge" tone="success">محسوم</x-import></td><td>حُسم بإثبات المعالجة؛ الرد أو التصحيح من إجرائه.</td><td style="color: var(--text-weak);">عرض فقط</td></tr>
+        </tbody>
+      </table>
+    </section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview": {"width": 1440, "height": 3200}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const noop = () => {};
+    return { yes: true, no: false, h28: 28, h24: 24, s16: 16 };
+  }
+}
+</script>
+</body>
+</html>

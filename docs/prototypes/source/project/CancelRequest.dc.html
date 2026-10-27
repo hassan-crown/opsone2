@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>طلب إلغاء</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/opsone/tokens.css">
+<link rel="stylesheet" href="ds/opsone/components/bundle.css">
+<script src="ds/opsone/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:var(--link)}a:hover{color:var(--brand-hover)}
+.o1h{transition:border-color 120ms,transform 200ms;overflow:hidden}.o1h:hover{border-color:var(--brand)!important;transform:translateY(-2px)}.o1h .o1h-img{transition:transform 300ms}.o1h:hover .o1h-img{transform:scale(1.03)}.o1-snap{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;padding-bottom:4px}.o1-snap::-webkit-scrollbar{display:none}.o1-snap>*{scroll-snap-align:start;flex:0 0 var(--snap-w,85%)}@media (prefers-reduced-motion:reduce){.o1h,.o1h .o1h-img{transition:none}.o1h:hover{transform:none}}
+</style>
+</helmet>
+<div dir="rtl" data-surface="site" style="width: 390px; min-height: 1100px; display: flex; flex-direction: column; background: var(--background); color: var(--text-strong); font-family: var(--font-sans); font-size: 16px; line-height: 28px;"><header class="o1-site" style="position: relative;"><div class="o1-site-inner"><a href="SiteHome.dc.html" class="o1-site-brand" style="text-decoration: none;" aria-label="مطابخ الركن الحديث، الرئيسية"><span style="display: inline-flex; align-items: center; gap: 10px; color: var(--text-strong);"><span aria-hidden="true" style="width: 32px; height: 32px; border-radius: 8px; background: var(--brand); color: var(--on-brand); display: inline-grid; place-items: center; font-weight: 700;">ر</span><span style="font-weight: 700; font-size: 16px;">مطابخ الركن الحديث</span></span></a><nav aria-label="القائمة" class="o1-site-nav"><ul class="o1-site-links"><li><a href="SiteHome.dc.html" class="o1-site-link">الرئيسية</a></li><li><a href="#" class="o1-site-link">أعمالنا</a></li><li><a href="StoreList.dc.html" class="o1-site-link">المتجر</a></li><li><a href="InterestForm.dc.html" class="o1-site-link">تواصل معنا</a></li></ul></nav><div class="o1-site-actions"></div><a href="Checkout.dc.html" class="o1-btn o1-btn--secondary o1-btn--sm" style="gap: 8px; text-decoration: none; margin-inline-start: auto;">السلة</a><button type="button" class="o1-icon-btn o1-site-menu" aria-label="فتح القائمة"><x-import component-from-global-scope="OpsOne.Icon" name="menu"></x-import></button></div></header><div style="display: flex; align-items: center; gap: 4px; min-height: 52px; padding: 0 8px; background: var(--surface); border-bottom: 1px solid var(--stroke-weak);"><x-import component-from-global-scope="OpsOne.Button" variant="ghost" icon="arrow-left" icon-only="{{ yes }}" aria-label="رجوع" href="CustOrders.dc.html"></x-import><span style="font-size: 14px; color: var(--text-weak);">حسابي</span><span style="color: var(--text-weak);">/</span><span style="font-weight: 600;">طلب إلغاء</span></div><main id="o1-main" style="flex: 1; padding: 20px 16px 24px; display: flex; flex-direction: column; gap: 16px;"><div style="display: flex; flex-direction: column; gap: 4px;"><h1 style="margin: 0; font-size: 24px; line-height: 36px; font-weight: 700;">طلب إلغاء</h1><span style="color: var(--text-weak);">ORD-24467، تركي العسيري.</span></div><x-import component-from-global-scope="OpsOne.SelectField" label="السبب" options="{{ rs }}" default-value="r2" required="{{ yes }}"></x-import><x-import component-from-global-scope="OpsOne.TextField" label="التفاصيل" default-value="تأخر البناء وسنؤجل المطبخ سنة تقريبًا." multiline="{{ yes }}" required="{{ yes }}"></x-import><div style="display: flex; flex-direction: column; gap: 8px; padding: 12px 16px; background: var(--fill); border-radius: 8px;">
+      <span style="font-weight: 600;">قبل الإرسال</span>
+      <span style="display: flex; gap: 8px;"><span style="color: var(--info-text); display: inline-flex;"><x-import component-from-global-scope="OpsOne.Icon" name="info" size="{{ s16 }}"></x-import></span><span>لا يُلغى الطلب بإرسالك؛ تراجعه الجهة وتبلغك بقرارها.</span></span>
+      <span style="display: flex; gap: 8px;"><span style="color: var(--info-text); display: inline-flex;"><x-import component-from-global-scope="OpsOne.Icon" name="info" size="{{ s16 }}"></x-import></span><span>تتوقف الأعمال الجديدة حتى القرار، ويُحسب ما نُفذ وما دفعته في التسوية.</span></span>
+      <span style="display: flex; gap: 8px;"><span style="color: var(--success-text); display: inline-flex;"><x-import component-from-global-scope="OpsOne.Icon" name="check" size="{{ s16 }}"></x-import></span><span>يمكنك سحب الطلب قبل القرار.</span></span>
+    </div><x-import component-from-global-scope="OpsOne.Button" variant="primary" block="{{ yes }}">إرسال طلب الإلغاء</x-import><x-import component-from-global-scope="OpsOne.Button" variant="ghost" href="CustOrders.dc.html" block="{{ yes }}">تراجع</x-import></main><nav aria-label="أقسام حسابي" style="position: sticky; bottom: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); background: var(--surface); border-top: 1px solid var(--stroke-weak);"><a href="CustHome.dc.html" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; min-height: 60px; text-decoration: none; font-size: 13px; line-height: 18px; font-weight: 500; color: var(--text-weak);"><x-import component-from-global-scope="OpsOne.Icon" name="layout-dashboard"></x-import>نظرة عامة</a><a href="CustOrders.dc.html" aria-current="page" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; min-height: 60px; text-decoration: none; font-size: 13px; line-height: 18px; font-weight: 600; color: var(--brand-subtle-text);"><x-import component-from-global-scope="OpsOne.Icon" name="clipboard-list"></x-import>طلباتي</a><a href="CustDocs.dc.html" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; min-height: 60px; text-decoration: none; font-size: 13px; line-height: 18px; font-weight: 500; color: var(--text-weak);"><x-import component-from-global-scope="OpsOne.Icon" name="file-text"></x-import>المستندات</a><a href="CustSupport.dc.html" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; min-height: 60px; text-decoration: none; font-size: 13px; line-height: 18px; font-weight: 500; color: var(--text-weak);"><x-import component-from-global-scope="OpsOne.Icon" name="phone"></x-import>الدعم</a><a href="CustAccount.dc.html" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; min-height: 60px; text-decoration: none; font-size: 13px; line-height: 18px; font-weight: 500; color: var(--text-weak);"><x-import component-from-global-scope="OpsOne.Icon" name="settings"></x-import>الإعدادات</a></nav></div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview": {"width": 390, "height": 1100}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const noop = () => {};
+    return { yes: true, no: false, h28: 28, h24: 24, s16: 16, s24: 24, rs: [ { value: 'r1', label: 'تغيرت الحاجة' }, { value: 'r2', label: 'التأخير' }, { value: 'r3', label: 'سبب آخر' } ] };
+  }
+}
+</script>
+</body>
+</html>

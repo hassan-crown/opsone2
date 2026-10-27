@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>تسجيل دفعة</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/opsone/tokens.css">
+<link rel="stylesheet" href="ds/opsone/components/bundle.css">
+<script src="ds/opsone/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:var(--link)}a:hover{color:var(--brand-hover)}
+</style>
+</helmet>
+<div dir="rtl" data-surface="panel" style="position: relative; width: 1440px; height: 1000px; overflow: hidden; background: var(--background); color: var(--text-strong); font-family: var(--font-sans); font-size: 14px; line-height: 24px;">
+  <div aria-hidden="true" inert="" style="position: absolute; inset: 0;">
+    <dc-import name="FinOrder" hint-size="1440px,1700px"></dc-import>
+  </div>
+  <div aria-hidden="true" style="position: absolute; inset: 0; background: var(--overlay);"></div>
+
+  <div role="dialog" aria-modal="true" aria-labelledby="d-t" aria-describedby="d-d" class="o1-dialog o1-dialog--lg" style="position: absolute; inset: 0; margin: auto; height: fit-content;">
+    <div class="o1-dialog-inner">
+    <div class="o1-dialog-head">
+      <h2 id="d-t" class="o1-dialog-title">تسجيل دفعة لـ <bdi dir="ltr" style="font-family: var(--font-mono);">ORD-24518</bdi></h2>
+      <button type="button" class="o1-dialog-close" aria-label="إغلاق"><x-import component-from-global-scope="OpsOne.Icon" name="x"></x-import></button>
+    </div>
+    <p id="d-d" class="o1-dialog-desc">يصدر سند قبض فور الحفظ، دون موافقة ثانية.</p>
+    
+    <x-import component-from-global-scope="OpsOne.Alert" tone="warning" title="إيصال بالمبلغ نفسه قيد المراجعة">إن كان هذا التحويل نفسه فأكّده من الإيصال حتى لا يُسجل مرتين.</x-import>
+    <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 20px;">
+      <x-import component-from-global-scope="OpsOne.TextField" label="المبلغ" default-value="5,000.00" dir="ltr" required="{{ yes }}" hint="المستحق الآن 5,000.00. الزائد يبقى مقدمًا غير مخصص"></x-import>
+      <x-import component-from-global-scope="OpsOne.SelectField" label="الطريقة" options="{{ methods }}" default-value="transfer" required="{{ yes }}"></x-import>
+      <x-import component-from-global-scope="OpsOne.TextField" label="تاريخ الاستلام" default-value="21/10/2026" dir="ltr" required="{{ yes }}"></x-import>
+      <x-import component-from-global-scope="OpsOne.TextField" label="المرجع" default-value="FT2610204471" dir="ltr" optional="{{ yes }}"></x-import>
+    </div>
+    <x-import component-from-global-scope="OpsOne.FileUpload" label="الإثبات" files="{{ proof }}" on-select="{{ noop }}" on-remove="{{ noop }}" required="{{ yes }}" hint="صورة التحويل أو الإيصال. PDF أو JPG أو PNG."></x-import>
+    <div style="display: flex; justify-content: space-between; gap: 12px; padding: 10px 14px; border: 1px solid var(--stroke-weak); border-radius: 8px;"><span>يُخصص للدفعة الأولى</span><x-import component-from-global-scope="OpsOne.Amount" value="5,000.00" strong="{{ yes }}"></x-import></div>
+    <div class="o1-dialog-foot">
+      <x-import component-from-global-scope="OpsOne.Button" variant="ghost" href="FinOrder.dc.html">إلغاء</x-import><x-import component-from-global-scope="OpsOne.Button" variant="secondary" href="FinReceiptReview.dc.html">مراجعة الإيصال بدلًا من ذلك</x-import><x-import component-from-global-scope="OpsOne.Button" variant="primary" href="FinOrderPaid.dc.html">تسجيل الدفعة</x-import>
+    </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview": {"width": 1440, "height": 1000}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const noop = () => {};
+    return { yes: true, no: false, h28: 28, s16: 16, s24: 24, noop, methods: [ { value: 'transfer', label: 'تحويل بنكي' }, { value: 'cash', label: 'نقدًا' }, { value: 'mada', label: 'شبكة مدى' }, { value: 'cheque', label: 'شيك' } ], proof: [ { id: 'p1', name: 'تحويل-الراجحي.pdf', size: 182340, status: 'done' } ] };
+  }
+}
+</script>
+</body>
+</html>

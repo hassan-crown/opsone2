@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>تفويضات دعم OpsOne</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/opsone/tokens.css">
+<link rel="stylesheet" href="ds/opsone/components/bundle.css">
+<script src="ds/opsone/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:var(--link)}a:hover{color:var(--brand-hover)}
+</style>
+</helmet>
+<div dir="rtl" data-surface="panel" style="position: relative; width: 1440px; height: 1550px; overflow: hidden; background: var(--background); color: var(--text-strong); font-family: var(--font-sans); font-size: 14px; line-height: 24px;">
+  <div aria-hidden="true" inert="" style="position: absolute; inset: 0;">
+    <dc-import name="HelpCenter" hint-size="1440px,1550px"></dc-import>
+  </div>
+  <div aria-hidden="true" style="position: absolute; inset: 0; background: var(--overlay);"></div>
+
+  <div role="dialog" aria-modal="true" aria-labelledby="d-t" aria-describedby="d-d" class="o1-dialog o1-dialog--lg" style="position: absolute; inset: 0; margin: auto; height: fit-content;">
+    <div class="o1-dialog-inner">
+    <div class="o1-dialog-head">
+      <h2 id="d-t" class="o1-dialog-title">تفويضات دعم OpsOne</h2>
+      <button type="button" class="o1-dialog-close" aria-label="إغلاق"><x-import component-from-global-scope="OpsOne.Icon" name="x"></x-import></button>
+    </div>
+    <p id="d-d" class="o1-dialog-desc">وصول فريق OpsOne لبيانات منشأتك بإذنك فقط، وبالنطاق والمدة اللذين تحددهما. كل دخول وفعل يُسجل.</p>
+    <section style="display: flex; flex-direction: column; gap: 8px;"><span style="font-weight: 600;">فعال</span><ul style="list-style: none; margin: 0; padding: 0;">
+            <li style="display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 16px; align-items: center; padding: 14px 24px; border-top: 1px solid var(--stroke-weak);">
+              <div style="display: flex; flex-direction: column; gap: 2px; min-width: 0;"><span style="font-weight: 500;">SR-0088، رسائل SMS لا تصل لعملائنا</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">النطاق الإعدادات والإشعارات. ينتهي بعد 46 ساعة، الأحد 25 أكتوبر 18:00.</span></div>
+              <div style="display: flex; gap: 8px; align-items: center;"><x-import component-from-global-scope="OpsOne.Button" variant="secondary" size="sm">سحب الإذن</x-import></div>
+            </li>
+          </ul></section>
+    <section style="display: flex; flex-direction: column; gap: 8px;"><span style="font-weight: 600;">مطلوب منك</span><ul style="list-style: none; margin: 0; padding: 0;">
+            <li style="display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 16px; align-items: center; padding: 14px 24px; border-top: 1px solid var(--stroke-weak);">
+              <div style="display: flex; flex-direction: column; gap: 2px; min-width: 0;"><span style="font-weight: 500;">SR-0090، بطء صفحة التقارير</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">يطلب فريق الدعم الوصول إلى التقارير لمدة 24 ساعة.</span></div>
+              <div style="display: flex; gap: 8px; align-items: center;"><x-import component-from-global-scope="OpsOne.Button" variant="ghost" size="sm">رفض</x-import><x-import component-from-global-scope="OpsOne.Button" variant="primary" size="sm">منح الإذن</x-import></div>
+            </li>
+          </ul></section>
+    <div style="display: flex; flex-direction: column; gap: 8px; padding: 12px 16px; background: var(--fill); border-radius: 8px;">
+      <span style="font-weight: 600;">عند السحب</span>
+      <span style="display: flex; gap: 8px;"><span style="color: var(--success-text); display: inline-flex;"><x-import component-from-global-scope="OpsOne.Icon" name="check" size="{{ s16 }}"></x-import></span><span>تنتهي جلسة الدعم فورًا، ويبقى سجل ما تم.</span></span>
+      <span style="display: flex; gap: 8px;"><span style="color: var(--info-text); display: inline-flex;"><x-import component-from-global-scope="OpsOne.Icon" name="info" size="{{ s16 }}"></x-import></span><span>الإذن لا يمتد تلقائيًا؛ يُطلب من جديد عند الحاجة.</span></span>
+    </div>
+    <div class="o1-dialog-foot">
+      <x-import component-from-global-scope="OpsOne.Button" variant="ghost" href="HelpCenter.dc.html">إغلاق</x-import><x-import component-from-global-scope="OpsOne.Button" variant="secondary" href="AuditLog.dc.html">سجل الدخول والأفعال</x-import>
+    </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview": {"width": 1440, "height": 1550}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const noop = () => {};
+    return { yes: true, no: false, s16: 16, noop };
+  }
+}
+</script>
+</body>
+</html>

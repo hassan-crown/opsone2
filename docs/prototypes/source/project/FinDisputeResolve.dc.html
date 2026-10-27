@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>حسم نزاع ORD-24452</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/opsone/tokens.css">
+<link rel="stylesheet" href="ds/opsone/components/bundle.css">
+<script src="ds/opsone/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:var(--link)}a:hover{color:var(--brand-hover)}
+</style>
+</helmet>
+<div dir="rtl" data-surface="panel" style="position: relative; width: 1440px; height: 1300px; overflow: hidden; background: var(--background); color: var(--text-strong); font-family: var(--font-sans); font-size: 14px; line-height: 24px;">
+  <div aria-hidden="true" inert="" style="position: absolute; inset: 0;">
+    <dc-import name="FinHome" hint-size="1440px,1300px"></dc-import>
+  </div>
+  <div aria-hidden="true" style="position: absolute; inset: 0; background: var(--overlay);"></div>
+
+  <div role="dialog" aria-modal="true" aria-labelledby="d-t" aria-describedby="d-d" class="o1-dialog" style="position: absolute; inset: 0; margin: auto; height: fit-content;">
+    <div class="o1-dialog-inner">
+    <div class="o1-dialog-head">
+      <h2 id="d-t" class="o1-dialog-title">حسم نزاع <bdi dir="ltr">ORD-24452</bdi></h2>
+      <button type="button" class="o1-dialog-close" aria-label="إغلاق"><x-import component-from-global-scope="OpsOne.Icon" name="x"></x-import></button>
+    </div>
+    <p id="d-d" class="o1-dialog-desc">سلطان البقمي. يدعي تحويلًا مكررًا 2,500.00 ر.س. فُتح قبل أسبوع.</p>
+    <div style="display: grid; grid-template-columns: repeat(1, minmax(0, 1fr)); gap: 16px 20px;">
+      <x-import component-from-global-scope="OpsOne.RadioGroup" label="النتيجة" options="{{ results }}" default-value="valid"></x-import>
+      <x-import component-from-global-scope="OpsOne.TextField" label="ما تحقق منه" default-value="كشف البنك يظهر تحويلين بالمبلغ نفسه في 14 أكتوبر." multiline="{{ yes }}" required="{{ yes }}"></x-import>
+    </div>
+    <x-import component-from-global-scope="OpsOne.FileUpload" label="إثبات المعالجة" files="{{ proof }}" on-select="{{ noop }}" on-remove="{{ noop }}" required="{{ yes }}"></x-import>
+    <div style="display: flex; flex-direction: column; gap: 8px; padding: 12px 16px; background: var(--fill); border-radius: 8px;">
+      <span style="font-weight: 600;">عند الحسم</span>
+      <span style="display: flex; gap: 8px;"><span style="color: var(--success-text); display: inline-flex;"><x-import component-from-global-scope="OpsOne.Icon" name="check" size="{{ s16 }}"></x-import></span><span>يُغلق النزاع «محسوم» ويعود المبلغ للتذكير والتقارير.</span></span>
+      <span style="display: flex; gap: 8px;"><span style="color: var(--info-text); display: inline-flex;"><x-import component-from-global-scope="OpsOne.Icon" name="info" size="{{ s16 }}"></x-import></span><span>إن ثبت التكرار يُنشأ طلب استرداد بالمبلغ؛ لا يُرد من هنا.</span></span>
+    </div>
+    <div class="o1-dialog-foot">
+      <x-import component-from-global-scope="OpsOne.Button" variant="ghost" href="FinHome.dc.html">إلغاء</x-import><x-import component-from-global-scope="OpsOne.Button" variant="primary" href="FinHome.dc.html">حسم النزاع</x-import>
+    </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview": {"width": 1440, "height": 1300}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const noop = () => {};
+    return { yes: true, no: false, s16: 16, noop, results: [ { value: 'valid', label: 'ثبت التكرار' }, { value: 'invalid', label: 'لم يثبت' }, { value: 'ext', label: 'بانتظار جهة خارجية' } ], proof: [ { id: 'p1', name: 'كشف-البنك.pdf', size: 120400, status: 'done' } ] };
+  }
+}
+</script>
+</body>
+</html>

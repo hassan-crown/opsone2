@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>كوبون جديد</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/opsone/tokens.css">
+<link rel="stylesheet" href="ds/opsone/components/bundle.css">
+<script src="ds/opsone/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:var(--link)}a:hover{color:var(--brand-hover)}
+</style>
+</helmet>
+<div dir="rtl" data-surface="panel" style="position: relative; width: 1440px; height: 1000px; overflow: hidden; background: var(--background); color: var(--text-strong); font-family: var(--font-sans); font-size: 14px; line-height: 24px;">
+  <div aria-hidden="true" inert="" style="position: absolute; inset: 0;">
+    <dc-import name="Coupons" hint-size="1440px,900px"></dc-import>
+  </div>
+  <div aria-hidden="true" style="position: absolute; inset: 0; background: var(--overlay);"></div>
+
+  <div role="dialog" aria-modal="true" aria-labelledby="d-t" class="o1-dialog" style="position: absolute; inset: 0; margin: auto; height: fit-content;">
+    <div class="o1-dialog-inner">
+    <div class="o1-dialog-head">
+      <h2 id="d-t" class="o1-dialog-title">كوبون جديد</h2>
+      <button type="button" class="o1-dialog-close" aria-label="إغلاق"><x-import component-from-global-scope="OpsOne.Icon" name="x"></x-import></button>
+    </div>
+    
+    <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 20px;">
+      <x-import component-from-global-scope="OpsOne.TextField" label="الرمز" default-value="NOV15" dir="ltr" required="{{ yes }}" hint="فريد، بحروف لاتينية وأرقام."></x-import>
+      <x-import component-from-global-scope="OpsOne.RadioGroup" label="النوع" options="{{ ctype }}" default-value="pct" inline="{{ yes }}"></x-import>
+    </div>
+    <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px 20px;">
+      <x-import component-from-global-scope="OpsOne.TextField" label="القيمة" default-value="15" dir="ltr" required="{{ yes }}" hint="%"></x-import>
+      <x-import component-from-global-scope="OpsOne.TextField" label="من" default-value="01/11/2026" dir="ltr" required="{{ yes }}"></x-import>
+      <x-import component-from-global-scope="OpsOne.TextField" label="إلى" default-value="30/11/2026" dir="ltr" optional="{{ yes }}"></x-import>
+    </div>
+    <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 20px;">
+      <x-import component-from-global-scope="OpsOne.SelectField" label="النطاق" options="{{ scope }}" default-value="all"></x-import>
+      <x-import component-from-global-scope="OpsOne.TextField" label="حد أدنى للطلب" default-value="300.00" dir="ltr" optional="{{ yes }}" hint="ر.س"></x-import>
+    </div>
+    <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 20px;">
+      <x-import component-from-global-scope="OpsOne.TextField" label="الحد الكلي" default-value="200" dir="ltr" optional="{{ yes }}"></x-import>
+      <x-import component-from-global-scope="OpsOne.TextField" label="لكل عميل" default-value="1" dir="ltr" optional="{{ yes }}"></x-import>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 8px; padding: 12px 16px; background: var(--fill); border-radius: 8px;">
+      <span style="font-weight: 600;">القواعد</span>
+      <span style="display: flex; gap: 8px;"><span style="color: var(--info-text); display: inline-flex;"><x-import component-from-global-scope="OpsOne.Icon" name="info" size="{{ s16 }}"></x-import></span><span>للجاهز فقط؛ لا يطبق على المخصص أو رسوم الدفع.</span></span>
+      <span style="display: flex; gap: 8px;"><span style="color: var(--info-text); display: inline-flex;"><x-import component-from-global-scope="OpsOne.Icon" name="info" size="{{ s16 }}"></x-import></span><span>لا يجتمع مع خصم موظف؛ يُختار خصم واحد بمبلغه النهائي.</span></span>
+      <span style="display: flex; gap: 8px;"><span style="color: var(--success-text); display: inline-flex;"><x-import component-from-global-scope="OpsOne.Icon" name="check" size="{{ s16 }}"></x-import></span><span>محاولة دفع معلقة تحجز استخدامًا، والفاشلة تحرره.</span></span>
+    </div>
+    <div class="o1-dialog-foot">
+      <x-import component-from-global-scope="OpsOne.Button" variant="ghost" href="Coupons.dc.html">إلغاء</x-import><x-import component-from-global-scope="OpsOne.Button" variant="primary" href="Coupons.dc.html">حفظ الكوبون</x-import>
+    </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview": {"width": 1440, "height": 1000}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const noop = () => {};
+    return { yes: true, no: false, h28: 28, h24: 24, s16: 16, s24: 24, ctype: [ { value: 'pct', label: 'نسبة' }, { value: 'amt', label: 'مبلغ' } ], scope: [ { value: 'all', label: 'كل المنتجات الجاهزة' }, { value: 'some', label: 'منتجات محددة' } ] };
+  }
+}
+</script>
+</body>
+</html>

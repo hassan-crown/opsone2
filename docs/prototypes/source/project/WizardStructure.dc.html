@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>معالج الإعداد: تنظيم العمل</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/opsone/tokens.css">
+<link rel="stylesheet" href="ds/opsone/components/bundle.css">
+<script src="ds/opsone/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:var(--link)}a:hover{color:var(--brand-hover)}
+</style>
+</helmet>
+<div dir="rtl" data-surface="panel" style="width: 1440px; min-height: 1000px; display: flex; flex-direction: column; background: var(--background); color: var(--text-strong); font-family: var(--font-sans); font-size: 14px; line-height: 24px;"><header style="display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 64px; padding: 0 32px; background: var(--surface); border-bottom: 1px solid var(--stroke-weak);"><div style="display: flex; align-items: center; gap: 16px;"><x-import component-from-global-scope="OpsOne.Logo" height="{{ h28 }}"></x-import><span style="color: var(--text-weak);">إعداد مطابخ الركن الحديث</span></div><x-import component-from-global-scope="OpsOne.Button" variant="ghost" href="HomeSetup.dc.html">حفظ والمتابعة لاحقًا</x-import></header><div style="display: grid; grid-template-columns: 260px minmax(0, 760px); gap: 48px; justify-content: center; padding: 40px 32px;"><div><x-import component-from-global-scope="OpsOne.Steps" label="خطوات الإعداد" steps="{{ wsteps }}" current="{{ cur }}" orientation="vertical"></x-import></div><section aria-labelledby="w-h" style="display: flex; flex-direction: column; gap: 20px; padding: 28px 32px; background: var(--surface); border: 1px solid var(--stroke-weak); border-radius: 12px;"><div style="display: flex; flex-direction: column; gap: 4px;"><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">الخطوة 2 من 5</span><h1 id="w-h" style="margin: 0; font-size: 22px; line-height: 34px; font-weight: 700;">تنظيم العمل</h1><span style="color: var(--text-weak);">الفروع والأقسام ومشرفوها. تبدأ المساحة بفرع واحد وقسمين، وتعدلها الآن أو لاحقًا.</span></div><div style="display: flex; flex-direction: column; gap: 12px;"><span style="font-weight: 600;">الفروع</span><div style="display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 12px 16px; border: 1px solid var(--stroke-weak); border-radius: 8px;"><span style="font-weight: 600;">العليا</span><span style="color: var(--text-weak);">الفرع الرئيسي، معرض ومستودع</span><x-import component-from-global-scope="OpsOne.Button" variant="ghost" size="sm">تعديل</x-import></div><div style="display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 12px 16px; border: 1px solid var(--stroke-weak); border-radius: 8px;"><span style="font-weight: 600;">الملقا</span><span style="color: var(--text-weak);">معرض</span><x-import component-from-global-scope="OpsOne.Button" variant="ghost" size="sm">تعديل</x-import></div><x-import component-from-global-scope="OpsOne.Button" variant="ghost" size="sm" icon="plus">إضافة فرع</x-import><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">باقة نمو تتيح 3 فروع نشطة.</span><span style="font-weight: 600; margin-top: 8px;">الأقسام</span><div style="display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 12px 16px; border: 1px solid var(--stroke-weak); border-radius: 8px;"><span style="font-weight: 600;">المبيعات</span><span style="color: var(--text-weak);">المشرف يُحدد بعد دعوة الفريق</span><span></span></div><div style="display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 12px 16px; border: 1px solid var(--stroke-weak); border-radius: 8px;"><span style="font-weight: 600;">القياس والتصميم</span><span style="color: var(--text-weak);">المشرف يُحدد بعد دعوة الفريق</span><span></span></div><div style="display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 12px 16px; border: 1px solid var(--stroke-weak); border-radius: 8px;"><span style="font-weight: 600;">التصنيع والتركيب</span><span style="color: var(--text-weak);">المشرف يُحدد بعد دعوة الفريق</span><span></span></div><x-import component-from-global-scope="OpsOne.Button" variant="ghost" size="sm" icon="plus">إضافة قسم</x-import><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">قسم بلا مشرف يُسند أعماله المدير حتى يُعيَّن مشرف.</span></div><p style="margin: 0; display: flex; gap: 8px; color: var(--text-weak);"><x-import component-from-global-scope="OpsOne.Icon" name="info" size="{{ s16 }}"></x-import><span>مكانها الدائم: الإعدادات، الفروع والأقسام.</span></p><div style="display: flex; justify-content: space-between; gap: 8px; padding-top: 16px; border-top: 1px solid var(--stroke-weak);"><x-import component-from-global-scope="OpsOne.Button" variant="ghost">تخطي الآن</x-import><x-import component-from-global-scope="OpsOne.Button" variant="primary" icon="chevron-right" href="WizardFlow.dc.html">التالي</x-import></div></section></div></div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview": {"width": 1440, "height": 1000}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const noop = () => {};
+    return { yes: true, no: false, h28: 28, h24: 24, s16: 16, s24: 24, noop, cur: 1, wsteps: [ { label: 'بيانات المنشأة' }, { label: 'تنظيم العمل' }, { label: 'مسار التشغيل' }, { label: 'دعوة الفريق' }, { label: 'المراجعة والإتمام' } ], langs: [ { value: 'ar', label: 'العربية' }, { value: 'en', label: 'English' } ], curs: [ { value: 'sar', label: 'ريال سعودي' } ], tzs: [ { value: 'riy', label: 'الرياض، GMT+3' } ], logo: [ { id: 'l1', name: 'شعار-الركن.png', size: 48210, status: 'done' } ] };
+  }
+}
+</script>
+</body>
+</html>

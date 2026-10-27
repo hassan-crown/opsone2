@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>تعديل جدول الدفعات</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/opsone/tokens.css">
+<link rel="stylesheet" href="ds/opsone/components/bundle.css">
+<script src="ds/opsone/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:var(--link)}a:hover{color:var(--brand-hover)}
+</style>
+</helmet>
+<div dir="rtl" data-surface="panel" style="position: relative; width: 1440px; height: 1200px; overflow: hidden; background: var(--background); color: var(--text-strong); font-family: var(--font-sans); font-size: 14px; line-height: 24px;">
+  <div aria-hidden="true" inert="" style="position: absolute; inset: 0;">
+    <dc-import name="FinOrder" hint-size="1440px,1700px"></dc-import>
+  </div>
+  <div aria-hidden="true" style="position: absolute; inset: 0; background: var(--overlay);"></div>
+
+  <div role="dialog" aria-modal="true" aria-labelledby="d-t" aria-describedby="d-d" class="o1-dialog o1-dialog--lg" style="position: absolute; inset: 0; margin: auto; height: fit-content;">
+    <div class="o1-dialog-inner">
+    <div class="o1-dialog-head">
+      <h2 id="d-t" class="o1-dialog-title">تعديل جدول دفعات <bdi dir="ltr" style="font-family: var(--font-mono);">ORD-24518</bdi></h2>
+      <button type="button" class="o1-dialog-close" aria-label="إغلاق"><x-import component-from-global-scope="OpsOne.Icon" name="x"></x-import></button>
+    </div>
+    <p id="d-d" class="o1-dialog-desc">المجموع لا يتجاوز الاتفاق 18,450.00 ر.س.</p>
+    
+    <x-import component-from-global-scope="OpsOne.SelectField" label="القالب" options="{{ tpls }}" default-value="custom" hint="يعبئ الجدول؛ تعدّله بعدها"></x-import>
+    <div style="display: flex; flex-direction: column; gap: 12px; padding: 12px; border: 1px solid var(--stroke-weak); border-radius: 8px;"><div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px 12px;">
+      <x-import component-from-global-scope="OpsOne.TextField" label="اسم الدفعة" default-value="الدفعة الأولى"></x-import>
+      <x-import component-from-global-scope="OpsOne.SelectField" label="الأساس" options="{{ bases }}" default-value="fixed"></x-import>
+      <x-import component-from-global-scope="OpsOne.SelectField" label="الاستحقاق" options="{{ whens }}" default-value="agree"></x-import>
+      <x-import component-from-global-scope="OpsOne.TextField" label="المبلغ" default-value="5,000.00" dir="ltr"></x-import>
+    </div><div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px 12px;">
+      <x-import component-from-global-scope="OpsOne.TextField" label="اسم الدفعة" default-value="دفعة بدء التركيب"></x-import>
+      <x-import component-from-global-scope="OpsOne.SelectField" label="الأساس" options="{{ bases }}" default-value="fixed"></x-import>
+      <x-import component-from-global-scope="OpsOne.SelectField" label="الاستحقاق" options="{{ whens }}" default-value="install"></x-import>
+      <x-import component-from-global-scope="OpsOne.TextField" label="المبلغ" default-value="7,225.00" dir="ltr" error="المجموع يتجاوز الاتفاق بمبلغ 500.00. خفّض هذه الدفعة أو غيرها."></x-import>
+    </div><div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px 12px;">
+      <x-import component-from-global-scope="OpsOne.TextField" label="اسم الدفعة" default-value="الدفعة الأخيرة"></x-import>
+      <x-import component-from-global-scope="OpsOne.SelectField" label="الأساس" options="{{ bases }}" default-value="fixed"></x-import>
+      <x-import component-from-global-scope="OpsOne.SelectField" label="الاستحقاق" options="{{ whens }}" default-value="deliver"></x-import>
+      <x-import component-from-global-scope="OpsOne.TextField" label="المبلغ" default-value="6,725.00" dir="ltr"></x-import>
+    </div><div><x-import component-from-global-scope="OpsOne.Button" variant="ghost" size="sm" icon="plus">إضافة دفعة</x-import></div></div>
+    <dl style="margin: 0; display: flex; flex-direction: column;">
+            <div style="display: flex; justify-content: space-between; gap: 12px; padding: 8px 0;"><dt style="color: var(--text-weak);">مجموع الدفعات</dt><dd style="margin: 0; text-align: end;"><x-import component-from-global-scope="OpsOne.Amount" value="18,950.00"></x-import></dd></div>
+            <div style="display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-top: 1px solid var(--stroke-weak);"><dt style="color: var(--text-weak);">إجمالي الاتفاق</dt><dd style="margin: 0; text-align: end;"><x-import component-from-global-scope="OpsOne.Amount" value="18,450.00"></x-import></dd></div>
+            <div style="display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-top: 1px solid var(--stroke-weak);"><dt style="color: var(--text-weak);">الفرق</dt><dd style="margin: 0; text-align: end;"><span style="color: var(--danger-text); font-weight: 600;">زيادة 500.00</span></dd></div>
+          </dl>
+    <div style="display: flex; flex-direction: column; gap: 8px; padding: 12px 16px; background: var(--fill); border-radius: 8px;">
+      <span style="font-weight: 600;">عند الحفظ</span>
+      <span style="display: flex; gap: 8px;"><span style="color: var(--success-text); display: inline-flex;"><x-import component-from-global-scope="OpsOne.Icon" name="check" size="{{ s16 }}"></x-import></span><span>لا تتغير دفعة مسددة أو فاتورة مربوطة.</span></span>
+      <span style="display: flex; gap: 8px;"><span style="color: var(--info-text); display: inline-flex;"><x-import component-from-global-scope="OpsOne.Icon" name="info" size="{{ s16 }}"></x-import></span><span>آخر دفعة تأخذ فرق التقريب إن وُجد.</span></span>
+    </div>
+    <div class="o1-dialog-foot">
+      <x-import component-from-global-scope="OpsOne.Button" variant="ghost" href="FinOrder.dc.html">إلغاء</x-import><x-import component-from-global-scope="OpsOne.Button" variant="primary" disabled="{{ yes }}">حفظ الجدول</x-import>
+    </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview": {"width": 1440, "height": 1200}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const noop = () => {};
+    return { yes: true, no: false, h28: 28, s16: 16, s24: 24, tpls: [ { value: 'half', label: '50% عند الاتفاق و50% قبل التركيب' }, { value: 'first', label: 'دفعة أولى ثابتة والباقي عند التسليم' }, { value: 'custom', label: 'مخصص' } ], bases: [ { value: 'fixed', label: 'مبلغ ثابت' }, { value: 'pct', label: 'نسبة من الاتفاق' }, { value: 'rest', label: 'الباقي' } ], whens: [ { value: 'agree', label: 'عند اعتماد الاتفاق' }, { value: 'install', label: 'عند بدء التركيب' }, { value: 'deliver', label: 'عند التسليم' }, { value: 'date', label: 'بتاريخ' } ] };
+  }
+}
+</script>
+</body>
+</html>

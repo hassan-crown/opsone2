@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>ملف جهة تجارية على الجوال</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/opsone/tokens.css">
+<link rel="stylesheet" href="ds/opsone/components/bundle.css">
+<script src="ds/opsone/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:var(--link)}a:hover{color:var(--brand-hover)}
+</style>
+</helmet>
+<div dir="rtl" data-surface="panel" style="width: 390px; min-height: 1700px; display: flex; flex-direction: column; background: var(--background); color: var(--text-strong); font-family: var(--font-sans); font-size: 14px; line-height: 24px;">
+  <header style="display: flex; align-items: center; gap: 4px; min-height: 64px; padding-inline: 8px 16px; background: var(--surface); border-bottom: 1px solid var(--stroke-weak);">
+    <x-import component-from-global-scope="OpsOne.Button" variant="ghost" icon="arrow-left" icon-only="{{ yes }}" aria-label="رجوع إلى العملاء" href="CustomersMobile.dc.html"></x-import>
+    <span style="font-weight: 600;">ملف العميل</span>
+    <div style="margin-inline-start: auto; display: flex;"><x-import component-from-global-scope="OpsOne.Button" variant="ghost" icon="pencil" icon-only="{{ yes }}" aria-label="تعديل البيانات"></x-import></div>
+  </header>
+  <main style="padding: 16px; display: flex; flex-direction: column; gap: 16px;">
+    <div style="display: flex; flex-direction: column; gap: 4px;">
+      <h1 style="margin: 0; font-size: 22px; line-height: 34px; font-weight: 700;">شركة دار الإعمار للمقاولات</h1>
+      <span style="display: flex; gap: 8px; align-items: center;"><x-import component-from-global-scope="OpsOne.Badge" tone="neutral">جهة تجارية</x-import><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">المتابعة نورة الدوسري</span></span>
+    </div>
+    <x-import component-from-global-scope="OpsOne.Button" variant="primary" icon="plus" href="CreateOrderMobile.dc.html" block="{{ yes }}">طلب مخصص جديد</x-import>
+    <section aria-labelledby="c1" style="display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--stroke-weak); border-radius: 12px;">
+      <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 16px;"><span style="display: inline-flex; gap: 8px; align-items: center;"><h2 id="c1" style="margin: 0; font-size: 16px; line-height: 26px; font-weight: 600;">أشخاص الاتصال</h2></span><a href="#" style="min-height: 44px; display: inline-flex; align-items: center; font-weight: 500;">إضافة</a></div>
+      <div style="display: flex; flex-direction: column; gap: 6px; padding: 12px 16px; border-top: 1px solid var(--stroke-weak);">
+        <span style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;"><span style="font-weight: 600;">م. عادل الشهري</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">مسؤول المشتريات</span><x-import component-from-global-scope="OpsOne.Badge" tone="brand">الرئيسي</x-import></span>
+        <span style="display: flex; justify-content: space-between; align-items: center;"><bdi dir="ltr" style="color: var(--text-weak);">+966 50 662 1847</bdi><x-import component-from-global-scope="OpsOne.Button" variant="secondary" size="sm" icon="phone">اتصال</x-import></span>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 6px; padding: 12px 16px; border-top: 1px solid var(--stroke-weak);">
+        <span style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;"><span style="font-weight: 600;">سلمان القرني</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">المالية</span></span>
+        <span style="display: flex; justify-content: space-between; align-items: center;"><bdi dir="ltr" style="color: var(--text-weak);">+966 55 318 4402</bdi><x-import component-from-global-scope="OpsOne.Button" variant="secondary" size="sm" icon="phone">اتصال</x-import></span>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 6px; padding: 12px 16px; border-top: 1px solid var(--stroke-weak);">
+        <span style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;"><span style="font-weight: 600;">م. فهد البيشي</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">مهندس الموقع</span></span>
+        <span style="display: flex; justify-content: space-between; align-items: center;"><bdi dir="ltr" style="color: var(--text-weak);">+966 56 904 2271</bdi><x-import component-from-global-scope="OpsOne.Button" variant="secondary" size="sm" icon="phone">اتصال</x-import></span>
+      </div>
+    </section>
+    <section aria-labelledby="c2" style="display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--stroke-weak); border-radius: 12px;">
+      <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 16px;"><span style="display: inline-flex; gap: 8px; align-items: center;"><h2 id="c2" style="margin: 0; font-size: 16px; line-height: 26px; font-weight: 600;">الطلبات</h2></span></div>
+      <div style="display: flex; flex-direction: column; gap: 6px; padding: 12px 16px; border-top: 1px solid var(--stroke-weak);">
+        <span style="display: flex; gap: 8px; align-items: center;"><x-import component-from-global-scope="OpsOne.Ref" href="OrderMobile.dc.html">ORD-24521</x-import><x-import component-from-global-scope="OpsOne.Badge" tone="info">جارٍ</x-import></span>
+        <span>مطابخ لست شقق في المشروع الأول</span>
+        <span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">بانتظار قرار الخصم، م. عادل الشهري</span>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 6px; padding: 12px 16px; border-top: 1px solid var(--stroke-weak);">
+        <span style="display: flex; gap: 8px; align-items: center;"><x-import component-from-global-scope="OpsOne.Ref" href="OrderMobile.dc.html">ORD-24531</x-import><x-import component-from-global-scope="OpsOne.Badge" tone="info">جارٍ</x-import></span>
+        <span>خزائن مداخل الشقق</span>
+        <span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">تثبيت الاحتياج، م. فهد البيشي</span>
+      </div>
+    </section>
+    <section aria-labelledby="c3" style="display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--stroke-weak); border-radius: 12px;">
+      <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 16px;"><span style="display: inline-flex; gap: 8px; align-items: center;"><h2 id="c3" style="margin: 0; font-size: 16px; line-height: 26px; font-weight: 600;">البيانات التجارية</h2></span></div>
+      <dl style="margin: 0; padding: 0 16px 8px;">
+        <div style="display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-top: 1px solid var(--stroke-weak);"><dt style="color: var(--text-weak);">السجل التجاري</dt><dd style="margin: 0; text-align: end;"><bdi dir="ltr">1010587342</bdi></dd></div>
+        <div style="display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-top: 1px solid var(--stroke-weak);"><dt style="color: var(--text-weak);">الرقم الضريبي</dt><dd style="margin: 0; text-align: end;"><bdi dir="ltr">310458712300003</bdi></dd></div>
+        <div style="display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-top: 1px solid var(--stroke-weak);"><dt style="color: var(--text-weak);">هاتف المكتب</dt><dd style="margin: 0; text-align: end;"><bdi dir="ltr">+966 11 465 2290</bdi></dd></div>
+      </dl>
+    </section>
+    <section aria-labelledby="c4" style="display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--stroke-weak); border-radius: 12px;">
+      <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 16px;"><span style="display: inline-flex; gap: 8px; align-items: center;"><h2 id="c4" style="margin: 0; font-size: 16px; line-height: 26px; font-weight: 600;">العناوين</h2></span><a href="#" style="min-height: 44px; display: inline-flex; align-items: center; font-weight: 500;">إضافة</a></div>
+      <div style="display: flex; flex-direction: column; gap: 6px; padding: 12px 16px; border-top: 1px solid var(--stroke-weak);">
+        <span style="display: flex; gap: 8px; align-items: center;"><span style="font-weight: 500;">المقر</span><x-import component-from-global-scope="OpsOne.Badge" tone="neutral">افتراضي</x-import></span>
+        <span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">طريق الملك فهد، برج الإعمار، حي العليا، الرياض</span>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 6px; padding: 12px 16px; border-top: 1px solid var(--stroke-weak);">
+        <span style="font-weight: 500;">مشروع النرجس السكني</span>
+        <span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">حي النرجس، شارع الثمامة، الرياض</span>
+      </div>
+    </section>
+
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":1700}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const noop = () => {};
+    return { yes: true };
+  }
+}
+</script>
+</body>
+</html>

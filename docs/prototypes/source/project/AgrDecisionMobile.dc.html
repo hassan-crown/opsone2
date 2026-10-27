@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>قرار الخصم على الجوال</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/opsone/tokens.css">
+<link rel="stylesheet" href="ds/opsone/components/bundle.css">
+<script src="ds/opsone/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:var(--link)}a:hover{color:var(--brand-hover)}
+</style>
+</helmet>
+<div dir="rtl" data-surface="panel" style="width: 390px; min-height: 1100px; display: flex; flex-direction: column; background: var(--background); color: var(--text-strong); font-family: var(--font-sans); font-size: 14px; line-height: 24px;">
+  <header style="display: flex; align-items: center; gap: 4px; min-height: 64px; padding-inline: 8px 8px; background: var(--surface); border-bottom: 1px solid var(--stroke-weak);">
+    <x-import component-from-global-scope="OpsOne.Button" variant="ghost" icon="arrow-left" icon-only="{{ yes }}" aria-label="رجوع إلى الرئيسية" href="HomeMobile.dc.html"></x-import>
+    <span style="font-weight: 600;">تحتاج قرارك</span>
+    <div style="margin-inline-start: auto; display: flex;"></div>
+  </header>
+  <main style="padding: 16px; display: flex; flex-direction: column; gap: 16px;">
+    <div style="display: flex; flex-direction: column; gap: 4px;">
+      <h1 style="margin: 0; font-size: 22px; line-height: 34px; font-weight: 700;">اعتماد خصم 12% على عرض <bdi dir="ltr" style="font-family: var(--font-mono);">QUO-3311</bdi>؟</h1>
+      <span style="color: var(--text-weak);">طلبته نورة الدوسري قبل 3 ساعات. ORD-24521، شركة دار الإعمار للمقاولات.</span>
+    </div>
+    <section aria-label="تفاصيل الطلب" style="display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--stroke-weak); border-radius: 12px;">
+      <div style="display: flex; justify-content: space-between; gap: 12px; padding: 10px 16px; border-top: 1px solid var(--stroke-weak);"><span style="color: var(--text-weak);">حد نورة الدوسري</span><span style="font-weight: 600; text-align: end;">10%</span></div>
+      <div style="display: flex; justify-content: space-between; gap: 12px; padding: 10px 16px; border-top: 1px solid var(--stroke-weak);"><span style="color: var(--text-weak);">المطلوب</span><span style="font-weight: 600; text-align: end;">12%</span></div>
+      <div style="display: flex; justify-content: space-between; gap: 12px; padding: 10px 16px; border-top: 1px solid var(--stroke-weak);"><span style="color: var(--text-weak);">أساس الخصم</span><span style="font-weight: 600; text-align: end;"><x-import component-from-global-scope="OpsOne.Amount" value="91,500.00"></x-import></span></div>
+      <div style="display: flex; justify-content: space-between; gap: 12px; padding: 10px 16px; border-top: 1px solid var(--stroke-weak);"><span style="color: var(--text-weak);">قيمة الخصم</span><span style="font-weight: 600; text-align: end;"><x-import component-from-global-scope="OpsOne.Amount" value="10,980.00"></x-import></span></div>
+      <div style="display: flex; justify-content: space-between; gap: 12px; padding: 10px 16px; border-top: 1px solid var(--stroke-weak);"><span style="color: var(--text-weak);">فوق حدها</span><span style="font-weight: 600; text-align: end;"><x-import component-from-global-scope="OpsOne.Amount" value="1,830.00"></x-import></span></div>
+      <div style="display: flex; justify-content: space-between; gap: 12px; padding: 10px 16px; border-top: 1px solid var(--stroke-weak);"><span style="color: var(--text-weak);">الإجمالي بعد الخصم والضريبة</span><span style="font-weight: 600; text-align: end;"><x-import component-from-global-scope="OpsOne.Amount" value="92,598.00"></x-import></span></div>
+    </section>
+    <blockquote style="margin: 0; padding: 10px 14px; border-inline-start: 2px solid var(--stroke); display: flex; flex-direction: column; gap: 2px;"><span>مشروع من ست شقق، والجهة طلبت سعرًا موحدًا مقابل التزام بمشروعها الثاني.</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">سبب نورة الدوسري</span></blockquote>
+    <x-import component-from-global-scope="OpsOne.TextField" label="ملاحظتك" multiline="{{ yes }}" optional="{{ yes }}" hint="مطلوبة عند الرفض، وتصل إلى نورة"></x-import>
+    <div style="display: flex; flex-direction: column; gap: 8px; padding: 12px 16px; background: var(--fill); border-radius: 8px;">
+      <span style="font-weight: 600;">أثر القرار</span>
+      <span style="display: flex; gap: 8px;"><span style="color: var(--success-text); display: inline-flex;"><x-import component-from-global-scope="OpsOne.Icon" name="check" size="{{ s16 }}"></x-import></span><span>القرار لهذا العرض بمحتواه الحالي؛ تغيير بند أو سعر أو كمية يعيد الطلب.</span></span>
+      <span style="display: flex; gap: 8px;"><span style="color: var(--info-text); display: inline-flex;"><x-import component-from-global-scope="OpsOne.Icon" name="info" size="{{ s16 }}"></x-import></span><span>الاعتماد لا يرسل العرض؛ ترسله نورة بعده.</span></span>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 8px;"><x-import component-from-global-scope="OpsOne.Button" variant="primary" href="HomeMobile.dc.html" block="{{ yes }}">اعتماد الخصم</x-import><x-import component-from-global-scope="OpsOne.Button" variant="secondary" href="HomeMobile.dc.html" block="{{ yes }}">رفض الخصم</x-import></div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview": {"width": 390, "height": 1100}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const noop = () => {};
+    return { yes: true, no: false, h28: 28, h24: 24, s16: 16 };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>صفحة الطلب بدور مشرف القسم</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/opsone/tokens.css">
+<link rel="stylesheet" href="ds/opsone/components/bundle.css">
+<script src="ds/opsone/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:var(--link)}a:hover{color:var(--brand-hover)}
+</style>
+</helmet>
+<div dir="rtl" data-surface="panel" style="width: 1440px; min-height: 1500px; display: flex; background: var(--background); color: var(--text-strong); font-family: var(--font-sans); font-size: 14px; line-height: 24px;">
+
+<aside class="o1-sidebar" style="position: relative; height: auto; display: flex;">
+  <div class="o1-sidebar-brand"><x-import component-from-global-scope="OpsOne.Logo" height="{{ h28 }}"></x-import></div>
+  <div style="display: flex; flex-direction: column; gap: 2px; padding: 0 12px 16px; margin-bottom: 8px; border-bottom: 1px solid var(--stroke-weak);">
+    <span style="font-weight: 600;">مطابخ الركن الحديث</span>
+    <span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">قسم التصنيع والتركيب</span>
+  </div>
+  <nav class="o1-nav" aria-label="القائمة الرئيسية"><ul>
+    <sc-for list="{{ nav }}" as="item" hint-placeholder-count="3">
+      <li><x-import component-from-global-scope="OpsOne.NavItem" label="{{ item.label }}" icon="{{ item.icon }}" href="{{ item.href }}" active="{{ item.active }}"></x-import></li>
+    </sc-for>
+  </ul></nav>
+</aside>
+
+<div class="o1-shell-main" style="flex: 1; min-width: 0; display: flex; flex-direction: column;">
+  <header class="o1-topbar" style="position: relative; gap: 12px;">
+    <div style="width: 440px;"><x-import component-from-global-scope="OpsOne.SearchField" label="البحث العام" placeholder="رقم الطلب أو اسم العميل أو المستند"></x-import></div>
+    <div class="o1-topbar-end">
+      <x-import component-from-global-scope="OpsOne.Button" variant="ghost" icon="bell" icon-only="{{ yes }}" aria-label="الإشعارات"></x-import>
+      <button type="button" aria-label="قائمة الحساب" style="display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 8px; border: 0; border-radius: 8px; background: transparent; color: var(--text-strong); font: inherit; cursor: pointer;">
+        <x-import component-from-global-scope="OpsOne.Avatar" name="ماجد الحربي" size="sm" decorative="{{ yes }}"></x-import>
+        <span style="font-weight: 500;">ماجد الحربي</span>
+      </button>
+    </div>
+  </header>
+
+  <main class="o1-main" style="max-width: none; padding: 24px 32px 32px; display: flex; flex-direction: column; gap: 20px;">
+    <x-import component-from-global-scope="OpsOne.Breadcrumbs" items="{{ crumbs }}"></x-import>
+    <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap;">
+      <div style="display: flex; flex-direction: column; gap: 8px;">
+        <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+          <h1 style="margin: 0; font-size: 24px; line-height: 36px; font-weight: 700;"><bdi dir="ltr" style="font-family: var(--font-mono); font-weight: 600;">ORD-24490</bdi> سلطان البقمي</h1>
+          <x-import component-from-global-scope="OpsOne.Badge" tone="brand">مخصص</x-import>
+          <x-import component-from-global-scope="OpsOne.Badge" tone="info">جارٍ</x-import>
+        </div>
+        <div style="display: flex; gap: 24px; flex-wrap: wrap; color: var(--text-weak);">
+          <span>الفرع <strong style="color: var(--text-strong); font-weight: 500;">الملقا</strong></span>
+          <span>المسؤول <strong style="color: var(--text-strong); font-weight: 500;">خالد الزهراني</strong></span>
+        </div>
+      </div>
+      <x-import component-from-global-scope="OpsOne.Menu" label="إجراءات الطلب" items="{{ orderMenu }}" variant="secondary"></x-import>
+    </div>
+
+    <section aria-labelledby="now-h" style="display: flex; flex-direction: column; gap: 16px; padding: 20px 24px; background: var(--surface); border: 1px solid var(--stroke-weak); border-radius: 12px;">
+      <h2 id="now-h" class="o1-sr">أين وصل الطلب</h2>
+      <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px;">
+        <div style="display: flex; flex-direction: column; gap: 4px;"><span style="font-size: 14px; line-height: 20px; font-weight: 500; color: var(--text-weak);">المرحلة الحالية</span><span style="font-weight: 600; font-size: 16px;">التركيب والتسليم</span><span style="display: flex; gap: 8px; align-items: center;"><x-import component-from-global-scope="OpsOne.Badge" tone="warning">بانتظار متطلب</x-import><span style="font-size: 13px; color: var(--text-weak);">5 من 5</span></span></div>
+        <div style="display: flex; flex-direction: column; gap: 4px;"><span style="font-size: 14px; line-height: 20px; font-weight: 500; color: var(--text-weak);">المطلوب الآن</span><span style="font-weight: 600; font-size: 16px;">قرار السماح ببدء التركيب</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">طلبته أنت أمس، والقرار لدى المالك</span></div>
+        <div style="display: flex; flex-direction: column; gap: 4px;"><span style="font-size: 14px; line-height: 20px; font-weight: 500; color: var(--text-weak);">المانع</span><span style="display: flex; gap: 6px; align-items: center; font-weight: 600; font-size: 16px; color: var(--warning-text);"><x-import component-from-global-scope="OpsOne.Icon" name="lock"></x-import>بانتظار متطلب مالي</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">تفاصيل المبلغ لدى المالية</span></div>
+        <div style="display: flex; flex-direction: column; gap: 4px;"><span style="font-size: 14px; line-height: 20px; font-weight: 500; color: var(--text-weak);">موعد التركيب</span><span style="font-weight: 600; font-size: 16px;">الأحد 25 أكتوبر 09:00</span><span style="display: flex; gap: 8px; align-items: center;"><x-import component-from-global-scope="OpsOne.Badge" tone="success" icon="check">مؤكد</x-import></span></div>
+      </div>
+      <div style="display: flex; gap: 8px; flex-wrap: wrap; padding-top: 16px; border-top: 1px solid var(--stroke-weak);">
+        <x-import component-from-global-scope="OpsOne.Button" variant="secondary">إعادة إسناد التركيب</x-import>
+      </div>
+    </section>
+
+    <x-import component-from-global-scope="OpsOne.Steps" steps="{{ steps }}" current="{{ four }}" label="مراحل الطلب"></x-import>
+
+    <div role="tablist" aria-label="أقسام الطلب" class="o1-tablist">
+      <sc-for list="{{ tabs }}" as="t" hint-placeholder-count="4">
+        <a role="tab" href="#" aria-selected="{{ t.sel }}" class="o1-tab" style="position: relative; display: inline-flex; align-items: center; min-height: 44px; padding: 0 12px; text-decoration: none; color: {{ t.color }};">{{ t.label }}</a>
+      </sc-for>
+    </div>
+
+    <div style="display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 24px; align-items: start;">
+      <section class="o1-card o1-card--flush" aria-labelledby="t-h">
+        <div class="o1-card-head" style="padding: 20px 24px 0; margin-bottom: 8px;"><h2 id="t-h" class="o1-card-title">مهام المرحلة</h2></div>
+        <table class="o1-table">
+          <caption class="o1-sr">مهام مرحلة التركيب والتسليم</caption>
+          <thead><tr><th scope="col">المهمة</th><th scope="col">المنفذ</th><th scope="col">الحالة</th><th scope="col">الموعد</th><th scope="col"><span class="o1-sr">إجراء</span></th></tr></thead>
+          <tbody>
+            <tr><td style="font-weight: 500;">تركيب الخزائن</td><td>بندر القرني</td><td><x-import component-from-global-scope="OpsOne.Badge" tone="neutral">مسندة</x-import></td><td>الأحد 25 أكتوبر</td><td class="o1-td--end"><x-import component-from-global-scope="OpsOne.Button" variant="ghost" size="sm">إعادة إسناد</x-import></td></tr>
+            <tr><td style="font-weight: 500;">فحص الجودة قبل التسليم</td><td style="color: var(--text-weak);">صندوق القسم</td><td><x-import component-from-global-scope="OpsOne.Badge" tone="warning">غير مسندة</x-import></td><td>الأحد 25 أكتوبر</td><td class="o1-td--end"><x-import component-from-global-scope="OpsOne.Button" variant="secondary" size="sm">إسناد</x-import></td></tr>
+            <tr><td style="font-weight: 500;">تسجيل التسليم</td><td style="color: var(--text-weak);">بعد التركيب</td><td><x-import component-from-global-scope="OpsOne.Badge" tone="neutral">لم تبدأ</x-import></td><td style="color: var(--text-weak);">بلا موعد</td><td></td></tr>
+          </tbody>
+        </table>
+      </section>
+      <div style="display: flex; flex-direction: column; gap: 24px;">
+        <section class="o1-card" aria-labelledby="ds-h">
+          <h2 id="ds-h" class="o1-card-title" style="margin-bottom: 12px;">التصميم المعتمد</h2>
+          <a href="#" style="display: flex; align-items: center; gap: 8px; min-height: 44px; font-weight: 500;"><x-import component-from-global-scope="OpsOne.Icon" name="file-text"></x-import>تصميم الخزائن النهائي، PDF</a>
+          <span style="color: var(--text-weak);">معتمد من العميل 2 أكتوبر</span>
+        </section>
+        <section class="o1-card" aria-labelledby="ad-h">
+          <h2 id="ad-h" class="o1-card-title" style="margin-bottom: 12px;">موقع التنفيذ</h2>
+          <span>حي الملقا، الرياض</span>
+          <a href="#" style="display: inline-flex; align-items: center; gap: 4px; min-height: 44px; font-weight: 500;"><x-import component-from-global-scope="OpsOne.Icon" name="map-pin" size="{{ s16 }}"></x-import>فتح في الخرائط</a>
+        </section>
+      </div>
+    </div>
+  </main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1500}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const noop = () => {};
+    return {
+      yes: true, h28: 28, s16: 16, four: 4,
+      orderMenu: [ { id: 'pause', label: 'إيقاف الطلب', icon: 'clock', onSelect: noop }, { id: 'rework', label: 'إعادة عمل إجراء مكتمل', icon: 'refresh-cw', onSelect: noop } ],
+      crumbs: [ { label: 'الطلبات', href: 'OrdersList.dc.html' }, { label: 'ORD-24490' } ],
+      steps: [
+        { label: 'القياس والمعاينة', description: 'اكتملت' },
+        { label: 'التصميم والعرض', description: 'اكتملت' },
+        { label: 'الاتفاق والدفعة الأولى', description: 'اكتملت' },
+        { label: 'التصنيع', description: 'اكتملت 20 أكتوبر' },
+        { label: 'التركيب والتسليم', description: 'بانتظار متطلب' }
+      ],
+      tabs: [
+        { label: 'نظرة عامة', sel: 'true', color: 'var(--text-strong)' },
+        { label: 'المراحل والمهام', sel: 'false', color: 'var(--text-weak)' },
+        { label: 'الاتفاق والمستندات', sel: 'false', color: 'var(--text-weak)' },
+        { label: 'التسليم', sel: 'false', color: 'var(--text-weak)' },
+        { label: 'النشاط', sel: 'false', color: 'var(--text-weak)' }
+      ],
+      nav: [
+        { label: 'الرئيسية', icon: 'layout-dashboard', href: 'HomeSupervisor.dc.html', active: false },
+        { label: 'الطلبات', icon: 'clipboard-list', href: 'OrdersList.dc.html', active: true },
+        { label: 'المهام والمواعيد', icon: 'calendar', href: '#', active: false }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>شخص الاتصال في صفحة طلب لجهة</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/opsone/tokens.css">
+<link rel="stylesheet" href="ds/opsone/components/bundle.css">
+<script src="ds/opsone/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:var(--link)}a:hover{color:var(--brand-hover)}
+</style>
+</helmet>
+<div dir="rtl" data-surface="panel" style="width: 560px; min-height: 560px; box-sizing: border-box; padding: 32px; display: flex; flex-direction: column; gap: 24px; background: var(--fill); color: var(--text-strong); font-family: var(--font-sans); font-size: 14px; line-height: 24px;">
+
+  <section class="o1-card" aria-labelledby="oc-h">
+    <div class="o1-card-head" style="margin-bottom: 12px;"><h2 id="oc-h" class="o1-card-title">العميل</h2><a href="CustomerCompany.dc.html" style="min-height: 44px; display: inline-flex; align-items: center; font-weight: 500;">فتح الملف</a></div>
+    <div style="display: flex; flex-direction: column; gap: 4px; padding-bottom: 12px; border-bottom: 1px solid var(--stroke-weak);">
+      <span style="display: flex; gap: 8px; align-items: center;"><span style="font-weight: 600;">شركة دار الإعمار للمقاولات</span><x-import component-from-global-scope="OpsOne.Badge" tone="neutral">جهة تجارية</x-import></span>
+      <span style="color: var(--text-weak);">موقع التنفيذ مشروع النرجس السكني، حي النرجس</span>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 8px; padding-top: 12px;">
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <x-import component-from-global-scope="OpsOne.Avatar" name="عادل الشهري" size="md" decorative="{{ yes }}"></x-import>
+        <span style="display: flex; flex-direction: column; flex: 1;"><span style="font-weight: 600;">م. عادل الشهري</span><span style="color: var(--text-weak);">مسؤول المشتريات</span></span>
+      </div>
+      <bdi dir="ltr" style="text-align: start;">+966 50 662 1847</bdi>
+      <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px;">
+        <x-import component-from-global-scope="OpsOne.Button" variant="secondary" size="sm" icon="phone">اتصال</x-import>
+        <x-import component-from-global-scope="OpsOne.Button" variant="secondary" size="sm" icon="external-link">واتساب</x-import>
+      </div>
+      <x-import component-from-global-scope="OpsOne.SelectField" label="شخص الاتصال لهذا الطلب" options="{{ contacts }}" default-value="adel" hint="من أشخاص الاتصال المسجلين في ملف الجهة"></x-import>
+    </div>
+  </section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":560,"height":560}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {
+      yes: true,
+      contacts: [ { value: 'adel', label: 'م. عادل الشهري، المشتريات' }, { value: 'salman', label: 'سلمان القرني، المالية' }, { value: 'fahad', label: 'م. فهد البيشي، مهندس الموقع' } ]
+    };
+  }
+}
+</script>
+</body>
+</html>

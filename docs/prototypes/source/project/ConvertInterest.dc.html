@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>تحويل اهتمام إلى طلب</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/opsone/tokens.css">
+<link rel="stylesheet" href="ds/opsone/components/bundle.css">
+<script src="ds/opsone/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:var(--link)}a:hover{color:var(--brand-hover)}
+</style>
+</helmet>
+<div dir="rtl" data-surface="panel" style="position: relative; width: 1440px; height: 1100px; overflow: hidden; background: var(--background); color: var(--text-strong); font-family: var(--font-sans); font-size: 14px; line-height: 24px;">
+  <div aria-hidden="true" inert="" style="position: absolute; inset: 0;">
+    <dc-import name="CustomerProfile" hint-size="1440px,1500px"></dc-import>
+  </div>
+  <div aria-hidden="true" style="position: absolute; inset: 0; background: var(--overlay);"></div>
+
+  <div role="dialog" aria-modal="true" aria-labelledby="cv-t" aria-describedby="cv-d" style="position: absolute; inset-block-start: 80px; inset-inline-start: 50%; transform: translateX(50%); width: 640px; box-sizing: border-box; display: flex; flex-direction: column; gap: 16px; padding: 24px; background: var(--raised); border: 1px solid var(--stroke-weak); border-radius: 12px; box-shadow: var(--shadow-raised);">
+    <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 16px;">
+      <h2 id="cv-t" style="margin: 0; font-size: 16px; line-height: 26px; font-weight: 600;">تحويل الاهتمام <bdi dir="ltr" style="font-family: var(--font-mono);">INT-1042</bdi> إلى طلب مخصص</h2>
+      <x-import component-from-global-scope="OpsOne.Button" variant="ghost" icon="x" icon-only="{{ yes }}" aria-label="إغلاق"></x-import>
+    </div>
+    <p id="cv-d" style="margin: -8px 0 0; color: var(--text-weak);">عبّأنا الحقول من الاهتمام. راجعها ثم أنشئ الطلب.</p>
+
+    <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; padding: 12px 16px; background: var(--fill); border-radius: 8px;">
+      <div style="display: flex; flex-direction: column;"><span style="font-size: 13px; line-height: 20px; font-weight: 500; color: var(--text-weak);">العميلة</span><span style="font-weight: 600;">منيرة الشمري</span></div>
+      <div style="display: flex; flex-direction: column;"><span style="font-size: 13px; line-height: 20px; font-weight: 500; color: var(--text-weak);">القناة</span><span>اتصال هاتفي</span></div>
+      <div style="display: flex; flex-direction: column;"><span style="font-size: 13px; line-height: 20px; font-weight: 500; color: var(--text-weak);">سُجل</span><span>17 أكتوبر</span></div>
+    </div>
+
+    <x-import component-from-global-scope="OpsOne.TextField" label="ملخص الاحتياج" multiline="{{ yes }}" required="{{ yes }}" default-value="أبواب داخلية لثلاث غرف نوم، خشب طبيعي بلون فاتح، مع المقابض." hint="يبقى نص الاهتمام الأصلي محفوظًا في سجله"></x-import>
+    <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 20px;">
+      <x-import component-from-global-scope="OpsOne.SelectField" label="الفرع" options="{{ branches }}" default-value="olaya" required="{{ yes }}"></x-import>
+      <x-import component-from-global-scope="OpsOne.SelectField" label="المسؤول" options="{{ owners }}" default-value="noura" required="{{ yes }}"></x-import>
+      <x-import component-from-global-scope="OpsOne.RadioGroup" label="يحتاج قياسًا" options="{{ need }}" default-value="yes" inline="{{ yes }}"></x-import>
+      <x-import component-from-global-scope="OpsOne.RadioGroup" label="يحتاج تصميمًا" options="{{ need }}" default-value="no" inline="{{ yes }}"></x-import>
+    </div>
+
+    <x-import component-from-global-scope="OpsOne.Alert" tone="info">يُربط الطلب بالاهتمام مرة واحدة ويصبح الاهتمام «محول». لو ضُغط الزر مرتين أو حوّله زميل في الوقت نفسه، يُفتح الطلب نفسه ولا يُنشأ طلب ثانٍ.</x-import>
+
+    <div style="display: flex; justify-content: flex-end; gap: 8px; padding-top: 4px;">
+      <x-import component-from-global-scope="OpsOne.Button" variant="ghost" href="CustomerProfile.dc.html">إلغاء</x-import>
+      <x-import component-from-global-scope="OpsOne.Button" variant="primary" href="OrderCreated.dc.html">إنشاء الطلب من الاهتمام</x-import>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1100}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {
+      yes: true,
+      branches: [ { value: 'olaya', label: 'العليا' }, { value: 'malqa', label: 'الملقا' } ],
+      owners: [ { value: 'noura', label: 'نورة الدوسري' }, { value: 'khalid', label: 'خالد الزهراني' } ],
+      need: [ { value: 'yes', label: 'نعم' }, { value: 'no', label: 'لا' }, { value: 'tbd', label: 'لم يحدد بعد' } ]
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>القائمة على الجوال</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/opsone/tokens.css">
+<link rel="stylesheet" href="ds/opsone/components/bundle.css">
+<script src="ds/opsone/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:var(--link)}a:hover{color:var(--brand-hover)}
+</style>
+</helmet>
+<div dir="rtl" data-surface="panel" style="position: relative; width: 390px; height: 844px; overflow: hidden; background: var(--background); color: var(--text-strong); font-family: var(--font-sans); font-size: 14px; line-height: 24px;">
+  <header style="display: flex; align-items: center; gap: 4px; min-height: 64px; padding-inline: 8px 16px; background: var(--surface); border-bottom: 1px solid var(--stroke-weak);">
+    <x-import component-from-global-scope="OpsOne.Button" variant="ghost" icon="menu" icon-only="{{ yes }}" aria-label="فتح القائمة"></x-import>
+    <x-import component-from-global-scope="OpsOne.Logo" height="{{ h24 }}"></x-import>
+  </header>
+  <div style="padding: 16px;"><h1 style="margin: 0; font-size: 24px; line-height: 36px; font-weight: 700;">صباح الخير، فهد</h1></div>
+
+  <div aria-hidden="true" style="position: absolute; inset: 0; background: var(--overlay);"></div>
+
+  <aside role="dialog" aria-modal="true" aria-label="القائمة الرئيسية" style="position: absolute; inset-block: 0; inset-inline-start: 0; width: 304px; display: flex; flex-direction: column; background: var(--surface); box-shadow: var(--shadow-raised); padding: 12px;">
+    <div style="display: flex; align-items: center; justify-content: space-between; padding: 4px 4px 12px 12px; padding-inline: 12px 0;">
+      <x-import component-from-global-scope="OpsOne.Logo" height="{{ h28 }}"></x-import>
+      <x-import component-from-global-scope="OpsOne.Button" variant="ghost" icon="x" icon-only="{{ yes }}" aria-label="إغلاق القائمة"></x-import>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 2px; padding: 0 12px 12px; margin-bottom: 8px; border-bottom: 1px solid var(--stroke-weak);">
+      <span style="font-weight: 600;">مطابخ الركن الحديث</span>
+      <span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">باقة نمو، كل الفروع</span>
+    </div>
+    <nav class="o1-nav" aria-label="القائمة الرئيسية"><ul>
+      <sc-for list="{{ nav }}" as="item" hint-placeholder-count="8">
+        <li><x-import component-from-global-scope="OpsOne.NavItem" label="{{ item.label }}" icon="{{ item.icon }}" href="{{ item.href }}" active="{{ item.active }}" badge="{{ item.badge }}"></x-import></li>
+      </sc-for>
+    </ul></nav>
+    <div class="o1-sidebar-foot" style="margin-top: auto;">
+      <x-import component-from-global-scope="OpsOne.NavItem" label="الإعدادات" icon="settings" href="#"></x-import>
+    </div>
+  </aside>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {
+      yes: true, h24: 24, h28: 28,
+      nav: [
+        { label: 'الرئيسية', icon: 'layout-dashboard', href: 'HomeMobile.dc.html', active: true },
+        { label: 'الطلبات', icon: 'clipboard-list', href: 'OrdersMobile.dc.html', active: false },
+        { label: 'العملاء', icon: 'users', href: 'CustomersMobile.dc.html', active: false },
+        { label: 'المهام والمواعيد', icon: 'calendar', href: '#', active: false, badge: 2 },
+        { label: 'المالية', icon: 'receipt', href: '#', active: false },
+        { label: 'المخزون والتوريد', icon: 'package', href: '#', active: false },
+        { label: 'الموقع', icon: 'file-text', href: '#', active: false },
+        { label: 'التقارير', icon: 'trending-up', href: '#', active: false }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

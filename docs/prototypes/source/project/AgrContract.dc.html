@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>إعداد عقد</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/opsone/tokens.css">
+<link rel="stylesheet" href="ds/opsone/components/bundle.css">
+<script src="ds/opsone/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:var(--link)}a:hover{color:var(--brand-hover)}
+</style>
+</helmet>
+<div dir="rtl" data-surface="panel" style="position: relative; width: 1440px; height: 1100px; overflow: hidden; background: var(--background); color: var(--text-strong); font-family: var(--font-sans); font-size: 14px; line-height: 24px;">
+  <div aria-hidden="true" inert="" style="position: absolute; inset: 0;">
+    <dc-import name="AgrOrder" hint-size="1440px,1700px"></dc-import>
+  </div>
+  <div aria-hidden="true" style="position: absolute; inset: 0; background: var(--overlay);"></div>
+
+  <div role="dialog" aria-modal="true" aria-labelledby="d-t" aria-describedby="d-d" class="o1-dialog o1-dialog--lg" style="position: absolute; inset: 0; margin: auto; height: fit-content;">
+    <div class="o1-dialog-inner">
+    <div class="o1-dialog-head">
+      <h2 id="d-t" class="o1-dialog-title">إعداد عقد لـ <bdi dir="ltr" style="font-family: var(--font-mono);">ORD-24518</bdi></h2>
+      <button type="button" class="o1-dialog-close" aria-label="إغلاق"><x-import component-from-global-scope="OpsOne.Icon" name="x"></x-import></button>
+    </div>
+    <p id="d-d" class="o1-dialog-desc">من الاتفاق المعتمد QUO-3307، دون إعادة كتابة البيانات.</p>
+    
+    <x-import component-from-global-scope="OpsOne.RadioGroup" label="المصدر" options="{{ sources }}" default-value="agreement" inline="{{ yes }}"></x-import>
+    <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 20px;">
+      <div style="display: flex; flex-direction: column; gap: 2px; padding: 12px 16px; border: 1px solid var(--stroke-weak); border-radius: 8px;"><span style="font-size: 14px; line-height: 20px; font-weight: 500; color: var(--text-weak);">الجهة</span><span>مطابخ الركن الحديث</span><span>السجل التجاري <bdi dir="ltr">1010734521</bdi></span><span>الرياض، حي العليا</span></div>
+      <div style="display: flex; flex-direction: column; gap: 2px; padding: 12px 16px; border: 1px solid var(--stroke-weak); border-radius: 8px;"><span style="font-size: 14px; line-height: 20px; font-weight: 500; color: var(--text-weak);">العميلة</span><span>منيرة الشمري</span><span><bdi dir="ltr">+966 55 214 7781</bdi></span><span>حي الياسمين، شارع الأمير سعود بن عبدالله، الرياض</span></div>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 2px; padding: 12px 16px; border: 1px solid var(--stroke-weak); border-radius: 8px;"><span style="font-size: 14px; line-height: 20px; font-weight: 500; color: var(--text-weak);">من الاتفاق</span><span>بندان، 18,450.00 ر.س شاملة الضريبة</span><span>مدة التنفيذ التقديرية 21 يومًا</span><span>دفعة أولى 5,000.00 ر.س، والباقي عند التسليم</span></div>
+    <div style="display: flex; flex-direction: column; gap: 2px; padding: 12px 16px; border: 1px solid var(--stroke-weak); border-radius: 8px;"><span style="font-size: 14px; line-height: 20px; font-weight: 500; color: var(--text-weak);">النموذج</span><span>عقد توريد وتركيب مطبخ، بالعربية لغة العميلة</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">النموذج الفعال من الإعدادات ← المبيعات.</span></div>
+    <x-import component-from-global-scope="OpsOne.TextField" label="شروط إضافية" hint="تظهر في بند الشروط الإضافية من النموذج" default-value="تُسلَّم الأجهزة المدمجة للفريق قبل موعد التركيب بيومين." multiline="{{ yes }}" optional="{{ yes }}"></x-import>
+    <div style="display: flex; flex-direction: column; gap: 8px; padding: 12px 16px; background: var(--fill); border-radius: 8px;">
+      <span style="font-weight: 600;">عند الإعداد</span>
+      <span style="display: flex; gap: 8px;"><span style="color: var(--success-text); display: inline-flex;"><x-import component-from-global-scope="OpsOne.Icon" name="check" size="{{ s16 }}"></x-import></span><span>يُنشأ العقد مسودة بنص النموذج وبيانات الاتفاق الحالية، ولا يتغير لاحقًا بتعديل ملف العميلة أو النموذج.</span></span>
+      <span style="display: flex; gap: 8px;"><span style="color: var(--info-text); display: inline-flex;"><x-import component-from-global-scope="OpsOne.Icon" name="info" size="{{ s16 }}"></x-import></span><span>يُرسل للعميلة لتوافق عليه من حسابها. موافقتها الإلكترونية بديل التوقيع، وتُسجل بوقتها وجوالها والنص الذي وافقت عليه.</span></span>
+    </div>
+    <div class="o1-dialog-foot">
+      <x-import component-from-global-scope="OpsOne.Button" variant="ghost" href="AgrOrder.dc.html">إلغاء</x-import><x-import component-from-global-scope="OpsOne.Button" variant="primary" href="AgrOrder.dc.html">إعداد العقد</x-import>
+    </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview": {"width": 1440, "height": 1100}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const noop = () => {};
+    return { yes: true, no: false, h28: 28, s16: 16, s24: 24, sources: [ { value: 'agreement', label: 'من الاتفاق' }, { value: 'file', label: 'رفع عقد موقّع' } ] };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>التذاكر</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/opsone/tokens.css">
+<link rel="stylesheet" href="ds/opsone/components/bundle.css">
+<script src="ds/opsone/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:var(--link)}a:hover{color:var(--brand-hover)}
+</style>
+</helmet>
+<div dir="rtl" data-surface="panel" style="width: 1440px; min-height: 1000px; display: flex; background: var(--background); color: var(--text-strong); font-family: var(--font-sans); font-size: 14px; line-height: 24px;">
+
+<aside class="o1-sidebar" style="position: relative; height: auto; display: flex;">
+  <div class="o1-sidebar-brand"><x-import component-from-global-scope="OpsOne.Logo" height="{{ h28 }}"></x-import></div>
+  <div style="display: flex; flex-direction: column; gap: 2px; padding: 0 12px 16px; margin-bottom: 8px; border-bottom: 1px solid var(--stroke-weak);">
+    <span style="font-weight: 600;">مطابخ الركن الحديث</span>
+    <span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">باقة نمو</span>
+  </div>
+  <nav class="o1-nav" aria-label="القائمة الرئيسية"><ul>
+    <sc-for list="{{ nav }}" as="item" hint-placeholder-count="8">
+      <li><x-import component-from-global-scope="OpsOne.NavItem" label="{{ item.label }}" icon="{{ item.icon }}" href="{{ item.href }}" active="{{ item.active }}"></x-import></li>
+    </sc-for>
+  </ul></nav>
+  <div class="o1-sidebar-foot">
+    <x-import component-from-global-scope="OpsOne.NavItem" label="الإعدادات" icon="settings" href="#"></x-import>
+  </div>
+</aside>
+
+<div class="o1-shell-main" style="flex: 1; min-width: 0; display: flex; flex-direction: column;">
+  <header class="o1-topbar" style="position: relative; gap: 12px;">
+    <div style="width: 440px;"><x-import component-from-global-scope="OpsOne.SearchField" label="البحث العام" placeholder="رقم الطلب أو اسم العميل أو الجوال أو المستند"></x-import></div>
+    <div class="o1-topbar-end">
+      <x-import component-from-global-scope="OpsOne.Button" variant="ghost" icon="info" icon-only="{{ yes }}" aria-label="مساعدة هذه الصفحة"></x-import>
+      <x-import component-from-global-scope="OpsOne.Button" variant="ghost" icon="bell" icon-only="{{ yes }}" aria-label="الإشعارات"></x-import>
+      <x-import component-from-global-scope="OpsOne.Avatar" name="فهد العتيبي" size="sm"></x-import>
+    </div>
+  </header>
+
+  <main class="o1-main" style="max-width: none; padding: 32px; display: flex; flex-direction: column; gap: 20px;">
+    <div class="o1-pagehead" style="margin-bottom: 0;"><div class="o1-pagehead-text"><h1 class="o1-pagehead-title">العملاء</h1><p class="o1-pagehead-desc">ما يصل من العملاء: الاهتمامات قبل الطلب، والتذاكر بعده من حساب العميل. كل تذكرة لمسؤول طلبها، وغير المرتبطة بطلب لمسؤول التذاكر العامة، وتظهر في مهامه.</p></div><div class="o1-pagehead-actions"></div></div><div role="tablist" aria-label="أقسام العملاء" class="o1-tablist"><a role="tab" href="CustomersList.dc.html" aria-selected="false" class="o1-tab" style="position: relative; display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 12px; text-decoration: none; color: var(--text-weak);">العملاء</a><a role="tab" href="InterestsList.dc.html" aria-selected="false" class="o1-tab" style="position: relative; display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 12px; text-decoration: none; color: var(--text-weak);">الاهتمامات<x-import component-from-global-scope="OpsOne.Counter" value="4" label="4 اهتمامات جديدة"></x-import></a><a role="tab" href="Tickets.dc.html" aria-selected="true" class="o1-tab" style="position: relative; display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 12px; text-decoration: none; color: var(--text-strong);">التذاكر<x-import component-from-global-scope="OpsOne.Counter" value="1" label="تذكرة جديدة"></x-import></a></div><div style="display: flex; justify-content: space-between; align-items: flex-end; gap: 12px;"><div role="group" aria-label="تصفية" style="display: flex; gap: 8px; flex-wrap: wrap;"><button type="button" aria-pressed="true" class="o1-btn o1-btn--secondary o1-btn--sm">المفتوحة 4</button><button type="button" aria-pressed="false" class="o1-btn o1-btn--secondary o1-btn--sm">بانتظار العميل 1</button><button type="button" aria-pressed="false" class="o1-btn o1-btn--secondary o1-btn--sm">المحلولة</button></div><div style="width: 200px;"><x-import component-from-global-scope="OpsOne.SelectField" label="النوع" options="{{ tty }}" default-value="all"></x-import></div></div><div class="o1-table-wrap"><table class="o1-table"><caption class="o1-sr">التذاكر</caption><thead><tr><th scope="col">التذكرة</th><th scope="col">النوع</th><th scope="col">العميل</th><th scope="col">الطلب</th><th scope="col">المسؤول</th><th scope="col">الحالة</th><th scope="col">آخر تحديث</th></tr></thead><tbody><tr><td><a href="#" style="display: flex; flex-direction: column; text-decoration: none; color: var(--text-strong); min-height: 44px; justify-content: center;"><span style="font-weight: 600;">متى يبدأ التصنيع؟</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);"><bdi dir="ltr" style="font-family: var(--font-mono);">TKT-0319</bdi></span></a></td><td>سؤال</td><td>ناصر العمري</td><td><x-import component-from-global-scope="OpsOne.Ref" href="OrderOverview.dc.html">ORD-24502</x-import></td><td>خالد الزهراني</td><td><x-import component-from-global-scope="OpsOne.Badge" tone="info">جديدة</x-import></td><td><span style="color: var(--text-weak);">قبل 20 دقيقة</span></td></tr><tr><td><a href="TicketPage.dc.html" style="display: flex; flex-direction: column; text-decoration: none; color: var(--text-strong); min-height: 44px; justify-content: center;"><span style="font-weight: 600;">باب الخزانة المنزلق يحتك</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);"><bdi dir="ltr" style="font-family: var(--font-mono);">TKT-0318</bdi></span></a></td><td>مشكلة</td><td>لطيفة الحربي</td><td><x-import component-from-global-scope="OpsOne.Ref" href="OrderOverview.dc.html">ORD-24476</x-import></td><td>خالد الزهراني</td><td><x-import component-from-global-scope="OpsOne.Badge" tone="info">قيد المعالجة</x-import></td><td><span style="color: var(--text-weak);">قبل ساعة</span></td></tr><tr><td><a href="#" style="display: flex; flex-direction: column; text-decoration: none; color: var(--text-strong); min-height: 44px; justify-content: center;"><span style="font-weight: 600;">متى يُؤكد إيصالي؟</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);"><bdi dir="ltr" style="font-family: var(--font-mono);">TKT-0316</bdi></span></a></td><td>سؤال</td><td>منيرة الشمري</td><td><x-import component-from-global-scope="OpsOne.Ref" href="OrderOverview.dc.html">ORD-24518</x-import></td><td>نورة الدوسري</td><td><x-import component-from-global-scope="OpsOne.Badge" tone="info">قيد المعالجة</x-import></td><td><span style="color: var(--text-weak);">أمس</span></td></tr><tr><td><a href="#" style="display: flex; flex-direction: column; text-decoration: none; color: var(--text-strong); min-height: 44px; justify-content: center;"><span style="font-weight: 600;">هل تصممون غرف ملابس؟</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);"><bdi dir="ltr" style="font-family: var(--font-mono);">TKT-0315</bdi></span></a></td><td>سؤال</td><td>ريم السبيعي</td><td><span style="color: var(--text-weak);">بلا طلب</span></td><td>نورة الدوسري</td><td><x-import component-from-global-scope="OpsOne.Badge" tone="success">محلولة</x-import></td><td><span style="color: var(--text-weak);">أمس</span></td></tr><tr><td><a href="#" style="display: flex; flex-direction: column; text-decoration: none; color: var(--text-strong); min-height: 44px; justify-content: center;"><span style="font-weight: 600;">نسخة من الفاتورة</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);"><bdi dir="ltr" style="font-family: var(--font-mono);">TKT-0312</bdi></span></a></td><td>طلب</td><td>عبدالرحمن الفيفي</td><td><x-import component-from-global-scope="OpsOne.Ref" href="OrderOverview.dc.html">ORD-24480</x-import></td><td>نورة الدوسري</td><td><x-import component-from-global-scope="OpsOne.Badge" tone="warning">بانتظار العميل</x-import></td><td><span style="color: var(--text-weak);">قبل 3 أيام</span></td></tr><tr><td><a href="#" style="display: flex; flex-direction: column; text-decoration: none; color: var(--text-strong); min-height: 44px; justify-content: center;"><span style="font-weight: 600;">سؤال عن خامة السطح</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);"><bdi dir="ltr" style="font-family: var(--font-mono);">TKT-0309</bdi></span></a></td><td>سؤال</td><td>أمل السديري</td><td><x-import component-from-global-scope="OpsOne.Ref" href="OrderOverview.dc.html">ORD-24512</x-import></td><td>نورة الدوسري</td><td><x-import component-from-global-scope="OpsOne.Badge" tone="success">محلولة</x-import></td><td><span style="color: var(--text-weak);">19 أكتوبر</span></td></tr><tr><td><a href="#" style="display: flex; flex-direction: column; text-decoration: none; color: var(--text-strong); min-height: 44px; justify-content: center;"><span style="font-weight: 600;">استفسار عن الإلغاء</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);"><bdi dir="ltr" style="font-family: var(--font-mono);">TKT-0301</bdi></span></a></td><td>سؤال</td><td>تركي العسيري</td><td><x-import component-from-global-scope="OpsOne.Ref" href="OrderOverview.dc.html">ORD-24467</x-import></td><td>سارة القحطاني</td><td><x-import component-from-global-scope="OpsOne.Badge" tone="neutral">مغلقة</x-import></td><td><span style="color: var(--text-weak);">18 أكتوبر</span></td></tr></tbody></table></div>
+  </main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview": {"width": 1440, "height": 1000}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const noop = () => {};
+    return { yes: true, no: false, h28: 28, h24: 24, s16: 16, s24: 24, tty: [ { value: 'all', label: 'كل الأنواع' }, { value: 'p', label: 'مشكلة' }, { value: 'q', label: 'سؤال' }, { value: 'r', label: 'طلب' }, { value: 'o', label: 'أخرى' } ], nav: [ { label: 'الرئيسية', icon: 'layout-dashboard', href: 'Main.dc.html', active: false }, { label: 'الطلبات', icon: 'clipboard-list', href: 'OrdersList.dc.html', active: false }, { label: 'العملاء', icon: 'users', href: 'CustomersList.dc.html', active: true }, { label: 'المهام والمواعيد', icon: 'calendar', href: 'CalWeek.dc.html', active: false }, { label: 'المالية', icon: 'receipt', href: 'FinHome.dc.html', active: false }, { label: 'المخزون والتوريد', icon: 'package', href: 'StockList.dc.html', active: false }, { label: 'الموقع', icon: 'file-text', href: 'SitePages.dc.html', active: false }, { label: 'التقارير', icon: 'trending-up', href: 'ReportsHome.dc.html', active: false } ] };
+  }
+}
+</script>
+</body>
+</html>

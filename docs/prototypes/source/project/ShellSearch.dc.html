@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>البحث العام</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/opsone/tokens.css">
+<link rel="stylesheet" href="ds/opsone/components/bundle.css">
+<script src="ds/opsone/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:var(--link)}a:hover{color:var(--brand-hover)}
+</style>
+</helmet>
+<div dir="rtl" data-surface="panel" style="position: relative; width: 1440px; height: 900px; overflow: hidden; display: flex; background: var(--background); color: var(--text-strong); font-family: var(--font-sans); font-size: 14px; line-height: 24px;">
+
+<aside class="o1-sidebar" style="position: relative; height: auto; display: flex;">
+  <div class="o1-sidebar-brand"><x-import component-from-global-scope="OpsOne.Logo" height="{{ h28 }}"></x-import></div>
+  <nav class="o1-nav" aria-label="القائمة الرئيسية"><ul>
+    <sc-for list="{{ nav }}" as="item" hint-placeholder-count="8">
+      <li><x-import component-from-global-scope="OpsOne.NavItem" label="{{ item.label }}" icon="{{ item.icon }}" href="{{ item.href }}" active="{{ item.active }}"></x-import></li>
+    </sc-for>
+  </ul></nav>
+</aside>
+
+<div class="o1-shell-main" style="flex: 1; min-width: 0; display: flex; flex-direction: column;">
+  <header class="o1-topbar" style="position: relative; gap: 12px; z-index: 2;">
+    <div style="position: relative; width: 560px;">
+      <x-import component-from-global-scope="OpsOne.SearchField" label="البحث العام" default-value="منيرة" placeholder="رقم الطلب أو اسم العميل أو الجوال أو المستند"></x-import>
+      <div role="listbox" aria-label="نتائج البحث" style="position: absolute; inset-block-start: 52px; inset-inline: 0; display: flex; flex-direction: column; background: var(--raised); border: 1px solid var(--stroke-weak); border-radius: 12px; box-shadow: var(--shadow-raised); overflow: hidden;">
+        <p style="margin: 0; padding: 12px 16px 4px; font-size: 13px; line-height: 20px; font-weight: 500; color: var(--text-weak);">العملاء</p>
+        <a role="option" aria-selected="true" href="CustomerProfile.dc.html" style="display: flex; align-items: center; gap: 12px; min-height: 56px; padding: 8px 16px; background: var(--hover); color: var(--text-strong); text-decoration: none;">
+          <x-import component-from-global-scope="OpsOne.Avatar" name="منيرة الشمري" size="sm" decorative="{{ yes }}"></x-import>
+          <span style="display: flex; flex-direction: column; flex: 1;"><span><strong>منيرة</strong> الشمري</span><bdi dir="ltr" style="font-size: 13px; line-height: 20px; color: var(--text-weak); text-align: start;">+966 55 214 7781</bdi></span>
+          <span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">طلبان</span>
+        </a>
+        <p style="margin: 0; padding: 12px 16px 4px; font-size: 13px; line-height: 20px; font-weight: 500; color: var(--text-weak); border-top: 1px solid var(--stroke-weak);">الطلبات</p>
+        <a role="option" aria-selected="false" href="OrderOverview.dc.html" style="display: flex; align-items: center; gap: 12px; min-height: 56px; padding: 8px 16px; color: var(--text-strong); text-decoration: none;">
+          <span style="color: var(--text-weak); display: inline-flex;"><x-import component-from-global-scope="OpsOne.Icon" name="clipboard-list"></x-import></span>
+          <span style="display: flex; flex-direction: column; flex: 1;"><span><bdi dir="ltr" style="font-family: var(--font-mono);">ORD-24518</bdi> <strong>منيرة</strong> الشمري</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">الاتفاق والدفعة الأولى</span></span>
+          <x-import component-from-global-scope="OpsOne.Badge" tone="info">جارٍ</x-import>
+        </a>
+        <a role="option" aria-selected="false" href="#" style="display: flex; align-items: center; gap: 12px; min-height: 56px; padding: 8px 16px; color: var(--text-strong); text-decoration: none;">
+          <span style="color: var(--text-weak); display: inline-flex;"><x-import component-from-global-scope="OpsOne.Icon" name="clipboard-list"></x-import></span>
+          <span style="display: flex; flex-direction: column; flex: 1;"><span><bdi dir="ltr" style="font-family: var(--font-mono);">ORD-23990</bdi> <strong>منيرة</strong> الشمري</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">خزائن غرفة النوم</span></span>
+          <x-import component-from-global-scope="OpsOne.Badge" tone="neutral">مقفل</x-import>
+        </a>
+        <p style="margin: 0; padding: 12px 16px 4px; font-size: 13px; line-height: 20px; font-weight: 500; color: var(--text-weak); border-top: 1px solid var(--stroke-weak);">المستندات</p>
+        <a role="option" aria-selected="false" href="#" style="display: flex; align-items: center; gap: 12px; min-height: 56px; padding: 8px 16px; color: var(--text-strong); text-decoration: none;">
+          <span style="color: var(--text-weak); display: inline-flex;"><x-import component-from-global-scope="OpsOne.Icon" name="file-text"></x-import></span>
+          <span style="display: flex; flex-direction: column; flex: 1;"><span>عرض سعر <bdi dir="ltr" style="font-family: var(--font-mono);">QUO-3307</bdi></span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">ORD-24518 <strong>منيرة</strong> الشمري</span></span>
+          <x-import component-from-global-scope="OpsOne.Badge" tone="success">موافق عليه</x-import>
+        </a>
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 16px; border-top: 1px solid var(--stroke-weak); background: var(--fill);">
+          <span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">الأسهم للتنقل، و Enter لفتح النتيجة، و Esc للإغلاق</span>
+          <a href="#" style="min-height: 44px; display: inline-flex; align-items: center; font-weight: 500;">عرض كل النتائج</a>
+        </div>
+      </div>
+    </div>
+    <div class="o1-topbar-end">
+      <x-import component-from-global-scope="OpsOne.Button" variant="ghost" icon="bell" icon-only="{{ yes }}" aria-label="الإشعارات"></x-import>
+      <x-import component-from-global-scope="OpsOne.Avatar" name="فهد العتيبي" size="sm"></x-import>
+    </div>
+  </header>
+  <main class="o1-main" style="max-width: none; padding: 32px; display: flex; flex-direction: column; gap: 24px; opacity: 0.5;">
+    <h1 class="o1-pagehead-title">صباح الخير، فهد</h1>
+    <section style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px;">
+      <x-import component-from-global-scope="OpsOne.StatCard" label="المستحق الآن" value="38,200.00 ر.س"></x-import>
+      <x-import component-from-global-scope="OpsOne.StatCard" label="تحصيل متأخر" value="12,750.00 ر.س"></x-import>
+      <x-import component-from-global-scope="OpsOne.StatCard" label="صافي المقبوض هذا الشهر" value="146,300.00 ر.س"></x-import>
+      <x-import component-from-global-scope="OpsOne.StatCard" label="إيصالات بانتظار التأكيد" value="2"></x-import>
+    </section>
+    <div class="o1-card" style="height: 360px;"><h2 class="o1-card-title">تحتاج قرارك</h2></div>
+  </main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {
+      yes: true, h28: 28,
+      nav: [
+        { label: 'الرئيسية', icon: 'layout-dashboard', href: 'Main.dc.html', active: true },
+        { label: 'الطلبات', icon: 'clipboard-list', href: 'OrdersList.dc.html', active: false },
+        { label: 'العملاء', icon: 'users', href: 'CustomersList.dc.html', active: false },
+        { label: 'المهام والمواعيد', icon: 'calendar', href: '#', active: false },
+        { label: 'المالية', icon: 'receipt', href: '#', active: false },
+        { label: 'المخزون والتوريد', icon: 'package', href: '#', active: false },
+        { label: 'الموقع', icon: 'file-text', href: '#', active: false },
+        { label: 'التقارير', icon: 'trending-up', href: '#', active: false }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

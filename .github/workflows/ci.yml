@@ -34,13 +34,27 @@ jobs:
         if: steps.app.outputs.exists == 'true'
         working-directory: src
         run: composer install --no-interaction --prefer-dist
-      - name: Run tests
+      - name: Prepare environment
         if: steps.app.outputs.exists == 'true'
         working-directory: src
         run: |
           cp -n .env.example .env
           php artisan key:generate --force
-          php artisan test
+      - uses: actions/setup-node@v4
+        if: steps.app.outputs.exists == 'true'
+        with:
+          node-version: '24'
+      - name: Build frontend assets (Vite manifest required by Inertia tests)
+        if: steps.app.outputs.exists == 'true'
+        working-directory: src
+        run: |
+          corepack enable
+          pnpm install --frozen-lockfile
+          pnpm run build
+      - name: Run tests
+        if: steps.app.outputs.exists == 'true'
+        working-directory: src
+        run: php artisan test
         env:
           DB_CONNECTION: sqlite
           DB_DATABASE: ':memory:'

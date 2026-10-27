@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<title>Executor task</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/opsone/tokens.css">
+<link rel="stylesheet" href="ds/opsone/components/bundle.css">
+<script src="ds/opsone/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:var(--link)}a:hover{color:var(--brand-hover)}
+</style>
+</helmet>
+<div dir="ltr" lang="en" data-surface="panel" style="width: 1440px; min-height: 1300px; display: flex; background: var(--background); color: var(--text-strong); font-family: var(--font-latin); font-size: 14px; line-height: 24px;"><aside class="o1-sidebar" style="position: relative; height: auto; display: flex;"><div class="o1-sidebar-brand"><x-import component-from-global-scope="OpsOne.Logo" height="{{ h28 }}"></x-import></div><div style="display: flex; flex-direction: column; gap: 2px; padding: 0 12px 16px; margin-bottom: 8px; border-bottom: 1px solid var(--stroke-weak);"><span style="font-weight: 600;">Al Rukn Modern Kitchens</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">Manufacturing and installation</span></div><nav class="o1-nav" aria-label="Main menu"><ul><sc-for list="{{ nav }}" as="item" hint-placeholder-count="2"><li><x-import component-from-global-scope="OpsOne.NavItem" label="{{ item.label }}" icon="{{ item.icon }}" href="#" active="{{ item.active }}"></x-import></li></sc-for></ul></nav></aside><div class="o1-shell-main" style="flex: 1; min-width: 0; display: flex; flex-direction: column;"><header class="o1-topbar" style="position: relative; gap: 12px;"><div style="width: 440px;"><x-import component-from-global-scope="OpsOne.SearchField" label="Search" placeholder="Order number or task"></x-import></div><div class="o1-topbar-end"><x-import component-from-global-scope="OpsOne.Button" variant="ghost" icon="bell" icon-only="{{ yes }}" aria-label="Notifications"></x-import><x-import component-from-global-scope="OpsOne.Avatar" name="Bandar Alqarni" size="sm"></x-import></div></header><main class="o1-main" style="max-width: none; padding: 24px 32px 32px; display: flex; flex-direction: column; gap: 20px;"><x-import component-from-global-scope="OpsOne.Breadcrumbs" items="{{ crumbs }}"></x-import><div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap;"><div style="display: flex; flex-direction: column; gap: 8px;"><div style="display: flex; align-items: center; gap: 12px;"><h1 style="margin: 0; font-size: 24px; line-height: 36px; font-weight: 700;">Install cabinets</h1><x-import component-from-global-scope="OpsOne.Badge" tone="info">In progress</x-import></div><div style="display: flex; gap: 24px; color: var(--text-weak);"><span>Order <span style="font-family: var(--font-mono); color: var(--text-strong);">ORD-24476</span></span><span>Stage <strong style="color: var(--text-strong); font-weight: 500;">Installation and delivery</strong></span></div></div><div style="display: flex; gap: 8px;"><x-import component-from-global-scope="OpsOne.Button" variant="secondary" icon="clock">Waiting on something</x-import><x-import component-from-global-scope="OpsOne.Button" variant="primary" icon="check">Complete task</x-import></div></div><div style="display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 24px; align-items: start;"><div style="display: flex; flex-direction: column; gap: 24px;"><section class="o1-card" aria-labelledby="nd-h">
+          <div class="o1-card-head" style="margin-bottom: 12px;"><div class="o1-card-heading"><h2 id="nd-h" class="o1-card-title">What is needed</h2></div></div>
+          <p style="margin: 0 0 12px;">Install the wardrobe, TV unit and two desk shelves per the approved design, adjust the sliding doors and clean the site.</p><table class="o1-table"><caption class="o1-sr">Items</caption><thead><tr><th scope="col">Item</th><th scope="col">Quantity</th></tr></thead><tbody><tr><td>Sliding-door wardrobe</td><td>1</td></tr><tr><td>Wall-mounted TV unit</td><td>1</td></tr><tr><td>Desk shelf</td><td>2</td></tr></tbody></table>
+        </section><section class="o1-card" aria-labelledby="fl-h">
+          <div class="o1-card-head" style="margin-bottom: 12px;"><div class="o1-card-heading"><h2 id="fl-h" class="o1-card-title">Required attachments</h2></div></div>
+          <ul style="list-style: none; margin: 0; padding: 0;"><li><a href="#" style="display: inline-flex; align-items: center; gap: 8px; min-height: 44px; font-weight: 500;"><x-import component-from-global-scope="OpsOne.Icon" name="file-text"></x-import>Approved design, PDF</a></li><li><a href="#" style="display: inline-flex; align-items: center; gap: 8px; min-height: 44px; font-weight: 500;"><x-import component-from-global-scope="OpsOne.Icon" name="paperclip"></x-import>Final measurement sketch</a></li></ul>
+        </section><section class="o1-card" aria-labelledby="rs-h">
+          <div class="o1-card-head" style="margin-bottom: 12px;"><div class="o1-card-heading"><h2 id="rs-h" class="o1-card-title">Result</h2></div></div>
+          <div style="display: flex; flex-direction: column; gap: 16px;"><x-import component-from-global-scope="OpsOne.TextField" label="Notes" default-value="Wardrobe, TV unit and one shelf installed. The second shelf was damaged in transport." multiline="{{ yes }}"></x-import><div><x-import component-from-global-scope="OpsOne.Button" variant="secondary" icon="check">Record delivery</x-import></div><span style="color: var(--text-weak);">Completing the task does not record a delivery to the customer.</span></div>
+        </section></div><div style="display: flex; flex-direction: column; gap: 24px;"><section class="o1-card" aria-labelledby="vs-h">
+          <div class="o1-card-head" style="margin-bottom: 12px;"><div class="o1-card-heading"><h2 id="vs-h" class="o1-card-title">Visit</h2></div></div>
+          <dl style="margin: 0; display: flex; flex-direction: column;">
+            <div style="display: flex; justify-content: space-between; gap: 12px; padding: 8px 0;"><dt style="color: var(--text-weak);">Appointment</dt><dd style="margin: 0; text-align: end;">Today 13:30, 2.5 hours</dd></div>
+            <div style="display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-top: 1px solid var(--stroke-weak);"><dt style="color: var(--text-weak);">Status</dt><dd style="margin: 0; text-align: end;"><x-import component-from-global-scope="OpsOne.Badge" tone="success">Confirmed</x-import></dd></div>
+            <div style="display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-top: 1px solid var(--stroke-weak);"><dt style="color: var(--text-weak);">Customer</dt><dd style="margin: 0; text-align: end;">Latifa Alharbi</dd></div>
+            <div style="display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-top: 1px solid var(--stroke-weak);"><dt style="color: var(--text-weak);">Address</dt><dd style="margin: 0; text-align: end;">Al Malqa, Anas bin Malik St, Villa 14</dd></div>
+          </dl>
+        </section><section class="o1-card" aria-labelledby="lm-h">
+          <div class="o1-card-head" style="margin-bottom: 12px;"><div class="o1-card-heading"><h2 id="lm-h" class="o1-card-title">Not shown here</h2></div></div>
+          <p style="margin: 0; color: var(--text-weak);">The full customer profile and order finance are outside this task. For money questions contact Khalid Alzahrani, the order owner.</p>
+        </section></div></div></main></div></div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview": {"width": 1440, "height": 1300}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const noop = () => {};
+    return { yes: true, h28: 28, s16: 16, crumbs: [ { label: 'Tasks and appointments', href: '#' }, { label: 'Install cabinets' } ], nav: [ { label: 'Home', icon: 'layout-dashboard', active: false }, { label: 'Tasks and appointments', icon: 'calendar', active: true } ] };
+  }
+}
+</script>
+</body>
+</html>

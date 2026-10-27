@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>مالية الطلب</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/opsone/tokens.css">
+<link rel="stylesheet" href="ds/opsone/components/bundle.css">
+<script src="ds/opsone/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:var(--link)}a:hover{color:var(--brand-hover)}
+</style>
+</helmet>
+<div dir="rtl" data-surface="panel" data-theme="{{ theme }}" style="width: 1440px; min-height: 1700px; display: flex; background: var(--background); color: var(--text-strong); font-family: var(--font-sans); font-size: 14px; line-height: 24px;">
+
+<aside class="o1-sidebar" style="position: relative; height: auto; display: flex;">
+  <div class="o1-sidebar-brand"><x-import component-from-global-scope="OpsOne.Logo" height="{{ h28 }}"></x-import></div>
+  <div style="display: flex; flex-direction: column; gap: 2px; padding: 0 12px 16px; margin-bottom: 8px; border-bottom: 1px solid var(--stroke-weak);">
+    <span style="font-weight: 600;">مطابخ الركن الحديث</span>
+    <span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">باقة نمو</span>
+  </div>
+  <nav class="o1-nav" aria-label="القائمة الرئيسية"><ul>
+    <sc-for list="{{ nav }}" as="item" hint-placeholder-count="8">
+      <li><x-import component-from-global-scope="OpsOne.NavItem" label="{{ item.label }}" icon="{{ item.icon }}" href="{{ item.href }}" active="{{ item.active }}"></x-import></li>
+    </sc-for>
+  </ul></nav>
+  <div class="o1-sidebar-foot">
+    <x-import component-from-global-scope="OpsOne.NavItem" label="الإعدادات" icon="settings" href="#"></x-import>
+  </div>
+</aside>
+
+<div class="o1-shell-main" style="flex: 1; min-width: 0; display: flex; flex-direction: column;">
+  <header class="o1-topbar" style="position: relative; gap: 12px;">
+    <div style="width: 440px;"><x-import component-from-global-scope="OpsOne.SearchField" label="البحث العام" placeholder="رقم الطلب أو اسم العميل أو الجوال أو المستند"></x-import></div>
+    <div class="o1-topbar-end">
+      <x-import component-from-global-scope="OpsOne.Button" variant="ghost" icon="info" icon-only="{{ yes }}" aria-label="مساعدة هذه الصفحة"></x-import>
+      <x-import component-from-global-scope="OpsOne.Button" variant="ghost" icon="bell" icon-only="{{ yes }}" aria-label="الإشعارات"></x-import>
+      <x-import component-from-global-scope="OpsOne.Avatar" name="{{ userName }}" size="sm"></x-import>
+    </div>
+  </header>
+
+  <main class="o1-main" style="max-width: none; padding: 24px 32px 32px; display: flex; flex-direction: column; gap: 20px;">
+    <x-import component-from-global-scope="OpsOne.Breadcrumbs" items="{{ crumbs }}"></x-import>
+    <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap;">
+      <div style="display: flex; flex-direction: column; gap: 8px;">
+        <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+          <h1 style="margin: 0; font-size: 24px; line-height: 36px; font-weight: 700;"><bdi dir="ltr" style="font-family: var(--font-mono); font-weight: 600;">{{ o.ref }}</bdi> {{ o.name }}</h1>
+          <x-import component-from-global-scope="OpsOne.Badge" tone="brand">مخصص</x-import>
+          <x-import component-from-global-scope="OpsOne.Badge" tone="info">جارٍ</x-import>
+        </div>
+        <div style="display: flex; gap: 24px; flex-wrap: wrap; color: var(--text-weak);"><span>الفرع <strong style="color: var(--text-strong); font-weight: 500;">{{ o.branch }}</strong></span><span>المسؤول <strong style="color: var(--text-strong); font-weight: 500;">{{ o.owner }}</strong></span><span>أُنشئ <strong style="color: var(--text-strong); font-weight: 500;">{{ o.created }}</strong></span></div>
+      </div>
+      <div style="display: flex; gap: 8px;"><x-import component-from-global-scope="OpsOne.Button" variant="secondary" icon="phone">اتصال بالعميل</x-import><x-import component-from-global-scope="OpsOne.Menu" label="إجراءات الطلب" items="{{ orderMenu }}" variant="secondary"></x-import></div>
+    </div>
+    <section aria-labelledby="now-h" style="display: flex; flex-direction: column; gap: 16px; padding: 20px 24px; background: var(--surface); border: 1px solid var(--stroke-weak); border-radius: 12px;">
+      <h2 id="now-h" class="o1-sr">أين وصل الطلب</h2>
+      <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px;">
+        <div style="display: flex; flex-direction: column; gap: 4px;"><span style="font-size: 14px; line-height: 20px; font-weight: 500; color: var(--text-weak);">المرحلة الحالية</span><span style="font-weight: 600; font-size: 16px; line-height: 26px;">{{ o.stage }}</span><span style="display: flex; gap: 8px; align-items: center;"><x-import component-from-global-scope="OpsOne.Badge" tone="{{ o.stageTone }}">{{ o.stageBadge }}</x-import><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">{{ o.stageNo }}</span></span></div><div style="display: flex; flex-direction: column; gap: 4px;"><span style="font-size: 14px; line-height: 20px; font-weight: 500; color: var(--text-weak);">المطلوب الآن</span><span style="font-weight: 600; font-size: 16px; line-height: 26px;">{{ o.needed }}</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">{{ o.neededSub }}</span></div><div style="display: flex; flex-direction: column; gap: 4px;"><span style="font-size: 14px; line-height: 20px; font-weight: 500; color: var(--text-weak);">المانع</span><span style="display: flex; gap: 6px; align-items: center; font-weight: 600; font-size: 16px; line-height: 26px; color: {{ o.blockerColor }};"><sc-if value="{{ o.hasBlocker }}" hint-placeholder-val="{{ yes }}"><x-import component-from-global-scope="OpsOne.Icon" name="triangle-alert"></x-import></sc-if>{{ o.blocker }}</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">{{ o.blockerSub }}</span></div><div style="display: flex; flex-direction: column; gap: 4px;"><span style="font-size: 14px; line-height: 20px; font-weight: 500; color: var(--text-weak);">المسؤول</span><span style="display: flex; gap: 8px; align-items: center; font-weight: 600;"><x-import component-from-global-scope="OpsOne.Avatar" name="{{ o.owner }}" size="sm" decorative="{{ yes }}"></x-import>{{ o.owner }}</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">{{ o.ownerSub }}</span></div>
+      </div>
+      <div style="display: flex; gap: 8px; flex-wrap: wrap; padding-top: 16px; border-top: 1px solid var(--stroke-weak);"><sc-for list="{{ acts }}" as="a" hint-placeholder-count="2"><x-import component-from-global-scope="OpsOne.Button" variant="{{ a.variant }}" icon="{{ a.icon }}" href="{{ a.href }}">{{ a.label }}</x-import></sc-for></div>
+    </section>
+    <div role="tablist" aria-label="أقسام الطلب" class="o1-tablist">
+      <a role="tab" href="OrderOverview.dc.html" aria-selected="false" class="o1-tab" style="position: relative; display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 12px; text-decoration: none; color: var(--text-weak);">نظرة عامة</a>
+      <a role="tab" href="OrderStages.dc.html" aria-selected="false" class="o1-tab" style="position: relative; display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 12px; text-decoration: none; color: var(--text-weak);">المراحل والمهام</a>
+      <a role="tab" href="AgrOrder.dc.html" aria-selected="false" class="o1-tab" style="position: relative; display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 12px; text-decoration: none; color: var(--text-weak);">الاتفاق والمستندات</a>
+      <a role="tab" href="FinOrder.dc.html" aria-selected="true" class="o1-tab" style="position: relative; display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 12px; text-decoration: none; color: var(--text-strong);">المالية</a>
+      <a role="tab" href="#" aria-selected="false" class="o1-tab" style="position: relative; display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 12px; text-decoration: none; color: var(--text-weak);">التسليم</a>
+      <a role="tab" href="#" aria-selected="false" class="o1-tab" style="position: relative; display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 12px; text-decoration: none; color: var(--text-weak);">النشاط</a>
+    </div>
+    <sc-if value="{{ o.hasAlert }}" hint-placeholder-val="{{ no }}"><x-import component-from-global-scope="OpsOne.Alert" tone="{{ o.alertTone }}" title="{{ o.alertTitle }}">{{ o.alertText }}</x-import></sc-if>
+    <section aria-label="ملخص مال الطلب" style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px;"><sc-for list="{{ o.stats }}" as="s" hint-placeholder-count="4"><div style="display: flex; flex-direction: column; gap: 4px; padding: 16px 20px; background: var(--surface); border: 1px solid var(--stroke-weak); border-radius: 12px;"><span style="font-size: 14px; line-height: 20px; font-weight: 500; color: var(--text-weak);">{{ s.label }}</span><x-import component-from-global-scope="OpsOne.Amount" value="{{ s.value }}" strong="{{ yes }}"></x-import><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">{{ s.hint }}</span></div></sc-for></section>
+    <div style="display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 24px; align-items: start;">
+      <div style="display: flex; flex-direction: column; gap: 24px;">
+        <sc-if value="{{ o.hasProofs }}" hint-placeholder-val="{{ yes }}"><section class="o1-card o1-card--flush" aria-labelledby="pr-h">
+          <div class="o1-card-head" style="padding: 20px 24px 0; margin-bottom: 8px;"><div class="o1-card-heading"><h2 id="pr-h" class="o1-card-title">إثباتات العميل</h2><p class="o1-card-desc">لا تُحتسب قبل التأكيد.</p></div></div>
+          <ul style="list-style: none; margin: 0; padding: 0;"><sc-for list="{{ o.proofs }}" as="p" hint-placeholder-count="1"><li style="display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 16px; align-items: center; padding: 14px 24px; border-top: 1px solid var(--stroke-weak);"><div style="display: flex; flex-direction: column; gap: 2px;"><span style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;"><span style="font-weight: 600;">{{ p.title }}</span><x-import component-from-global-scope="OpsOne.Badge" tone="{{ p.tone }}">{{ p.status }}</x-import></span><span style="color: var(--text-weak);">{{ p.meta }}</span></div><sc-if value="{{ canCollect }}" hint-placeholder-val="{{ yes }}"><sc-if value="{{ p.btn }}" hint-placeholder-val="{{ no }}"><x-import component-from-global-scope="OpsOne.Button" variant="primary" size="sm" icon="receipt" href="FinReceiptReview.dc.html">{{ p.btn }}</x-import></sc-if></sc-if></li></sc-for></ul>
+        </section></sc-if>
+        <section class="o1-card o1-card--flush" aria-labelledby="sc-h">
+          <div class="o1-card-head" style="padding: 20px 24px 0; margin-bottom: 8px;"><div class="o1-card-heading"><h2 id="sc-h" class="o1-card-title">جدول الدفعات</h2></div><sc-if value="{{ canSchedule }}" hint-placeholder-val="{{ yes }}"><x-import component-from-global-scope="OpsOne.Button" variant="ghost" size="sm" icon="pencil" href="FinSchedule.dc.html">تعديل الجدول</x-import></sc-if></div>
+          <table class="o1-table">
+            <caption class="o1-sr">جدول الدفعات</caption>
+            <thead><tr><th scope="col">الدفعة</th><th scope="col">الاستحقاق</th><th scope="col" class="o1-td--end">المبلغ</th><th scope="col" class="o1-td--end">المخصص</th><th scope="col" class="o1-td--end">الباقي</th><th scope="col">الحالة</th></tr></thead>
+            <tbody><sc-for list="{{ o.schedule }}" as="r" hint-placeholder-count="2"><tr><td><span style="display: flex; flex-direction: column;"><span style="font-weight: 500;">{{ r.name }}</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">{{ r.basis }}</span></span></td><td>{{ r.when }}</td><td class="o1-td--end"><x-import component-from-global-scope="OpsOne.Amount" value="{{ r.amount }}"></x-import></td><td class="o1-td--end"><x-import component-from-global-scope="OpsOne.Amount" value="{{ r.alloc }}"></x-import></td><td class="o1-td--end"><x-import component-from-global-scope="OpsOne.Amount" value="{{ r.left }}"></x-import></td><td><x-import component-from-global-scope="OpsOne.Badge" tone="{{ r.tone }}">{{ r.status }}</x-import></td></tr></sc-for></tbody>
+          </table>
+          <p style="margin: 0; padding: 12px 24px 16px; border-top: 1px solid var(--stroke-weak); color: var(--text-weak);">{{ o.scheduleNote }}</p>
+        </section>
+        <section class="o1-card o1-card--flush" aria-labelledby="tx-h">
+          <div class="o1-card-head" style="padding: 20px 24px 0; margin-bottom: 8px;"><div class="o1-card-heading"><h2 id="tx-h" class="o1-card-title">المقبوض</h2><p class="o1-card-desc">كل مبلغ مؤكد بسند مرقم ويُخصص للأقدم من الدفعات.</p></div><sc-if value="{{ canCollect }}" hint-placeholder-val="{{ yes }}"><x-import component-from-global-scope="OpsOne.Button" variant="secondary" size="sm" icon="plus" href="FinRecordPayment.dc.html">تسجيل دفعة</x-import></sc-if></div>
+          <sc-if value="{{ o.hasTx }}" hint-placeholder-val="{{ no }}"><table class="o1-table"><caption class="o1-sr">المقبوض</caption><thead><tr><th scope="col">السند</th><th scope="col">الطريقة والمرجع</th><th scope="col">التاريخ</th><th scope="col" class="o1-td--end">المبلغ</th><th scope="col">الحالة</th><th scope="col"><span class="o1-sr">إجراءات</span></th></tr></thead><tbody><sc-for list="{{ o.tx }}" as="t" hint-placeholder-count="2"><tr><td><x-import component-from-global-scope="OpsOne.Ref">{{ t.ref }}</x-import></td><td><span style="display: flex; flex-direction: column;"><span>{{ t.method }}</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">{{ t.meta }}</span></span></td><td>{{ t.date }}</td><td class="o1-td--end"><x-import component-from-global-scope="OpsOne.Amount" value="{{ t.amount }}"></x-import></td><td><x-import component-from-global-scope="OpsOne.Badge" tone="{{ t.tone }}">{{ t.status }}</x-import></td><td class="o1-td--end"><sc-if value="{{ canCollect }}" hint-placeholder-val="{{ yes }}"><x-import component-from-global-scope="OpsOne.Menu" label="إجراءات {{ t.ref }}" icon-only="{{ yes }}" variant="ghost" size="sm" items="{{ txMenu }}"></x-import></sc-if></td></tr></sc-for></tbody></table></sc-if><sc-if value="{{ o.noTx }}" hint-placeholder-val="{{ yes }}"><p style="margin: 0; padding: 14px 24px 18px; border-top: 1px solid var(--stroke-weak); color: var(--text-weak);">لا مقبوض مؤكد بعد.</p></sc-if>
+        </section>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 24px;">
+        <section class="o1-card" aria-labelledby="st-h">
+          <div class="o1-card-head" style="margin-bottom: 12px;"><div class="o1-card-heading"><h2 id="st-h" class="o1-card-title">التسوية والردود والنزاعات</h2></div></div>
+          <div style="display: flex; flex-direction: column; gap: 8px;"><span style="color: var(--text-weak);">{{ o.settleText }}</span><div style="display: flex; gap: 8px; flex-wrap: wrap;"><sc-for list="{{ o.settleActions }}" as="a" hint-placeholder-count="1"><x-import component-from-global-scope="OpsOne.Button" variant="{{ a.variant }}" size="sm" href="{{ a.href }}">{{ a.label }}</x-import></sc-for></div></div>
+        </section>
+        <section class="o1-card" aria-labelledby="iv-h">
+          <div class="o1-card-head" style="margin-bottom: 12px;"><div class="o1-card-heading"><h2 id="iv-h" class="o1-card-title">الفواتير الخارجية</h2></div><sc-if value="{{ canCollect }}" hint-placeholder-val="{{ yes }}"><x-import component-from-global-scope="OpsOne.Button" variant="ghost" size="sm" icon="paperclip" href="FinInvoiceLink.dc.html">ربط فاتورة</x-import></sc-if></div>
+          <div style="display: flex; flex-direction: column; gap: 8px;"><dl style="margin: 0; display: flex; flex-direction: column;">
+            <div style="display: flex; justify-content: space-between; gap: 12px; padding: 8px 0;"><dt style="color: var(--text-weak);">الفاتورة المطلوبة</dt><dd style="margin: 0; text-align: end;">{{ o.invType }}</dd></div>
+            <div style="display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-top: 1px solid var(--stroke-weak);"><dt style="color: var(--text-weak);">المربوط</dt><dd style="margin: 0; text-align: end;">{{ o.invLinked }}</dd></div>
+          </dl><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">تصدر من نظام المحاسبة وتُربط هنا؛ النظام لا يصدرها.</span></div>
+        </section>
+      </div>
+    </div>
+  </main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme": {"editor": "enum", "options": ["light", "dark"], "default": "light"}, "variant": {"editor": "enum", "options": ["review", "paid", "settle"], "default": "review"}, "role": {"editor": "enum", "options": ["owner", "sales"], "default": "owner"}, "$preview": {"width": 1440, "height": 1700}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const noop = () => {};
+    const D = {
+      review: { ref: 'ORD-24518', name: 'منيرة الشمري', branch: 'العليا', owner: 'نورة الدوسري', ownerSub: 'التأكيد المالي لدى المالك أو هند العنزي', created: '8 أكتوبر 2026',
+        stage: 'الاتفاق والدفعة الأولى', stageTone: 'warning', stageBadge: 'بانتظار متطلب', stageNo: '3 من 5', needed: 'تأكيد الدفعة الأولى', neededSub: 'رفعت العميلة إيصال تحويل في 20 أكتوبر',
+        hasBlocker: true, blocker: 'بانتظار دفع 5,000 ر.س', blockerColor: 'var(--warning-text)', blockerSub: 'الإيصال قيد التحقق ولا يحتسب قبل تأكيده',
+        actions: [ { label: 'مراجعة الإيصال', variant: 'primary', icon: 'receipt', href: 'FinReceiptReview.dc.html' }, { label: 'تسجيل دفعة مستلمة', variant: 'secondary', icon: 'plus', href: 'FinRecordPayment.dc.html' } ],
+        hasAlert: false, alertTone: 'info', alertTitle: '', alertText: '',
+        stats: [ { label: 'إجمالي الاتفاق', value: '18,450.00', hint: 'شامل الضريبة' }, { label: 'صافي المقبوض', value: '0.00', hint: 'إيصال 5,000.00 قيد التحقق' }, { label: 'المتبقي', value: '18,450.00', hint: 'على الطلب كله' }, { label: 'المستحق الآن', value: '5,000.00', hint: 'الدفعة الأولى منذ 19 أكتوبر' } ],
+        schedule: [ { name: 'الدفعة الأولى', basis: 'مبلغ ثابت', when: 'عند اعتماد الاتفاق، 19 أكتوبر', amount: '5,000.00', alloc: '0.00', left: '5,000.00', tone: 'warning', status: 'مستحق' }, { name: 'الدفعة الأخيرة', basis: 'باقي الاتفاق', when: 'عند التسليم', amount: '13,450.00', alloc: '0.00', left: '13,450.00', tone: 'neutral', status: 'غير مستحق' } ],
+        scheduleNote: 'الجدول مكتمل ويساوي الاتفاق.',
+        hasProofs: true, proofs: [ { title: 'إيصال تحويل 5,000.00 ر.س', meta: 'رفعته العميلة 20 أكتوبر 18:12. مرجع البنك FT2610204471', tone: 'warning', status: 'قيد المراجعة', btn: 'مراجعة الإيصال' } ],
+        hasTx: false, noTx: true, tx: [],
+        settleText: 'لا ردود ولا نزاعات ولا مبالغ تحتاج تسوية.', settleActions: [],
+        invType: 'مبسطة، عميلة فرد', invLinked: 'لا شيء بعد' },
+      paid: { ref: 'ORD-24518', name: 'منيرة الشمري', branch: 'العليا', owner: 'نورة الدوسري', ownerSub: 'إكمال المرحلة لدى المشرف أو المالك', created: '8 أكتوبر 2026',
+        stage: 'الاتفاق والدفعة الأولى', stageTone: 'info', stageBadge: 'جارية', stageNo: '3 من 5', needed: 'إكمال المرحلة', neededSub: 'تحققت الإجراءات المطلوبة',
+        hasBlocker: false, blocker: 'لا يوجد', blockerColor: 'var(--text-strong)', blockerSub: '',
+        actions: [ { label: 'إكمال المرحلة', variant: 'primary', icon: 'check', href: 'OrderStages.dc.html' } ],
+        hasAlert: true, alertTone: 'success', alertTitle: 'أُكدت الدفعة الأولى', alertText: 'أكدتها هند العنزي من إيصال العميلة، وصدر السند RCV-1188 وأُرسل للعميلة.',
+        stats: [ { label: 'إجمالي الاتفاق', value: '18,450.00', hint: 'شامل الضريبة' }, { label: 'صافي المقبوض', value: '5,000.00', hint: 'سند واحد' }, { label: 'المتبقي', value: '13,450.00', hint: 'على الطلب كله' }, { label: 'المستحق الآن', value: '0.00', hint: 'الدفعة الأخيرة عند التسليم' } ],
+        schedule: [ { name: 'الدفعة الأولى', basis: 'مبلغ ثابت', when: 'عند اعتماد الاتفاق، 19 أكتوبر', amount: '5,000.00', alloc: '5,000.00', left: '0.00', tone: 'success', status: 'مسدد' }, { name: 'الدفعة الأخيرة', basis: 'باقي الاتفاق', when: 'عند التسليم', amount: '13,450.00', alloc: '0.00', left: '13,450.00', tone: 'neutral', status: 'غير مستحق' } ],
+        scheduleNote: 'الجدول مكتمل ويساوي الاتفاق.',
+        hasProofs: true, proofs: [ { title: 'إيصال تحويل 5,000.00 ر.س', meta: 'أُكد 22 أكتوبر 10:42، ومرتبط بالسند RCV-1188', tone: 'success', status: 'مؤكد', btn: '' } ],
+        hasTx: true, noTx: false, tx: [ { ref: 'RCV-1188', method: 'تحويل بنكي', meta: 'مرجع FT2610204471، من إيصال العميلة', date: '22 أكتوبر', amount: '5,000.00', tone: 'success', status: 'مؤكدة' } ],
+        settleText: 'لا ردود ولا نزاعات ولا مبالغ تحتاج تسوية.', settleActions: [],
+        invType: 'مبسطة، عميلة فرد', invLinked: 'لا شيء بعد' },
+      settle: { ref: 'ORD-24461', name: 'ريم السبيعي', branch: 'الملقا', owner: 'خالد الزهراني', ownerSub: 'التسوية لدى المالك أو هند العنزي', created: '14 سبتمبر 2026',
+        stage: 'التركيب والتسليم', stageTone: 'info', stageBadge: 'جارية', stageNo: '5 من 5', needed: 'تسوية 1,000.00 ر.س', neededSub: 'خُفض الاتفاق بعد حذف خزانة المدخل',
+        hasBlocker: false, blocker: 'لا يوجد', blockerColor: 'var(--text-strong)', blockerSub: 'التسوية لا توقف التصنيع',
+        actions: [ { label: 'طلب استرداد', variant: 'primary', icon: 'receipt', href: 'FinRefund.dc.html' } ],
+        hasAlert: true, alertTone: 'warning', alertTitle: '1,000.00 ر.س تحتاج تسوية', alertText: 'المقبوض 19,000.00 أكبر من الاتفاق بعد التعديل CHG-0398. يبقى مقدمًا غير مخصص حتى يُرد أو يُخصص لطلب آخر؛ لا رد تلقائي.',
+        stats: [ { label: 'إجمالي الاتفاق', value: '18,000.00', hint: 'كان 20,000.00 قبل التعديل' }, { label: 'صافي المقبوض', value: '19,000.00', hint: 'سندان' }, { label: 'المتبقي', value: '0.00', hint: 'وزيادة 1,000.00 غير مخصصة' }, { label: 'المستحق الآن', value: '0.00', hint: 'الدفعات مسددة' } ],
+        schedule: [ { name: 'الدفعة الأولى', basis: '50% من الاتفاق', when: 'عند اعتماد الاتفاق', amount: '10,000.00', alloc: '10,000.00', left: '0.00', tone: 'success', status: 'مسدد' }, { name: 'دفعة بدء التصنيع', basis: 'باقي الاتفاق', when: 'عند بدء التصنيع', amount: '8,000.00', alloc: '8,000.00', left: '0.00', tone: 'success', status: 'مسدد' } ],
+        scheduleNote: 'أُعيد حساب الدفعة الثانية بعد التعديل من 10,000.00 إلى 8,000.00.',
+        hasProofs: false, proofs: [],
+        hasTx: true, noTx: false, tx: [ { ref: 'RCV-1102', method: 'نقدًا في المعرض', meta: 'استلمها خالد الزهراني', date: '16 سبتمبر', amount: '10,000.00', tone: 'success', status: 'مؤكدة' }, { ref: 'RCV-1150', method: 'تحويل بنكي', meta: 'مرجع FT2609300218', date: '30 سبتمبر', amount: '9,000.00', tone: 'success', status: 'مؤكدة' } ],
+        settleText: '1,000.00 ر.س مقدم غير مخصص. الرد يحتاج طلبًا ثم تنفيذًا مثبتًا، والتخصيص يكون لطلب آخر للعميلة نفسها.', settleActions: [ { label: 'طلب استرداد', variant: 'primary', href: 'FinRefund.dc.html' }, { label: 'تخصيص لطلب آخر', variant: 'secondary', href: 'FinAllocate.dc.html' }, { label: 'تسجيل نزاع', variant: 'ghost', href: 'FinDispute.dc.html' } ],
+        invType: 'مبسطة، عميلة فرد', invLinked: 'فاتورة واحدة، للدفعة الأولى' }
+    };
+    return {
+      theme: this.props.theme ?? 'light', userName: (this.props.role ?? 'owner') === 'sales' ? 'نورة الدوسري' : 'فهد العتيبي', yes: true, no: false, h28: 28, s16: 16, s24: 24,
+      o: D[this.props.variant ?? 'review'], acts: (this.props.role ?? 'owner') === 'sales' ? [] : D[this.props.variant ?? 'review'].actions,
+      canCollect: (this.props.role ?? 'owner') !== 'sales', canSchedule: (this.props.role ?? 'owner') !== 'sales',
+      crumbs: [ { label: 'الطلبات', href: 'OrdersList.dc.html' }, { label: D[this.props.variant ?? 'review'].ref, href: 'OrderOverview.dc.html' }, { label: 'المالية' } ],
+      txMenu: [ { id: 'correct', label: 'تصحيح القبض', icon: 'pencil', onSelect: noop }, { id: 'refund', label: 'طلب استرداد', icon: 'receipt', onSelect: noop }, { id: 'dispute', label: 'تسجيل نزاع', icon: 'circle-alert', onSelect: noop }, { id: 'print', label: 'طباعة السند', icon: 'printer', onSelect: noop } ],
+      orderMenu: [ { id: 'pause', label: 'إيقاف الطلب', icon: 'clock', onSelect: noop }, { id: 'rework', label: 'إعادة عمل إجراء مكتمل', icon: 'refresh-cw', onSelect: noop }, { id: 'future', label: 'تعديل الأعمال القادمة', icon: 'pencil', onSelect: noop }, { id: 'branch', label: 'نقل الفرع', icon: 'map-pin', onSelect: noop }, { separator: true }, { id: 'cancel', label: 'تسجيل طلب إلغاء', icon: 'circle-x', danger: true, onSelect: noop } ],
+      nav: (this.props.role ?? 'owner') === 'sales' ? [ { label: 'الرئيسية', icon: 'layout-dashboard', href: 'HomeEmployee.dc.html', active: false }, { label: 'الطلبات', icon: 'clipboard-list', href: 'OrdersList.dc.html', active: true }, { label: 'العملاء', icon: 'users', href: 'CustomersList.dc.html', active: false }, { label: 'المهام والمواعيد', icon: 'calendar', href: 'TaskList.dc.html', active: false } ] : [ { label: 'الرئيسية', icon: 'layout-dashboard', href: 'Main.dc.html', active: false }, { label: 'الطلبات', icon: 'clipboard-list', href: 'OrdersList.dc.html', active: true }, { label: 'العملاء', icon: 'users', href: 'CustomersList.dc.html', active: false }, { label: 'المهام والمواعيد', icon: 'calendar', href: 'CalWeek.dc.html', active: false }, { label: 'المالية', icon: 'receipt', href: 'FinHome.dc.html', active: false }, { label: 'المخزون والتوريد', icon: 'package', href: '#', active: false }, { label: 'الموقع', icon: 'file-text', href: '#', active: false }, { label: 'التقارير', icon: 'trending-up', href: '#', active: false } ]
+    };
+  }
+}
+</script>
+</body>
+</html>

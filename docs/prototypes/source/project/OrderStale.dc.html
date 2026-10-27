@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>تغيرت البيانات أثناء الإجراء</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/opsone/tokens.css">
+<link rel="stylesheet" href="ds/opsone/components/bundle.css">
+<script src="ds/opsone/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:var(--link)}a:hover{color:var(--brand-hover)}
+</style>
+</helmet>
+<div dir="rtl" data-surface="panel" style="position: relative; width: 1440px; height: 1000px; overflow: hidden; background: var(--background); color: var(--text-strong); font-family: var(--font-sans); font-size: 14px; line-height: 24px;">
+  <div aria-hidden="true" inert="" style="position: absolute; inset: 0;">
+    <dc-import name="OrderStages" hint-size="1440px,1900px"></dc-import>
+  </div>
+  <div aria-hidden="true" style="position: absolute; inset: 0; background: var(--overlay);"></div>
+
+  <div role="dialog" aria-modal="true" aria-labelledby="d-t" style="position: absolute; inset-block-start: 96px; inset-inline-start: 50%; transform: translateX(50%); width: 640px; box-sizing: border-box; display: flex; flex-direction: column; gap: 16px; padding: 24px; background: var(--raised); border: 1px solid var(--stroke-weak); border-radius: 12px; box-shadow: var(--shadow-raised);">
+    <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 16px;">
+      <h2 id="d-t" style="margin: 0; font-size: 16px; line-height: 26px; font-weight: 600;">إكمال مرحلة «الاتفاق والدفعة الأولى»؟</h2>
+      <x-import component-from-global-scope="OpsOne.Button" variant="ghost" icon="x" icon-only="{{ yes }}" aria-label="إغلاق"></x-import>
+    </div>
+    <x-import component-from-global-scope="OpsOne.Alert" tone="info" title="تغيرت البيانات منذ فتحت النافذة">أكدت هند العنزي الدفعة الأولى 5,000.00 ر.س الساعة 10:42. حدّثنا الفحص أدناه؛ لم يعد السماح بالمتابعة لازمًا، وما كتبته لم يُحفظ.</x-import>
+    <ul style="list-style: none; margin: 0; padding: 0; border: 1px solid var(--stroke-weak); border-radius: 8px;">
+      <li style="display: grid; grid-template-columns: 24px minmax(0, 1fr) auto; gap: 12px; align-items: start; padding: 12px 16px;">
+        <span style="color: var(--success-text); display: inline-flex;"><x-import component-from-global-scope="OpsOne.Icon" name="circle-check"></x-import></span>
+        <span style="display: flex; flex-direction: column;"><span style="font-weight: 500;">موافقة العميل على العرض</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">QUO-3307، 19 أكتوبر</span></span>
+        <x-import component-from-global-scope="OpsOne.Badge" tone="success">متحقق</x-import>
+      </li>
+      <li style="display: grid; grid-template-columns: 24px minmax(0, 1fr) auto; gap: 12px; align-items: start; padding: 12px 16px; border-top: 1px solid var(--stroke-weak);">
+        <span style="color: var(--success-text); display: inline-flex;"><x-import component-from-global-scope="OpsOne.Icon" name="circle-check"></x-import></span>
+        <span style="display: flex; flex-direction: column;"><span style="font-weight: 500;">تحقق التحصيل: الدفعة الأولى 5,000.00 ر.س</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">أكدتها هند العنزي اليوم 10:42</span></span>
+        <x-import component-from-global-scope="OpsOne.Badge" tone="success">متحقق</x-import>
+      </li>
+      <li style="display: grid; grid-template-columns: 24px minmax(0, 1fr) auto; gap: 12px; align-items: start; padding: 12px 16px; border-top: 1px solid var(--stroke-weak);">
+        <span style="color: var(--text-weak); display: inline-flex;"><x-import component-from-global-scope="OpsOne.Icon" name="minus"></x-import></span>
+        <span style="display: flex; flex-direction: column;"><span style="font-weight: 500;">موافقة العميل على العقد</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">اختياري. تبقى مهمته مفتوحة</span></span>
+        <x-import component-from-global-scope="OpsOne.Badge" tone="neutral">لا يمنع</x-import>
+      </li>
+    </ul>
+    <p style="margin: 0; color: var(--text-weak);">تُفتح مرحلة التصنيع وتصل مهمة «تصنيع الوحدات» إلى صندوق قسم التصنيع والتركيب.</p>
+    <div style="display: flex; justify-content: flex-end; gap: 8px; flex-wrap: wrap; padding-top: 4px;">
+      <x-import component-from-global-scope="OpsOne.Button" variant="ghost" href="OrderStages.dc.html">إلغاء</x-import>
+      <x-import component-from-global-scope="OpsOne.Button" variant="primary" href="OrderStages.dc.html">إكمال المرحلة</x-import>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1000}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const noop = () => {};
+    return { yes: true };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<title>Team and roles</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/opsone/tokens.css">
+<link rel="stylesheet" href="ds/opsone/components/bundle.css">
+<script src="ds/opsone/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:var(--link)}a:hover{color:var(--brand-hover)}
+</style>
+</helmet>
+<div dir="ltr" lang="en" data-surface="panel" style="width: 1440px; min-height: 900px; display: flex; background: var(--background); color: var(--text-strong); font-family: var(--font-latin); font-size: 14px; line-height: 24px;"><aside class="o1-sidebar" style="position: relative; height: auto; display: flex;"><div class="o1-sidebar-brand"><x-import component-from-global-scope="OpsOne.Logo" height="{{ h28 }}"></x-import></div><div style="display: flex; flex-direction: column; gap: 2px; padding: 0 12px 16px; margin-bottom: 8px; border-bottom: 1px solid var(--stroke-weak);"><span style="font-weight: 600;">Al Rukn Modern Kitchens</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">Growth plan</span></div><nav class="o1-nav" aria-label="Main menu"><ul><sc-for list="{{ nav }}" as="item" hint-placeholder-count="8"><li><x-import component-from-global-scope="OpsOne.NavItem" label="{{ item.label }}" icon="{{ item.icon }}" href="#" active="{{ item.active }}"></x-import></li></sc-for></ul></nav><div class="o1-sidebar-foot"><x-import component-from-global-scope="OpsOne.NavItem" label="Settings" icon="settings" href="#" active="{{ yes }}"></x-import></div></aside><div class="o1-shell-main" style="flex: 1; min-width: 0; display: flex; flex-direction: column;"><header class="o1-topbar" style="position: relative; gap: 12px;"><div style="width: 440px;"><x-import component-from-global-scope="OpsOne.SearchField" label="Search" placeholder="Order number, customer, phone or document"></x-import></div><div class="o1-topbar-end"><x-import component-from-global-scope="OpsOne.Button" variant="ghost" icon="bell" icon-only="{{ yes }}" aria-label="Notifications"></x-import><x-import component-from-global-scope="OpsOne.Avatar" name="Fahad Alotaibi" size="sm"></x-import></div></header><main class="o1-main" style="max-width: none; padding: 32px; display: flex; flex-direction: column; gap: 20px;"><div class="o1-pagehead" style="margin-bottom: 0;"><div class="o1-pagehead-text"><h1 class="o1-pagehead-title">Team and roles</h1><p class="o1-pagehead-desc">Each member has one or more roles with a scope. Department membership alone grants nothing.</p></div><div class="o1-pagehead-actions"><x-import component-from-global-scope="OpsOne.Button" variant="primary" icon="plus">Invite employee</x-import></div></div><div style="max-width: 360px;"><x-import component-from-global-scope="OpsOne.Progress" label="Seats 12 of 15, one invitation pending" value="{{ v12 }}" max="{{ v15 }}"></x-import></div><div class="o1-table-wrap"><table class="o1-table"><caption class="o1-sr">Members</caption><thead><tr><th scope="col">Member</th><th scope="col">Roles and scope</th><th scope="col">Status</th></tr></thead><tbody><tr><td style="font-weight: 600;">Fahad Alotaibi</td><td>Owner, whole business</td><td><x-import component-from-global-scope="OpsOne.Badge" tone="success">Active</x-import></td></tr><tr><td style="font-weight: 600;">Khalid Alzahrani</td><td>Manager, whole business</td><td><x-import component-from-global-scope="OpsOne.Badge" tone="success">Active</x-import></td></tr><tr><td style="font-weight: 600;">Majed Alharbi</td><td>Supervisor, Manufacturing and Installation</td><td><x-import component-from-global-scope="OpsOne.Badge" tone="success">Active</x-import></td></tr><tr><td style="font-weight: 600;">Noura Aldosari</td><td>Sales, Olaya branch</td><td><x-import component-from-global-scope="OpsOne.Badge" tone="success">Active</x-import></td></tr><tr><td style="font-weight: 600;">Hind Alanazi</td><td>Finance, whole business</td><td><x-import component-from-global-scope="OpsOne.Badge" tone="success">Active</x-import></td></tr><tr><td style="font-weight: 600;">Abdullah Alshammari</td><td>Executor, Malqa branch</td><td><x-import component-from-global-scope="OpsOne.Badge" tone="warning">Invitation pending</x-import></td></tr></tbody></table></div></main></div></div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview": {"width": 1440, "height": 900}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const noop = () => {};
+    return { yes: true, h28: 28, s16: 16, v12: 12, v15: 15, nav: [ { label: 'Home', icon: 'layout-dashboard', active: false }, { label: 'Orders', icon: 'clipboard-list', active: false }, { label: 'Customers', icon: 'users', active: false }, { label: 'Tasks and appointments', icon: 'calendar', active: false }, { label: 'Finance', icon: 'receipt', active: false }, { label: 'Inventory and purchasing', icon: 'package', active: false }, { label: 'Website', icon: 'file-text', active: false }, { label: 'Reports', icon: 'trending-up', active: false } ] };
+  }
+}
+</script>
+</body>
+</html>

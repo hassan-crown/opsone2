@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>مراجعة طلب إلغاء</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/opsone/tokens.css">
+<link rel="stylesheet" href="ds/opsone/components/bundle.css">
+<script src="ds/opsone/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:var(--link)}a:hover{color:var(--brand-hover)}
+</style>
+</helmet>
+<div dir="rtl" data-surface="panel" style="position: relative; width: 1440px; height: 1200px; overflow: hidden; background: var(--background); color: var(--text-strong); font-family: var(--font-sans); font-size: 14px; line-height: 24px;">
+  <div aria-hidden="true" inert="" style="position: absolute; inset: 0;">
+    <dc-import name="Main" hint-size="1440px,1560px"></dc-import>
+  </div>
+  <div aria-hidden="true" style="position: absolute; inset: 0; background: var(--overlay);"></div>
+
+  <div role="dialog" aria-modal="true" aria-labelledby="d-t" aria-describedby="d-d" class="o1-dialog o1-dialog--lg" style="position: absolute; inset: 0; margin: auto; height: fit-content;">
+    <div class="o1-dialog-inner">
+    <div class="o1-dialog-head">
+      <h2 id="d-t" class="o1-dialog-title">قبول إلغاء <bdi dir="ltr" style="font-family: var(--font-mono);">ORD-24467</bdi>؟</h2>
+      <button type="button" class="o1-dialog-close" aria-label="إغلاق"><x-import component-from-global-scope="OpsOne.Icon" name="x"></x-import></button>
+    </div>
+    <p id="d-d" class="o1-dialog-desc">تركي العسيري. طلب الإلغاء «قيد المراجعة».</p>
+    
+    <blockquote style="margin: 0; padding: 10px 14px; border-inline-start: 2px solid var(--stroke); display: flex; flex-direction: column; gap: 2px;"><span>تأخر البناء وسنؤجل المطبخ سنة تقريبًا.</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">سبب تركي العسيري، من حسابه قبل 4 أيام</span></blockquote>
+    <span style="font-size: 14px; line-height: 20px; font-weight: 500; color: var(--text-weak);">ما يتأثر</span>
+    <ul style="list-style: none; margin: 0; padding: 0; border: 1px solid var(--stroke-weak); border-radius: 8px;"><li style="display: grid; grid-template-columns: 96px minmax(0, 1fr); gap: 12px; padding: 10px 14px;"><span style="font-weight: 600;">العمل</span><span>القياس والتصميم مكتملان. التصنيع لم يبدأ، وبدء الأعمال الجديدة معلق منذ الطلب.</span></li><li style="display: grid; grid-template-columns: 96px minmax(0, 1fr); gap: 12px; padding: 10px 14px; border-top: 1px solid var(--stroke-weak);"><span style="font-weight: 600;">الشراء</span><span>طلب خامات PO-0311 مرسل للمورد؛ يحال للمخزون والتوريد لمعالجته معه.</span></li><li style="display: grid; grid-template-columns: 96px minmax(0, 1fr); gap: 12px; padding: 10px 14px; border-top: 1px solid var(--stroke-weak);"><span style="font-weight: 600;">المواعيد</span><span>لا مواعيد مؤكدة.</span></li><li style="display: grid; grid-template-columns: 96px minmax(0, 1fr); gap: 12px; padding: 10px 14px; border-top: 1px solid var(--stroke-weak);"><span style="font-weight: 600;">المال</span><span>صافي المقبوض 4,000.00 ر.س.</span></li><li style="display: grid; grid-template-columns: 96px minmax(0, 1fr); gap: 12px; padding: 10px 14px; border-top: 1px solid var(--stroke-weak);"><span style="font-weight: 600;">العمولة</span><span>تُصحح عمولة سارة القحطاني بفرق محفوظ.</span></li></ul>
+    <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 20px;">
+      <x-import component-from-global-scope="OpsOne.TextField" label="قيمة العمل المنجز المحتسبة" default-value="1,200.00" dir="ltr" required="{{ yes }}" hint="القياس والتصميم، كما اتُفق مع العميل"></x-import>
+      <div style="display: flex; flex-direction: column; gap: 4px;"><span style="font-size: 14px; line-height: 20px; font-weight: 500; color: var(--text-weak);">يحتاج تسوية بعد القبول</span><span style="min-height: 44px; display: flex; align-items: center; gap: 8px; font-weight: 600;">رد <x-import component-from-global-scope="OpsOne.Amount" value="2,800.00"></x-import></span></div>
+    </div>
+    <x-import component-from-global-scope="OpsOne.TextField" label="ملاحظة للعميل" default-value="قبلنا طلب الإلغاء، وسنتواصل معك لترتيب رد 2,800.00 ر.س." multiline="{{ yes }}" optional="{{ yes }}"></x-import>
+    <div style="display: flex; flex-direction: column; gap: 8px; padding: 12px 16px; background: var(--fill); border-radius: 8px;">
+      <span style="font-weight: 600;">عند القبول</span>
+      <span style="display: flex; gap: 8px;"><span style="color: var(--success-text); display: inline-flex;"><x-import component-from-global-scope="OpsOne.Icon" name="check" size="{{ s16 }}"></x-import></span><span>يُلغى غير المنفذ فقط؛ يبقى القياس والتصميم وسجلهما.</span></span>
+      <span style="display: flex; gap: 8px;"><span style="color: var(--warning-text); display: inline-flex;"><x-import component-from-global-scope="OpsOne.Icon" name="triangle-alert" size="{{ s16 }}"></x-import></span><span>2,800.00 ر.س تظهر للتسوية في المالية؛ لا رد تلقائي.</span></span>
+      <span style="display: flex; gap: 8px;"><span style="color: var(--info-text); display: inline-flex;"><x-import component-from-global-scope="OpsOne.Icon" name="info" size="{{ s16 }}"></x-import></span><span>الرفض يرفع تعليق هذا الطلب فقط، ويصل السبب للعميل.</span></span>
+    </div>
+    <div class="o1-dialog-foot">
+      <x-import component-from-global-scope="OpsOne.Button" variant="ghost" href="Main.dc.html">إلغاء</x-import><x-import component-from-global-scope="OpsOne.Button" variant="secondary" href="Main.dc.html">رفض الطلب</x-import><x-import component-from-global-scope="OpsOne.Button" variant="primary" href="Main.dc.html">قبول الإلغاء</x-import>
+    </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview": {"width": 1440, "height": 1200}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const noop = () => {};
+    return { yes: true, no: false, h28: 28, h24: 24, s16: 16, s24: 24 };
+  }
+}
+</script>
+</body>
+</html>

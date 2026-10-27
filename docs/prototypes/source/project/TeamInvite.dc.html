@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>دعوة موظف</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/opsone/tokens.css">
+<link rel="stylesheet" href="ds/opsone/components/bundle.css">
+<script src="ds/opsone/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:var(--link)}a:hover{color:var(--brand-hover)}
+</style>
+</helmet>
+<div dir="rtl" data-surface="panel" style="position: relative; width: 1440px; height: 1000px; overflow: hidden; background: var(--background); color: var(--text-strong); font-family: var(--font-sans); font-size: 14px; line-height: 24px;">
+  <div aria-hidden="true" inert="" style="position: absolute; inset: 0;">
+    <dc-import name="TeamList" hint-size="1440px,1150px"></dc-import>
+  </div>
+  <div aria-hidden="true" style="position: absolute; inset: 0; background: var(--overlay);"></div>
+
+  <div role="dialog" aria-modal="true" aria-labelledby="d-t" class="o1-dialog" style="position: absolute; inset: 0; margin: auto; height: fit-content;">
+    <div class="o1-dialog-inner">
+    <div class="o1-dialog-head">
+      <h2 id="d-t" class="o1-dialog-title">دعوة موظف</h2>
+      <button type="button" class="o1-dialog-close" aria-label="إغلاق"><x-import component-from-global-scope="OpsOne.Icon" name="x"></x-import></button>
+    </div>
+    
+    <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 20px;">
+      <x-import component-from-global-scope="OpsOne.TextField" label="الاسم" default-value="عبدالله الشمري" required="{{ yes }}"></x-import>
+      <x-import component-from-global-scope="OpsOne.TextField" label="الجوال" default-value="+966 55 410 2287" dir="ltr" required="{{ yes }}"></x-import>
+    </div>
+    <x-import component-from-global-scope="OpsOne.TextField" label="البريد" default-value="a.alshammari@example.com" dir="ltr" required="{{ yes }}" hint="الجوال والبريد يثبتان ملكية الحساب عند القبول."></x-import>
+    <fieldset style="margin: 0; padding: 12px 16px; border: 1px solid var(--stroke-weak); border-radius: 8px; display: flex; flex-direction: column; gap: 12px;"><legend style="padding: 0 4px; font-weight: 600;">الدور ونطاقه</legend><div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px 20px;">
+      <x-import component-from-global-scope="OpsOne.SelectField" label="الدور" options="{{ roles }}" default-value="exec" required="{{ yes }}"></x-import>
+      <x-import component-from-global-scope="OpsOne.SelectField" label="النطاق" options="{{ scopes }}" default-value="malqa" required="{{ yes }}"></x-import>
+      <x-import component-from-global-scope="OpsOne.SelectField" label="القسم" options="{{ depts }}" default-value="measure" optional="{{ yes }}"></x-import>
+    </div><div><x-import component-from-global-scope="OpsOne.Button" variant="ghost" size="sm" icon="plus">إضافة دور آخر</x-import></div></fieldset>
+    <div style="display: flex; flex-direction: column; gap: 8px; padding: 12px 16px; background: var(--fill); border-radius: 8px;">
+      <span style="font-weight: 600;">عند الإرسال</span>
+      <span style="display: flex; gap: 8px;"><span style="color: var(--success-text); display: inline-flex;"><x-import component-from-global-scope="OpsOne.Icon" name="check" size="{{ s16 }}"></x-import></span><span>يُحجز مقعد، فيصبح الاستخدام 13 من 15.</span></span>
+      <span style="display: flex; gap: 8px;"><span style="color: var(--info-text); display: inline-flex;"><x-import component-from-global-scope="OpsOne.Icon" name="info" size="{{ s16 }}"></x-import></span><span>الرابط لمرة واحدة وصالح 7 أيام، والقبول يتطلب رمز الجوال.</span></span>
+      <span style="display: flex; gap: 8px;"><span style="color: var(--info-text); display: inline-flex;"><x-import component-from-global-scope="OpsOne.Icon" name="info" size="{{ s16 }}"></x-import></span><span>لا تمنح دورًا أو نطاقًا أوسع مما تملك.</span></span>
+      <span style="display: flex; gap: 8px;"><span style="color: var(--info-text); display: inline-flex;"><x-import component-from-global-scope="OpsOne.Icon" name="info" size="{{ s16 }}"></x-import></span><span>عند امتلاء المقاعد: ألغِ دعوة أو عطّل عضوًا غير نشط أو أضف مقاعد.</span></span>
+    </div>
+    <div class="o1-dialog-foot">
+      <x-import component-from-global-scope="OpsOne.Button" variant="ghost" href="TeamList.dc.html">إلغاء</x-import><x-import component-from-global-scope="OpsOne.Button" variant="primary" href="TeamList.dc.html">إرسال الدعوة</x-import>
+    </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview": {"width": 1440, "height": 1000}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const noop = () => {};
+    return { yes: true, no: false, h28: 28, h24: 24, s16: 16, s24: 24, roles: [ { value: 'exec', label: 'منفذ' } ], scopes: [ { value: 'malqa', label: 'فرع الملقا' } ], depts: [ { value: 'measure', label: 'القياس والتصميم' } ] };
+  }
+}
+</script>
+</body>
+</html>

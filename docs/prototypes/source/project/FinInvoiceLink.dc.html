@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>ربط فاتورة خارجية</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/opsone/tokens.css">
+<link rel="stylesheet" href="ds/opsone/components/bundle.css">
+<script src="ds/opsone/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:var(--link)}a:hover{color:var(--brand-hover)}
+</style>
+</helmet>
+<div dir="rtl" data-surface="panel" style="position: relative; width: 1440px; height: 1300px; overflow: hidden; background: var(--background); color: var(--text-strong); font-family: var(--font-sans); font-size: 14px; line-height: 24px;">
+  <div aria-hidden="true" inert="" style="position: absolute; inset: 0;">
+    <dc-import name="FinInvoices" hint-size="1440px,1100px"></dc-import>
+  </div>
+  <div aria-hidden="true" style="position: absolute; inset: 0; background: var(--overlay);"></div>
+
+  <div role="dialog" aria-modal="true" aria-labelledby="d-t" aria-describedby="d-d" class="o1-dialog o1-dialog--lg" style="position: absolute; inset: 0; margin: auto; height: fit-content;">
+    <div class="o1-dialog-inner">
+    <div class="o1-dialog-head">
+      <h2 id="d-t" class="o1-dialog-title">ربط فاتورة لـ <bdi dir="ltr" style="font-family: var(--font-mono);">ORD-24518</bdi></h2>
+      <button type="button" class="o1-dialog-close" aria-label="إغلاق"><x-import component-from-global-scope="OpsOne.Icon" name="x"></x-import></button>
+    </div>
+    <p id="d-d" class="o1-dialog-desc">الفاتورة المطلوبة لهذا الطلب مبسطة.</p>
+    
+    <div style="display: flex; flex-direction: column; gap: 2px; padding: 12px 16px; border: 1px solid var(--stroke-weak); border-radius: 8px;"><span style="font-size: 14px; line-height: 20px; font-weight: 500; color: var(--text-weak);">بيانات العميلة من ملفها</span><span style="font-weight: 600;">منيرة الشمري</span><span>المنزل، حي الياسمين، الرياض</span></div>
+    <x-import component-from-global-scope="OpsOne.RadioGroup" label="النوع" options="{{ types }}" default-value="simple" inline="{{ yes }}"></x-import>
+    <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 20px;">
+      <x-import component-from-global-scope="OpsOne.SelectField" label="الطلب والحدث" options="{{ events }}" default-value="first" required="{{ yes }}"></x-import>
+      <x-import component-from-global-scope="OpsOne.SelectField" label="المصدر" options="{{ sources }}" default-value="acc" required="{{ yes }}"></x-import>
+      <x-import component-from-global-scope="OpsOne.TextField" label="رقم الفاتورة" default-value="INV-2026-0398" dir="ltr" required="{{ yes }}" error="هذا الرقم مربوط من المصدر نفسه بالطلب ORD-24476. تحقق من الرقم."></x-import>
+      <x-import component-from-global-scope="OpsOne.TextField" label="التاريخ" default-value="22/10/2026" dir="ltr" required="{{ yes }}"></x-import>
+      <x-import component-from-global-scope="OpsOne.TextField" label="المبلغ" default-value="5,000.00" dir="ltr" required="{{ yes }}" hint="مبلغ الدفعة الأولى المؤكدة بالسند RCV-1188"></x-import>
+    </div>
+    <x-import component-from-global-scope="OpsOne.FileUpload" label="ملف الفاتورة" files="{{ file }}" on-select="{{ noop }}" on-remove="{{ noop }}" required="{{ yes }}"></x-import>
+    <div style="display: flex; flex-direction: column; gap: 8px; padding: 12px 16px; background: var(--fill); border-radius: 8px;">
+      <span style="font-weight: 600;">عند الربط</span>
+      <span style="display: flex; gap: 8px;"><span style="color: var(--info-text); display: inline-flex;"><x-import component-from-global-scope="OpsOne.Icon" name="info" size="{{ s16 }}"></x-import></span><span>الربط لا يعني الامتثال؛ إصدار الفاتورة ومتطلباتها مسؤولية نظام المحاسبة.</span></span>
+      <span style="display: flex; gap: 8px;"><span style="color: var(--success-text); display: inline-flex;"><x-import component-from-global-scope="OpsOne.Icon" name="check" size="{{ s16 }}"></x-import></span><span>تظهر في مالية الطلب ومستنداته، ويراها العميل في حسابه.</span></span>
+    </div>
+    <div class="o1-dialog-foot">
+      <x-import component-from-global-scope="OpsOne.Button" variant="ghost" href="FinInvoices.dc.html">إلغاء</x-import><x-import component-from-global-scope="OpsOne.Button" variant="primary" href="FinInvoices.dc.html">ربط الفاتورة</x-import>
+    </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview": {"width": 1440, "height": 1300}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const noop = () => {};
+    return { yes: true, no: false, h28: 28, s16: 16, s24: 24, noop, types: [ { value: 'tax', label: 'ضريبية' }, { value: 'simple', label: 'مبسطة' } ], events: [ { value: 'first', label: 'ORD-24518، الدفعة الأولى' } ], sources: [ { value: 'acc', label: 'نظام المحاسبة' } ], file: [ { id: 'f1', name: 'INV-2026-0412.pdf', size: 96210, status: 'done' } ] };
+  }
+}
+</script>
+</body>
+</html>

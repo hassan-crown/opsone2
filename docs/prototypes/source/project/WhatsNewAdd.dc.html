@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>إضافة تحديث</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/opsone/tokens.css">
+<link rel="stylesheet" href="ds/opsone/components/bundle.css">
+<script src="ds/opsone/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:var(--link)}a:hover{color:var(--brand-hover)}
+</style>
+</helmet>
+<div dir="rtl" data-surface="panel" style="position: relative; width: 1440px; height: 1000px; overflow: hidden; background: var(--background); color: var(--text-strong); font-family: var(--font-sans); font-size: 14px; line-height: 24px;">
+  <div aria-hidden="true" inert="" style="position: absolute; inset: 0;">
+    <dc-import name="KBList" hint-size="1440px,1000px"></dc-import>
+  </div>
+  <div aria-hidden="true" style="position: absolute; inset: 0; background: var(--overlay);"></div>
+
+  <div role="dialog" aria-modal="true" aria-labelledby="d-t" class="o1-dialog" style="position: absolute; inset: 0; margin: auto; height: fit-content;">
+    <div class="o1-dialog-inner">
+    <div class="o1-dialog-head">
+      <h2 id="d-t" class="o1-dialog-title">تحديث جديد في «ما الجديد»</h2>
+      <button type="button" class="o1-dialog-close" aria-label="إغلاق"><x-import component-from-global-scope="OpsOne.Icon" name="x"></x-import></button>
+    </div>
+    
+    <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 20px;">
+      <x-import component-from-global-scope="OpsOne.TextField" label="الإصدار" default-value="1.8.3" dir="ltr" required="{{ yes }}"></x-import>
+      <x-import component-from-global-scope="OpsOne.TextField" label="التاريخ" default-value="24/10/2026" dir="ltr" required="{{ yes }}"></x-import>
+    </div>
+    <x-import component-from-global-scope="OpsOne.TextField" label="جديد" default-value="التذاكر بأنواعها: مشكلة، سؤال، طلب، أخرى، ومرشح بالنوع.&#10;تذكرة بلا طلب تصل لمسؤول التذاكر العامة من إعدادات المبيعات." multiline="{{ yes }}" hint="كل سطر بند."></x-import>
+    <x-import component-from-global-scope="OpsOne.TextField" label="تحسين" default-value="النوافذ في وسط الشاشة بعرض ثابت، وأزرارها في مكان واحد." multiline="{{ yes }}"></x-import>
+    <x-import component-from-global-scope="OpsOne.TextField" label="إصلاح" default-value="عداد «المهام والمواعيد» لا يحتسب التذاكر المغلقة." multiline="{{ yes }}" optional="{{ yes }}"></x-import>
+    <span style="color: var(--text-weak);">يظهر للمنشآت في «المساعدة ← ما الجديد» بالعربية والإنجليزية.</span>
+    <div class="o1-dialog-foot">
+      <x-import component-from-global-scope="OpsOne.Button" variant="ghost" href="KBList.dc.html">إلغاء</x-import><x-import component-from-global-scope="OpsOne.Button" variant="secondary">حفظ مسودة</x-import><x-import component-from-global-scope="OpsOne.Button" variant="primary">نشر</x-import>
+    </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview": {"width": 1440, "height": 1000}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const noop = () => {};
+    return { yes: true, no: false, h28: 28, h24: 24, s16: 16, s24: 24 };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>حركات منتج</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/opsone/tokens.css">
+<link rel="stylesheet" href="ds/opsone/components/bundle.css">
+<script src="ds/opsone/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:var(--link)}a:hover{color:var(--brand-hover)}
+</style>
+</helmet>
+<div dir="rtl" data-surface="panel" style="width: 1440px; min-height: 1100px; display: flex; background: var(--background); color: var(--text-strong); font-family: var(--font-sans); font-size: 14px; line-height: 24px;">
+
+<aside class="o1-sidebar" style="position: relative; height: auto; display: flex;">
+  <div class="o1-sidebar-brand"><x-import component-from-global-scope="OpsOne.Logo" height="{{ h28 }}"></x-import></div>
+  <div style="display: flex; flex-direction: column; gap: 2px; padding: 0 12px 16px; margin-bottom: 8px; border-bottom: 1px solid var(--stroke-weak);">
+    <span style="font-weight: 600;">مطابخ الركن الحديث</span>
+    <span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">باقة نمو</span>
+  </div>
+  <nav class="o1-nav" aria-label="القائمة الرئيسية"><ul>
+    <sc-for list="{{ nav }}" as="item" hint-placeholder-count="8">
+      <li><x-import component-from-global-scope="OpsOne.NavItem" label="{{ item.label }}" icon="{{ item.icon }}" href="{{ item.href }}" active="{{ item.active }}"></x-import></li>
+    </sc-for>
+  </ul></nav>
+  <div class="o1-sidebar-foot">
+    <x-import component-from-global-scope="OpsOne.NavItem" label="الإعدادات" icon="settings" href="#"></x-import>
+  </div>
+</aside>
+
+<div class="o1-shell-main" style="flex: 1; min-width: 0; display: flex; flex-direction: column;">
+  <header class="o1-topbar" style="position: relative; gap: 12px;">
+    <div style="width: 440px;"><x-import component-from-global-scope="OpsOne.SearchField" label="البحث العام" placeholder="رقم الطلب أو اسم العميل أو الجوال أو المستند"></x-import></div>
+    <div class="o1-topbar-end">
+      <x-import component-from-global-scope="OpsOne.Button" variant="ghost" icon="info" icon-only="{{ yes }}" aria-label="مساعدة هذه الصفحة"></x-import>
+      <x-import component-from-global-scope="OpsOne.Button" variant="ghost" icon="bell" icon-only="{{ yes }}" aria-label="الإشعارات"></x-import>
+      <x-import component-from-global-scope="OpsOne.Avatar" name="فهد العتيبي" size="sm"></x-import>
+    </div>
+  </header>
+
+  <main class="o1-main" style="max-width: none; padding: 32px; display: flex; flex-direction: column; gap: 20px;">
+    <x-import component-from-global-scope="OpsOne.Breadcrumbs" items="{{ crumbs }}"></x-import>
+    <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 16px;"><div style="display: flex; flex-direction: column; gap: 4px;"><h1 style="margin: 0; font-size: 24px; line-height: 36px; font-weight: 700;">منظم أدراج خشب، 60 سم</h1><span style="color: var(--text-weak);"><bdi dir="ltr" style="font-family: var(--font-mono);">ORG-60</bdi>، مستودع العليا. حد إعادة الطلب 5.</span></div><div style="display: flex; gap: 8px;"><x-import component-from-global-scope="OpsOne.Button" variant="secondary" icon="pencil" href="StockAdjust.dc.html">تسوية الرصيد</x-import><x-import component-from-global-scope="OpsOne.Button" variant="primary" icon="plus" href="PurchaseNew.dc.html">طلب توريد</x-import></div></div>
+    <section aria-label="الرصيد" style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px;"><x-import component-from-global-scope="OpsOne.StatCard" label="الموجود" value="3" hint="في المستودع"></x-import><x-import component-from-global-scope="OpsOne.StatCard" label="المحجوز" value="2" hint="لطلب ORD-24543"></x-import><x-import component-from-global-scope="OpsOne.StatCard" label="المتاح" value="1" hint="للبيع الآن"></x-import><x-import component-from-global-scope="OpsOne.StatCard" label="قادم من التوريد" value="6" hint="PO-0314، الأحد"></x-import></section>
+    <x-import component-from-global-scope="OpsOne.Alert" tone="warning" title="ناقص عن الطلب الجديد">طلبت نورة الدوسري 2 لطلب قيد الإعداد والمتاح 1. القادم من PO-0314 يغطيه عند استلامه.</x-import>
+    <section class="o1-card o1-card--flush" aria-labelledby="mv-h">
+          <div class="o1-card-head" style="padding: 20px 24px 0; margin-bottom: 8px;"><div class="o1-card-heading"><h2 id="mv-h" class="o1-card-title">الحركات</h2><p class="o1-card-desc">لا تُحذف حركة؛ الخطأ يُصحح بحركة مقابلة.</p></div></div>
+          <table class="o1-table"><caption class="o1-sr">الحركات</caption><thead><tr><th scope="col">الوقت</th><th scope="col">النوع</th><th scope="col">المرجع</th><th scope="col" class="o1-td--end">الأثر</th><th scope="col">الفاعل</th></tr></thead><tbody><tr><td>21 أكتوبر 10:05</td><td>حجز</td><td>ORD-24543، طلب جاهز</td><td class="o1-td--end"><bdi dir="ltr" style="font-weight: 600;">-2 متاح</bdi></td><td style="color: var(--text-weak);">النظام، شراء من رابط</td></tr><tr><td>19 أكتوبر</td><td>تسوية</td><td>تالف في المستودع، بسبب موثق</td><td class="o1-td--end"><bdi dir="ltr" style="font-weight: 600;">-1</bdi></td><td style="color: var(--text-weak);">سعد المالكي، المخزون</td></tr><tr><td>15 أكتوبر</td><td>صرف</td><td>تسليم ORD-24519</td><td class="o1-td--end"><bdi dir="ltr" style="font-weight: 600;">-4</bdi></td><td style="color: var(--text-weak);">بندر القرني</td></tr><tr><td>8 أكتوبر</td><td>استلام</td><td>PO-0298، مؤسسة الأدوات الحديثة</td><td class="o1-td--end"><bdi dir="ltr" style="font-weight: 600;">+8</bdi></td><td style="color: var(--text-weak);">فهد العتيبي</td></tr></tbody></table>
+        </section>
+  </main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview": {"width": 1440, "height": 1100}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const noop = () => {};
+    return { yes: true, no: false, h28: 28, h24: 24, s16: 16, s24: 24, crumbs: [ { label: 'المخزون والتوريد', href: 'StockList.dc.html' }, { label: 'ORG-60' } ], nav: [ { label: 'الرئيسية', icon: 'layout-dashboard', href: 'Main.dc.html', active: false }, { label: 'الطلبات', icon: 'clipboard-list', href: 'OrdersList.dc.html', active: false }, { label: 'العملاء', icon: 'users', href: 'CustomersList.dc.html', active: false }, { label: 'المهام والمواعيد', icon: 'calendar', href: 'CalWeek.dc.html', active: false }, { label: 'المالية', icon: 'receipt', href: 'FinHome.dc.html', active: false }, { label: 'المخزون والتوريد', icon: 'package', href: 'StockList.dc.html', active: true }, { label: 'الموقع', icon: 'file-text', href: 'SitePages.dc.html', active: false }, { label: 'التقارير', icon: 'trending-up', href: '#', active: false } ] };
+  }
+}
+</script>
+</body>
+</html>

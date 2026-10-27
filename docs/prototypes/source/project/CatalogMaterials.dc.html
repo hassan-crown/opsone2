@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>مواد المخصص</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/opsone/tokens.css">
+<link rel="stylesheet" href="ds/opsone/components/bundle.css">
+<script src="ds/opsone/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:var(--link)}a:hover{color:var(--brand-hover)}
+</style>
+</helmet>
+<div dir="rtl" data-surface="panel" style="width: 1440px; min-height: 1000px; display: flex; background: var(--background); color: var(--text-strong); font-family: var(--font-sans); font-size: 14px; line-height: 24px;">
+
+<aside class="o1-sidebar" style="position: relative; height: auto; display: flex;">
+  <div class="o1-sidebar-brand"><x-import component-from-global-scope="OpsOne.Logo" height="{{ h28 }}"></x-import></div>
+  <div style="display: flex; flex-direction: column; gap: 2px; padding: 0 12px 16px; margin-bottom: 8px; border-bottom: 1px solid var(--stroke-weak);">
+    <span style="font-weight: 600;">مطابخ الركن الحديث</span>
+    <span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">باقة نمو</span>
+  </div>
+  <nav class="o1-nav" aria-label="القائمة الرئيسية"><ul>
+    <sc-for list="{{ nav }}" as="item" hint-placeholder-count="8">
+      <li><x-import component-from-global-scope="OpsOne.NavItem" label="{{ item.label }}" icon="{{ item.icon }}" href="{{ item.href }}" active="{{ item.active }}"></x-import></li>
+    </sc-for>
+  </ul></nav>
+  <div class="o1-sidebar-foot">
+    <x-import component-from-global-scope="OpsOne.NavItem" label="الإعدادات" icon="settings" href="SettingsHome.dc.html" active="{{ yes }}"></x-import>
+  </div>
+</aside>
+
+<div class="o1-shell-main" style="flex: 1; min-width: 0; display: flex; flex-direction: column;">
+  <header class="o1-topbar" style="position: relative; gap: 12px;">
+    <div style="width: 440px;"><x-import component-from-global-scope="OpsOne.SearchField" label="البحث العام" placeholder="رقم الطلب أو اسم العميل أو الجوال أو المستند"></x-import></div>
+    <div class="o1-topbar-end">
+      <x-import component-from-global-scope="OpsOne.Button" variant="ghost" icon="info" icon-only="{{ yes }}" aria-label="مساعدة هذه الصفحة"></x-import>
+      <x-import component-from-global-scope="OpsOne.Button" variant="ghost" icon="bell" icon-only="{{ yes }}" aria-label="الإشعارات"></x-import>
+      <x-import component-from-global-scope="OpsOne.Avatar" name="فهد العتيبي" size="sm"></x-import>
+    </div>
+  </header>
+
+  <main class="o1-main" style="max-width: none; padding: 32px; display: flex; flex-direction: column; gap: 20px;">
+<div style="display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 32px; align-items: start;"><nav aria-label="أقسام الإعدادات" style="display: flex; flex-direction: column; gap: 16px; position: sticky; top: 0;"><div style="display: flex; flex-direction: column; gap: 2px;"><span style="padding: 0 12px 4px; font-size: 13px; line-height: 20px; font-weight: 600; color: var(--text-weak);">المنشأة والفريق</span><a href="#" style="display: flex; align-items: center; min-height: 40px; padding: 0 12px; border-radius: 8px; text-decoration: none; color: var(--text-strong);">بيانات المنشأة</a><a href="Branches.dc.html" style="display: flex; align-items: center; min-height: 40px; padding: 0 12px; border-radius: 8px; text-decoration: none; color: var(--text-strong);">الفروع والأقسام</a><a href="TeamList.dc.html" style="display: flex; align-items: center; min-height: 40px; padding: 0 12px; border-radius: 8px; text-decoration: none; color: var(--text-strong);">الفريق والأدوار</a><a href="AuditLog.dc.html" style="display: flex; align-items: center; min-height: 40px; padding: 0 12px; border-radius: 8px; text-decoration: none; color: var(--text-strong);">سجل التغييرات</a></div><div style="display: flex; flex-direction: column; gap: 2px;"><span style="padding: 0 12px 4px; font-size: 13px; line-height: 20px; font-weight: 600; color: var(--text-weak);">العمل</span><a href="FlowEdit.dc.html" style="display: flex; align-items: center; min-height: 40px; padding: 0 12px; border-radius: 8px; text-decoration: none; color: var(--text-strong);">مسار التشغيل</a><a href="CatalogProducts.dc.html" aria-current="page" style="display: flex; align-items: center; min-height: 40px; padding: 0 12px; border-radius: 8px; text-decoration: none; color: var(--text-strong); background: var(--brand-subtle); color: var(--brand-subtle-text); font-weight: 600;">الكتالوج</a><a href="SettingsOps.dc.html" style="display: flex; align-items: center; min-height: 40px; padding: 0 12px; border-radius: 8px; text-decoration: none; color: var(--text-strong);">الجدولة</a><a href="SettingsSales.dc.html" style="display: flex; align-items: center; min-height: 40px; padding: 0 12px; border-radius: 8px; text-decoration: none; color: var(--text-strong);">المبيعات</a><a href="#" style="display: flex; align-items: center; min-height: 40px; padding: 0 12px; border-radius: 8px; text-decoration: none; color: var(--text-strong);">المالية والدفع</a><a href="#" style="display: flex; align-items: center; min-height: 40px; padding: 0 12px; border-radius: 8px; text-decoration: none; color: var(--text-strong);">المنتجات والمخزون</a></div><div style="display: flex; flex-direction: column; gap: 2px;"><span style="padding: 0 12px 4px; font-size: 13px; line-height: 20px; font-weight: 600; color: var(--text-weak);">العميل</span><a href="#" style="display: flex; align-items: center; min-height: 40px; padding: 0 12px; border-radius: 8px; text-decoration: none; color: var(--text-strong);">الموقع والهوية</a><a href="#" style="display: flex; align-items: center; min-height: 40px; padding: 0 12px; border-radius: 8px; text-decoration: none; color: var(--text-strong);">الإشعارات والتكاملات</a></div><div style="display: flex; flex-direction: column; gap: 2px;"><span style="padding: 0 12px 4px; font-size: 13px; line-height: 20px; font-weight: 600; color: var(--text-weak);">الاشتراك</span><a href="PlanUsage.dc.html" style="display: flex; align-items: center; min-height: 40px; padding: 0 12px; border-radius: 8px; text-decoration: none; color: var(--text-strong);">الباقة والاستخدام</a></div></nav><div style="display: flex; flex-direction: column; gap: 20px; min-width: 0;"><div class="o1-pagehead" style="margin-bottom: 0;"><div class="o1-pagehead-text"><h1 class="o1-pagehead-title">الكتالوج</h1><p class="o1-pagehead-desc">مواد المخصص وصفية؛ تتبع الكمية اختياري لكل مادة ويظهر رصيدها في المخزون.</p></div><div class="o1-pagehead-actions"><x-import component-from-global-scope="OpsOne.Button" variant="primary" icon="plus">مادة جديدة</x-import></div></div><div role="tablist" aria-label="الكتالوج" class="o1-tablist"><a role="tab" href="CatalogProducts.dc.html" aria-selected="false" class="o1-tab" style="position: relative; display: inline-flex; align-items: center; min-height: 44px; padding: 0 12px; text-decoration: none; color: var(--text-weak);">منتجات المخصص</a><a role="tab" href="CatalogReady.dc.html" aria-selected="false" class="o1-tab" style="position: relative; display: inline-flex; align-items: center; min-height: 44px; padding: 0 12px; text-decoration: none; color: var(--text-weak);">منتجات الجاهز</a><a role="tab" href="CatalogMaterials.dc.html" aria-selected="true" class="o1-tab" style="position: relative; display: inline-flex; align-items: center; min-height: 44px; padding: 0 12px; text-decoration: none; color: var(--text-strong);">المواد والخيارات</a></div><div class="o1-table-wrap"><table class="o1-table"><caption class="o1-sr">المواد</caption><thead><tr><th scope="col">المادة</th><th scope="col">المجموعة</th><th scope="col">الوحدة</th><th scope="col">التوفر</th><th scope="col">المورد</th><th scope="col">الكمية</th></tr></thead><tbody><tr><td><span style="font-weight: 600;">ألواح MDF مطلية</span></td><td>الألواح</td><td>لوح</td><td><x-import component-from-global-scope="OpsOne.Badge" tone="success">متوفر</x-import></td><td>مصنع الخليج للألواح</td><td><a href="StockList.dc.html">متتبعة، 14 محجوزة</a></td></tr><tr><td><span style="font-weight: 600;">رخام كرارا</span></td><td>الأسطح</td><td>م²</td><td><x-import component-from-global-scope="OpsOne.Badge" tone="warning">بطلب</x-import></td><td>مصنع الخليج للألواح</td><td><span style="color: var(--text-weak);">وصفية</span></td></tr><tr><td><span style="font-weight: 600;">كوارتز أبيض</span></td><td>الأسطح</td><td>م²</td><td><x-import component-from-global-scope="OpsOne.Badge" tone="success">متوفر</x-import></td><td><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">بلا مورد</span></td><td><span style="color: var(--text-weak);">وصفية</span></td></tr><tr><td><span style="font-weight: 600;">جرانيت أسود</span></td><td>الأسطح</td><td>م²</td><td><x-import component-from-global-scope="OpsOne.Badge" tone="danger">غير متوفر</x-import></td><td><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">بلا مورد</span></td><td><span style="color: var(--text-weak);">وصفية</span></td></tr><tr><td><span style="font-weight: 600;">مقبض ذهبي طويل</span></td><td>المقابض</td><td>قطعة</td><td><x-import component-from-global-scope="OpsOne.Badge" tone="success">متوفر</x-import></td><td>مؤسسة الأدوات الحديثة</td><td><span style="color: var(--text-weak);">وصفية</span></td></tr><tr><td><span style="font-weight: 600;">مقبض مخفي</span></td><td>المقابض</td><td>م طولي</td><td><x-import component-from-global-scope="OpsOne.Badge" tone="success">متوفر</x-import></td><td>مؤسسة الأدوات الحديثة</td><td><span style="color: var(--text-weak);">وصفية</span></td></tr></tbody></table></div></div></div>
+  </main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview": {"width": 1440, "height": 1000}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const noop = () => {};
+    return { yes: true, no: false, h28: 28, h24: 24, s16: 16, s24: 24, noop, nav: [ { label: 'الرئيسية', icon: 'layout-dashboard', href: 'Main.dc.html', active: false }, { label: 'الطلبات', icon: 'clipboard-list', href: 'OrdersList.dc.html', active: false }, { label: 'العملاء', icon: 'users', href: 'CustomersList.dc.html', active: false }, { label: 'المهام والمواعيد', icon: 'calendar', href: 'CalWeek.dc.html', active: false }, { label: 'المالية', icon: 'receipt', href: 'FinHome.dc.html', active: false }, { label: 'المخزون والتوريد', icon: 'package', href: 'StockList.dc.html', active: false }, { label: 'الموقع', icon: 'file-text', href: 'SitePages.dc.html', active: false }, { label: 'التقارير', icon: 'trending-up', href: '#', active: false } ] };
+  }
+}
+</script>
+</body>
+</html>

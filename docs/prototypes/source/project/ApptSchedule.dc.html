@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>جدولة موعد مع تعارض</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/opsone/tokens.css">
+<link rel="stylesheet" href="ds/opsone/components/bundle.css">
+<script src="ds/opsone/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:var(--link)}a:hover{color:var(--brand-hover)}
+</style>
+</helmet>
+<div dir="rtl" data-surface="panel" style="position: relative; width: 1440px; height: 1300px; overflow: hidden; background: var(--background); color: var(--text-strong); font-family: var(--font-sans); font-size: 14px; line-height: 24px;">
+  <div aria-hidden="true" inert="" style="position: absolute; inset: 0;">
+    <dc-import name="CalWeek" hint-size="1440px,1000px"></dc-import>
+  </div>
+  <div aria-hidden="true" style="position: absolute; inset: 0; background: var(--overlay);"></div>
+
+  <div role="dialog" aria-modal="true" aria-labelledby="d-t" aria-describedby="d-d" class="o1-dialog o1-dialog--lg" style="position: absolute; inset: 0; margin: auto; height: fit-content;">
+    <div class="o1-dialog-inner">
+    <div class="o1-dialog-head">
+      <h2 id="d-t" class="o1-dialog-title">موعد قياس لـ <bdi dir="ltr" style="font-family: var(--font-mono);">ORD-24533</bdi></h2>
+      <button type="button" class="o1-dialog-close" aria-label="إغلاق"><x-import component-from-global-scope="OpsOne.Icon" name="x"></x-import></button>
+    </div>
+    <p id="d-d" class="o1-dialog-desc">تركي العسيري.</p>
+    
+    <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 20px;">
+      <x-import component-from-global-scope="OpsOne.SelectField" label="الطلب" options="{{ orders }}" default-value="o24533" required="{{ yes }}"></x-import>
+      <x-import component-from-global-scope="OpsOne.RadioGroup" label="النوع" options="{{ kinds }}" default-value="measure" inline="{{ yes }}"></x-import>
+    </div>
+    <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px 20px;">
+      <x-import component-from-global-scope="OpsOne.TextField" label="التاريخ" default-value="22/10/2026" dir="ltr" required="{{ yes }}"></x-import>
+      <x-import component-from-global-scope="OpsOne.TextField" label="الوقت" default-value="16:00" dir="ltr" required="{{ yes }}"></x-import>
+      <x-import component-from-global-scope="OpsOne.SelectField" label="المدة" options="{{ durs }}" default-value="60" required="{{ yes }}"></x-import>
+    </div>
+    <x-import component-from-global-scope="OpsOne.SelectField" label="المنفذ أو الفريق" options="{{ members }}" default-value="omar" required="{{ yes }}" hint="الملقا بلا فني قياس مؤهل؛ عمر من فرع العليا"></x-import>
+    <x-import component-from-global-scope="OpsOne.RadioGroup" label="تأكيد العميل" options="{{ confirms }}" default-value="phone"></x-import>
+    <x-import component-from-global-scope="OpsOne.Alert" tone="warning" title="يتعارض مع موعد مؤكد">عمر المطيري مرتبط 15:30 إلى 17:00 بقياس ORD-24539 في حي الياسمين.</x-import>
+    <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;"><span style="color: var(--text-weak);">أوقات متاحة لعمر</span><x-import component-from-global-scope="OpsOne.Button" variant="secondary" size="sm">اليوم 17:30</x-import><x-import component-from-global-scope="OpsOne.Button" variant="secondary" size="sm">الأحد 09:00</x-import><x-import component-from-global-scope="OpsOne.Button" variant="secondary" size="sm">الأحد 13:00</x-import></div>
+    <x-import component-from-global-scope="OpsOne.TextField" label="سبب التأكيد رغم التعارض" default-value="زيارة القياس قصيرة والموقعان متجاوران؛ اتفق عمر مع العميلين." multiline="{{ yes }}" required="{{ yes }}"></x-import>
+    <div style="display: flex; flex-direction: column; gap: 8px; padding: 12px 16px; background: var(--fill); border-radius: 8px;">
+      <span style="font-weight: 600;">عند الحفظ</span>
+      <span style="display: flex; gap: 8px;"><span style="color: var(--success-text); display: inline-flex;"><x-import component-from-global-scope="OpsOne.Icon" name="check" size="{{ s16 }}"></x-import></span><span>يُحفظ مؤكدًا بعلامة «متعارض» على الموعدين، ويُشعر عمر المطيري، ويُحفظ السبب ومن أكد.</span></span>
+      <span style="display: flex; gap: 8px;"><span style="color: var(--info-text); display: inline-flex;"><x-import component-from-global-scope="OpsOne.Icon" name="info" size="{{ s16 }}"></x-import></span><span>إعداد المنشأة «المواعيد المتعارضة» على «السماح بسبب». عند «منع» لا يُتاح التأكيد ويبقى اختيار وقت آخر.</span></span>
+    </div>
+    <div class="o1-dialog-foot">
+      <x-import component-from-global-scope="OpsOne.Button" variant="ghost" href="CalWeek.dc.html">إلغاء</x-import><x-import component-from-global-scope="OpsOne.Button" variant="primary" href="CalWeek.dc.html">تأكيد رغم التعارض</x-import>
+    </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview": {"width": 1440, "height": 1300}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const noop = () => {};
+    return { yes: true, no: false, h28: 28, h24: 24, s16: 16, s24: 24, orders: [ { value: 'o24533', label: 'ORD-24533، تركي العسيري' } ], kinds: [ { value: 'measure', label: 'قياس' }, { value: 'install', label: 'تركيب' }, { value: 'deliver', label: 'تسليم' } ], durs: [ { value: '60', label: 'ساعة' }, { value: '90', label: 'ساعة ونصف' }, { value: '150', label: 'ساعتان ونصف' } ], members: [ { value: 'omar', label: 'عمر المطيري، فني قياس' } ], confirms: [ { value: 'phone', label: 'تسجيل تأكيد هاتفي الآن' }, { value: 'request', label: 'طلب تأكيد من العميل في حسابه' } ] };
+  }
+}
+</script>
+</body>
+</html>

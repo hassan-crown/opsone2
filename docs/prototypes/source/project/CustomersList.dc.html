@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>العملاء</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/opsone/tokens.css">
+<link rel="stylesheet" href="ds/opsone/components/bundle.css">
+<script src="ds/opsone/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:var(--link)}a:hover{color:var(--brand-hover)}
+</style>
+</helmet>
+<div dir="rtl" data-surface="panel" style="width: 1440px; min-height: 1100px; display: flex; background: var(--background); color: var(--text-strong); font-family: var(--font-sans); font-size: 14px; line-height: 24px;">
+
+<aside class="o1-sidebar" style="position: relative; height: auto; display: flex;">
+  <div class="o1-sidebar-brand"><x-import component-from-global-scope="OpsOne.Logo" height="{{ h28 }}"></x-import></div>
+  <div style="display: flex; flex-direction: column; gap: 2px; padding: 0 12px 16px; margin-bottom: 8px; border-bottom: 1px solid var(--stroke-weak);">
+    <span style="font-weight: 600;">مطابخ الركن الحديث</span>
+    <span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">باقة نمو</span>
+  </div>
+  <nav class="o1-nav" aria-label="القائمة الرئيسية"><ul>
+    <sc-for list="{{ nav }}" as="item" hint-placeholder-count="8">
+      <li><x-import component-from-global-scope="OpsOne.NavItem" label="{{ item.label }}" icon="{{ item.icon }}" href="{{ item.href }}" active="{{ item.active }}"></x-import></li>
+    </sc-for>
+  </ul></nav>
+  <div class="o1-sidebar-foot">
+    <x-import component-from-global-scope="OpsOne.NavItem" label="الإعدادات" icon="settings" href="#"></x-import>
+  </div>
+</aside>
+
+<div class="o1-shell-main" style="flex: 1; min-width: 0; display: flex; flex-direction: column;">
+  <header class="o1-topbar" style="position: relative; gap: 12px;">
+    <div style="width: 440px;"><x-import component-from-global-scope="OpsOne.SearchField" label="البحث العام" placeholder="رقم الطلب أو اسم العميل أو الجوال أو المستند"></x-import></div>
+    <x-import component-from-global-scope="OpsOne.Button" variant="secondary" icon-end="chevron-down" aria-label="نطاق الفروع: كل الفروع">كل الفروع</x-import>
+    <div class="o1-topbar-end">
+      <x-import component-from-global-scope="OpsOne.Button" variant="ghost" icon="info" icon-only="{{ yes }}" aria-label="مساعدة هذه الصفحة"></x-import>
+      <x-import component-from-global-scope="OpsOne.Button" variant="ghost" icon="bell" icon-only="{{ yes }}" aria-label="الإشعارات"></x-import>
+      <x-import component-from-global-scope="OpsOne.Avatar" name="فهد العتيبي" size="sm"></x-import>
+    </div>
+  </header>
+
+  <main class="o1-main" style="max-width: none; padding: 32px; display: flex; flex-direction: column; gap: 16px;">
+    <div class="o1-pagehead" style="margin-bottom: 8px;">
+      <div class="o1-pagehead-text">
+        <h1 class="o1-pagehead-title">العملاء</h1>
+        <p class="o1-pagehead-desc">ملف واحد لكل عميل بجواله وبريده. الاهتمامات تُتابع هنا حتى تتحول إلى طلب أو تُغلق بسبب.</p>
+      </div>
+      <div class="o1-pagehead-actions">
+        <x-import component-from-global-scope="OpsOne.Button" variant="secondary" icon="download">تصدير</x-import>
+        <x-import component-from-global-scope="OpsOne.Button" variant="primary" icon="plus" href="CustomerNew.dc.html">عميل جديد</x-import>
+      </div>
+    </div>
+
+    <div role="tablist" aria-label="أقسام العملاء" class="o1-tablist">
+      <a role="tab" href="CustomersList.dc.html" aria-selected="true" class="o1-tab" style="position: relative; display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 12px; text-decoration: none; color: var(--text-strong);">العملاء <span style="font-weight: 400; color: var(--text-weak);">1,284</span></a>
+      <a role="tab" href="InterestsList.dc.html" aria-selected="false" class="o1-tab" style="position: relative; display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 12px; text-decoration: none; color: var(--text-weak);">الاهتمامات <x-import component-from-global-scope="OpsOne.Counter" value="4" label="4 اهتمامات جديدة"></x-import></a>
+      <a role="tab" href="Tickets.dc.html" aria-selected="false" class="o1-tab" style="position: relative; display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 12px; text-decoration: none; color: var(--text-weak);">التذاكر <x-import component-from-global-scope="OpsOne.Counter" value="1" label="تذكرة جديدة"></x-import></a>
+    </div>
+
+    <div style="display: grid; grid-template-columns: minmax(0, 2fr) repeat(3, minmax(0, 1fr)); gap: 12px; align-items: end;">
+      <x-import component-from-global-scope="OpsOne.SearchField" label="البحث في العملاء" placeholder="الاسم أو الجوال أو البريد"></x-import>
+      <x-import component-from-global-scope="OpsOne.SelectField" label="النوع" options="{{ kinds }}" default-value="all"></x-import>
+      <x-import component-from-global-scope="OpsOne.SelectField" label="المتابع" options="{{ owners }}" default-value="all"></x-import>
+      <x-import component-from-global-scope="OpsOne.SelectField" label="الطلبات" options="{{ ordersF }}" default-value="all"></x-import>
+    </div>
+
+    <div class="o1-table-wrap">
+      <table class="o1-table">
+        <caption class="o1-sr">العملاء، الصفحة 1 من 65</caption>
+        <thead><tr><th scope="col">العميل</th><th scope="col">الجوال</th><th scope="col">البريد</th><th scope="col">الطلبات</th><th scope="col">المتابع</th><th scope="col">آخر تواصل</th><th scope="col"><span class="o1-sr">إجراءات</span></th></tr></thead>
+        <tbody>
+          <sc-for list="{{ rows }}" as="r" hint-placeholder-count="10">
+            <tr class="o1-tr--click">
+              <td><a href="{{ r.href }}" style="display: inline-flex; align-items: center; gap: 10px; color: var(--text-strong); text-decoration: none; min-height: 44px;"><x-import component-from-global-scope="OpsOne.Avatar" name="{{ r.name }}" size="sm" decorative="{{ yes }}"></x-import><span style="display: flex; flex-direction: column;"><span style="font-weight: 600;">{{ r.name }}</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">{{ r.kind }}</span></span></a></td>
+              <td><bdi dir="ltr">{{ r.phone }}</bdi></td>
+              <td><bdi dir="ltr" style="color: var(--text-weak);">{{ r.email }}</bdi></td>
+              <td>{{ r.orders }}</td>
+              <td>{{ r.owner }}</td>
+              <td style="color: var(--text-weak);">{{ r.last }}</td>
+              <td class="o1-td--end"><x-import component-from-global-scope="OpsOne.Menu" label="إجراءات {{ r.name }}" icon-only="{{ yes }}" variant="ghost" size="sm" items="{{ rowMenu }}"></x-import></td>
+            </tr>
+          </sc-for>
+        </tbody>
+      </table>
+    </div>
+    <x-import component-from-global-scope="OpsOne.Pagination" page="{{ p1 }}" page-count="{{ p65 }}" total="{{ p1284 }}" page-size="{{ p20 }}" on-change="{{ noop }}"></x-import>
+  </main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1100}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const noop = () => {};
+    return {
+      yes: true, h28: 28, p1: 1, p65: 65, p1284: 1284, p20: 20, noop,
+      rowMenu: [ { id: 'order', label: 'طلب مخصص جديد', icon: 'plus', onSelect: noop }, { id: 'interest', label: 'تسجيل اهتمام', icon: 'inbox', onSelect: noop }, { id: 'edit', label: 'تعديل البيانات', icon: 'pencil', onSelect: noop } ],
+      kinds: [ { value: 'all', label: 'الكل' }, { value: 'person', label: 'فرد' }, { value: 'company', label: 'جهة تجارية' } ],
+      owners: [ { value: 'all', label: 'كل المتابعين' }, { value: 'noura', label: 'نورة الدوسري' }, { value: 'khalid', label: 'خالد الزهراني' } ],
+      ordersF: [ { value: 'all', label: 'الكل' }, { value: 'active', label: 'لديه طلب جارٍ' }, { value: 'none', label: 'بلا طلبات' } ],
+      rows: this.links([
+        { name: 'منيرة الشمري', kind: 'فرد', phone: '+966 55 214 7781', email: 'munira.alshammari@gmail.com', orders: 'طلبان جاريان، وطلب مقفل', owner: 'نورة الدوسري', last: 'قبل يومين' },
+        { name: 'شركة دار الإعمار للمقاولات', kind: 'جهة تجارية', phone: '+966 50 662 1847', email: 'procurement@daralemar.sa', orders: 'طلبان جاريان', owner: 'نورة الدوسري', last: 'اليوم' },
+        { name: 'سلطان البقمي', kind: 'فرد', phone: '+966 55 190 3418', email: 'sultan.b@outlook.com', orders: 'طلب جارٍ', owner: 'خالد الزهراني', last: 'أمس' },
+        { name: 'تركي العسيري', kind: 'فرد', phone: '+966 50 733 1204', email: 'turki.asiri@gmail.com', orders: 'طلبان جاريان', owner: 'سارة القحطاني', last: 'قبل 4 أيام' },
+        { name: 'عبدالرحمن الفيفي', kind: 'فرد', phone: '+966 56 482 9915', email: 'a.alfaifi@hotmail.com', orders: 'طلب جارٍ، وطلب منتهي التنفيذ', owner: 'نورة الدوسري', last: 'قبل يومين' },
+        { name: 'أمل السديري', kind: 'فرد', phone: '+966 54 318 6620', email: 'amal.sudairi@gmail.com', orders: 'طلبان جاريان، وطلب مقفل', owner: 'نورة الدوسري', last: 'قبل 3 أيام' },
+        { name: 'لطيفة الحربي', kind: 'فرد', phone: '+966 50 418 2236', email: 'latifa.h@gmail.com', orders: 'طلب جارٍ، وطلب جاهز، واهتمام جديد', owner: 'خالد الزهراني', last: 'قبل ساعتين' },
+        { name: 'ناصر العمري', kind: 'فرد', phone: '+966 53 905 1187', email: 'nasser.omari@gmail.com', orders: 'طلب جارٍ', owner: 'خالد الزهراني', last: 'قبل 6 ساعات' },
+        { name: 'وليد السهلي', kind: 'فرد', phone: '+966 55 671 0043', email: 'waleed.sahli@gmail.com', orders: 'طلب موقوف', owner: 'سارة القحطاني', last: 'قبل 6 أيام' },
+        { name: 'بدر القحطاني', kind: 'فرد', phone: '+966 59 227 4410', email: 'bader.q@gmail.com', orders: 'طلب ملغى، واهتمام جديد', owner: 'سارة القحطاني', last: 'أمس' }
+      ]),
+      nav: [
+        { label: 'الرئيسية', icon: 'layout-dashboard', href: 'Main.dc.html', active: false },
+        { label: 'الطلبات', icon: 'clipboard-list', href: 'OrdersList.dc.html', active: false },
+        { label: 'العملاء', icon: 'users', href: 'CustomersList.dc.html', active: true },
+        { label: 'المهام والمواعيد', icon: 'calendar', href: 'CalWeek.dc.html', active: false },
+        { label: 'المالية', icon: 'receipt', href: 'FinHome.dc.html', active: false },
+        { label: 'المخزون والتوريد', icon: 'package', href: 'StockList.dc.html', active: false },
+        { label: 'الموقع', icon: 'file-text', href: 'SitePages.dc.html', active: false },
+        { label: 'التقارير', icon: 'trending-up', href: 'ReportsHome.dc.html', active: false }
+      ]
+    };
+  }
+  links(rows) { return rows.map((r) => ({ ...r, href: r.kind === 'جهة تجارية' ? 'CustomerCompany.dc.html' : 'CustomerProfile.dc.html' })); }
+}
+</script>
+</body>
+</html>

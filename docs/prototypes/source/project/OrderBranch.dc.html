@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>نقل الطلب إلى فرع آخر</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/opsone/tokens.css">
+<link rel="stylesheet" href="ds/opsone/components/bundle.css">
+<script src="ds/opsone/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:var(--link)}a:hover{color:var(--brand-hover)}
+</style>
+</helmet>
+<div dir="rtl" data-surface="panel" style="position: relative; width: 1440px; height: 1000px; overflow: hidden; background: var(--background); color: var(--text-strong); font-family: var(--font-sans); font-size: 14px; line-height: 24px;">
+  <div aria-hidden="true" inert="" style="position: absolute; inset: 0;">
+    <dc-import name="OrderOverview" hint-size="1440px,1700px"></dc-import>
+  </div>
+  <div aria-hidden="true" style="position: absolute; inset: 0; background: var(--overlay);"></div>
+
+  <div role="dialog" aria-modal="true" aria-labelledby="d-t" aria-describedby="d-d" style="position: absolute; inset-block-start: 96px; inset-inline-start: 50%; transform: translateX(50%); width: 600px; box-sizing: border-box; display: flex; flex-direction: column; gap: 16px; padding: 24px; background: var(--raised); border: 1px solid var(--stroke-weak); border-radius: 12px; box-shadow: var(--shadow-raised);">
+    <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 16px;">
+      <h2 id="d-t" style="margin: 0; font-size: 16px; line-height: 26px; font-weight: 600;">نقل <bdi dir="ltr" style="font-family: var(--font-mono);">ORD-24518</bdi> إلى فرع آخر؟</h2>
+      <x-import component-from-global-scope="OpsOne.Button" variant="ghost" icon="x" icon-only="{{ yes }}" aria-label="إغلاق"></x-import>
+    </div>
+    <p id="d-d" style="margin: -8px 0 0; color: var(--text-weak);">من فرع العليا. تراجع الأثر قبل التطبيق.</p>
+    <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 20px;">
+      <x-import component-from-global-scope="OpsOne.SelectField" label="الفرع الجديد" options="{{ branches }}" default-value="malqa" required="{{ yes }}"></x-import>
+      <x-import component-from-global-scope="OpsOne.SelectField" label="المسؤول في الفرع الجديد" options="{{ owners }}" default-value="khalid" required="{{ yes }}"></x-import>
+    </div>
+    <x-import component-from-global-scope="OpsOne.TextField" label="السبب" default-value="انتقلت العميلة إلى حي الملقا، والتركيب أقرب لفريق الملقا." multiline="{{ yes }}" required="{{ yes }}"></x-import>
+    <div style="display: flex; flex-direction: column; gap: 8px; padding: 12px 16px; background: var(--fill); border-radius: 8px;">
+      <span style="font-weight: 600;">ما يتغير عند النقل</span>
+      <span style="display: flex; gap: 8px;"><span style="color: var(--info-text); display: inline-flex;"><x-import component-from-global-scope="OpsOne.Icon" name="info" size="{{ s16 }}"></x-import></span><span>مهمة «إعداد العقد وإرساله» في صندوق مبيعات العليا تنتقل إلى صندوق مبيعات الملقا، ومهمة متابعة الدفعة المسندة لنورة تحتاج إعادة إسناد لمؤهل في الملقا.</span></span>
+      <span style="display: flex; gap: 8px;"><span style="color: var(--info-text); display: inline-flex;"><x-import component-from-global-scope="OpsOne.Icon" name="info" size="{{ s16 }}"></x-import></span><span>نورة الدوسري لن ترى الطلب بعد النقل، لأن فرع الملقا خارج نطاقها.</span></span>
+      <span style="display: flex; gap: 8px;"><span style="color: var(--success-text); display: inline-flex;"><x-import component-from-global-scope="OpsOne.Icon" name="check" size="{{ s16 }}"></x-import></span><span>لا حجوزات مخزون على هذا الطلب.</span></span>
+      <span style="display: flex; gap: 8px;"><span style="color: var(--success-text); display: inline-flex;"><x-import component-from-global-scope="OpsOne.Icon" name="check" size="{{ s16 }}"></x-import></span><span>المبالغ والمقبوض والمستندات المعتمدة والمواعيد لا تتغير.</span></span>
+    </div>
+
+    <div style="display: flex; justify-content: flex-end; gap: 8px; flex-wrap: wrap; padding-top: 4px;">
+      <x-import component-from-global-scope="OpsOne.Button" variant="ghost" href="OrderOverview.dc.html">إلغاء</x-import>
+      <x-import component-from-global-scope="OpsOne.Button" variant="primary" href="OrderOverview.dc.html">نقل الطلب</x-import>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1000}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const noop = () => {};
+    return { yes: true, s16: 16, branches: [ { value: 'malqa', label: 'الملقا' } ], owners: [ { value: 'noura', label: 'نورة الدوسري' }, { value: 'khalid', label: 'خالد الزهراني' }, { value: 'sara', label: 'سارة القحطاني' } ] };
+  }
+}
+</script>
+</body>
+</html>

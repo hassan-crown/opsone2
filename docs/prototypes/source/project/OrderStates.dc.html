@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>رأس الطلب في حالاته</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/opsone/tokens.css">
+<link rel="stylesheet" href="ds/opsone/components/bundle.css">
+<script src="ds/opsone/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:var(--link)}a:hover{color:var(--brand-hover)}
+</style>
+</helmet>
+<div dir="rtl" data-surface="panel" style="width: 1440px; min-height: 1300px; box-sizing: border-box; padding: 40px 48px; display: flex; flex-direction: column; gap: 20px; background: var(--fill); color: var(--text-strong); font-family: var(--font-sans); font-size: 14px; line-height: 24px;">
+  <sc-for list="{{ variants }}" as="v" hint-placeholder-count="6">
+    <section style="display: flex; flex-direction: column; gap: 14px; padding: 20px 24px; background: var(--surface); border: 1px solid var(--stroke-weak); border-radius: 12px;">
+      <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+        <h2 style="margin: 0; font-size: 20px; line-height: 30px; font-weight: 700;"><bdi dir="ltr" style="font-family: var(--font-mono); font-weight: 600;">{{ v.ref }}</bdi> {{ v.customer }}</h2>
+        <x-import component-from-global-scope="OpsOne.Badge" tone="{{ v.tone }}">{{ v.status }}</x-import>
+        <sc-if value="{{ v.extra }}" hint-placeholder-val="{{ no }}"><x-import component-from-global-scope="OpsOne.Badge" tone="{{ v.extraTone }}" icon="{{ v.extraIcon }}">{{ v.extra }}</x-import></sc-if>
+      </div>
+      <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px;">
+        <sc-for list="{{ v.cells }}" as="c" hint-placeholder-count="4">
+          <div style="display: flex; flex-direction: column; gap: 2px;">
+            <span style="font-size: 14px; line-height: 20px; font-weight: 500; color: var(--text-weak);">{{ c.label }}</span>
+            <span style="font-weight: 600; color: {{ c.color }};">{{ c.value }}</span>
+            <span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">{{ c.note }}</span>
+          </div>
+        </sc-for>
+      </div>
+      <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center; padding-top: 12px; border-top: 1px solid var(--stroke-weak);">
+        <x-import component-from-global-scope="OpsOne.Button" variant="primary">{{ v.primary }}</x-import>
+        <sc-if value="{{ v.secondary }}" hint-placeholder-val="{{ yes }}"><x-import component-from-global-scope="OpsOne.Button" variant="secondary">{{ v.secondary }}</x-import></sc-if>
+        <sc-if value="{{ v.hint }}" hint-placeholder-val="{{ no }}"><span style="color: var(--text-weak); margin-inline-start: 8px;">{{ v.hint }}</span></sc-if>
+      </div>
+    </section>
+  </sc-for>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1300}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const s = 'var(--text-strong)', w = 'var(--warning-text)', d = 'var(--danger-text)';
+    return {
+      yes: true, no: false,
+      variants: [
+        { ref: 'ORD-24495', customer: 'وليد السهلي', status: 'موقوف', tone: 'warning', extra: '', primary: 'استئناف الطلب', secondary: 'تسجيل دفعة مستلمة', hint: 'المعالجة المالية متاحة أثناء الإيقاف',
+          cells: [ { label: 'المرحلة المحفوظة', value: 'التصنيع', note: '4 من 5، النتائج محفوظة', color: s }, { label: 'سبب الإيقاف', value: 'بانتظار توفر خامة', note: 'أوقفه ماجد الحربي 16 أكتوبر', color: w }, { label: 'المتابعة', value: 'سارة القحطاني', note: 'مراجعة التوفر الإثنين 26 أكتوبر', color: s }, { label: 'المتبقي', value: '11,250.00 ر.س', note: 'المستحق الآن 4,200.00 ر.س، متأخر 12 يومًا', color: w } ] },
+        { ref: 'ORD-24480', customer: 'عبدالرحمن الفيفي', status: 'منتهي التنفيذ', tone: 'success', extra: 'مستحق', extraTone: 'warning', extraIcon: 'clock', primary: 'تسجيل دفعة مستلمة', secondary: 'إرسال تذكير', hint: 'الإقفال الشامل يتاح بعد حسم المستحق',
+          cells: [ { label: 'التشغيل', value: 'انتهى 13 أكتوبر', note: 'سُلّم بالكامل دون ملاحظات مانعة', color: s }, { label: 'المطلوب الآن', value: 'تحصيل الدفعة الأخيرة', note: 'المسؤول نورة الدوسري', color: s }, { label: 'المانع للإقفال', value: 'مستحق 3,450 ر.س منذ 9 أيام', note: 'تذكير يومي واحد للعميل', color: d }, { label: 'المال', value: 'مقبوض 18,000.00 من 21,450.00 ر.س', note: 'المتبقي 3,450.00 ر.س', color: s } ] },
+        { ref: 'ORD-24467', customer: 'تركي العسيري', status: 'إلغاء قيد المعالجة', tone: 'warning', extra: '', primary: 'مراجعة الإلغاء', secondary: '', hint: 'بدء الأعمال الجديدة معلق حتى القرار',
+          cells: [ { label: 'مصدر الطلب', value: 'العميل من حسابه', note: '18 أكتوبر، السبب التأخير: تأخر البناء', color: s }, { label: 'المرحلة', value: 'التصنيع', note: 'لم يبدأ التصنيع، والأعمال الجديدة معلقة', color: s }, { label: 'التسوية المتوقعة', value: 'مقبوض 4,000.00 ر.س', note: 'لا رد آلي؛ يحسم في المالية', color: w }, { label: 'المسؤول عن القرار', value: 'المالك أو المدير', note: 'ينتظر منذ 4 أيام', color: s } ] },
+        { ref: 'ORD-24505', customer: 'هيفاء المالكي', status: 'جارٍ', tone: 'info', extra: 'تصحيح مطلوب', extraTone: 'warning', extraIcon: 'pencil', primary: 'فتح مهمة التصحيح', secondary: '', hint: 'لا تُفتح مرحلة رئيسية ثانية',
+          cells: [ { label: 'المرحلة الحالية', value: 'التصنيع', note: 'الأعمال غير المتأثرة مستمرة', color: s }, { label: 'تصحيح سابق', value: 'التصميم والعرض مكتملة مع تصحيح مطلوب', note: 'تعديل عرض الخزانة بعد قياس نهائي جديد', color: w }, { label: 'المعلق بسببه', value: 'تصنيع وحدة الخزانة فقط', note: 'المطبخ يستمر', color: s }, { label: 'مهمة التصحيح', value: 'ريم السبيعي', note: 'الموعد المستهدف الأحد 25 أكتوبر', color: s } ] },
+        { ref: 'ORD-24441', customer: 'بدر القحطاني', status: 'ملغى', tone: 'danger', extra: 'تسوية قائمة', extraTone: 'warning', extraIcon: 'receipt', primary: 'فتح التسوية', secondary: '', hint: '',
+          cells: [ { label: 'الإلغاء', value: 'كلي، 15 أكتوبر', note: 'سجله فهد العتيبي من اتصال العميل', color: s }, { label: 'ما توقف', value: 'كل الأعمال غير المنفذة', note: 'لم يكن هناك تسليم', color: s }, { label: 'التسوية', value: 'مقبوض 2,000.00 ر.س', note: 'بانتظار قرار الرد', color: w }, { label: 'الإقفال الشامل', value: 'بعد حسم التسوية', note: 'التاريخ والمستندات محفوظة', color: s } ] },
+        { ref: 'ORD-23990', customer: 'منيرة الشمري', status: 'مقفل', tone: 'neutral', extra: '', primary: 'فتح ملخص الطلب', secondary: 'إعادة عمل', hint: 'إعادة العمل تحتاج سببًا وتحديد العمل المتأثر',
+          cells: [ { label: 'الإقفال', value: '2 سبتمبر 2026', note: 'بعد حسم المال والتسليم', color: s }, { label: 'التنفيذ', value: 'خزائن غرفة النوم', note: 'سُلّمت 28 أغسطس', color: s }, { label: 'المال', value: 'محصل بالكامل', note: '14,200.00 ر.س', color: s }, { label: 'المستندات', value: 'العرض والعقد والسندات', note: 'محفوظة للاطلاع', color: s } ] }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

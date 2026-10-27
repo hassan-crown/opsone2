@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>تسليم المنصة</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/opsone/tokens.css">
+<link rel="stylesheet" href="ds/opsone/components/bundle.css">
+<script src="ds/opsone/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:var(--link)}a:hover{color:var(--brand-hover)}
+</style>
+</helmet>
+<div dir="rtl" data-surface="panel" style="position: relative; width: 1440px; height: 1000px; overflow: hidden; background: var(--background); color: var(--text-strong); font-family: var(--font-sans); font-size: 14px; line-height: 24px;">
+  <div aria-hidden="true" inert="" style="position: absolute; inset: 0;">
+    <dc-import name="OpsInbox" hint-size="1440px,900px"></dc-import>
+  </div>
+  <div aria-hidden="true" style="position: absolute; inset: 0; background: var(--overlay);"></div>
+
+  <div role="dialog" aria-modal="true" aria-labelledby="d-t" aria-describedby="d-d" class="o1-dialog" style="position: absolute; inset: 0; margin: auto; height: fit-content;">
+    <div class="o1-dialog-inner">
+    <div class="o1-dialog-head">
+      <h2 id="d-t" class="o1-dialog-title">تسليم ألمنيوم الصفوة</h2>
+      <button type="button" class="o1-dialog-close" aria-label="إغلاق"><x-import component-from-global-scope="OpsOne.Icon" name="x"></x-import></button>
+    </div>
+    <p id="d-d" class="o1-dialog-desc">طلب SUB-1041. فحص الجاهزية ناجح.</p>
+    
+    <div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 0;"><span>القاعدة والملفات</span><x-import component-from-global-scope="OpsOne.Badge" tone="success">ناجح</x-import></div><div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 0;"><span>العنوان والشهادة</span><x-import component-from-global-scope="OpsOne.Badge" tone="success">ناجح</x-import></div><div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 0;"><span>الدخول التجريبي</span><x-import component-from-global-scope="OpsOne.Badge" tone="success">ناجح</x-import></div><div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 0;"><span>النسخ والاستعادة</span><x-import component-from-global-scope="OpsOne.Badge" tone="success">ناجح</x-import></div><div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 0;"><span>ترخيص التجهيز المطابق</span><x-import component-from-global-scope="OpsOne.Badge" tone="success">ناجح</x-import></div>
+    <dl style="margin: 0; display: flex; flex-direction: column;">
+            <div style="display: flex; justify-content: space-between; gap: 12px; padding: 8px 0;"><dt style="color: var(--text-weak);">الرابط</dt><dd style="margin: 0; text-align: end;"><bdi dir="ltr">alsafwa.opsone.sa</bdi></dd></div>
+            <div style="display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-top: 1px solid var(--stroke-weak);"><dt style="color: var(--text-weak);">الدعوة إلى</dt><dd style="margin: 0; text-align: end;"><bdi dir="ltr">owner@alsafwa.sa</bdi></dd></div>
+            <div style="display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-top: 1px solid var(--stroke-weak);"><dt style="color: var(--text-weak);">المدة عند نجاح الإرسال</dt><dd style="margin: 0; text-align: end;">من اليوم 24 أكتوبر 2026 إلى 24 أكتوبر 2027</dd></div>
+          </dl>
+    <div style="display: flex; flex-direction: column; gap: 8px; padding: 12px 16px; background: var(--fill); border-radius: 8px;">
+      <span style="font-weight: 600;">التسليم</span>
+      <span style="display: flex; gap: 8px;"><span style="color: var(--success-text); display: inline-flex;"><x-import component-from-global-scope="OpsOne.Icon" name="check" size="{{ s16 }}"></x-import></span><span>يُفعّل الترخيص وتثبت البداية والنهاية مرة واحدة عند تأكيد إرسال الدعوة.</span></span>
+      <span style="display: flex; gap: 8px;"><span style="color: var(--warning-text); display: inline-flex;"><x-import component-from-global-scope="OpsOne.Icon" name="triangle-alert" size="{{ s16 }}"></x-import></span><span>إن تعثر الإرسال يبقى الطلب جاهزًا ولا تبدأ المدة؛ يستطيع المشترك الإقرار بالتسلم من حسابه.</span></span>
+      <span style="display: flex; gap: 8px;"><span style="color: var(--info-text); display: inline-flex;"><x-import component-from-global-scope="OpsOne.Icon" name="info" size="{{ s16 }}"></x-import></span><span>الدعوة تطلب تعيين كلمة المرور، ولا تُرسل كلمة مرور.</span></span>
+    </div>
+    <div class="o1-dialog-foot">
+      <x-import component-from-global-scope="OpsOne.Button" variant="ghost" href="OpsInbox.dc.html">إلغاء</x-import><x-import component-from-global-scope="OpsOne.Button" variant="primary">تسليم وإرسال الدعوة</x-import>
+    </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview": {"width": 1440, "height": 1000}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const noop = () => {};
+    return { yes: true, no: false, h28: 28, h24: 24, s16: 16, s24: 24 };
+  }
+}
+</script>
+</body>
+</html>

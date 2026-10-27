@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>الرئيسية أثناء الإعداد</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/opsone/tokens.css">
+<link rel="stylesheet" href="ds/opsone/components/bundle.css">
+<script src="ds/opsone/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:var(--link)}a:hover{color:var(--brand-hover)}
+</style>
+</helmet>
+<div dir="rtl" data-surface="panel" style="width: 1440px; min-height: 900px; display: flex; background: var(--background); color: var(--text-strong); font-family: var(--font-sans); font-size: 14px; line-height: 24px;">
+
+<aside class="o1-sidebar" style="position: relative; height: auto; display: flex;">
+  <div class="o1-sidebar-brand"><x-import component-from-global-scope="OpsOne.Logo" height="{{ h28 }}"></x-import></div>
+  <div style="display: flex; flex-direction: column; gap: 2px; padding: 0 12px 16px; margin-bottom: 8px; border-bottom: 1px solid var(--stroke-weak);">
+    <span style="font-weight: 600;">مطابخ الركن الحديث</span>
+    <span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">باقة نمو</span>
+  </div>
+  <nav class="o1-nav" aria-label="القائمة الرئيسية"><ul>
+    <sc-for list="{{ nav }}" as="item" hint-placeholder-count="8">
+      <li><x-import component-from-global-scope="OpsOne.NavItem" label="{{ item.label }}" icon="{{ item.icon }}" href="{{ item.href }}" active="{{ item.active }}"></x-import></li>
+    </sc-for>
+  </ul></nav>
+  <div class="o1-sidebar-foot">
+    <x-import component-from-global-scope="OpsOne.NavItem" label="الإعدادات" icon="settings" href="#"></x-import>
+  </div>
+</aside>
+
+<div class="o1-shell-main" style="flex: 1; min-width: 0; display: flex; flex-direction: column;">
+  <header class="o1-topbar" style="position: relative; gap: 12px;">
+    <div style="width: 440px;"><x-import component-from-global-scope="OpsOne.SearchField" label="البحث العام" placeholder="رقم الطلب أو اسم العميل أو الجوال أو المستند"></x-import></div>
+    <div class="o1-topbar-end">
+      <x-import component-from-global-scope="OpsOne.Button" variant="ghost" icon="info" icon-only="{{ yes }}" aria-label="مساعدة هذه الصفحة"></x-import>
+      <x-import component-from-global-scope="OpsOne.Button" variant="ghost" icon="bell" icon-only="{{ yes }}" aria-label="الإشعارات"></x-import>
+      <x-import component-from-global-scope="OpsOne.Avatar" name="فهد العتيبي" size="sm"></x-import>
+    </div>
+  </header>
+
+  <main class="o1-main" style="max-width: none; padding: 32px; display: flex; flex-direction: column; gap: 20px;">
+    <div class="o1-pagehead" style="margin-bottom: 0;"><div class="o1-pagehead-text"><h1 class="o1-pagehead-title">مرحبًا فهد</h1><p class="o1-pagehead-desc">مساحتك جاهزة للعمل. أكمل الإعداد متى شئت.</p></div><div class="o1-pagehead-actions"><x-import component-from-global-scope="OpsOne.Button" variant="primary" icon="plus" href="CreateOrder.dc.html">طلب مخصص جديد</x-import></div></div><section aria-labelledby="su-h" style="display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 24px; align-items: center; padding: 20px 24px; background: var(--surface); border: 1px solid var(--stroke-weak); border-radius: 12px;"><div style="display: flex; flex-direction: column; gap: 10px;"><h2 id="su-h" style="margin: 0; font-size: 16px; line-height: 26px; font-weight: 600;">أكمل إعداد مساحتك</h2><div style="display: flex; flex-direction: column; gap: 6px;"><span aria-hidden="true" style="font-weight: 500;">3 من 5 خطوات</span><x-import component-from-global-scope="OpsOne.Progress" label="3 من 5 خطوات" value="{{ v3 }}" max="{{ v5 }}"></x-import></div><span style="color: var(--text-weak);">التالي: دعوة الفريق. يمكنك العمل الآن وحدك.</span></div><x-import component-from-global-scope="OpsOne.Button" variant="primary" href="WizardTeam.dc.html">متابعة الإعداد</x-import></section><x-import component-from-global-scope="OpsOne.EmptyState" icon="clipboard-list" title="لا طلبات بعد" description="ابدأ بأول طلب مخصص، أو أضف عميلًا."></x-import>
+  </main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview": {"width": 1440, "height": 900}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const noop = () => {};
+    return { yes: true, no: false, h28: 28, h24: 24, s16: 16, s24: 24, v2: 2, v3: 3, v12: 12, v15: 15, v62: 62, v250: 250, v5: 5, v7: 7, v9: 9, nav: [ { label: 'الرئيسية', icon: 'layout-dashboard', href: 'Main.dc.html', active: true }, { label: 'الطلبات', icon: 'clipboard-list', href: 'OrdersList.dc.html', active: false }, { label: 'العملاء', icon: 'users', href: 'CustomersList.dc.html', active: false }, { label: 'المهام والمواعيد', icon: 'calendar', href: 'CalWeek.dc.html', active: false }, { label: 'المالية', icon: 'receipt', href: 'FinHome.dc.html', active: false }, { label: 'المخزون والتوريد', icon: 'package', href: 'StockList.dc.html', active: false }, { label: 'الموقع', icon: 'file-text', href: 'SitePages.dc.html', active: false }, { label: 'التقارير', icon: 'trending-up', href: '#', active: false } ] };
+  }
+}
+</script>
+</body>
+</html>

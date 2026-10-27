@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>ملف العميل: شركة دار الإعمار للمقاولات</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/opsone/tokens.css">
+<link rel="stylesheet" href="ds/opsone/components/bundle.css">
+<script src="ds/opsone/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:var(--link)}a:hover{color:var(--brand-hover)}
+</style>
+</helmet>
+<div dir="rtl" data-surface="panel" style="width: 1440px; min-height: 1500px; display: flex; background: var(--background); color: var(--text-strong); font-family: var(--font-sans); font-size: 14px; line-height: 24px;">
+
+<aside class="o1-sidebar" style="position: relative; height: auto; display: flex;">
+  <div class="o1-sidebar-brand"><x-import component-from-global-scope="OpsOne.Logo" height="{{ h28 }}"></x-import></div>
+  <div style="display: flex; flex-direction: column; gap: 2px; padding: 0 12px 16px; margin-bottom: 8px; border-bottom: 1px solid var(--stroke-weak);">
+    <span style="font-weight: 600;">مطابخ الركن الحديث</span>
+    <span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">باقة نمو</span>
+  </div>
+  <nav class="o1-nav" aria-label="القائمة الرئيسية"><ul>
+    <sc-for list="{{ nav }}" as="item" hint-placeholder-count="8">
+      <li><x-import component-from-global-scope="OpsOne.NavItem" label="{{ item.label }}" icon="{{ item.icon }}" href="{{ item.href }}" active="{{ item.active }}"></x-import></li>
+    </sc-for>
+  </ul></nav>
+  <div class="o1-sidebar-foot">
+    <x-import component-from-global-scope="OpsOne.NavItem" label="الإعدادات" icon="settings" href="#"></x-import>
+  </div>
+</aside>
+
+<div class="o1-shell-main" style="flex: 1; min-width: 0; display: flex; flex-direction: column;">
+  <header class="o1-topbar" style="position: relative; gap: 12px;">
+    <div style="width: 440px;"><x-import component-from-global-scope="OpsOne.SearchField" label="البحث العام" placeholder="رقم الطلب أو اسم العميل أو الجوال أو المستند"></x-import></div>
+    <div class="o1-topbar-end">
+      <x-import component-from-global-scope="OpsOne.Button" variant="ghost" icon="info" icon-only="{{ yes }}" aria-label="مساعدة هذه الصفحة"></x-import>
+      <x-import component-from-global-scope="OpsOne.Button" variant="ghost" icon="bell" icon-only="{{ yes }}" aria-label="الإشعارات"></x-import>
+      <x-import component-from-global-scope="OpsOne.Avatar" name="فهد العتيبي" size="sm"></x-import>
+    </div>
+  </header>
+
+  <main class="o1-main" style="max-width: none; padding: 24px 32px 32px; display: flex; flex-direction: column; gap: 20px;">
+    <x-import component-from-global-scope="OpsOne.Breadcrumbs" items="{{ crumbs }}"></x-import>
+    <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;">
+      <div style="display: flex; align-items: center; gap: 16px;">
+        <x-import component-from-global-scope="OpsOne.Avatar" name="دار الإعمار" size="lg" decorative="{{ yes }}"></x-import>
+        <div style="display: flex; flex-direction: column; gap: 4px;">
+          <div style="display: flex; align-items: center; gap: 12px;"><h1 style="margin: 0; font-size: 24px; line-height: 36px; font-weight: 700;">شركة دار الإعمار للمقاولات</h1><x-import component-from-global-scope="OpsOne.Badge" tone="neutral">جهة تجارية</x-import></div>
+          <div style="display: flex; gap: 24px; color: var(--text-weak);"><span>عميل منذ يونيو 2026</span><span>المتابع <strong style="color: var(--text-strong); font-weight: 500;">نورة الدوسري</strong></span></div>
+        </div>
+      </div>
+      <div style="display: flex; gap: 8px;">
+        <x-import component-from-global-scope="OpsOne.Button" variant="secondary" icon="pencil">تعديل البيانات</x-import>
+        <x-import component-from-global-scope="OpsOne.Button" variant="primary" icon="plus" href="CreateOrder.dc.html">طلب مخصص جديد</x-import>
+      </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 24px; align-items: start;">
+      <div style="display: flex; flex-direction: column; gap: 24px;">
+
+        <section class="o1-card o1-card--flush" aria-labelledby="pc-h">
+          <div class="o1-card-head" style="padding: 20px 24px 0; margin-bottom: 8px;">
+            <div class="o1-card-heading"><h2 id="pc-h" class="o1-card-title">أشخاص الاتصال</h2><p class="o1-card-desc">من جهة العميل. الرئيسي يظهر افتراضيًا في الطلبات الجديدة، ويمكن اختيار غيره لكل طلب.</p></div>
+            <x-import component-from-global-scope="OpsOne.Button" variant="ghost" size="sm" icon="plus">إضافة شخص اتصال</x-import>
+          </div>
+          <ul style="list-style: none; margin: 0; padding: 0;">
+            <sc-for list="{{ contacts }}" as="c" hint-placeholder-count="3">
+              <li style="display: grid; grid-template-columns: 40px minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 14px 24px; border-top: 1px solid var(--stroke-weak);">
+                <x-import component-from-global-scope="OpsOne.Avatar" name="{{ c.name }}" size="md" decorative="{{ yes }}"></x-import>
+                <div style="display: flex; flex-direction: column; gap: 2px; min-width: 0;">
+                  <span style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;"><span style="font-weight: 600;">{{ c.name }}</span><span style="color: var(--text-weak);">{{ c.role }}</span><sc-if value="{{ c.primary }}" hint-placeholder-val="{{ no }}"><x-import component-from-global-scope="OpsOne.Badge" tone="brand">الرئيسي</x-import></sc-if></span>
+                  <span style="display: flex; gap: 16px; flex-wrap: wrap; color: var(--text-weak);"><bdi dir="ltr">{{ c.phone }}</bdi><bdi dir="ltr">{{ c.email }}</bdi></span>
+                  <span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">{{ c.note }}</span>
+                </div>
+                <div style="display: flex; gap: 4px; align-items: center;">
+                  <x-import component-from-global-scope="OpsOne.Button" variant="secondary" size="sm" icon="phone">اتصال</x-import>
+                  <x-import component-from-global-scope="OpsOne.Menu" label="إجراءات {{ c.name }}" icon-only="{{ yes }}" variant="ghost" size="sm" items="{{ c.menu }}"></x-import>
+                </div>
+              </li>
+            </sc-for>
+          </ul>
+        </section>
+
+        <section class="o1-card o1-card--flush" aria-labelledby="or-h">
+          <div class="o1-card-head" style="padding: 20px 24px 0; margin-bottom: 8px;"><h2 id="or-h" class="o1-card-title">الطلبات</h2></div>
+          <table class="o1-table">
+            <caption class="o1-sr">طلبات الجهة</caption>
+            <thead><tr><th scope="col">رقم الطلب</th><th scope="col">الاحتياج</th><th scope="col">شخص الاتصال</th><th scope="col">أين وصل</th><th scope="col">الحالة</th></tr></thead>
+            <tbody>
+              <tr><td><x-import component-from-global-scope="OpsOne.Ref" href="OrderContact.dc.html">ORD-24521</x-import></td><td>مطابخ لست شقق في المشروع الأول</td><td>م. عادل الشهري</td><td style="color: var(--warning-text);">بانتظار قرار الخصم</td><td><x-import component-from-global-scope="OpsOne.Badge" tone="info">جارٍ</x-import></td></tr>
+              <tr><td><x-import component-from-global-scope="OpsOne.Ref">ORD-24531</x-import></td><td>خزائن مداخل الشقق</td><td>م. فهد البيشي</td><td style="color: var(--text-weak);">تثبيت الاحتياج والمواصفات</td><td><x-import component-from-global-scope="OpsOne.Badge" tone="info">جارٍ</x-import></td></tr>
+            </tbody>
+          </table>
+        </section>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 24px;">
+        <section class="o1-card" aria-labelledby="ct-h">
+          <h2 id="ct-h" class="o1-card-title" style="margin-bottom: 8px;">بيانات التواصل</h2>
+          <dl style="margin: 0; display: flex; flex-direction: column;">
+            <div style="padding: 8px 0;"><dt style="font-size: 14px; line-height: 20px; font-weight: 500; color: var(--text-weak);">الجوال</dt><dd style="margin: 0;"><bdi dir="ltr">+966 50 662 1847</bdi></dd></div>
+            <div style="padding: 8px 0; border-top: 1px solid var(--stroke-weak);"><dt style="font-size: 14px; line-height: 20px; font-weight: 500; color: var(--text-weak);">هاتف المكتب</dt><dd style="margin: 0;"><bdi dir="ltr">+966 11 465 2290</bdi></dd></div>
+            <div style="padding: 8px 0; border-top: 1px solid var(--stroke-weak);"><dt style="font-size: 14px; line-height: 20px; font-weight: 500; color: var(--text-weak);">البريد</dt><dd style="margin: 0;"><bdi dir="ltr">procurement@daralemar.sa</bdi></dd></div>
+            <div style="padding: 8px 0; border-top: 1px solid var(--stroke-weak);"><dt style="font-size: 14px; line-height: 20px; font-weight: 500; color: var(--text-weak);">البلد</dt><dd style="margin: 0;">السعودية</dd></div>
+          </dl>
+        </section>
+
+        <section class="o1-card" aria-labelledby="bz-h">
+          <div class="o1-card-head" style="margin-bottom: 8px;"><div class="o1-card-heading"><h2 id="bz-h" class="o1-card-title">البيانات التجارية</h2><p class="o1-card-desc">تظهر في العقد، وفي الفاتورة إن طُلبت فاتورة ضريبية، مع العنوان الافتراضي.</p></div></div>
+          <dl style="margin: 0; display: flex; flex-direction: column;">
+            <div style="padding: 8px 0;"><dt style="font-size: 14px; line-height: 20px; font-weight: 500; color: var(--text-weak);">السجل التجاري</dt><dd style="margin: 0;"><x-import component-from-global-scope="OpsOne.Ref">1010587342</x-import></dd></div>
+            <div style="padding: 8px 0; border-top: 1px solid var(--stroke-weak);"><dt style="font-size: 14px; line-height: 20px; font-weight: 500; color: var(--text-weak);">الرقم الضريبي</dt><dd style="margin: 0;"><x-import component-from-global-scope="OpsOne.Ref">310458712300003</x-import></dd></div>
+          </dl>
+        </section>
+
+        <section class="o1-card o1-card--flush" aria-labelledby="ad-h">
+          <div class="o1-card-head" style="padding: 20px 24px 0; margin-bottom: 8px;"><h2 id="ad-h" class="o1-card-title">العناوين</h2><x-import component-from-global-scope="OpsOne.Button" variant="ghost" size="sm" icon="plus">إضافة عنوان</x-import></div>
+          <ul style="list-style: none; margin: 0; padding: 0;">
+            <li style="display: flex; flex-direction: column; gap: 2px; padding: 12px 24px; border-top: 1px solid var(--stroke-weak);">
+              <span style="display: flex; gap: 8px; align-items: center;"><span style="font-weight: 500;">المقر</span><x-import component-from-global-scope="OpsOne.Badge" tone="neutral">افتراضي</x-import></span>
+              <span style="color: var(--text-weak);">طريق الملك فهد، برج الإعمار، الدور 7، حي العليا، الرياض</span>
+            </li>
+            <li style="display: flex; flex-direction: column; gap: 2px; padding: 12px 24px; border-top: 1px solid var(--stroke-weak);">
+              <span style="font-weight: 500;">مشروع النرجس السكني</span>
+              <span style="color: var(--text-weak);">حي النرجس، شارع الثمامة، الرياض</span>
+              <a href="#" style="display: inline-flex; align-items: center; gap: 4px; min-height: 44px; font-weight: 500; align-self: flex-start;"><x-import component-from-global-scope="OpsOne.Icon" name="map-pin" size="{{ s16 }}"></x-import>فتح في الخرائط</a>
+            </li>
+          </ul>
+        </section>
+      </div>
+    </div>
+  </main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1500}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const noop = () => {};
+    const menu = (primary) => [
+      ...(primary ? [] : [ { id: 'primary', label: 'جعله الرئيسي', icon: 'check', onSelect: noop } ]),
+      { id: 'edit', label: 'تعديل', icon: 'pencil', onSelect: noop },
+      { separator: true },
+      { id: 'remove', label: 'إزالة من الجهة', icon: 'trash-2', danger: true, onSelect: noop }
+    ];
+    return {
+      yes: true, no: false, h28: 28, s16: 16,
+      crumbs: [ { label: 'العملاء', href: 'CustomersList.dc.html' }, { label: 'شركة دار الإعمار للمقاولات' } ],
+      contacts: [
+        { name: 'م. عادل الشهري', role: 'مسؤول المشتريات', primary: true, phone: '+966 50 662 1847', email: 'adel.alshehri@daralemar.sa', note: 'شخص الاتصال في طلب ORD-24521', menu: menu(true) },
+        { name: 'سلمان القرني', role: 'المالية، الفواتير والتحصيل', primary: false, phone: '+966 55 318 4402', email: 'finance@daralemar.sa', note: 'يُرسل إليه طلب الفاتورة الضريبية وتذكير الدفعات', menu: menu(false) },
+        { name: 'م. فهد البيشي', role: 'مهندس الموقع', primary: false, phone: '+966 56 904 2271', email: '', note: 'يستقبل فريق القياس والتركيب في الموقع. شخص الاتصال في ORD-24531', menu: menu(false) }
+      ],
+      nav: [
+        { label: 'الرئيسية', icon: 'layout-dashboard', href: 'Main.dc.html', active: false },
+        { label: 'الطلبات', icon: 'clipboard-list', href: 'OrdersList.dc.html', active: false },
+        { label: 'العملاء', icon: 'users', href: 'CustomersList.dc.html', active: true },
+        { label: 'المهام والمواعيد', icon: 'calendar', href: '#', active: false },
+        { label: 'المالية', icon: 'receipt', href: '#', active: false },
+        { label: 'المخزون والتوريد', icon: 'package', href: '#', active: false },
+        { label: 'الموقع', icon: 'file-text', href: '#', active: false },
+        { label: 'التقارير', icon: 'trending-up', href: '#', active: false }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

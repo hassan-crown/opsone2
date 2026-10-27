@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>الإعدادات</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/opsone/tokens.css">
+<link rel="stylesheet" href="ds/opsone/components/bundle.css">
+<script src="ds/opsone/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:var(--link)}a:hover{color:var(--brand-hover)}
+</style>
+</helmet>
+<div dir="rtl" data-surface="panel" data-theme="{{ theme }}" style="width: 1440px; min-height: 1250px; display: flex; background: var(--background); color: var(--text-strong); font-family: var(--font-sans); font-size: 14px; line-height: 24px;">
+
+<aside class="o1-sidebar" style="position: relative; height: auto; display: flex;">
+  <div class="o1-sidebar-brand"><x-import component-from-global-scope="OpsOne.Logo" height="{{ h28 }}"></x-import></div>
+  <div style="display: flex; flex-direction: column; gap: 2px; padding: 0 12px 16px; margin-bottom: 8px; border-bottom: 1px solid var(--stroke-weak);">
+    <span style="font-weight: 600;">مطابخ الركن الحديث</span>
+    <span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">باقة نمو</span>
+  </div>
+  <nav class="o1-nav" aria-label="القائمة الرئيسية"><ul>
+    <sc-for list="{{ nav }}" as="item" hint-placeholder-count="8">
+      <li><x-import component-from-global-scope="OpsOne.NavItem" label="{{ item.label }}" icon="{{ item.icon }}" href="{{ item.href }}" active="{{ item.active }}"></x-import></li>
+    </sc-for>
+  </ul></nav>
+  <div class="o1-sidebar-foot">
+    <x-import component-from-global-scope="OpsOne.NavItem" label="الإعدادات" icon="settings" href="SettingsHome.dc.html" active="{{ yes }}"></x-import>
+  </div>
+</aside>
+
+<div class="o1-shell-main" style="flex: 1; min-width: 0; display: flex; flex-direction: column;">
+  <header class="o1-topbar" style="position: relative; gap: 12px;">
+    <div style="width: 440px;"><x-import component-from-global-scope="OpsOne.SearchField" label="البحث العام" placeholder="رقم الطلب أو اسم العميل أو الجوال أو المستند"></x-import></div>
+    <div class="o1-topbar-end">
+      <x-import component-from-global-scope="OpsOne.Button" variant="ghost" icon="info" icon-only="{{ yes }}" aria-label="مساعدة هذه الصفحة"></x-import>
+      <x-import component-from-global-scope="OpsOne.Button" variant="ghost" icon="bell" icon-only="{{ yes }}" aria-label="الإشعارات"></x-import>
+      <x-import component-from-global-scope="OpsOne.Avatar" name="فهد العتيبي" size="sm"></x-import>
+    </div>
+  </header>
+
+  <main class="o1-main" style="max-width: none; padding: 32px; display: flex; flex-direction: column; gap: 20px;">
+<div class="o1-pagehead" style="margin-bottom: 0;"><div class="o1-pagehead-text"><h1 class="o1-pagehead-title">الإعدادات</h1><p class="o1-pagehead-desc">كل إعداد له مكان واحد؛ الاختصارات من الأقسام تفتح المكان نفسه.</p></div><div class="o1-pagehead-actions"></div></div><div style="max-width: 560px;"><x-import component-from-global-scope="OpsOne.SearchField" label="البحث في الإعدادات" placeholder="مثل: حد الخصم، أوقات العمل، العملة"></x-import></div><div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; align-items: start;"><section class="o1-card o1-card--flush" aria-labelledby="sg0">
+          <div class="o1-card-head" style="padding: 20px 24px 0; margin-bottom: 8px;"><div class="o1-card-heading"><h2 id="sg0" class="o1-card-title">المنشأة والفريق</h2></div></div>
+          <ul style="list-style: none; margin: 0; padding: 0;"><li style="border-top: 1px solid var(--stroke-weak);"><a href="#" style="display: grid; grid-template-columns: minmax(0, 1fr) auto 20px; gap: 12px; align-items: center; min-height: 56px; padding: 6px 24px; text-decoration: none; color: var(--text-strong);"><span style="display: flex; flex-direction: column;"><span style="font-weight: 600;">بيانات المنشأة</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">الرياض، ريال سعودي، العربية</span></span><span></span><span style="color: var(--text-weak); display: inline-flex;"><x-import component-from-global-scope="OpsOne.Icon" name="chevron-left" size="{{ s16 }}"></x-import></span></a></li><li style="border-top: 1px solid var(--stroke-weak);"><a href="Branches.dc.html" style="display: grid; grid-template-columns: minmax(0, 1fr) auto 20px; gap: 12px; align-items: center; min-height: 56px; padding: 6px 24px; text-decoration: none; color: var(--text-strong);"><span style="display: flex; flex-direction: column;"><span style="font-weight: 600;">الفروع والأقسام</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">فرعان و4 أقسام</span></span><span></span><span style="color: var(--text-weak); display: inline-flex;"><x-import component-from-global-scope="OpsOne.Icon" name="chevron-left" size="{{ s16 }}"></x-import></span></a></li><li style="border-top: 1px solid var(--stroke-weak);"><a href="TeamList.dc.html" style="display: grid; grid-template-columns: minmax(0, 1fr) auto 20px; gap: 12px; align-items: center; min-height: 56px; padding: 6px 24px; text-decoration: none; color: var(--text-strong);"><span style="display: flex; flex-direction: column;"><span style="font-weight: 600;">الفريق والأدوار</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">11 عضوًا ودعوة معلقة</span></span><span></span><span style="color: var(--text-weak); display: inline-flex;"><x-import component-from-global-scope="OpsOne.Icon" name="chevron-left" size="{{ s16 }}"></x-import></span></a></li><li style="border-top: 1px solid var(--stroke-weak);"><a href="AuditLog.dc.html" style="display: grid; grid-template-columns: minmax(0, 1fr) auto 20px; gap: 12px; align-items: center; min-height: 56px; padding: 6px 24px; text-decoration: none; color: var(--text-strong);"><span style="display: flex; flex-direction: column;"><span style="font-weight: 600;">سجل التغييرات</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">كل تغيير بمن ومتى والقيمة السابقة</span></span><span></span><span style="color: var(--text-weak); display: inline-flex;"><x-import component-from-global-scope="OpsOne.Icon" name="chevron-left" size="{{ s16 }}"></x-import></span></a></li></ul>
+        </section><section class="o1-card o1-card--flush" aria-labelledby="sg1">
+          <div class="o1-card-head" style="padding: 20px 24px 0; margin-bottom: 8px;"><div class="o1-card-heading"><h2 id="sg1" class="o1-card-title">العمل</h2></div></div>
+          <ul style="list-style: none; margin: 0; padding: 0;"><li style="border-top: 1px solid var(--stroke-weak);"><a href="FlowEdit.dc.html" style="display: grid; grid-template-columns: minmax(0, 1fr) auto 20px; gap: 12px; align-items: center; min-height: 56px; padding: 6px 24px; text-decoration: none; color: var(--text-strong);"><span style="display: flex; flex-direction: column;"><span style="font-weight: 600;">مسار التشغيل</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">5 مراحل، مسودة تعديل</span></span><x-import component-from-global-scope="OpsOne.Badge" tone="warning">مسودة</x-import><span style="color: var(--text-weak); display: inline-flex;"><x-import component-from-global-scope="OpsOne.Icon" name="chevron-left" size="{{ s16 }}"></x-import></span></a></li><li style="border-top: 1px solid var(--stroke-weak);"><a href="CatalogProducts.dc.html" style="display: grid; grid-template-columns: minmax(0, 1fr) auto 20px; gap: 12px; align-items: center; min-height: 56px; padding: 6px 24px; text-decoration: none; color: var(--text-strong);"><span style="display: flex; flex-direction: column;"><span style="font-weight: 600;">الكتالوج</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">6 منتجات مخصصة و6 جاهزة</span></span><span></span><span style="color: var(--text-weak); display: inline-flex;"><x-import component-from-global-scope="OpsOne.Icon" name="chevron-left" size="{{ s16 }}"></x-import></span></a></li><li style="border-top: 1px solid var(--stroke-weak);"><a href="SettingsOps.dc.html" style="display: grid; grid-template-columns: minmax(0, 1fr) auto 20px; gap: 12px; align-items: center; min-height: 56px; padding: 6px 24px; text-decoration: none; color: var(--text-strong);"><span style="display: flex; flex-direction: column;"><span style="font-weight: 600;">الجدولة</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">الأحد إلى الخميس، والمواعيد المتعارضة بسبب</span></span><span></span><span style="color: var(--text-weak); display: inline-flex;"><x-import component-from-global-scope="OpsOne.Icon" name="chevron-left" size="{{ s16 }}"></x-import></span></a></li><li style="border-top: 1px solid var(--stroke-weak);"><a href="SettingsSales.dc.html" style="display: grid; grid-template-columns: minmax(0, 1fr) auto 20px; gap: 12px; align-items: center; min-height: 56px; padding: 6px 24px; text-decoration: none; color: var(--text-strong);"><span style="display: flex; flex-direction: column;"><span style="font-weight: 600;">المبيعات</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">حدود الخصم والعمولة 2% ورابط السلة والإرجاع</span></span><span></span><span style="color: var(--text-weak); display: inline-flex;"><x-import component-from-global-scope="OpsOne.Icon" name="chevron-left" size="{{ s16 }}"></x-import></span></a></li><li style="border-top: 1px solid var(--stroke-weak);"><a href="#" style="display: grid; grid-template-columns: minmax(0, 1fr) auto 20px; gap: 12px; align-items: center; min-height: 56px; padding: 6px 24px; text-decoration: none; color: var(--text-strong);"><span style="display: flex; flex-direction: column;"><span style="font-weight: 600;">المالية والدفع</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">طرق التحصيل وحسابان بنكيان وترقيم السندات</span></span><span></span><span style="color: var(--text-weak); display: inline-flex;"><x-import component-from-global-scope="OpsOne.Icon" name="chevron-left" size="{{ s16 }}"></x-import></span></a></li><li style="border-top: 1px solid var(--stroke-weak);"><a href="#" style="display: grid; grid-template-columns: minmax(0, 1fr) auto 20px; gap: 12px; align-items: center; min-height: 56px; padding: 6px 24px; text-decoration: none; color: var(--text-strong);"><span style="display: flex; flex-direction: column;"><span style="font-weight: 600;">المنتجات والمخزون</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">وحدات القياس وحد إعادة الطلب</span></span><span></span><span style="color: var(--text-weak); display: inline-flex;"><x-import component-from-global-scope="OpsOne.Icon" name="chevron-left" size="{{ s16 }}"></x-import></span></a></li></ul>
+        </section><section class="o1-card o1-card--flush" aria-labelledby="sg2">
+          <div class="o1-card-head" style="padding: 20px 24px 0; margin-bottom: 8px;"><div class="o1-card-heading"><h2 id="sg2" class="o1-card-title">العميل</h2></div></div>
+          <ul style="list-style: none; margin: 0; padding: 0;"><li style="border-top: 1px solid var(--stroke-weak);"><a href="ThemeEdit.dc.html" style="display: grid; grid-template-columns: minmax(0, 1fr) auto 20px; gap: 12px; align-items: center; min-height: 56px; padding: 6px 24px; text-decoration: none; color: var(--text-strong);"><span style="display: flex; flex-direction: column;"><span style="font-weight: 600;">الموقع والهوية</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">منشور، بهوية الجهة</span></span><span></span><span style="color: var(--text-weak); display: inline-flex;"><x-import component-from-global-scope="OpsOne.Icon" name="chevron-left" size="{{ s16 }}"></x-import></span></a></li><li style="border-top: 1px solid var(--stroke-weak);"><a href="SettingsIntegrations.dc.html" style="display: grid; grid-template-columns: minmax(0, 1fr) auto 20px; gap: 12px; align-items: center; min-height: 56px; padding: 6px 24px; text-decoration: none; color: var(--text-strong);"><span style="display: flex; flex-direction: column;"><span style="font-weight: 600;">الإشعارات والتكاملات</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">البريد وSMS والدفع متصلة بحساباتك لدى المزودين</span></span><span></span><span style="color: var(--text-weak); display: inline-flex;"><x-import component-from-global-scope="OpsOne.Icon" name="chevron-left" size="{{ s16 }}"></x-import></span></a></li></ul>
+        </section><section class="o1-card o1-card--flush" aria-labelledby="sg3">
+          <div class="o1-card-head" style="padding: 20px 24px 0; margin-bottom: 8px;"><div class="o1-card-heading"><h2 id="sg3" class="o1-card-title">الاشتراك</h2></div></div>
+          <ul style="list-style: none; margin: 0; padding: 0;"><li style="border-top: 1px solid var(--stroke-weak);"><a href="PlanUsage.dc.html" style="display: grid; grid-template-columns: minmax(0, 1fr) auto 20px; gap: 12px; align-items: center; min-height: 56px; padding: 6px 24px; text-decoration: none; color: var(--text-strong);"><span style="display: flex; flex-direction: column;"><span style="font-weight: 600;">الباقة والاستخدام</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">نمو، 12 من 15 مقعدًا</span></span><x-import component-from-global-scope="OpsOne.Badge" tone="warning">80%</x-import><span style="color: var(--text-weak); display: inline-flex;"><x-import component-from-global-scope="OpsOne.Icon" name="chevron-left" size="{{ s16 }}"></x-import></span></a></li></ul>
+        </section></div>
+  </main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme": {"editor": "enum", "options": ["light", "dark"], "default": "light"}, "$preview": {"width": 1440, "height": 1250}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const noop = () => {};
+    return { yes: true, no: false, h28: 28, h24: 24, s16: 16, s24: 24, theme: this.props.theme ?? 'light', nav: [ { label: 'الرئيسية', icon: 'layout-dashboard', href: 'Main.dc.html', active: false }, { label: 'الطلبات', icon: 'clipboard-list', href: 'OrdersList.dc.html', active: false }, { label: 'العملاء', icon: 'users', href: 'CustomersList.dc.html', active: false }, { label: 'المهام والمواعيد', icon: 'calendar', href: 'CalWeek.dc.html', active: false }, { label: 'المالية', icon: 'receipt', href: 'FinHome.dc.html', active: false }, { label: 'المخزون والتوريد', icon: 'package', href: 'StockList.dc.html', active: false }, { label: 'الموقع', icon: 'file-text', href: 'SitePages.dc.html', active: false }, { label: 'التقارير', icon: 'trending-up', href: '#', active: false } ] };
+  }
+}
+</script>
+</body>
+</html>

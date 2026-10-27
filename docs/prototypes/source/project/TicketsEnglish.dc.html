@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<title>Tickets</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/opsone/tokens.css">
+<link rel="stylesheet" href="ds/opsone/components/bundle.css">
+<script src="ds/opsone/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:var(--link)}a:hover{color:var(--brand-hover)}
+</style>
+</helmet>
+<div dir="ltr" lang="en" data-surface="panel" style="width: 1440px; min-height: 700px; display: flex; background: var(--background); color: var(--text-strong); font-family: var(--font-latin); font-size: 14px; line-height: 24px;"><aside class="o1-sidebar" style="position: relative; height: auto; display: flex;"><div class="o1-sidebar-brand"><x-import component-from-global-scope="OpsOne.Logo" height="{{ h28 }}"></x-import></div><div style="display: flex; flex-direction: column; gap: 2px; padding: 0 12px 16px; margin-bottom: 8px; border-bottom: 1px solid var(--stroke-weak);"><span style="font-weight: 600;">Al Rukn Modern Kitchens</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">Growth plan</span></div><nav class="o1-nav" aria-label="Main menu"><ul><sc-for list="{{ nav }}" as="item" hint-placeholder-count="8"><li><x-import component-from-global-scope="OpsOne.NavItem" label="{{ item.label }}" icon="{{ item.icon }}" href="#" active="{{ item.active }}"></x-import></li></sc-for></ul></nav></aside><div class="o1-shell-main" style="flex: 1; min-width: 0; display: flex; flex-direction: column;"><header class="o1-topbar" style="position: relative; gap: 12px;"><div style="width: 440px;"><x-import component-from-global-scope="OpsOne.SearchField" label="Search" placeholder="Order number, customer, phone or document"></x-import></div><div class="o1-topbar-end"><x-import component-from-global-scope="OpsOne.Button" variant="ghost" icon="info" icon-only="{{ yes }}" aria-label="Help for this page"></x-import><x-import component-from-global-scope="OpsOne.Button" variant="ghost" icon="bell" icon-only="{{ yes }}" aria-label="Notifications"></x-import><x-import component-from-global-scope="OpsOne.Avatar" name="Fahad Alotaibi" size="sm"></x-import></div></header><main class="o1-main" style="max-width: none; padding: 32px; display: flex; flex-direction: column; gap: 20px;"><div class="o1-pagehead" style="margin-bottom: 0;"><div class="o1-pagehead-text"><h1 class="o1-pagehead-title">Customers</h1><p class="o1-pagehead-desc">What customers send: enquiries before an order, tickets after it. Each ticket goes to its order owner.</p></div></div><div role="tablist" aria-label="Customers" class="o1-tablist"><a role="tab" href="#" aria-selected="false" class="o1-tab" style="position: relative; display: inline-flex; align-items: center; min-height: 44px; padding: 0 12px; text-decoration: none; color: var(--text-weak);">Customers</a><a role="tab" href="#" aria-selected="false" class="o1-tab" style="position: relative; display: inline-flex; align-items: center; min-height: 44px; padding: 0 12px; text-decoration: none; color: var(--text-weak);">Enquiries</a><a role="tab" href="#" aria-selected="true" class="o1-tab" style="position: relative; display: inline-flex; align-items: center; min-height: 44px; padding: 0 12px; text-decoration: none; color: var(--text-strong);">Tickets</a></div><div class="o1-table-wrap"><table class="o1-table"><caption class="o1-sr">Tickets</caption><thead><tr><th scope="col">Ticket</th><th scope="col">Type</th><th scope="col">Customer</th><th scope="col">Order</th><th scope="col">Owner</th><th scope="col">Status</th></tr></thead><tbody><tr><td><span style="font-weight: 600;">When does manufacturing start?</span><br><span style="font-family: var(--font-mono); color: var(--text-weak); font-size: 13px;">TKT-0319</span></td><td>Question</td><td>Nasser Alomari</td><td style="font-family: var(--font-mono);">ORD-24502</td><td>Khalid Alzahrani</td><td><x-import component-from-global-scope="OpsOne.Badge" tone="info">New</x-import></td></tr><tr><td><span style="font-weight: 600;">Sliding wardrobe door rubs</span><br><span style="font-family: var(--font-mono); color: var(--text-weak); font-size: 13px;">TKT-0318</span></td><td>Problem</td><td>Latifa Alharbi</td><td style="font-family: var(--font-mono);">ORD-24476</td><td>Khalid Alzahrani</td><td><x-import component-from-global-scope="OpsOne.Badge" tone="info">In progress</x-import></td></tr><tr><td><span style="font-weight: 600;">When is my receipt confirmed?</span><br><span style="font-family: var(--font-mono); color: var(--text-weak); font-size: 13px;">TKT-0316</span></td><td>Question</td><td>Munira Alshammari</td><td style="font-family: var(--font-mono);">ORD-24518</td><td>Noura Aldosari</td><td><x-import component-from-global-scope="OpsOne.Badge" tone="info">In progress</x-import></td></tr><tr><td><span style="font-weight: 600;">Invoice copy</span><br><span style="font-family: var(--font-mono); color: var(--text-weak); font-size: 13px;">TKT-0312</span></td><td>Request</td><td>Abdulrahman Alfaifi</td><td style="font-family: var(--font-mono);">ORD-24480</td><td>Noura Aldosari</td><td><x-import component-from-global-scope="OpsOne.Badge" tone="warning">Waiting for customer</x-import></td></tr></tbody></table></div></main></div></div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview": {"width": 1440, "height": 700}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const noop = () => {};
+    return { yes: true, h28: 28, s16: 16, nav: [ { label: 'Home', icon: 'layout-dashboard', active: false }, { label: 'Orders', icon: 'clipboard-list', active: false }, { label: 'Customers', icon: 'users', active: true }, { label: 'Tasks and appointments', icon: 'calendar', active: false }, { label: 'Finance', icon: 'receipt', active: false }, { label: 'Inventory and purchasing', icon: 'package', active: false }, { label: 'Website', icon: 'file-text', active: false }, { label: 'Reports', icon: 'trending-up', active: false } ] };
+  }
+}
+</script>
+</body>
+</html>

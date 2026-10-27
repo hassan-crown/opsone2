@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>عميل جديد: جوال مكرر</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/opsone/tokens.css">
+<link rel="stylesheet" href="ds/opsone/components/bundle.css">
+<script src="ds/opsone/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:var(--link)}a:hover{color:var(--brand-hover)}
+</style>
+</helmet>
+<div dir="rtl" data-surface="panel" style="position: relative; width: 1440px; height: 1200px; overflow: hidden; background: var(--background); color: var(--text-strong); font-family: var(--font-sans); font-size: 14px; line-height: 24px;">
+  <div aria-hidden="true" inert="" style="position: absolute; inset: 0;">
+    <dc-import name="CustomersList" hint-size="1440px,1100px"></dc-import>
+  </div>
+  <div aria-hidden="true" style="position: absolute; inset: 0; background: var(--overlay);"></div>
+
+  <div role="dialog" aria-modal="true" aria-labelledby="nc-t" style="position: absolute; inset-block-start: 72px; inset-inline-start: 50%; transform: translateX(50%); width: 560px; box-sizing: border-box; display: flex; flex-direction: column; gap: 16px; padding: 24px; background: var(--raised); border: 1px solid var(--stroke-weak); border-radius: 12px; box-shadow: var(--shadow-raised);">
+    <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 16px;">
+      <h2 id="nc-t" style="margin: 0; font-size: 16px; line-height: 26px; font-weight: 600;">عميل جديد</h2>
+      <x-import component-from-global-scope="OpsOne.Button" variant="ghost" icon="x" icon-only="{{ yes }}" aria-label="إغلاق"></x-import>
+    </div>
+    <x-import component-from-global-scope="OpsOne.RadioGroup" label="النوع" options="{{ kind }}" default-value="person" inline="{{ yes }}"></x-import>
+    <x-import component-from-global-scope="OpsOne.TextField" label="الاسم الكامل" default-value="سلطان عبدالله البقمي" required="{{ yes }}"></x-import>
+    <div style="display: flex; flex-direction: column; gap: 4px;">
+      <x-import component-from-global-scope="OpsOne.TextField" label="رقم الجوال" default-value="0551903418" dir="ltr" input-mode="tel" required="{{ yes }}" error="هذا الجوال مسجل لعميل قائم في الجهة. افتح ملفه بدل إنشاء ملف ثانٍ، أو أدخل جوالًا آخر."></x-import>
+      <div style="display: flex; align-items: center; gap: 12px; padding: 8px 12px; background: var(--fill); border-radius: 8px;">
+        <x-import component-from-global-scope="OpsOne.Avatar" name="سلطان البقمي" size="sm" decorative="{{ yes }}"></x-import>
+        <span style="display: flex; flex-direction: column; flex: 1;"><span style="font-weight: 500;">سلطان البقمي</span><bdi dir="ltr" style="text-align: start; font-size: 13px; line-height: 20px; color: var(--text-weak);">+966 55 190 3418</bdi></span>
+        <x-import component-from-global-scope="OpsOne.Button" variant="secondary" size="sm" href="CustomerProfile.dc.html">فتح الملف</x-import>
+      </div>
+    </div>
+    <x-import component-from-global-scope="OpsOne.TextField" label="البريد الإلكتروني" default-value="sultan.b@outlook.com" dir="ltr" input-mode="email" required="{{ yes }}" hint="مطلوب وفريد في الجهة"></x-import>
+    <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 20px;">
+      <x-import component-from-global-scope="OpsOne.SelectField" label="البلد" options="{{ countries }}" default-value="sa"></x-import>
+      <x-import component-from-global-scope="OpsOne.SelectField" label="وسيلة التواصل المفضلة" options="{{ channels }}" default-value="whatsapp" optional="{{ yes }}"></x-import>
+    </div>
+    <fieldset style="margin: 0; padding: 16px; border: 1px solid var(--stroke-weak); border-radius: 8px; display: flex; flex-direction: column; gap: 12px;">
+      <legend style="padding: 0 4px; font-weight: 600;">العنوان <span style="font-weight: 400; color: var(--text-weak);">(اختياري)</span></legend>
+      <p style="margin: 0; color: var(--text-weak);">يلزم قبل أول زيارة قياس أو تركيب، ويمكن إضافته لاحقًا من ملف العميل أو من الطلب.</p>
+      <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 20px;">
+        <x-import component-from-global-scope="OpsOne.SelectField" label="المدينة" options="{{ cities }}" default-value="riyadh"></x-import>
+        <x-import component-from-global-scope="OpsOne.TextField" label="الحي" default-value="حي النرجس"></x-import>
+      </div>
+      <x-import component-from-global-scope="OpsOne.TextField" label="العنوان التفصيلي" placeholder="الشارع ورقم المبنى وأي وصف يساعد الفني"></x-import>
+      <div><x-import component-from-global-scope="OpsOne.Button" variant="ghost" size="sm" icon="map-pin">تحديد الموقع على الخريطة</x-import></div>
+    </fieldset>
+    <div style="display: flex; justify-content: flex-end; gap: 8px; padding-top: 4px;">
+      <x-import component-from-global-scope="OpsOne.Button" variant="ghost" href="CustomersList.dc.html">إلغاء</x-import>
+      <x-import component-from-global-scope="OpsOne.Button" variant="primary">حفظ العميل</x-import>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1200}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {
+      yes: true,
+      kind: [ { value: 'person', label: 'فرد' }, { value: 'company', label: 'جهة تجارية' } ],
+      countries: [ { value: 'sa', label: 'السعودية' } ],
+      cities: [ { value: 'riyadh', label: 'الرياض' }, { value: 'jeddah', label: 'جدة' }, { value: 'dammam', label: 'الدمام' } ],
+      channels: [ { value: 'whatsapp', label: 'واتساب' }, { value: 'phone', label: 'اتصال' }, { value: 'email', label: 'بريد إلكتروني' } ]
+    };
+  }
+}
+</script>
+</body>
+</html>

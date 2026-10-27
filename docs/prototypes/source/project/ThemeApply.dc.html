@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>تطبيق الهوية</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/opsone/tokens.css">
+<link rel="stylesheet" href="ds/opsone/components/bundle.css">
+<script src="ds/opsone/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:var(--link)}a:hover{color:var(--brand-hover)}
+</style>
+</helmet>
+<div dir="rtl" data-surface="panel" style="position: relative; width: 1440px; height: 1000px; overflow: hidden; background: var(--background); color: var(--text-strong); font-family: var(--font-sans); font-size: 14px; line-height: 24px;">
+  <div aria-hidden="true" inert="" style="position: absolute; inset: 0;">
+    <dc-import name="ThemeEdit" hint-size="1440px,1150px"></dc-import>
+  </div>
+  <div aria-hidden="true" style="position: absolute; inset: 0; background: var(--overlay);"></div>
+
+  <div role="dialog" aria-modal="true" aria-labelledby="d-t" aria-describedby="d-d" class="o1-dialog" style="position: absolute; inset: 0; margin: auto; height: fit-content;">
+    <div class="o1-dialog-inner">
+    <div class="o1-dialog-head">
+      <h2 id="d-t" class="o1-dialog-title">تطبيق الهوية على موقعك</h2>
+      <button type="button" class="o1-dialog-close" aria-label="إغلاق"><x-import component-from-global-scope="OpsOne.Icon" name="x"></x-import></button>
+    </div>
+    <p id="d-d" class="o1-dialog-desc">مسودة 22 أكتوبر.</p>
+    
+    <ul style="list-style: none; margin: 0; padding: 0;"><li style=""><div style="display: flex; justify-content: space-between; gap: 12px; padding: 10px 0;"><span style="font-weight: 500;">الشعار</span><span style="color: var(--text-weak);">ملف جديد: شعار-الركن.svg</span></div></li><li style="border-top: 1px solid var(--stroke-weak);"><div style="display: flex; justify-content: space-between; gap: 12px; padding: 10px 0;"><span style="font-weight: 500;">أيقونة الموقع</span><span style="color: var(--text-weak);">مشتقة من الشعار</span></div></li><li style="border-top: 1px solid var(--stroke-weak);"><div style="display: flex; justify-content: space-between; gap: 12px; padding: 10px 0;"><span style="font-weight: 500;">وضع العرض</span><span style="color: var(--text-weak);">حسب جهاز الزائر، كما هو</span></div></li></ul>
+    <div style="display: flex; flex-direction: column; gap: 8px; padding: 12px 16px; background: var(--fill); border-radius: 8px;">
+      <span style="font-weight: 600;">أين يظهر</span>
+      <span style="display: flex; gap: 8px;"><span style="color: var(--success-text); display: inline-flex;"><x-import component-from-global-scope="OpsOne.Icon" name="check" size="{{ s16 }}"></x-import></span><span>الموقع ومساحة العميل والمستندات التي تصدر بعد التطبيق.</span></span>
+      <span style="display: flex; gap: 8px;"><span style="color: var(--info-text); display: inline-flex;"><x-import component-from-global-scope="OpsOne.Icon" name="info" size="{{ s16 }}"></x-import></span><span>المستندات السابقة تبقى بهويتها وقت إصدارها.</span></span>
+      <span style="display: flex; gap: 8px;"><span style="color: var(--info-text); display: inline-flex;"><x-import component-from-global-scope="OpsOne.Icon" name="info" size="{{ s16 }}"></x-import></span><span>الإدارة تبقى بهوية OpsOne مع لمسة لونك.</span></span>
+    </div>
+    <span style="color: var(--text-weak);">إن تعذر التطبيق يبقى الحالي كما هو. يمكنك لاحقًا «استعادة الافتراضي» دون أن يمس المحتوى.</span>
+    <div class="o1-dialog-foot">
+      <x-import component-from-global-scope="OpsOne.Button" variant="ghost" href="ThemeEdit.dc.html">متابعة التعديل</x-import><x-import component-from-global-scope="OpsOne.Button" variant="primary" href="ThemeEdit.dc.html">تطبيق الآن</x-import>
+    </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview": {"width": 1440, "height": 1000}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const noop = () => {};
+    return { yes: true, no: false, h28: 28, h24: 24, s16: 16, s24: 24 };
+  }
+}
+</script>
+</body>
+</html>

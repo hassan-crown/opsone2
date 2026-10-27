@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>تذكرة على الجوال</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/opsone/tokens.css">
+<link rel="stylesheet" href="ds/opsone/components/bundle.css">
+<script src="ds/opsone/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:var(--link)}a:hover{color:var(--brand-hover)}
+</style>
+</helmet>
+<div dir="rtl" data-surface="panel" style="width: 390px; min-height: 1300px; display: flex; flex-direction: column; background: var(--background); color: var(--text-strong); font-family: var(--font-sans); font-size: 14px; line-height: 24px;">
+  <header style="display: flex; align-items: center; gap: 4px; min-height: 64px; padding-inline: 8px 8px; background: var(--surface); border-bottom: 1px solid var(--stroke-weak);">
+    <x-import component-from-global-scope="OpsOne.Button" variant="ghost" icon="arrow-left" icon-only="{{ yes }}" aria-label="رجوع إلى التذاكر" href="Tickets.dc.html"></x-import>
+    <span style="font-weight: 600;">التذكرة</span>
+    <div style="margin-inline-start: auto; display: flex;"></div>
+  </header>
+  <main style="padding: 16px; display: flex; flex-direction: column; gap: 16px;">
+    <div style="display: flex; flex-direction: column; gap: 6px;"><span style="display: flex; gap: 8px; align-items: center;"><x-import component-from-global-scope="OpsOne.Badge" tone="info">قيد المعالجة</x-import><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);"><bdi dir="ltr" style="font-family: var(--font-mono);">TKT-0318</bdi></span></span><h1 style="margin: 0; font-size: 22px; line-height: 34px; font-weight: 700;">باب الخزانة المنزلق يحتك</h1><span style="color: var(--text-weak);">مشكلة، لطيفة الحربي، <bdi dir="ltr" style="font-family: var(--font-mono);">ORD-24476</bdi></span></div>
+<div style="display: flex; flex-direction: column; gap: 6px; padding: 10px 12px; border-radius: 12px; background: var(--surface); border: 1px solid var(--stroke-weak);"><span style="display: flex; justify-content: space-between; gap: 8px;"><span style="display: flex; gap: 8px; align-items: center;"><span style="font-weight: 600;">لطيفة الحربي</span></span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">اليوم 09:12</span></span><span>باب الخزانة المنزلق يحتك عند الفتح، وصار يحتاج قوة.</span><a href="#" style="display: inline-flex; gap: 6px; align-items: center; min-height: 44px; font-weight: 500;"><x-import component-from-global-scope="OpsOne.Icon" name="paperclip" size="{{ s16 }}"></x-import>باب-الخزانة.jpg</a></div><div style="display: flex; flex-direction: column; gap: 6px; padding: 10px 12px; border-radius: 12px; background: var(--warning-bg); border: 1px solid var(--warning-text);"><span style="display: flex; justify-content: space-between; gap: 8px;"><span style="display: flex; gap: 8px; align-items: center;"><span style="font-weight: 600;">خالد الزهراني</span><x-import component-from-global-scope="OpsOne.Badge" tone="warning" icon="lock">ملاحظة داخلية</x-import></span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">اليوم 09:40</span></span><span>الفريق نفسه سيعيد تصنيع الرف التالف؛ نضبط الباب في الزيارة نفسها.</span></div><div style="display: flex; flex-direction: column; gap: 6px; padding: 10px 12px; border-radius: 12px; background: var(--brand-subtle); border: 1px solid var(--stroke-weak);"><span style="display: flex; justify-content: space-between; gap: 8px;"><span style="display: flex; gap: 8px; align-items: center;"><span style="font-weight: 600;">خالد الزهراني</span></span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">اليوم 09:45</span></span><span>شكرًا لك. سنرسل فني التركيب لضبط الباب، ونحدد الموعد معك اليوم.</span></div>
+    <x-import component-from-global-scope="OpsOne.TextField" label="رد للعميلة" default-value="" multiline="{{ yes }}"></x-import>
+    <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px;"><x-import component-from-global-scope="OpsOne.Button" variant="secondary" icon="lock" block="{{ yes }}">ملاحظة داخلية</x-import><x-import component-from-global-scope="OpsOne.Button" variant="primary" block="{{ yes }}">إرسال الرد</x-import></div>
+    <x-import component-from-global-scope="OpsOne.Button" variant="ghost" icon="plus" block="{{ yes }}">إنشاء مهمة إصلاح</x-import>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview": {"width": 390, "height": 1300}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const noop = () => {};
+    return { yes: true, no: false, h28: 28, h24: 24, s16: 16, s24: 24 };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>الاتفاق بدور مشرف القسم</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/opsone/tokens.css">
+<link rel="stylesheet" href="ds/opsone/components/bundle.css">
+<script src="ds/opsone/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:var(--link)}a:hover{color:var(--brand-hover)}
+</style>
+</helmet>
+<div style="width: 1440px; min-height: 1700px; background: var(--background);">
+  <dc-import name="AgrOrder" role="supervisor" hint-size="1440px,1700px"></dc-import>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview": {"width": 1440, "height": 1700}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const noop = () => {};
+    return {};
+  }
+}
+</script>
+</body>
+</html>
