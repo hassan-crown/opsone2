@@ -4,6 +4,7 @@ use App\Http\Middleware\EnsureAccessIsCurrent;
 use App\Http\Middleware\HandleAppearance;
 use App\Http\Middleware\HandleInertiaRequests;
 use App\Http\Middleware\SetLocale;
+use App\Http\Middleware\ShareLicenseState;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -24,6 +25,7 @@ return Application::configure(basePath: dirname(__DIR__))
             EnsureAccessIsCurrent::class,
             HandleAppearance::class,
             HandleInertiaRequests::class,
+            ShareLicenseState::class,
             AddLinkHeadersForPreloadedAssets::class,
         ]);
     })

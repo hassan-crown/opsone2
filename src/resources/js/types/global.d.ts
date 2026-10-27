@@ -1,4 +1,5 @@
 import type { Auth } from '@/types/auth';
+import type { LicenseBanner } from '@/types/license';
 import type { Direction, Locale } from '@/lib/i18n';
 
 declare module 'react' {
@@ -16,6 +17,7 @@ declare module '@inertiajs/core' {
             dir: Direction;
             locales: Locale[];
             translations: Record<string, string>;
+            license?: LicenseBanner | null;
             [key: string]: unknown;
         };
     }

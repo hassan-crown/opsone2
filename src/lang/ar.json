@@ -151,5 +151,18 @@
     "access.denied.out_of_scope": "هذا السجل خارج نطاق صلاحيتك.",
     "access.denied.record_state": "حالة السجل الحالية لا تسمح بهذا الإجراء.",
     "access.denied.delegation": "لا يمكنك منح الصلاحية :permission بنطاق أوسع مما تملك.",
-    "access.denied.transition": "لا يسمح بهذا الانتقال من الحالة الحالية."
+    "access.denied.transition": "لا يسمح بهذا الانتقال من الحالة الحالية.",
+    "license.renewal_title": "تجديد الاشتراك",
+    "license.renewal_body": "الأيام المتبقية في اشتراكك: :days. جدّد من حسابك في OpsOne لتجنّب الانقطاع.",
+    "license.grace_title": "انتهى الاشتراك — فترة سماح",
+    "license.grace_body": "يستمر العمل كاملًا لمدة :days يوم إضافي. جدّد الاشتراك لتجنّب القيود.",
+    "license.wind_down_title": "فترة إتمام القائم",
+    "license.wind_down_body": "أُوقفت الطلبات والمستخدمون الجدد. يمكنك إتمام الأعمال القائمة خلال :days يوم.",
+    "license.expired_title": "انتهى الاشتراك",
+    "license.expired_body": "المنصة متاحة للقراءة والتصدير فقط. جدّد الاشتراك لاستئناف العمل.",
+    "license.provisioned_title": "المنصة لم تُفعَّل بعد",
+    "license.provisioned_body": "الترخيص مُركّب، وتبدأ مدة الاشتراك عند تسليم المنصة.",
+    "license.needs_attention_title": "الترخيص يحتاج معالجة",
+    "license.needs_attention_body": "تعذّر التحقق من ترخيص المنصة. يستمر العمل على آخر حالة موثوقة، وتتوقف المزايا التي لا يمكن إثباتها. تواصل مع الدعم.",
+    "license.reference": "المرجع: :code"
 }

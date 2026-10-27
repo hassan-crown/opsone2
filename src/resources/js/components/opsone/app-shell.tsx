@@ -5,6 +5,7 @@ import type { ReactNode } from 'react';
 import { Breadcrumbs } from '@/components/opsone/breadcrumbs';
 import { Icon } from '@/components/opsone/icon';
 import { LanguageSwitch } from '@/components/opsone/language-switch';
+import { LicenseBanner } from '@/components/opsone/license-banner';
 import { Logo } from '@/components/opsone/logo';
 import { ThemeSwitch } from '@/components/opsone/theme-switch';
 import { Button } from '@/components/ui/button';
@@ -190,6 +191,7 @@ export function AppShell({
                     tabIndex={-1}
                     className="box-border w-full max-w-[calc(var(--container-content)+3rem)] flex-1 p-4 outline-none md:p-6"
                 >
+                    <LicenseBanner />
                     {children}
                 </main>
             </div>

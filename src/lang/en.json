@@ -151,5 +151,18 @@
     "access.denied.out_of_scope": "This record is outside your access scope.",
     "access.denied.record_state": "The record's current state does not allow this action.",
     "access.denied.delegation": "You cannot grant :permission beyond your own scope.",
-    "access.denied.transition": "This transition is not allowed from the current state."
+    "access.denied.transition": "This transition is not allowed from the current state.",
+    "license.renewal_title": "Subscription renewal",
+    "license.renewal_body": ":days days remain in your subscription. Renew from your OpsOne account to avoid interruption.",
+    "license.grace_title": "Subscription ended — grace period",
+    "license.grace_body": "Everything keeps working for :days more days. Renew to avoid restrictions.",
+    "license.wind_down_title": "Wind-down period",
+    "license.wind_down_body": "New orders and new users are paused. You can complete existing work for :days more days.",
+    "license.expired_title": "Subscription ended",
+    "license.expired_body": "The platform is available for reading and export only. Renew to resume work.",
+    "license.provisioned_title": "Platform not activated yet",
+    "license.provisioned_body": "The license is installed; the subscription term starts at delivery.",
+    "license.needs_attention_title": "License needs attention",
+    "license.needs_attention_body": "We could not verify the platform license. Work continues on the last verified state, and features that cannot be verified are paused. Contact support.",
+    "license.reference": "Reference: :code"
 }
