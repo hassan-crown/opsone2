@@ -4,7 +4,7 @@ import { Logo } from '@/components/opsone/logo';
 import { ThemeSwitch } from '@/components/opsone/theme-switch';
 import { Button } from '@/components/ui/button';
 import { useT } from '@/lib/i18n';
-import { dashboard, login, register } from '@/routes';
+import { dashboard, login } from '@/routes';
 
 export default function Welcome() {
     const t = useT();
@@ -42,18 +42,9 @@ export default function Welcome() {
                                 </Link>
                             </Button>
                         ) : (
-                            <>
-                                <Button asChild>
-                                    <Link href={login()}>
-                                        {t('auth.login')}
-                                    </Link>
-                                </Button>
-                                <Button asChild variant="secondary">
-                                    <Link href={register()}>
-                                        {t('auth.sign_up')}
-                                    </Link>
-                                </Button>
-                            </>
+                            <Button asChild>
+                                <Link href={login()}>{t('auth.login')}</Link>
+                            </Button>
                         )}
                     </div>
                 </main>

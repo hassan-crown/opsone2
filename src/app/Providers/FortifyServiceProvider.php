@@ -2,10 +2,11 @@
 
 namespace App\Providers;
 
-use App\Actions\Fortify\CreateNewUser;
 use App\Actions\Fortify\ResetUserPassword;
+use App\Models\User;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
@@ -40,7 +41,17 @@ class FortifyServiceProvider extends ServiceProvider
     private function configureActions(): void
     {
         Fortify::resetUserPasswordsUsing(ResetUserPassword::class);
-        Fortify::createUsersUsing(CreateNewUser::class);
+
+        // Same credential check as Fortify's default, plus: a disabled member cannot sign in (M-22).
+        // Passkey sign-ins are caught by EnsureAccessIsCurrent on the next request.
+        Fortify::authenticateUsing(function (Request $request): ?User {
+            $user = User::query()->where(Fortify::username(), $request->input(Fortify::username()))->first();
+            $password = $request->input('password');
+
+            return $user !== null && is_string($password) && Hash::check($password, $user->password) && $user->canSignIn()
+                ? $user
+                : null;
+        });
     }
 
     /**
@@ -65,10 +76,6 @@ class FortifyServiceProvider extends ServiceProvider
 
         Fortify::verifyEmailView(fn (Request $request) => Inertia::render('auth/verify-email', [
             'status' => $request->session()->get('status'),
-        ]));
-
-        Fortify::registerView(fn () => Inertia::render('auth/register', [
-            'passwordRules' => Password::defaults()->toPasswordRulesString(),
         ]));
 
         Fortify::twoFactorChallengeView(fn () => Inertia::render('auth/two-factor-challenge'));
