@@ -3,6 +3,7 @@
 namespace App\Access;
 
 use App\Access\Contracts\LicenseCapabilities;
+use App\Access\Contracts\LicensedRecord;
 use App\Access\Contracts\StatefulRecord;
 use App\Access\Enums\Audience;
 use App\Access\Enums\DenyReason;
@@ -17,7 +18,7 @@ use Illuminate\Contracts\Auth\Authenticatable;
 
 /**
  * The central Gate. Deny by default; evaluation order:
- * license (capability, then phase) → active account → scoped grant → record state.
+ * license (capability — of the permission, then of the record — then phase) → active account → scoped grant → record state.
  *
  * Effective grants are memoized per request and keyed by the user's `access_version`, which is read fresh
  * on every check, so a grant change or disable takes effect immediately even inside the same request.
@@ -64,6 +65,11 @@ final class Authorizer
 
         $capability = $permission->capability();
         if ($capability !== null && ! $this->license->allows($capability)) {
+            return AccessDecision::deny(DenyReason::License);
+        }
+
+        $recordCapability = $record instanceof LicensedRecord ? $record->requiredCapability($permission) : null;
+        if ($recordCapability !== null && ! $this->license->allows($recordCapability)) {
             return AccessDecision::deny(DenyReason::License);
         }
 

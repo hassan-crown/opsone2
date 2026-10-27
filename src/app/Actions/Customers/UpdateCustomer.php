@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
 /**
- * P-10: edit customer data and business details. The branch is fixed at creation (branch transfer belongs to orders).
+ * P-10: edit customer data and business details. The branch changes only through the audited TransferCustomerBranch action.
  * Sensitive fields can only be changed here because P-10 is also what reveals them.
  */
 final class UpdateCustomer

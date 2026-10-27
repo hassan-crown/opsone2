@@ -81,6 +81,14 @@ enum AuditAction: string
     case CatalogVariantUpdated = 'catalog_variant.updated';
     case CatalogVariantStatusChanged = 'catalog_variant.status_changed';
 
+    case CustomerBranchTransferred = 'customer.branch_transferred';
+
+    case OrderCreated = 'order.created';
+    case OrderUpdated = 'order.updated';
+    case OrderLineAdded = 'order.line_added';
+    case OrderLineRemoved = 'order.line_removed';
+    case OrderBranchTransferred = 'order.branch_transferred';
+
     public function area(): string
     {
         return match ($this) {
@@ -99,13 +107,15 @@ enum AuditAction: string
             self::SupportAccessRejected, self::SupportAccessRevoked, self::SupportAccessExpired,
             self::SupportSignedIn, self::SupportViewed => 'support',
             self::CustomerCreated, self::CustomerUpdated, self::CustomerContactAdded, self::CustomerContactUpdated,
-            self::CustomerContactPrimaryChanged, self::CustomerContactRemoved => 'customers',
+            self::CustomerContactPrimaryChanged, self::CustomerContactRemoved, self::CustomerBranchTransferred => 'customers',
             self::InterestCreated, self::InterestUpdated, self::InterestFollowed, self::InterestConverted,
             self::InterestClosed, self::InterestReopened => 'interests',
             self::CatalogProductCreated, self::CatalogProductUpdated, self::CatalogProductDisabled, self::CatalogProductEnabled,
             self::CatalogMaterialCreated, self::CatalogMaterialUpdated, self::CatalogMaterialDisabled, self::CatalogMaterialEnabled,
             self::CatalogReadyCreated, self::CatalogReadyUpdated, self::CatalogReadyStatusChanged,
             self::CatalogVariantCreated, self::CatalogVariantUpdated, self::CatalogVariantStatusChanged => 'catalog',
+            self::OrderCreated, self::OrderUpdated, self::OrderLineAdded, self::OrderLineRemoved,
+            self::OrderBranchTransferred => 'orders',
         };
     }
 
