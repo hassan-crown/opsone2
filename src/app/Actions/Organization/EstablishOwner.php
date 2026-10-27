@@ -4,6 +4,8 @@ namespace App\Actions\Organization;
 
 use App\Access\TransitionRecorder;
 use App\Actions\StateMachines\M22Membership\T00CreateMembership;
+use App\Audit\Audit;
+use App\Audit\AuditAction;
 use App\Models\Facility;
 use App\Models\Membership;
 use App\Models\RoleTemplate;
@@ -37,6 +39,7 @@ final class EstablishOwner
                 );
 
             $facility->forceFill(['owner_membership_id' => $membership->id])->save();
+            Audit::record(AuditAction::OwnerEstablished, $membership, $user, after: ['owner_membership_id' => $membership->id], source: $source);
 
             return $membership;
         });

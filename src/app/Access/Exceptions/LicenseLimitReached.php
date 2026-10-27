@@ -8,12 +8,12 @@ use Illuminate\Http\Request;
 use RuntimeException;
 
 /**
- * Adding a seat or an active branch would exceed the license (or no limit is proven). Thrown before any write.
+ * Adding a seat, an active branch or stored file bytes would exceed the license (or no limit is proven). Thrown before any write.
  */
 class LicenseLimitReached extends RuntimeException
 {
     /**
-     * @param  'seats'|'branches'  $resource
+     * @param  'seats'|'branches'|'storage'  $resource
      */
     public function __construct(
         public readonly string $resource,

@@ -7,6 +7,8 @@ use App\Access\Enums\Audience;
 use App\Access\Enums\Scope;
 use App\Access\Permission;
 use App\Access\SessionRevoker;
+use App\Audit\Audit;
+use App\Audit\AuditAction;
 use App\Models\Membership;
 use App\Models\RoleTemplate;
 use App\Models\User;
@@ -55,6 +57,8 @@ final class UpdateRoleTemplate
             foreach ($next as $code => $scope) {
                 $locked->grants()->create(['permission' => $code, 'scope' => $scope]);
             }
+
+            Audit::record(AuditAction::RoleTemplateUpdated, $locked, $actor, before: ['grants' => $current], after: ['grants' => $next]);
 
             Membership::query()
                 ->whereHas('roles', fn ($q) => $q->where('role_template_id', $locked->id))

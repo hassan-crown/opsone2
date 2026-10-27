@@ -7,6 +7,8 @@ use App\Access\Exceptions\InvalidTransition;
 use App\Access\LicenseLimits;
 use App\Access\Permission;
 use App\Access\TransitionRecorder;
+use App\Audit\Audit;
+use App\Audit\AuditAction;
 use App\Enums\MembershipStatus;
 use App\Enums\StateMachine;
 use App\Models\Membership;
@@ -44,6 +46,11 @@ final class T02ReactivateMembership
 
             $this->transitions->record(
                 StateMachine::M22, 'T02', $locked, MembershipStatus::Disabled, MembershipStatus::Active, $actor, $source, $reason,
+            );
+            Audit::record(
+                AuditAction::MembershipReactivated, $locked, $actor,
+                before: ['status' => MembershipStatus::Disabled], after: ['status' => MembershipStatus::Active],
+                reason: $reason, source: $source,
             );
 
             return $locked;

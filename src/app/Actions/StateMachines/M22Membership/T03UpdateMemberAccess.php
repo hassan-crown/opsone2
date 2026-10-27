@@ -11,6 +11,8 @@ use App\Access\GrantResolver;
 use App\Access\Permission;
 use App\Access\SessionRevoker;
 use App\Access\TransitionRecorder;
+use App\Audit\Audit;
+use App\Audit\AuditAction;
 use App\Enums\MembershipStatus;
 use App\Enums\StateMachine;
 use App\Models\Facility;
@@ -62,6 +64,7 @@ final class T03UpdateMemberAccess
             $added = array_values(array_filter($next, fn (Grant $g) => ! in_array($g->key(), $current, true)));
             $this->delegation->assertCanGrant($actor, $added);
 
+            $before = $this->accessSnapshot($locked);
             $locked->roles()->delete();
             foreach ($roles as $role) {
                 $locked->roles()->create([
@@ -89,8 +92,27 @@ final class T03UpdateMemberAccess
                 StateMachine::M22, 'T03', $locked, MembershipStatus::Active, MembershipStatus::Active, $actor, $source, $reason,
                 ['added' => array_map(fn (Grant $g) => $g->key(), $added)],
             );
+            Audit::record(
+                AuditAction::MembershipAccessUpdated, $locked, $actor,
+                before: $before, after: $this->accessSnapshot($locked), reason: $reason, source: $source,
+            );
 
             return $locked->refresh();
         });
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function accessSnapshot(Membership $membership): array
+    {
+        return [
+            'roles' => $membership->roles()->orderBy('id')->get(['role_template_id', 'scope', 'targets'])
+                ->map(fn ($r) => ['role_template_id' => $r->role_template_id, 'scope' => $r->scope?->value, 'targets' => $r->targets])
+                ->values()->all(),
+            'overrides' => $membership->grants()->orderBy('id')->get(['permission', 'effect', 'scope', 'targets'])
+                ->map(fn ($g) => ['permission' => $g->permission, 'effect' => $g->effect, 'scope' => $g->scope, 'targets' => $g->targets])
+                ->values()->all(),
+        ];
     }
 }

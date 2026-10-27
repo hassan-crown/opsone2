@@ -2,6 +2,9 @@
 
 namespace App\Actions\Organization;
 
+use App\Access\TransitionRecorder;
+use App\Audit\Audit;
+use App\Audit\AuditAction;
 use App\Enums\InvitationStatus;
 use App\Models\Facility;
 use App\Models\Invitation;
@@ -44,6 +47,11 @@ final class CreateOwnerInvitation
                 'token_hash' => OwnerInvitation::hashToken($token),
                 'expires_at' => now()->addDays(Invitation::VALID_DAYS),
             ])->save();
+            Audit::record(
+                AuditAction::OwnerInvitationCreated, $invitation, null,
+                after: ['expires_at' => $invitation->expires_at], source: TransitionRecorder::SOURCE_PROVISIONING,
+                label: Invitation::maskEmail($email),
+            );
 
             return [$invitation, $token];
         });

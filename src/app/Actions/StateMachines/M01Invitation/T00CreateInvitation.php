@@ -9,6 +9,8 @@ use App\Access\GrantResolver;
 use App\Access\LicenseLimits;
 use App\Access\Permission;
 use App\Access\TransitionRecorder;
+use App\Audit\Audit;
+use App\Audit\AuditAction;
 use App\Enums\InvitationStatus;
 use App\Enums\StateMachine;
 use App\Models\Invitation;
@@ -77,6 +79,9 @@ final class T00CreateInvitation
 
             if ($transition !== null) {
                 $this->transitions->record(StateMachine::M01, $transition, $invitation, null, InvitationStatus::Pending, $actor, $source);
+            }
+            if ($transition === 'T00') {
+                Audit::record(AuditAction::InvitationCreated, $invitation, $actor, after: $invitation->auditFacts(), source: $source, label: $invitation->auditLabel());
             }
 
             return [$invitation, $token];

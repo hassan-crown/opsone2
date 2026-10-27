@@ -6,6 +6,8 @@ use App\Access\Authorizer;
 use App\Access\Exceptions\InvalidTransition;
 use App\Access\Permission;
 use App\Access\TransitionRecorder;
+use App\Audit\Audit;
+use App\Audit\AuditAction;
 use App\Enums\SetupStatus;
 use App\Enums\StateMachine;
 use App\Models\Facility;
@@ -51,6 +53,7 @@ final class T01SaveSetupStep
                 StateMachine::M02, 'T01', $locked, SetupStatus::Incomplete, SetupStatus::Incomplete, $actor,
                 TransitionRecorder::SOURCE_WEB, null, ['step' => $step, 'state' => $state],
             );
+            Audit::record(AuditAction::SetupStepSaved, $locked, $actor, after: ['step' => $step, 'state' => $state]);
 
             return $locked;
         });
