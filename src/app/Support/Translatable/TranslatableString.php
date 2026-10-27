@@ -14,7 +14,7 @@ use InvalidArgumentException;
  *     $product->name->get('en');   // falls back to the other locale when empty
  *     $product->name = ['ar' => 'مطبخ', 'en' => 'Kitchen'];   // or a Translated instance
  *
- * @implements CastsAttributes<Translated, Translated|array<string, mixed>|null>
+ * @implements CastsAttributes<Translated, mixed>
  */
 final class TranslatableString implements CastsAttributes
 {
