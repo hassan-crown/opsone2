@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>اعتماد ترخيص</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/opsone/tokens.css">
+<link rel="stylesheet" href="ds/opsone/components/bundle.css">
+<script src="ds/opsone/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:var(--link)}a:hover{color:var(--brand-hover)}
+</style>
+</helmet>
+<div dir="rtl" data-surface="panel" style="position: relative; width: 1440px; height: 1000px; overflow: hidden; background: var(--background); color: var(--text-strong); font-family: var(--font-sans); font-size: 14px; line-height: 24px;">
+  <div aria-hidden="true" inert="" style="position: absolute; inset: 0;">
+    <dc-import name="LicenseQueue" hint-size="1440px,650px"></dc-import>
+  </div>
+  <div aria-hidden="true" style="position: absolute; inset: 0; background: var(--overlay);"></div>
+
+  <div role="dialog" aria-modal="true" aria-labelledby="d-t" aria-describedby="d-d" class="o1-dialog" style="position: absolute; inset: 0; margin: auto; height: fit-content;">
+    <div class="o1-dialog-inner">
+    <div class="o1-dialog-head">
+      <h2 id="d-t" class="o1-dialog-title">اعتماد وتوقيع LIC-0388</h2>
+      <button type="button" class="o1-dialog-close" aria-label="إغلاق"><x-import component-from-global-scope="OpsOne.Icon" name="x"></x-import></button>
+    </div>
+    <p id="d-d" class="o1-dialog-desc">ترخيص تجهيز لورشة الأفق للأثاث. راجع البيانات قبل الاعتماد.</p>
+    
+    <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1px; background: var(--stroke-weak); border: 1px solid var(--stroke-weak); border-radius: 8px; overflow: hidden;"><div style="display: flex; flex-direction: column; gap: 2px; padding: 10px 12px; background: var(--raised);"><span style="font-size: 14px; line-height: 20px; font-weight: 500; color: var(--text-weak);">معرف الجهة</span><span style="font-weight: 600;">ten_7f3c91</span></div><div style="display: flex; flex-direction: column; gap: 2px; padding: 10px 12px; background: var(--raised);"><span style="font-size: 14px; line-height: 20px; font-weight: 500; color: var(--text-weak);">الباقة</span><span style="font-weight: 600;">نمو</span></div><div style="display: flex; flex-direction: column; gap: 2px; padding: 10px 12px; background: var(--raised);"><span style="font-size: 14px; line-height: 20px; font-weight: 500; color: var(--text-weak);">النوع</span><span style="font-weight: 600;">تجهيز غير مفعل</span></div></div>
+    <dl style="margin: 0; display: flex; flex-direction: column;">
+            <div style="display: flex; justify-content: space-between; gap: 12px; padding: 8px 0;"><dt style="color: var(--text-weak);">الحدود</dt><dd style="margin: 0; text-align: end;">15 مقعدًا، 3 فروع، 25 GB</dd></div>
+            <div style="display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-top: 1px solid var(--stroke-weak);"><dt style="color: var(--text-weak);">الوحدات</dt><dd style="margin: 0; text-align: end;">الجاهز والمتجر، مقارنات الفروع</dd></div>
+            <div style="display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-top: 1px solid var(--stroke-weak);"><dt style="color: var(--text-weak);">المدة</dt><dd style="margin: 0; text-align: end;">12 شهرًا تبدأ عند التسليم</dd></div>
+            <div style="display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-top: 1px solid var(--stroke-weak);"><dt style="color: var(--text-weak);">المساحة</dt><dd style="margin: 0; text-align: end;">alofuq.opsone.sa</dd></div>
+          </dl>
+    <div style="display: flex; flex-direction: column; gap: 8px; padding: 12px 16px; background: var(--fill); border-radius: 8px;">
+      <span style="font-weight: 600;">عند الاعتماد</span>
+      <span style="display: flex; gap: 8px;"><span style="color: var(--success-text); display: inline-flex;"><x-import component-from-global-scope="OpsOne.Icon" name="check" size="{{ s16 }}"></x-import></span><span>يوقّع خادم التوقيع المعزول الملف؛ المفتاح لا يخرج منه ولا يصل للتشغيل.</span></span>
+      <span style="display: flex; gap: 8px;"><span style="color: var(--success-text); display: inline-flex;"><x-import component-from-global-scope="OpsOne.Icon" name="check" size="{{ s16 }}"></x-import></span><span>يصل الملف الموقّع لأمر التجهيز PRV-0212 ويُركّب غير مفعل.</span></span>
+      <span style="display: flex; gap: 8px;"><span style="color: var(--info-text); display: inline-flex;"><x-import component-from-global-scope="OpsOne.Icon" name="info" size="{{ s16 }}"></x-import></span><span>إن رفض الخادم الطلب لعدم المطابقة يعود إليك بالسبب.</span></span>
+    </div>
+    <x-import component-from-global-scope="OpsOne.TextField" label="سبب الرفض" default-value="" multiline="{{ yes }}" optional="{{ yes }}" hint="مطلوب عند الرفض، ويصل لمسؤول التجهيز ليصحح ويطلب من جديد."></x-import>
+    <div class="o1-dialog-foot">
+      <x-import component-from-global-scope="OpsOne.Button" variant="ghost" href="LicenseQueue.dc.html">رفض بسبب</x-import><x-import component-from-global-scope="OpsOne.Button" variant="primary" href="LicenseQueue.dc.html">اعتماد وتوقيع</x-import>
+    </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview": {"width": 1440, "height": 1000}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const noop = () => {};
+    return { yes: true, no: false, h28: 28, h24: 24, s16: 16, s24: 24 };
+  }
+}
+</script>
+</body>
+</html>

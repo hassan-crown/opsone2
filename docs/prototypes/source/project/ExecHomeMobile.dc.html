@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>الرئيسية: المنفذ على الجوال</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/opsone/tokens.css">
+<link rel="stylesheet" href="ds/opsone/components/bundle.css">
+<script src="ds/opsone/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:var(--link)}a:hover{color:var(--brand-hover)}
+</style>
+</helmet>
+<div dir="rtl" data-surface="panel" style="width: 390px; min-height: 1000px; display: flex; flex-direction: column; background: var(--background); color: var(--text-strong); font-family: var(--font-sans); font-size: 14px; line-height: 24px;">
+  <header style="display: flex; align-items: center; gap: 4px; min-height: 64px; padding-inline: 8px 8px; background: var(--surface); border-bottom: 1px solid var(--stroke-weak);">
+    <x-import component-from-global-scope="OpsOne.Button" variant="ghost" icon="menu" icon-only="{{ yes }}" aria-label="فتح القائمة"></x-import>
+    <x-import component-from-global-scope="OpsOne.Logo" height="{{ h24 }}"></x-import>
+    <div style="margin-inline-start: auto; display: flex;"><x-import component-from-global-scope="OpsOne.Button" variant="ghost" icon="bell" icon-only="{{ yes }}" aria-label="الإشعارات" href="ShellMobileNotifications.dc.html"></x-import></div>
+  </header>
+  <main style="padding: 16px; display: flex; flex-direction: column; gap: 16px;">
+    <div><h1 style="margin: 0; font-size: 24px; line-height: 36px; font-weight: 700;">صباح الخير، بندر</h1><span style="color: var(--text-weak);">مهمة واحدة اليوم.</span></div>
+    <section aria-labelledby="e1" style="display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--stroke-weak); border-radius: 12px;">
+      <h2 id="e1" style="margin: 0; padding: 12px 16px 8px; font-size: 16px; line-height: 26px; font-weight: 600;">اليوم</h2>
+      <div style="display: flex; flex-direction: column; gap: 6px; padding: 12px 16px; border-top: 1px solid var(--stroke-weak);">
+        <span style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;"><bdi dir="ltr" style="font-weight: 600;">13:30</bdi><span style="font-weight: 600;">تركيب الخزائن</span><x-import component-from-global-scope="OpsOne.Badge" tone="info">قيد التنفيذ</x-import></span>
+        <span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">ORD-24476، لطيفة الحربي، حي الملقا</span>
+        <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px;"><x-import component-from-global-scope="OpsOne.Button" variant="primary" href="TaskMobile.dc.html" block="{{ yes }}">فتح المهمة</x-import><x-import component-from-global-scope="OpsOne.Button" variant="secondary" icon="map-pin" block="{{ yes }}">الخرائط</x-import></div>
+      </div>
+    </section>
+    <section aria-labelledby="e2" style="display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--stroke-weak); border-radius: 12px;">
+      <h2 id="e2" style="margin: 0; padding: 12px 16px 8px; font-size: 16px; line-height: 26px; font-weight: 600;">القادمة</h2>
+      <div style="display: flex; flex-direction: column; gap: 6px; padding: 12px 16px; border-top: 1px solid var(--stroke-weak);">
+        <span style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;"><span style="font-weight: 600;">تركيب الخزائن</span><x-import component-from-global-scope="OpsOne.Badge" tone="neutral">مسندة</x-import></span>
+        <span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">الأحد 25 أكتوبر 09:00. ORD-24490، حي الملقا</span>
+      </div>
+    </section>
+
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview": {"width": 390, "height": 1000}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const noop = () => {};
+    return { yes: true, no: false, h28: 28, h24: 24, s16: 16 };
+  }
+}
+</script>
+</body>
+</html>

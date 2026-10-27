@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>منشأة</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/opsone/tokens.css">
+<link rel="stylesheet" href="ds/opsone/components/bundle.css">
+<script src="ds/opsone/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:var(--link)}a:hover{color:var(--brand-hover)}
+</style>
+</helmet>
+<div dir="rtl" data-surface="panel" style="width: 1440px; min-height: 1000px; display: flex; background: var(--background); color: var(--text-strong); font-family: var(--font-sans); font-size: 14px; line-height: 24px;"><aside class="o1-sidebar" style="position: relative; height: auto; display: flex;"><div class="o1-sidebar-brand"><x-import component-from-global-scope="OpsOne.Logo" height="{{ h28 }}"></x-import></div><div style="display: flex; flex-direction: column; gap: 2px; padding: 0 12px 16px; margin-bottom: 8px; border-bottom: 1px solid var(--stroke-weak);"><span style="font-weight: 600;">تشغيل OpsOne</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">اشتراكات OpsOne</span></div><nav class="o1-nav" aria-label="القائمة الرئيسية"><ul><sc-for list="{{ nav }}" as="item" hint-placeholder-count="4"><li><x-import component-from-global-scope="OpsOne.NavItem" label="{{ item.label }}" icon="{{ item.icon }}" href="{{ item.href }}" active="{{ item.active }}"></x-import></li></sc-for></ul></nav></aside><div class="o1-shell-main" style="flex: 1; min-width: 0; display: flex; flex-direction: column;"><header class="o1-topbar" style="position: relative; gap: 12px;"><div style="width: 440px;"><x-import component-from-global-scope="OpsOne.SearchField" label="البحث" placeholder="رقم الطلب أو المنشأة أو البريد"></x-import></div><div class="o1-topbar-end"><x-import component-from-global-scope="OpsOne.Button" variant="ghost" icon="bell" icon-only="{{ yes }}" aria-label="الإشعارات"></x-import><x-import component-from-global-scope="OpsOne.Avatar" name="مازن العقيل" size="sm"></x-import></div></header><main class="o1-main" style="max-width: none; padding: 32px; display: flex; flex-direction: column; gap: 20px;"><x-import component-from-global-scope="OpsOne.Breadcrumbs" items="{{ crumbs }}"></x-import><div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap;"><div style="display: flex; flex-direction: column; gap: 8px;"><div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;"><h1 style="margin: 0; font-size: 24px; line-height: 36px; font-weight: 700;">مطابخ الركن الحديث</h1><x-import component-from-global-scope="OpsOne.Badge" tone="success">صالح</x-import><x-import component-from-global-scope="OpsOne.Badge" tone="warning">تصفية معلقة</x-import></div><span style="color: var(--text-weak);">المالك فهد العتيبي. <bdi dir="ltr">alrukn.opsone.sa</bdi></span></div><div style="display: flex; gap: 8px; flex-wrap: wrap;"><x-import component-from-global-scope="OpsOne.Button" variant="secondary">مراسلة المالك</x-import></div></div><x-import component-from-global-scope="OpsOne.Alert" tone="danger" title="رسائل SMS لعملائها لا تصل منذ أمس">مزود الرسائل لدى الجهة يرفض اسم المرسل. الربط سليم، والحل تجديد الاعتماد من حساب الجهة لدى المزود. الطلب SR-0088.</x-import><div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; align-items: start;"><section class="o1-card" aria-labelledby="sv-h">
+          <div class="o1-card-head" style="margin-bottom: 12px;"><div class="o1-card-heading"><h2 id="sv-h" class="o1-card-title">الخدمة</h2></div></div>
+          <dl style="margin: 0; display: flex; flex-direction: column;">
+            <div style="display: flex; justify-content: space-between; gap: 12px; padding: 8px 0;"><dt style="color: var(--text-weak);">الباقة</dt><dd style="margin: 0; text-align: end;">نمو، 12 شهرًا</dd></div>
+            <div style="display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-top: 1px solid var(--stroke-weak);"><dt style="color: var(--text-weak);">المدة</dt><dd style="margin: 0; text-align: end;">14 مارس 2026 إلى 14 مارس 2027</dd></div>
+            <div style="display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-top: 1px solid var(--stroke-weak);"><dt style="color: var(--text-weak);">المتبقي</dt><dd style="margin: 0; text-align: end;">141 يومًا</dd></div>
+            <div style="display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-top: 1px solid var(--stroke-weak);"><dt style="color: var(--text-weak);">تغيير معلق</dt><dd style="margin: 0; text-align: end;"><a href="PlanChangeOps.dc.html"><bdi dir="ltr" style="font-family: var(--font-mono); white-space: nowrap;">CHG-0031</bdi></a> إلى أساس</dd></div>
+          </dl>
+        </section><section class="o1-card" aria-labelledby="us-h">
+          <div class="o1-card-head" style="margin-bottom: 12px;"><div class="o1-card-heading"><h2 id="us-h" class="o1-card-title">الاستخدام</h2></div></div>
+          <div style="display: flex; flex-direction: column; gap: 16px;"><div style="display: flex; flex-direction: column; gap: 6px;"><span aria-hidden="true" style="font-weight: 500;">المقاعد 12 من 15</span><x-import component-from-global-scope="OpsOne.Progress" label="المقاعد 12 من 15" value="{{ v12 }}" max="{{ v15 }}"></x-import></div><div style="display: flex; flex-direction: column; gap: 6px;"><span aria-hidden="true" style="font-weight: 500;">الفروع النشطة 2 من 3</span><x-import component-from-global-scope="OpsOne.Progress" label="الفروع النشطة 2 من 3" value="{{ v2 }}" max="{{ v3 }}"></x-import></div><div style="display: flex; flex-direction: column; gap: 6px;"><span aria-hidden="true" style="font-weight: 500;">التخزين 6.2 من 25 GB</span><x-import component-from-global-scope="OpsOne.Progress" label="التخزين 6.2 من 25 GB" value="{{ v62 }}" max="{{ v250 }}"></x-import></div></div>
+        </section><section class="o1-card" aria-labelledby="op-h">
+          <div class="o1-card-head" style="margin-bottom: 12px;"><div class="o1-card-heading"><h2 id="op-h" class="o1-card-title">التشغيل</h2></div></div>
+          <dl style="margin: 0; display: flex; flex-direction: column;">
+            <div style="display: flex; justify-content: space-between; gap: 12px; padding: 8px 0;"><dt style="color: var(--text-weak);">الترخيص</dt><dd style="margin: 0; text-align: end;"><bdi dir="ltr" style="font-family: var(--font-mono); white-space: nowrap;">LIC-0301</bdi> فعال ومطابق</dd></div>
+            <div style="display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-top: 1px solid var(--stroke-weak);"><dt style="color: var(--text-weak);">البيئة</dt><dd style="margin: 0; text-align: end;"><bdi dir="ltr">riyadh-1</bdi></dd></div>
+            <div style="display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-top: 1px solid var(--stroke-weak);"><dt style="color: var(--text-weak);">الإصدار</dt><dd style="margin: 0; text-align: end;">1.8.3</dd></div>
+            <div style="display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-top: 1px solid var(--stroke-weak);"><dt style="color: var(--text-weak);">آخر نسخة احتياطية</dt><dd style="margin: 0; text-align: end;">اليوم 03:00، ناجحة</dd></div>
+          </dl>
+        </section></div><section class="o1-card" aria-labelledby="hs-h">
+          <div class="o1-card-head" style="margin-bottom: 12px;"><div class="o1-card-heading"><h2 id="hs-h" class="o1-card-title">السجل</h2></div></div>
+          <div style="display: flex; justify-content: space-between; gap: 12px; padding: 8px 0;"><span>طلب المالك تخفيضًا يزيل الجاهز، CHG-0031</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">اليوم 10:20</span></div><div style="display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-top: 1px solid var(--stroke-weak);"><span>منح المالك تفويض دعم 48 ساعة، SR-0088</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">اليوم 08:15</span></div><div style="display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-top: 1px solid var(--stroke-weak);"><span>رُحّلت إلى 1.8.3 وفُحصت</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">اليوم 02:10</span></div><div style="display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-top: 1px solid var(--stroke-weak);"><span>سُلّمت المنصة وبدأت المدة، SUB-1017</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">14 مارس 2026</span></div>
+        </section></main></div></div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview": {"width": 1440, "height": 1000}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const noop = () => {};
+    return { yes: true, no: false, h28: 28, h24: 24, s16: 16, s24: 24, noop, nav: [ { label: 'الرئيسية', icon: 'layout-dashboard', href: 'OpsDash.dc.html', active: false }, { label: 'الاشتراكات', icon: 'inbox', href: 'OpsInbox.dc.html', active: false }, { label: 'المنشآت', icon: 'users', href: 'Tenants.dc.html', active: true } ], v2: 2, v3: 3, v12: 12, v15: 15, v62: 62, v250: 250, v5: 5, v7: 7, v9: 9, crumbs: [ { label: 'المنشآت', href: 'Tenants.dc.html' }, { label: 'مطابخ الركن الحديث' } ] };
+  }
+}
+</script>
+</body>
+</html>

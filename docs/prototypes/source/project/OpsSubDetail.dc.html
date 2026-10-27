@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>طلب اشتراك</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/opsone/tokens.css">
+<link rel="stylesheet" href="ds/opsone/components/bundle.css">
+<script src="ds/opsone/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:var(--link)}a:hover{color:var(--brand-hover)}
+</style>
+</helmet>
+<div dir="rtl" data-surface="panel" style="width: 1440px; min-height: 1400px; display: flex; background: var(--background); color: var(--text-strong); font-family: var(--font-sans); font-size: 14px; line-height: 24px;"><aside class="o1-sidebar" style="position: relative; height: auto; display: flex;"><div class="o1-sidebar-brand"><x-import component-from-global-scope="OpsOne.Logo" height="{{ h28 }}"></x-import></div><div style="display: flex; flex-direction: column; gap: 2px; padding: 0 12px 16px; margin-bottom: 8px; border-bottom: 1px solid var(--stroke-weak);"><span style="font-weight: 600;">تشغيل OpsOne</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">اشتراكات OpsOne</span></div><nav class="o1-nav" aria-label="القائمة الرئيسية"><ul><sc-for list="{{ nav }}" as="item" hint-placeholder-count="4"><li><x-import component-from-global-scope="OpsOne.NavItem" label="{{ item.label }}" icon="{{ item.icon }}" href="{{ item.href }}" active="{{ item.active }}"></x-import></li></sc-for></ul></nav></aside><div class="o1-shell-main" style="flex: 1; min-width: 0; display: flex; flex-direction: column;"><header class="o1-topbar" style="position: relative; gap: 12px;"><div style="width: 440px;"><x-import component-from-global-scope="OpsOne.SearchField" label="البحث" placeholder="رقم الطلب أو المنشأة أو البريد"></x-import></div><div class="o1-topbar-end"><x-import component-from-global-scope="OpsOne.Button" variant="ghost" icon="bell" icon-only="{{ yes }}" aria-label="الإشعارات"></x-import><x-import component-from-global-scope="OpsOne.Avatar" name="مازن العقيل" size="sm"></x-import></div></header><main class="o1-main" style="max-width: none; padding: 32px; display: flex; flex-direction: column; gap: 20px;"><x-import component-from-global-scope="OpsOne.Breadcrumbs" items="{{ crumbs }}"></x-import><div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap;"><div style="display: flex; flex-direction: column; gap: 8px;"><div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;"><h1 style="margin: 0; font-size: 24px; line-height: 36px; font-weight: 700;">ورشة الأفق للأثاث</h1><x-import component-from-global-scope="OpsOne.Badge" tone="info">جارٍ التجهيز</x-import></div><span style="color: var(--text-weak);">طلب <bdi dir="ltr" style="font-family: var(--font-mono); white-space: nowrap;">SUB-1046</bdi>، نمو 12 شهرًا.</span></div><div style="display: flex; gap: 8px; flex-wrap: wrap;"><x-import component-from-global-scope="OpsOne.Button" variant="ghost" icon="x">إلغاء الطلب</x-import><x-import component-from-global-scope="OpsOne.Button" variant="secondary">مراسلة المشترك</x-import></div></div><div style="display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 24px; align-items: start;"><div style="display: flex; flex-direction: column; gap: 24px;"><section class="o1-card" aria-labelledby="or-h">
+          <div class="o1-card-head" style="margin-bottom: 12px;"><div class="o1-card-heading"><h2 id="or-h" class="o1-card-title">أمر التجهيز</h2></div><x-import component-from-global-scope="OpsOne.Button" variant="ghost" size="sm" href="ProvOrder.dc.html">فتح الأمر</x-import></div>
+          <dl style="margin: 0; display: flex; flex-direction: column;">
+            <div style="display: flex; justify-content: space-between; gap: 12px; padding: 8px 0;"><dt style="color: var(--text-weak);">الأمر</dt><dd style="margin: 0; text-align: end;"><a href="ProvOrder.dc.html"><bdi dir="ltr" style="font-family: var(--font-mono); white-space: nowrap;">PRV-0212</bdi></a></dd></div>
+            <div style="display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-top: 1px solid var(--stroke-weak);"><dt style="color: var(--text-weak);">الحالة</dt><dd style="margin: 0; text-align: end;"><x-import component-from-global-scope="OpsOne.Badge" tone="info">قيد التجهيز</x-import></dd></div>
+            <div style="display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-top: 1px solid var(--stroke-weak);"><dt style="color: var(--text-weak);">المسؤول</dt><dd style="margin: 0; text-align: end;">يزيد القرشي</dd></div>
+            <div style="display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-top: 1px solid var(--stroke-weak);"><dt style="color: var(--text-weak);">البيئة</dt><dd style="margin: 0; text-align: end;"><bdi dir="ltr">riyadh-2</bdi>، الإصدار <bdi dir="ltr">1.8.3</bdi></dd></div>
+          </dl>
+        </section><section class="o1-card" aria-labelledby="pv-h">
+          <div class="o1-card-head" style="margin-bottom: 12px;"><div class="o1-card-heading"><h2 id="pv-h" class="o1-card-title">بيانات التجهيز</h2><p class="o1-card-desc">اكتملت اليوم 09:31.</p></div></div>
+          <dl style="margin: 0; display: flex; flex-direction: column;">
+            <div style="display: flex; justify-content: space-between; gap: 12px; padding: 8px 0;"><dt style="color: var(--text-weak);">عنوان المنصة</dt><dd style="margin: 0; text-align: end;"><bdi dir="ltr">alofuq.opsone.sa</bdi></dd></div>
+            <div style="display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-top: 1px solid var(--stroke-weak);"><dt style="color: var(--text-weak);">النطاق الخاص</dt><dd style="margin: 0; text-align: end;"><span style="display: inline-flex; gap: 6px; align-items: center;"><bdi dir="ltr">app.alofuq.sa</bdi><x-import component-from-global-scope="OpsOne.Badge" tone="warning">بانتظار التحقق</x-import></span></dd></div>
+            <div style="display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-top: 1px solid var(--stroke-weak);"><dt style="color: var(--text-weak);">المالك</dt><dd style="margin: 0; text-align: end;">عبدالعزيز الراشد، البريد نفسه</dd></div>
+          </dl>
+        </section><section class="o1-card" aria-labelledby="sn-h">
+          <div class="o1-card-head" style="margin-bottom: 12px;"><div class="o1-card-heading"><h2 id="sn-h" class="o1-card-title">لقطة الشراء</h2><p class="o1-card-desc">ثابتة منذ الدفع؛ تعديل الأسعار المنشورة لا يغيرها.</p></div></div>
+          <dl style="margin: 0; display: flex; flex-direction: column;">
+            <div style="display: flex; justify-content: space-between; gap: 12px; padding: 8px 0;"><dt style="color: var(--text-weak);">الباقة</dt><dd style="margin: 0; text-align: end;">نمو، 12 شهرًا</dd></div>
+            <div style="display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-top: 1px solid var(--stroke-weak);"><dt style="color: var(--text-weak);">السعر</dt><dd style="margin: 0; text-align: end;"><x-import component-from-global-scope="OpsOne.Amount" value="6,000.00"></x-import> + الضريبة</dd></div>
+            <div style="display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-top: 1px solid var(--stroke-weak);"><dt style="color: var(--text-weak);">الشروط</dt><dd style="margin: 0; text-align: end;">الإصدار 3، 1 أكتوبر 2026</dd></div>
+            <div style="display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-top: 1px solid var(--stroke-weak);"><dt style="color: var(--text-weak);">تاريخ الطلب</dt><dd style="margin: 0; text-align: end;">اليوم 09:12</dd></div>
+          </dl>
+        </section><section class="o1-card" aria-labelledby="tl-h">
+          <div class="o1-card-head" style="margin-bottom: 12px;"><div class="o1-card-heading"><h2 id="tl-h" class="o1-card-title">السجل</h2></div></div>
+          <div style="display: flex; justify-content: space-between; gap: 12px; padding: 8px 0;"><span>أسند مازن العقيل التجهيز إلى يزيد القرشي على riyadh-2</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">10:05</span></div><div style="display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-top: 1px solid var(--stroke-weak);"><span>اكتملت بيانات المنصة من حساب المشترك</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">09:31</span></div><div style="display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-top: 1px solid var(--stroke-weak);"><span>نجح الدفع بتأكيد المزود</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">09:14</span></div><div style="display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-top: 1px solid var(--stroke-weak);"><span>أُنشئ الطلب بسعره وشروطه</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">09:12</span></div>
+        </section></div><div style="display: flex; flex-direction: column; gap: 24px;"><section class="o1-card" aria-labelledby="sd-h">
+          <div class="o1-card-head" style="margin-bottom: 12px;"><div class="o1-card-heading"><h2 id="sd-h" class="o1-card-title">المشترك</h2></div></div>
+          <dl style="margin: 0; display: flex; flex-direction: column;">
+            <div style="display: flex; justify-content: space-between; gap: 12px; padding: 8px 0;"><dt style="color: var(--text-weak);">الحساب</dt><dd style="margin: 0; text-align: end;">عبدالعزيز الراشد</dd></div>
+            <div style="display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-top: 1px solid var(--stroke-weak);"><dt style="color: var(--text-weak);">البريد</dt><dd style="margin: 0; text-align: end;"><bdi dir="ltr">a.alrashed@alofuq.sa</bdi></dd></div>
+            <div style="display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-top: 1px solid var(--stroke-weak);"><dt style="color: var(--text-weak);">الجوال</dt><dd style="margin: 0; text-align: end;"><bdi dir="ltr">+966 55 640 2218</bdi></dd></div>
+          </dl>
+        </section><section class="o1-card" aria-labelledby="sp-h">
+          <div class="o1-card-head" style="margin-bottom: 12px;"><div class="o1-card-heading"><h2 id="sp-h" class="o1-card-title">الدفع</h2></div></div>
+          <dl style="margin: 0; display: flex; flex-direction: column;">
+            <div style="display: flex; justify-content: space-between; gap: 12px; padding: 8px 0;"><dt style="color: var(--text-weak);">المعاملة</dt><dd style="margin: 0; text-align: end;"><bdi dir="ltr" style="font-family: var(--font-mono); white-space: nowrap;">PAY-30412</bdi></dd></div>
+            <div style="display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-top: 1px solid var(--stroke-weak);"><dt style="color: var(--text-weak);">الحالة</dt><dd style="margin: 0; text-align: end;"><x-import component-from-global-scope="OpsOne.Badge" tone="success">ناجحة</x-import></dd></div>
+            <div style="display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-top: 1px solid var(--stroke-weak);"><dt style="color: var(--text-weak);">المبلغ</dt><dd style="margin: 0; text-align: end;"><x-import component-from-global-scope="OpsOne.Amount" value="6,900.00"></x-import></dd></div>
+            <div style="display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-top: 1px solid var(--stroke-weak);"><dt style="color: var(--text-weak);">المصدر</dt><dd style="margin: 0; text-align: end;">مزود الدفع، تأكيد خلفي</dd></div>
+          </dl>
+        </section></div></div></main></div></div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview": {"width": 1440, "height": 1400}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const noop = () => {};
+    return { yes: true, no: false, h28: 28, h24: 24, s16: 16, s24: 24, noop, nav: [ { label: 'الرئيسية', icon: 'layout-dashboard', href: 'OpsDash.dc.html', active: false }, { label: 'الاشتراكات', icon: 'inbox', href: 'OpsInbox.dc.html', active: true }, { label: 'المنشآت', icon: 'users', href: 'Tenants.dc.html', active: false } ], crumbs: [ { label: 'الاشتراكات', href: 'OpsInbox.dc.html' }, { label: 'SUB-1046' } ] };
+  }
+}
+</script>
+</body>
+</html>

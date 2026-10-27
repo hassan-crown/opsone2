@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>إنشاء طلب مخصص على الجوال</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/opsone/tokens.css">
+<link rel="stylesheet" href="ds/opsone/components/bundle.css">
+<script src="ds/opsone/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:var(--link)}a:hover{color:var(--brand-hover)}
+</style>
+</helmet>
+<div dir="rtl" data-surface="panel" style="width: 390px; min-height: 2100px; display: flex; flex-direction: column; background: var(--background); color: var(--text-strong); font-family: var(--font-sans); font-size: 14px; line-height: 24px;">
+  <header style="display: flex; align-items: center; gap: 4px; min-height: 64px; padding-inline: 8px 16px; background: var(--surface); border-bottom: 1px solid var(--stroke-weak);">
+    <x-import component-from-global-scope="OpsOne.Button" variant="ghost" icon="arrow-left" icon-only="{{ yes }}" aria-label="رجوع إلى الطلبات" href="OrdersMobile.dc.html"></x-import>
+    <h1 style="margin: 0; font-size: 16px; line-height: 26px; font-weight: 600;">طلب مخصص جديد</h1>
+  </header>
+
+  <form aria-label="إنشاء طلب مخصص" style="padding: 16px; display: flex; flex-direction: column; gap: 16px;">
+    <p style="margin: 0; color: var(--text-weak);">المطلوب الآن عميل وفرع ومسؤول وملخص احتياج.</p>
+
+    <section aria-labelledby="mc-h" style="display: flex; flex-direction: column; gap: 16px; padding: 16px; background: var(--surface); border: 1px solid var(--stroke-weak); border-radius: 12px;">
+      <h2 id="mc-h" style="margin: 0; font-size: 16px; line-height: 26px; font-weight: 600;">العميل</h2>
+      <x-import component-from-global-scope="OpsOne.RadioGroup" label="نوع الاختيار" options="{{ custMode }}" default-value="existing" inline="{{ yes }}"></x-import>
+      <div style="display: flex; align-items: center; gap: 12px; padding: 12px; border: 1px solid var(--brand); border-radius: 8px; background: var(--brand-subtle);">
+        <x-import component-from-global-scope="OpsOne.Avatar" name="منيرة الشمري" size="sm" decorative="{{ yes }}"></x-import>
+        <div style="display: flex; flex-direction: column; flex: 1; min-width: 0;"><span style="font-weight: 600;">منيرة الشمري</span><bdi dir="ltr" style="text-align: start; color: var(--text-weak); font-size: 13px;">+966 55 214 7781</bdi></div>
+        <x-import component-from-global-scope="OpsOne.Button" variant="ghost" size="sm">تغيير</x-import>
+      </div>
+    </section>
+
+    <section aria-labelledby="mo-h" style="display: flex; flex-direction: column; gap: 16px; padding: 16px; background: var(--surface); border: 1px solid var(--stroke-weak); border-radius: 12px;">
+      <h2 id="mo-h" style="margin: 0; font-size: 16px; line-height: 26px; font-weight: 600;">الطلب</h2>
+      <x-import component-from-global-scope="OpsOne.SelectField" label="الفرع" options="{{ branches }}" default-value="olaya" required="{{ yes }}"></x-import>
+      <x-import component-from-global-scope="OpsOne.SelectField" label="المسؤول" options="{{ owners }}" default-value="noura" required="{{ yes }}"></x-import>
+      <x-import component-from-global-scope="OpsOne.TextField" label="ملخص الاحتياج" multiline="{{ yes }}" required="{{ yes }}" default-value="خزانة ملابس بأبواب منزلقة لغرفة النوم الرئيسية."></x-import>
+      <x-import component-from-global-scope="OpsOne.SelectField" label="عنوان التنفيذ" options="{{ addresses }}" default-value="home" optional="{{ yes }}" hint="يلزم قبل أول موعد ميداني"></x-import>
+    </section>
+
+    <section aria-labelledby="mn-h" style="display: flex; flex-direction: column; gap: 16px; padding: 16px; background: var(--surface); border: 1px solid var(--stroke-weak); border-radius: 12px;">
+      <h2 id="mn-h" style="margin: 0; font-size: 16px; line-height: 26px; font-weight: 600;">الحاجة للقياس والتصميم</h2>
+      <x-import component-from-global-scope="OpsOne.RadioGroup" label="يحتاج قياسًا" options="{{ need }}" default-value="yes"></x-import>
+      <x-import component-from-global-scope="OpsOne.RadioGroup" label="يحتاج تصميمًا" options="{{ need }}" default-value="tbd" hint="يظهر مانع لحسمها قبل إعداد التصميم"></x-import>
+    </section>
+
+    <section aria-labelledby="mi-h" style="display: flex; flex-direction: column; gap: 12px; padding: 16px; background: var(--surface); border: 1px solid var(--stroke-weak); border-radius: 12px;">
+      <h2 id="mi-h" style="margin: 0; font-size: 16px; line-height: 26px; font-weight: 600;">البنود <span style="font-weight: 400; color: var(--text-weak); font-size: 14px;">(اختياري)</span></h2>
+      <x-import component-from-global-scope="OpsOne.TextField" label="وصف البند" default-value="خزانة ملابس بأبواب منزلقة"></x-import>
+      <div style="display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 12px;">
+        <x-import component-from-global-scope="OpsOne.TextField" label="الكمية" default-value="1" dir="ltr" input-mode="decimal"></x-import>
+        <x-import component-from-global-scope="OpsOne.SelectField" label="الوحدة" options="{{ units }}" default-value="unit"></x-import>
+      </div>
+      <x-import component-from-global-scope="OpsOne.Button" variant="ghost" icon="plus" block="{{ yes }}">إضافة بند</x-import>
+    </section>
+
+    <div style="display: flex; flex-direction: column; gap: 8px;">
+      <x-import component-from-global-scope="OpsOne.Button" variant="primary" block="{{ yes }}">إنشاء الطلب</x-import>
+      <x-import component-from-global-scope="OpsOne.Button" variant="ghost" block="{{ yes }}" href="OrdersMobile.dc.html">إلغاء</x-import>
+    </div>
+  </form>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":2100}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {
+      yes: true,
+      custMode: [ { value: 'existing', label: 'عميل قائم' }, { value: 'new', label: 'عميل جديد' } ],
+      branches: [ { value: 'olaya', label: 'العليا' }, { value: 'malqa', label: 'الملقا' } ],
+      owners: [ { value: 'noura', label: 'نورة الدوسري' }, { value: 'khalid', label: 'خالد الزهراني' } ],
+      addresses: [ { value: 'home', label: 'المنزل، حي الياسمين' }, { value: 'new', label: 'إضافة عنوان جديد' } ],
+      need: [ { value: 'yes', label: 'نعم' }, { value: 'no', label: 'لا' }, { value: 'tbd', label: 'لم يحدد بعد' } ],
+      units: [ { value: 'unit', label: 'وحدة' }, { value: 'm', label: 'متر طولي' }, { value: 'pc', label: 'قطعة' } ]
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>تعديل الأعمال القادمة</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/opsone/tokens.css">
+<link rel="stylesheet" href="ds/opsone/components/bundle.css">
+<script src="ds/opsone/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:var(--link)}a:hover{color:var(--brand-hover)}
+</style>
+</helmet>
+<div dir="rtl" data-surface="panel" style="position: relative; width: 1440px; height: 1000px; overflow: hidden; background: var(--background); color: var(--text-strong); font-family: var(--font-sans); font-size: 14px; line-height: 24px;">
+  <div aria-hidden="true" inert="" style="position: absolute; inset: 0;">
+    <dc-import name="OrderStages" hint-size="1440px,1900px"></dc-import>
+  </div>
+  <div aria-hidden="true" style="position: absolute; inset: 0; background: var(--overlay);"></div>
+
+  <div role="dialog" aria-modal="true" aria-labelledby="d-t" aria-describedby="d-d" style="position: absolute; inset-block-start: 96px; inset-inline-start: 50%; transform: translateX(50%); width: 600px; box-sizing: border-box; display: flex; flex-direction: column; gap: 16px; padding: 24px; background: var(--raised); border: 1px solid var(--stroke-weak); border-radius: 12px; box-shadow: var(--shadow-raised);">
+    <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 16px;">
+      <h2 id="d-t" style="margin: 0; font-size: 16px; line-height: 26px; font-weight: 600;">تعديل الأعمال القادمة</h2>
+      <x-import component-from-global-scope="OpsOne.Button" variant="ghost" icon="x" icon-only="{{ yes }}" aria-label="إغلاق"></x-import>
+    </div>
+    <p id="d-d" style="margin: -8px 0 0; color: var(--text-weak);">الأعمال التي لم تبدأ في المراحل القادمة.</p>
+    <x-import component-from-global-scope="OpsOne.SelectField" label="المرحلة" options="{{ stages }}" default-value="make"></x-import>
+    <ul aria-label="أعمال مرحلة التصنيع" style="list-style: none; margin: 0; padding: 0; border: 1px solid var(--stroke-weak); border-radius: 8px;">
+      <li style="display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 10px 16px;">
+        <span style="display: flex; flex-direction: column;"><span style="font-weight: 500;">حجز الخامات</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">المشتريات. تبدأ مع فتح المرحلة</span></span>
+        <span style="display: inline-flex; gap: 6px; align-items: center; color: var(--text-weak);"><x-import component-from-global-scope="OpsOne.Icon" name="lock" size="{{ s16 }}"></x-import>بدأت، لا تُعدل</span>
+      </li>
+      <li style="display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 10px 16px; border-top: 1px solid var(--stroke-weak);">
+        <span style="display: flex; flex-direction: column;"><span style="font-weight: 500;">تصنيع الوحدات</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">صندوق قسم التصنيع والتركيب. 10 أيام</span></span>
+        <x-import component-from-global-scope="OpsOne.Button" variant="ghost" size="sm" icon="trash-2" icon-only="{{ yes }}" aria-label="حذف تصنيع الوحدات"></x-import>
+      </li>
+      <li style="display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 10px 16px; border-top: 1px solid var(--stroke-weak);">
+        <span style="display: flex; flex-direction: column;"><span style="font-weight: 500;">دهان الواجهات</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">صندوق قسم التصنيع والتركيب. 3 أيام</span></span>
+        <x-import component-from-global-scope="OpsOne.Button" variant="ghost" size="sm" icon="trash-2" icon-only="{{ yes }}" aria-label="حذف دهان الواجهات"></x-import>
+      </li>
+      <li style="display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 10px 16px; border-top: 1px solid var(--stroke-weak);">
+        <span style="display: flex; flex-direction: column;"><span style="font-weight: 500;">فحص الجودة قبل الشحن <span style="font-weight: 400;"><x-import component-from-global-scope="OpsOne.Badge" tone="brand">مضافة</x-import></span></span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">ماجد الحربي. يوم واحد</span></span>
+        <x-import component-from-global-scope="OpsOne.Button" variant="ghost" size="sm" icon="trash-2" icon-only="{{ yes }}" aria-label="حذف فحص الجودة قبل الشحن"></x-import>
+      </li>
+    </ul>
+    <div><x-import component-from-global-scope="OpsOne.Button" variant="ghost" size="sm" icon="plus">إضافة مهمة</x-import></div>
+    <x-import component-from-global-scope="OpsOne.TextField" label="السبب" default-value="طلب العميل فحصًا إضافيًا قبل الشحن" required="{{ yes }}" hint="يُحفظ في نشاط الطلب"></x-import>
+    <div style="display: flex; flex-direction: column; gap: 8px; padding: 12px 16px; background: var(--fill); border-radius: 8px;">
+      <span style="font-weight: 600;">الأثر</span>
+      <span style="display: flex; gap: 8px;"><span style="color: var(--success-text); display: inline-flex;"><x-import component-from-global-scope="OpsOne.Icon" name="check" size="{{ s16 }}"></x-import></span><span>لهذا الطلب فقط؛ مسار المنشأة والطلبات الأخرى لا تتغير.</span></span>
+      <span style="display: flex; gap: 8px;"><span style="color: var(--success-text); display: inline-flex;"><x-import component-from-global-scope="OpsOne.Icon" name="check" size="{{ s16 }}"></x-import></span><span>ما بدأ أو اكتمل، وما يرتبط بمرجع مالي، لا يُحذف.</span></span>
+    </div>
+
+    <div style="display: flex; justify-content: flex-end; gap: 8px; flex-wrap: wrap; padding-top: 4px;">
+      <x-import component-from-global-scope="OpsOne.Button" variant="ghost" href="OrderStages.dc.html">إلغاء</x-import>
+      <x-import component-from-global-scope="OpsOne.Button" variant="primary" href="OrderStages.dc.html">حفظ التعديلات</x-import>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1000}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const noop = () => {};
+    return { yes: true, s16: 16, stages: [ { value: 'make', label: 'التصنيع' }, { value: 'install', label: 'التركيب والتسليم' } ] };
+  }
+}
+</script>
+</body>
+</html>

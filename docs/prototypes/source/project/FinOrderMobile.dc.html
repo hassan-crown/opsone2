@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>المالية على الجوال</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/opsone/tokens.css">
+<link rel="stylesheet" href="ds/opsone/components/bundle.css">
+<script src="ds/opsone/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:var(--link)}a:hover{color:var(--brand-hover)}
+</style>
+</helmet>
+<div dir="rtl" data-surface="panel" style="width: 390px; min-height: 1400px; display: flex; flex-direction: column; background: var(--background); color: var(--text-strong); font-family: var(--font-sans); font-size: 14px; line-height: 24px;">
+  <header style="display: flex; align-items: center; gap: 4px; min-height: 64px; padding-inline: 8px 8px; background: var(--surface); border-bottom: 1px solid var(--stroke-weak);">
+    <x-import component-from-global-scope="OpsOne.Button" variant="ghost" icon="arrow-left" icon-only="{{ yes }}" aria-label="رجوع إلى الطلبات" href="OrdersMobile.dc.html"></x-import>
+    <span style="font-weight: 600;"><bdi dir="ltr" style="font-family: var(--font-mono);">ORD-24518</bdi></span>
+    <div style="margin-inline-start: auto; display: flex;"><x-import component-from-global-scope="OpsOne.Menu" label="إجراءات الطلب" icon-only="{{ yes }}" variant="ghost" items="{{ orderMenu }}"></x-import></div>
+  </header>
+  <main style="padding: 16px; display: flex; flex-direction: column; gap: 16px;">
+    <div style="display: flex; flex-direction: column; gap: 8px;">
+      <h1 style="margin: 0; font-size: 24px; line-height: 36px; font-weight: 700;">منيرة الشمري</h1>
+      <span style="display: flex; gap: 6px; align-items: center; font-weight: 600; color: var(--warning-text);"><x-import component-from-global-scope="OpsOne.Icon" name="triangle-alert"></x-import>بانتظار دفع 5,000 ر.س</span>
+    </div>
+    <div role="tablist" aria-label="أقسام الطلب" class="o1-tablist" style="margin-inline: -16px; padding-inline: 16px;"><a role="tab" href="OrderMobile.dc.html" aria-selected="false" class="o1-tab" style="position: relative; display: inline-flex; align-items: center; min-height: 44px; padding: 0 12px; text-decoration: none; color: var(--text-weak); white-space: nowrap;">نظرة عامة</a><a role="tab" href="OrderStagesMobile.dc.html" aria-selected="false" class="o1-tab" style="position: relative; display: inline-flex; align-items: center; min-height: 44px; padding: 0 12px; text-decoration: none; color: var(--text-weak); white-space: nowrap;">المراحل والمهام</a><a role="tab" href="AgrMobile.dc.html" aria-selected="false" class="o1-tab" style="position: relative; display: inline-flex; align-items: center; min-height: 44px; padding: 0 12px; text-decoration: none; color: var(--text-weak); white-space: nowrap;">الاتفاق</a><a role="tab" href="FinOrderMobile.dc.html" aria-selected="true" class="o1-tab" style="position: relative; display: inline-flex; align-items: center; min-height: 44px; padding: 0 12px; text-decoration: none; color: var(--text-strong); white-space: nowrap;">المالية</a></div>
+    <section aria-label="ملخص مال الطلب" style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px;"><div style="display: flex; flex-direction: column; gap: 2px; padding: 12px; background: var(--surface); border: 1px solid var(--stroke-weak); border-radius: 12px;"><span style="font-size: 14px; line-height: 20px; font-weight: 500; color: var(--text-weak);">إجمالي الاتفاق</span><x-import component-from-global-scope="OpsOne.Amount" value="18,450.00" strong="{{ yes }}"></x-import><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">شامل الضريبة</span></div><div style="display: flex; flex-direction: column; gap: 2px; padding: 12px; background: var(--surface); border: 1px solid var(--stroke-weak); border-radius: 12px;"><span style="font-size: 14px; line-height: 20px; font-weight: 500; color: var(--text-weak);">صافي المقبوض</span><x-import component-from-global-scope="OpsOne.Amount" value="0.00" strong="{{ yes }}"></x-import><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">إيصال قيد التحقق</span></div><div style="display: flex; flex-direction: column; gap: 2px; padding: 12px; background: var(--surface); border: 1px solid var(--stroke-weak); border-radius: 12px;"><span style="font-size: 14px; line-height: 20px; font-weight: 500; color: var(--text-weak);">المتبقي</span><x-import component-from-global-scope="OpsOne.Amount" value="18,450.00" strong="{{ yes }}"></x-import><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">على الطلب</span></div><div style="display: flex; flex-direction: column; gap: 2px; padding: 12px; background: var(--surface); border: 1px solid var(--stroke-weak); border-radius: 12px;"><span style="font-size: 14px; line-height: 20px; font-weight: 500; color: var(--text-weak);">المستحق الآن</span><x-import component-from-global-scope="OpsOne.Amount" value="5,000.00" strong="{{ yes }}"></x-import><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">الدفعة الأولى</span></div></section>
+    <section aria-labelledby="f1" style="display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--stroke-weak); border-radius: 12px;">
+      <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 12px 16px 8px;"><h2 id="f1" style="margin: 0; font-size: 16px; line-height: 26px; font-weight: 600;">إثباتات العميل</h2></div>
+      <div style="display: flex; flex-direction: column; gap: 6px; padding: 12px 16px; border-top: 1px solid var(--stroke-weak);">
+        <span style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;"><span style="font-weight: 600;">إيصال تحويل 5,000.00 ر.س</span><x-import component-from-global-scope="OpsOne.Badge" tone="warning">قيد المراجعة</x-import></span>
+        <span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">20 أكتوبر 18:12. لا يُحتسب قبل التأكيد.</span>
+        <x-import component-from-global-scope="OpsOne.Button" variant="primary" icon="receipt" href="FinReceiptMobile.dc.html" block="{{ yes }}">مراجعة الإيصال</x-import>
+      </div>
+    </section>
+    <section aria-labelledby="f2" style="display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--stroke-weak); border-radius: 12px;">
+      <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 12px 16px 8px;"><h2 id="f2" style="margin: 0; font-size: 16px; line-height: 26px; font-weight: 600;">جدول الدفعات</h2></div>
+      <div style="display: flex; flex-direction: column; gap: 6px; padding: 12px 16px; border-top: 1px solid var(--stroke-weak);">
+        <span style="display: flex; justify-content: space-between; align-items: center;"><span style="font-weight: 600;">الدفعة الأولى</span><x-import component-from-global-scope="OpsOne.Badge" tone="warning">مستحق</x-import></span>
+        <span style="display: flex; justify-content: space-between;"><span style="color: var(--text-weak);">عند اعتماد الاتفاق</span><x-import component-from-global-scope="OpsOne.Amount" value="5,000.00"></x-import></span>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 6px; padding: 12px 16px; border-top: 1px solid var(--stroke-weak);">
+        <span style="display: flex; justify-content: space-between; align-items: center;"><span style="font-weight: 600;">الدفعة الأخيرة</span><x-import component-from-global-scope="OpsOne.Badge" tone="neutral">غير مستحق</x-import></span>
+        <span style="display: flex; justify-content: space-between;"><span style="color: var(--text-weak);">عند التسليم</span><x-import component-from-global-scope="OpsOne.Amount" value="13,450.00"></x-import></span>
+      </div>
+    </section>
+    <section aria-labelledby="f3" style="display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--stroke-weak); border-radius: 12px;">
+      <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 12px 16px 8px;"><h2 id="f3" style="margin: 0; font-size: 16px; line-height: 26px; font-weight: 600;">المقبوض</h2></div>
+      <div style="display: flex; flex-direction: column; gap: 6px; padding: 12px 16px; border-top: 1px solid var(--stroke-weak);">
+        <span style="color: var(--text-weak);">لا مقبوض مؤكد بعد.</span>
+        <x-import component-from-global-scope="OpsOne.Button" variant="secondary" icon="plus" href="FinRecordPayment.dc.html" block="{{ yes }}">تسجيل دفعة</x-import>
+      </div>
+    </section>
+
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview": {"width": 390, "height": 1400}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const noop = () => {};
+    return { yes: true, no: false, h28: 28, h24: 24, s16: 16, orderMenu: [ { id: 'pause', label: 'إيقاف الطلب', icon: 'clock', onSelect: noop }, { id: 'rework', label: 'إعادة عمل إجراء مكتمل', icon: 'refresh-cw', onSelect: noop }, { id: 'future', label: 'تعديل الأعمال القادمة', icon: 'pencil', onSelect: noop }, { id: 'branch', label: 'نقل الفرع', icon: 'map-pin', onSelect: noop }, { separator: true }, { id: 'cancel', label: 'تسجيل طلب إلغاء', icon: 'circle-x', danger: true, onSelect: noop } ] };
+  }
+}
+</script>
+</body>
+</html>

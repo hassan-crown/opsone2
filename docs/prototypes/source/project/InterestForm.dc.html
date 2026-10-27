@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>أرسل احتياجك</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/opsone/tokens.css">
+<link rel="stylesheet" href="ds/opsone/components/bundle.css">
+<script src="ds/opsone/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:var(--link)}a:hover{color:var(--brand-hover)}
+.o1h{transition:border-color 120ms,transform 200ms;overflow:hidden}.o1h:hover{border-color:var(--brand)!important;transform:translateY(-2px)}.o1h .o1h-img{transition:transform 300ms}.o1h:hover .o1h-img{transform:scale(1.03)}.o1-snap{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;padding-bottom:4px}.o1-snap::-webkit-scrollbar{display:none}.o1-snap>*{scroll-snap-align:start;flex:0 0 var(--snap-w,85%)}@media (prefers-reduced-motion:reduce){.o1h,.o1h .o1h-img{transition:none}.o1h:hover{transform:none}}
+</style>
+</helmet>
+<div dir="rtl" data-surface="site" style="position: relative; width: 390px; min-height: 1300px; display: flex; flex-direction: column; background: var(--background); color: var(--text-strong); font-family: var(--font-sans); font-size: 16px; line-height: 28px;"><header class="o1-site" style="position: relative;"><div class="o1-site-inner"><a href="SiteHome.dc.html" class="o1-site-brand" style="text-decoration: none;" aria-label="مطابخ الركن الحديث، الرئيسية"><span style="display: inline-flex; align-items: center; gap: 10px; color: var(--text-strong);"><span aria-hidden="true" style="width: 32px; height: 32px; border-radius: 8px; background: var(--brand); color: var(--on-brand); display: inline-grid; place-items: center; font-weight: 700;">ر</span><span style="font-weight: 700; font-size: 16px;">مطابخ الركن الحديث</span></span></a><nav aria-label="القائمة" class="o1-site-nav"><ul class="o1-site-links"><li><a href="SiteHome.dc.html" class="o1-site-link">الرئيسية</a></li><li><a href="#" class="o1-site-link">أعمالنا</a></li><li><a href="StoreList.dc.html" class="o1-site-link">المتجر</a></li><li><a href="InterestForm.dc.html" class="o1-site-link is-active" aria-current="page">تواصل معنا</a></li></ul></nav><div class="o1-site-actions"><x-import component-from-global-scope="OpsOne.Button" variant="ghost" icon="languages">English</x-import><x-import component-from-global-scope="OpsOne.Button" variant="ghost" icon="user" href="ActivateAccount.dc.html">دخول العملاء</x-import></div><a href="Checkout.dc.html" class="o1-btn o1-btn--secondary o1-btn--sm" style="gap: 8px; text-decoration: none; margin-inline-start: auto;">السلة</a><button type="button" class="o1-icon-btn o1-site-menu" aria-label="فتح القائمة"><x-import component-from-global-scope="OpsOne.Icon" name="menu"></x-import></button></div></header><main id="o1-main" style="flex: 1; box-sizing: border-box; width: 100%; max-width: 1248px; margin: 0 auto; padding: 24px 16px 32px; display: flex; flex-direction: column; gap: 20px;"><div style="display: flex; flex-direction: column; gap: 4px;"><h1 style="margin: 0; font-size: 24px; line-height: 36px; font-weight: 700;">أرسل احتياجك</h1><span style="color: var(--text-weak);">لا يلزم حساب. نتواصل معك خلال يوم عمل.</span></div><fieldset style="margin: 0; padding: 0; border: 0;"><legend style="padding: 0; margin-bottom: 8px; font-weight: 500;">ماذا تحتاج</legend><div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px;"><label style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; min-height: 64px; border: 1px solid var(--brand); border-radius: 8px; font-weight: 500; background: var(--brand-subtle); color: var(--brand-subtle-text);"><input type="radio" name="act" checked="" style="position: absolute; opacity: 0;">مطبخ</label><label style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; min-height: 64px; border: 1px solid var(--stroke-control); border-radius: 8px; font-weight: 500;"><input type="radio" name="act" style="position: absolute; opacity: 0;">خزانة</label><label style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; min-height: 64px; border: 1px solid var(--stroke-control); border-radius: 8px; font-weight: 500;"><input type="radio" name="act" style="position: absolute; opacity: 0;">أبواب</label></div></fieldset><x-import component-from-global-scope="OpsOne.TextField" label="الاسم" default-value="سلطان العتيبي" required="{{ yes }}"></x-import><x-import component-from-global-scope="OpsOne.TextField" label="الجوال" default-value="+966 55 812 3349" dir="ltr" required="{{ yes }}"></x-import><x-import component-from-global-scope="OpsOne.TextField" label="التفاصيل" default-value="مطبخ لشقة جديدة، المساحة تقريبًا 4 في 3 أمتار." multiline="{{ yes }}" required="{{ yes }}" hint="المساحة والحي وأي تفضيل للخامات."></x-import><x-import component-from-global-scope="OpsOne.FileUpload" label="صور المكان أو مخطط" files="{{ files }}" on-select="{{ noop }}" on-remove="{{ noop }}" optional="{{ yes }}"></x-import><x-import component-from-global-scope="OpsOne.TextField" label="البريد" default-value="" dir="ltr" optional="{{ yes }}"></x-import><x-import component-from-global-scope="OpsOne.Button" variant="primary" href="InterestDone.dc.html" block="{{ yes }}">إرسال الاحتياج</x-import><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">نستخدم بياناتك للتواصل بشأن احتياجك فقط.</span></main><footer style="display: flex; justify-content: center; align-items: center; gap: 8px; padding: 20px 16px; border-top: 1px solid var(--stroke-weak); color: var(--text-weak); font-size: 14px;">يعمل بواسطة <x-import component-from-global-scope="OpsOne.Logo" height="{{ h20 }}"></x-import></footer></div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview": {"width": 390, "height": 1300}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const noop = () => {};
+    return { yes: true, no: false, h28: 28, h24: 24, s16: 16, s24: 24, h20: 20, noop, files: [] };
+  }
+}
+</script>
+</body>
+</html>

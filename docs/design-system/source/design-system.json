@@ -1,0 +1,560 @@
+{
+  "v": 3,
+  "assetGroups": {
+    "AppIcons": {
+      "files": {
+        "apple-touch-icon-180.png": {
+          "blob": "333397c1255f0a8eaee26acc1e59bebe",
+          "name": "apple-touch-icon-180.png",
+          "size": 4671,
+          "type": "image/png"
+        },
+        "favicon-16.png": {
+          "blob": "f3afe90d8e67549f1dd764e993147cc3",
+          "name": "favicon-16.png",
+          "size": 274,
+          "type": "image/png"
+        },
+        "favicon-32.png": {
+          "blob": "26e8870d35b67cc106608ee2de69edbf",
+          "name": "favicon-32.png",
+          "size": 408,
+          "type": "image/png"
+        },
+        "favicon.svg": {
+          "blob": "919a40afd1ae6956e1b6a56fabf5d336",
+          "name": "favicon.svg",
+          "size": 589,
+          "type": "image/svg+xml"
+        },
+        "opsone-app-icon-1024.png": {
+          "blob": "4b642bbccf6affcb09fcfa71df90fcfc",
+          "name": "opsone-app-icon-1024.png",
+          "size": 25212,
+          "type": "image/png"
+        },
+        "opsone-app-icon-light.svg": {
+          "blob": "bfe74b063bbb908f364122c7677c0464",
+          "name": "opsone-app-icon-light.svg",
+          "size": 691,
+          "type": "image/svg+xml"
+        },
+        "opsone-app-icon.svg": {
+          "blob": "7a3ae951e5b788888c761458fdc1e5e4",
+          "name": "opsone-app-icon.svg",
+          "size": 691,
+          "type": "image/svg+xml"
+        }
+      },
+      "name": "AppIcons",
+      "order": [
+        "opsone-app-icon.svg",
+        "opsone-app-icon-light.svg",
+        "favicon.svg",
+        "opsone-app-icon-1024.png",
+        "apple-touch-icon-180.png",
+        "favicon-32.png",
+        "favicon-16.png"
+      ],
+      "tile": "m"
+    },
+    "Icons": {
+      "files": {
+        "arrow-left.svg": {
+          "blob": "a7b1014421a29dbe451de2bb14196e6a",
+          "name": "arrow-left.svg",
+          "size": 289,
+          "type": "image/svg+xml"
+        },
+        "arrow-right.svg": {
+          "blob": "d7dfa0654d11eb406519e056a8ae35f2",
+          "name": "arrow-right.svg",
+          "size": 288,
+          "type": "image/svg+xml"
+        },
+        "bell.svg": {
+          "blob": "30eec55f8c209d3f737c624d787f6e88",
+          "name": "bell.svg",
+          "size": 420,
+          "type": "image/svg+xml"
+        },
+        "calendar.svg": {
+          "blob": "564abc0d675ede4475e56770cf041c00",
+          "name": "calendar.svg",
+          "size": 356,
+          "type": "image/svg+xml"
+        },
+        "check.svg": {
+          "blob": "d8fb11fe1befa3b92d886f240fedee49",
+          "name": "check.svg",
+          "size": 266,
+          "type": "image/svg+xml"
+        },
+        "chevron-down.svg": {
+          "blob": "64c71c879ad0b9bdcadcbc313a6be416",
+          "name": "chevron-down.svg",
+          "size": 263,
+          "type": "image/svg+xml"
+        },
+        "chevron-left.svg": {
+          "blob": "d576c46e43d50249033d0a3ac1908bba",
+          "name": "chevron-left.svg",
+          "size": 265,
+          "type": "image/svg+xml"
+        },
+        "chevron-right.svg": {
+          "blob": "07f11a6b76773d8b011f155dad40abc4",
+          "name": "chevron-right.svg",
+          "size": 264,
+          "type": "image/svg+xml"
+        },
+        "chevron-up.svg": {
+          "blob": "80b26d7ca468a2589dfff766cd8a45fa",
+          "name": "chevron-up.svg",
+          "size": 265,
+          "type": "image/svg+xml"
+        },
+        "circle-alert.svg": {
+          "blob": "59dc1e677ba274d7499d23fc4803fdb9",
+          "name": "circle-alert.svg",
+          "size": 359,
+          "type": "image/svg+xml"
+        },
+        "circle-check.svg": {
+          "blob": "6c07134895b570f3b6c17bce694d66e5",
+          "name": "circle-check.svg",
+          "size": 305,
+          "type": "image/svg+xml"
+        },
+        "circle-x.svg": {
+          "blob": "3eeb6c224b914bc1558bdadff67ebb3b",
+          "name": "circle-x.svg",
+          "size": 320,
+          "type": "image/svg+xml"
+        },
+        "clipboard-list.svg": {
+          "blob": "3fa32d8ff9c2434225619becc1a857c0",
+          "name": "clipboard-list.svg",
+          "size": 479,
+          "type": "image/svg+xml"
+        },
+        "clock.svg": {
+          "blob": "747ac2705adc41dcb630e3fed3264dd4",
+          "name": "clock.svg",
+          "size": 298,
+          "type": "image/svg+xml"
+        },
+        "copy.svg": {
+          "blob": "a089a18679e169654b25a772aaf835be",
+          "name": "copy.svg",
+          "size": 366,
+          "type": "image/svg+xml"
+        },
+        "download.svg": {
+          "blob": "6bbf47e58db97964d0c61b4fbf18b982",
+          "name": "download.svg",
+          "size": 345,
+          "type": "image/svg+xml"
+        },
+        "ellipsis.svg": {
+          "blob": "8ba20714861a3cf152af1f7981445c81",
+          "name": "ellipsis.svg",
+          "size": 339,
+          "type": "image/svg+xml"
+        },
+        "external-link.svg": {
+          "blob": "a69e86408db0f568cff52f5d4aaf4cbf",
+          "name": "external-link.svg",
+          "size": 359,
+          "type": "image/svg+xml"
+        },
+        "eye-off.svg": {
+          "blob": "b448b8025460c29be9911c38125449f0",
+          "name": "eye-off.svg",
+          "size": 531,
+          "type": "image/svg+xml"
+        },
+        "eye.svg": {
+          "blob": "7fa89daa2f27e5f60967d5ed24a2ccd0",
+          "name": "eye.svg",
+          "size": 387,
+          "type": "image/svg+xml"
+        },
+        "file-text.svg": {
+          "blob": "48a62c066c3e8eb9acad7d98352d7d97",
+          "name": "file-text.svg",
+          "size": 471,
+          "type": "image/svg+xml"
+        },
+        "filter.svg": {
+          "blob": "0f21e40b5cb1681c94b14c0195b0f192",
+          "name": "filter.svg",
+          "size": 397,
+          "type": "image/svg+xml"
+        },
+        "inbox.svg": {
+          "blob": "f7265c9eef0ff641157a9172acee9df6",
+          "name": "inbox.svg",
+          "size": 415,
+          "type": "image/svg+xml"
+        },
+        "info.svg": {
+          "blob": "2193b00ed1d949fc9924782302d6c177",
+          "name": "info.svg",
+          "size": 321,
+          "type": "image/svg+xml"
+        },
+        "languages.svg": {
+          "blob": "6eb1f8b1f9c8324d4f8e5c7eac2b4363",
+          "name": "languages.svg",
+          "size": 389,
+          "type": "image/svg+xml"
+        },
+        "layout-dashboard.svg": {
+          "blob": "be10d52bf2055d7b24bc72a4556027db",
+          "name": "layout-dashboard.svg",
+          "size": 443,
+          "type": "image/svg+xml"
+        },
+        "lock.svg": {
+          "blob": "a41244c6141523aadbb8cdd320c7c04e",
+          "name": "lock.svg",
+          "size": 336,
+          "type": "image/svg+xml"
+        },
+        "log-out.svg": {
+          "blob": "17ec51c39669c7af3501e203a6861c8e",
+          "name": "log-out.svg",
+          "size": 344,
+          "type": "image/svg+xml"
+        },
+        "map-pin.svg": {
+          "blob": "ac3bf7f832f75c4bf5f06b4917f72669",
+          "name": "map-pin.svg",
+          "size": 386,
+          "type": "image/svg+xml"
+        },
+        "menu.svg": {
+          "blob": "94697ccddbb8d19ab6f48e0d07d3b0d3",
+          "name": "menu.svg",
+          "size": 306,
+          "type": "image/svg+xml"
+        },
+        "minus.svg": {
+          "blob": "b36b3a39f32e9949210eadae3c54ab9a",
+          "name": "minus.svg",
+          "size": 259,
+          "type": "image/svg+xml"
+        },
+        "moon.svg": {
+          "blob": "7def0e3257cc822c2802b104a437717e",
+          "name": "moon.svg",
+          "size": 361,
+          "type": "image/svg+xml"
+        },
+        "package.svg": {
+          "blob": "85da5d88f769ffad599f5c53bd70d74c",
+          "name": "package.svg",
+          "size": 473,
+          "type": "image/svg+xml"
+        },
+        "pencil.svg": {
+          "blob": "0768f0c60a65058aaa0ee4a6e320c6e6",
+          "name": "pencil.svg",
+          "size": 404,
+          "type": "image/svg+xml"
+        },
+        "phone.svg": {
+          "blob": "1fac33adf8616f7bce0d4285c6aa9ecc",
+          "name": "phone.svg",
+          "size": 464,
+          "type": "image/svg+xml"
+        },
+        "plus.svg": {
+          "blob": "ed3bca15188511993478ccafc42b165d",
+          "name": "plus.svg",
+          "size": 283,
+          "type": "image/svg+xml"
+        },
+        "printer.svg": {
+          "blob": "a4b1271b40f78d95efd3e01811d8fdfd",
+          "name": "printer.svg",
+          "size": 433,
+          "type": "image/svg+xml"
+        },
+        "receipt.svg": {
+          "blob": "9d354a82e9b29ef6c5af52af2916298a",
+          "name": "receipt.svg",
+          "size": 768,
+          "type": "image/svg+xml"
+        },
+        "refresh-cw.svg": {
+          "blob": "1c634006566f9087455abaea6a6254c7",
+          "name": "refresh-cw.svg",
+          "size": 419,
+          "type": "image/svg+xml"
+        },
+        "search.svg": {
+          "blob": "ec1f6230b51986c94c2aeea959912288",
+          "name": "search.svg",
+          "size": 302,
+          "type": "image/svg+xml"
+        },
+        "settings.svg": {
+          "blob": "0a0bd7075275019f453762b0c848cdbb",
+          "name": "settings.svg",
+          "size": 613,
+          "type": "image/svg+xml"
+        },
+        "sun.svg": {
+          "blob": "0e6c5412d78b6015012c1351988fd3b2",
+          "name": "sun.svg",
+          "size": 512,
+          "type": "image/svg+xml"
+        },
+        "trash-2.svg": {
+          "blob": "0b80ea6f24c626c0f2a86a8309ccde68",
+          "name": "trash-2.svg",
+          "size": 416,
+          "type": "image/svg+xml"
+        },
+        "triangle-alert.svg": {
+          "blob": "f84d07fa85b7aa91e95aaa8f4f4a2a3f",
+          "name": "triangle-alert.svg",
+          "size": 372,
+          "type": "image/svg+xml"
+        },
+        "upload.svg": {
+          "blob": "b37d9cfb265dc4924bae9bc88de4d9ac",
+          "name": "upload.svg",
+          "size": 345,
+          "type": "image/svg+xml"
+        },
+        "user.svg": {
+          "blob": "bd7ca84ab784bf9a9b7dc8da2fb2dc2a",
+          "name": "user.svg",
+          "size": 326,
+          "type": "image/svg+xml"
+        },
+        "users.svg": {
+          "blob": "8b9ae68e8a5032fd1cfa3628abaf1c20",
+          "name": "users.svg",
+          "size": 410,
+          "type": "image/svg+xml"
+        },
+        "x.svg": {
+          "blob": "9af4c64d7bad35b2d0a9fa6273318bee",
+          "name": "x.svg",
+          "size": 287,
+          "type": "image/svg+xml"
+        },
+        "trending-up.svg": {
+          "blob": "d0106c215fe5d0e7665699c9a22a58cf",
+          "name": "trending-up.svg",
+          "size": 298,
+          "type": "image/svg+xml"
+        },
+        "trending-down.svg": {
+          "blob": "28db6aeedbbcf6145f65485a82849b14",
+          "name": "trending-down.svg",
+          "size": 300,
+          "type": "image/svg+xml"
+        },
+        "paperclip.svg": {
+          "blob": "f8f60c5174c335060b88a5c3d5863cdd",
+          "name": "paperclip.svg",
+          "size": 371,
+          "type": "image/svg+xml"
+        },
+        "file.svg": {
+          "blob": "3b62a7b23140211e8bcdfcdc4d1156e8",
+          "name": "file.svg",
+          "size": 400,
+          "type": "image/svg+xml"
+        }
+      },
+      "name": "Icons",
+      "order": [
+        "arrow-left.svg",
+        "arrow-right.svg",
+        "bell.svg",
+        "calendar.svg",
+        "check.svg",
+        "chevron-down.svg",
+        "chevron-left.svg",
+        "chevron-right.svg",
+        "chevron-up.svg",
+        "circle-alert.svg",
+        "circle-check.svg",
+        "circle-x.svg",
+        "clipboard-list.svg",
+        "clock.svg",
+        "copy.svg",
+        "download.svg",
+        "ellipsis.svg",
+        "external-link.svg",
+        "eye-off.svg",
+        "eye.svg",
+        "file-text.svg",
+        "filter.svg",
+        "inbox.svg",
+        "info.svg",
+        "languages.svg",
+        "layout-dashboard.svg",
+        "lock.svg",
+        "log-out.svg",
+        "map-pin.svg",
+        "menu.svg",
+        "minus.svg",
+        "moon.svg",
+        "package.svg",
+        "pencil.svg",
+        "phone.svg",
+        "plus.svg",
+        "printer.svg",
+        "receipt.svg",
+        "refresh-cw.svg",
+        "search.svg",
+        "settings.svg",
+        "sun.svg",
+        "trash-2.svg",
+        "triangle-alert.svg",
+        "upload.svg",
+        "user.svg",
+        "users.svg",
+        "x.svg",
+        "trending-up.svg",
+        "trending-down.svg",
+        "paperclip.svg",
+        "file.svg"
+      ],
+      "tile": "xs"
+    },
+    "Logos": {
+      "files": {
+        "opsone-logo-1200.png": {
+          "blob": "585d232a03176942d35ac43626544cfa",
+          "name": "opsone-logo-1200.png",
+          "size": 30086,
+          "type": "image/png"
+        },
+        "opsone-logo-quiet.svg": {
+          "blob": "8835c10d705956f90ff5cad25179adf6",
+          "name": "opsone-logo-quiet.svg",
+          "size": 3927,
+          "type": "image/svg+xml"
+        },
+        "opsone-logo-reversed-1200.png": {
+          "blob": "d3e59d0e617b8924006ca992b3320b4a",
+          "name": "opsone-logo-reversed-1200.png",
+          "size": 27758,
+          "type": "image/png"
+        },
+        "opsone-logo-reversed.svg": {
+          "blob": "30ebe0003dd290df138ff34c309a5e24",
+          "name": "opsone-logo-reversed.svg",
+          "size": 3932,
+          "type": "image/svg+xml"
+        },
+        "opsone-logo.svg": {
+          "blob": "6204f482d6fad88d8d5820e98089508e",
+          "name": "opsone-logo.svg",
+          "size": 3932,
+          "type": "image/svg+xml"
+        },
+        "opsone-mark-512.png": {
+          "blob": "d4c8bb745edb8f1ef74523efcec1e10c",
+          "name": "opsone-mark-512.png",
+          "size": 9151,
+          "type": "image/png"
+        },
+        "opsone-mark-mono-ink.svg": {
+          "blob": "e5398786f8a6644bdda6a422c50edcf0",
+          "name": "opsone-mark-mono-ink.svg",
+          "size": 589,
+          "type": "image/svg+xml"
+        },
+        "opsone-mark-mono-white.svg": {
+          "blob": "7dd15d360ef31a5ac6c37fde3aa3ab4e",
+          "name": "opsone-mark-mono-white.svg",
+          "size": 589,
+          "type": "image/svg+xml"
+        },
+        "opsone-mark-quiet.svg": {
+          "blob": "1077781ec5e6d155924deb354701a93d",
+          "name": "opsone-mark-quiet.svg",
+          "size": 584,
+          "type": "image/svg+xml"
+        },
+        "opsone-mark-reversed-512.png": {
+          "blob": "95ab545cd302e3563c86a019f0c643cc",
+          "name": "opsone-mark-reversed-512.png",
+          "size": 7271,
+          "type": "image/png"
+        },
+        "opsone-mark-reversed.svg": {
+          "blob": "12a4c017d58995aae567c82058a4ced7",
+          "name": "opsone-mark-reversed.svg",
+          "size": 589,
+          "type": "image/svg+xml"
+        },
+        "opsone-mark.svg": {
+          "blob": "3c4530d0c386c8196321283855f396d4",
+          "name": "opsone-mark.svg",
+          "size": 589,
+          "type": "image/svg+xml"
+        }
+      },
+      "name": "Logos",
+      "order": [
+        "opsone-logo.svg",
+        "opsone-logo-reversed.svg",
+        "opsone-logo-quiet.svg",
+        "opsone-mark.svg",
+        "opsone-mark-reversed.svg",
+        "opsone-mark-quiet.svg",
+        "opsone-mark-mono-ink.svg",
+        "opsone-mark-mono-white.svg",
+        "opsone-logo-1200.png",
+        "opsone-logo-reversed-1200.png",
+        "opsone-mark-512.png",
+        "opsone-mark-reversed-512.png"
+      ],
+      "tile": "l"
+    }
+  },
+  "blobs": {},
+  "createdOnFiles": {
+    "at": "2026-10-22T09:31:04Z",
+    "v": 1
+  },
+  "docs": {
+    "readme": "project/README.md",
+    "sections": []
+  },
+  "groups": [
+    "Logos",
+    "AppIcons",
+    "Icons"
+  ],
+  "lastChange": {
+    "at": "2026-10-22T09:59:53Z",
+    "by": "Abdullah Taha",
+    "via": "Claude (Cowork)",
+    "note": "High-contrast theme, completed values, 14 shared components (Toast, Pagination, Menu, Tooltip, Switch, SearchField, FileUpload, Steps, StatCard, SiteHeader…)."
+  },
+  "layout": "files",
+  "libraries": [
+    {
+      "name": "react",
+      "version": "18.3.1"
+    },
+    {
+      "name": "react-dom",
+      "version": "18.3.1"
+    }
+  ],
+  "namespace": "OpsOne",
+  "sections": {},
+  "title": "OpsOne"
+}

@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>جارٍ تأكيد الطلب</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/opsone/tokens.css">
+<link rel="stylesheet" href="ds/opsone/components/bundle.css">
+<script src="ds/opsone/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:var(--link)}a:hover{color:var(--brand-hover)}
+.o1h{transition:border-color 120ms,transform 200ms;overflow:hidden}.o1h:hover{border-color:var(--brand)!important;transform:translateY(-2px)}.o1h .o1h-img{transition:transform 300ms}.o1h:hover .o1h-img{transform:scale(1.03)}.o1-snap{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;padding-bottom:4px}.o1-snap::-webkit-scrollbar{display:none}.o1-snap>*{scroll-snap-align:start;flex:0 0 var(--snap-w,85%)}@media (prefers-reduced-motion:reduce){.o1h,.o1h .o1h-img{transition:none}.o1h:hover{transform:none}}
+</style>
+</helmet>
+<div dir="rtl" data-surface="site" style="position: relative; width: 390px; min-height: 900px; display: flex; flex-direction: column; background: var(--background); color: var(--text-strong); font-family: var(--font-sans); font-size: 16px; line-height: 28px;"><header class="o1-site" style="position: relative;"><div class="o1-site-inner"><a href="SiteHome.dc.html" class="o1-site-brand" style="text-decoration: none;" aria-label="مطابخ الركن الحديث، الرئيسية"><span style="display: inline-flex; align-items: center; gap: 10px; color: var(--text-strong);"><span aria-hidden="true" style="width: 32px; height: 32px; border-radius: 8px; background: var(--brand); color: var(--on-brand); display: inline-grid; place-items: center; font-weight: 700;">ر</span><span style="font-weight: 700; font-size: 16px;">مطابخ الركن الحديث</span></span></a><nav aria-label="القائمة" class="o1-site-nav"><ul class="o1-site-links"><li><a href="SiteHome.dc.html" class="o1-site-link">الرئيسية</a></li><li><a href="#" class="o1-site-link">أعمالنا</a></li><li><a href="StoreList.dc.html" class="o1-site-link is-active" aria-current="page">المتجر</a></li><li><a href="InterestForm.dc.html" class="o1-site-link">تواصل معنا</a></li></ul></nav><div class="o1-site-actions"><x-import component-from-global-scope="OpsOne.Button" variant="ghost" icon="languages">English</x-import><x-import component-from-global-scope="OpsOne.Button" variant="ghost" icon="user" href="ActivateAccount.dc.html">دخول العملاء</x-import></div><a href="Checkout.dc.html" class="o1-btn o1-btn--secondary o1-btn--sm" style="gap: 8px; text-decoration: none; margin-inline-start: auto;">السلة</a><button type="button" class="o1-icon-btn o1-site-menu" aria-label="فتح القائمة"><x-import component-from-global-scope="OpsOne.Icon" name="menu"></x-import></button></div></header><main id="o1-main" style="flex: 1; box-sizing: border-box; width: 100%; max-width: 1248px; margin: 0 auto; padding: 24px 16px 32px; display: flex; flex-direction: column; gap: 20px;"><section style="display: flex; flex-direction: column; gap: 12px; padding: 16px; background: var(--surface); border: 1px solid var(--stroke-weak); border-radius: 12px;"><span style="color: var(--info-text); display: inline-flex;"><x-import component-from-global-scope="OpsOne.Icon" name="clock"></x-import></span><h1 style="margin: 0; font-size: 24px; line-height: 36px; font-weight: 700;">جارٍ تأكيد طلبك</h1><p style="margin: 0;">وصل دفعك <bdi dir="ltr">690.00</bdi> ر.س، ونتحقق من توفر الكمية بعد انتهاء مهلة الحجز.</p><dl style="margin: 0; display: flex; flex-direction: column;">
+            <div style="display: flex; justify-content: space-between; gap: 12px; padding: 8px 0;"><dt style="color: var(--text-weak);">الطلب</dt><dd style="margin: 0; text-align: end;"><bdi dir="ltr" style="font-family: var(--font-mono);">ORD-24546</bdi></dd></div>
+            <div style="display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-top: 1px solid var(--stroke-weak);"><dt style="color: var(--text-weak);">الدفع</dt><dd style="margin: 0; text-align: end;">مستلم، لن يُخصم مرة أخرى</dd></div>
+          </dl><div style="display: flex; flex-direction: column; gap: 8px; padding: 12px 16px; background: var(--fill); border-radius: 8px;">
+      <span style="font-weight: 600;">ما يحدث الآن</span>
+      <span style="display: flex; gap: 8px;"><span style="color: var(--success-text); display: inline-flex;"><x-import component-from-global-scope="OpsOne.Icon" name="check" size="{{ s16 }}"></x-import></span><span>نبلغك خلال يوم عمل بتأكيد الطلب.</span></span>
+      <span style="display: flex; gap: 8px;"><span style="color: var(--info-text); display: inline-flex;"><x-import component-from-global-scope="OpsOne.Icon" name="info" size="{{ s16 }}"></x-import></span><span>إن تعذر توفير المنتج يُرد المبلغ كاملًا إلى بطاقتك.</span></span>
+    </div></section><x-import component-from-global-scope="OpsOne.Button" variant="secondary" href="CustOrders.dc.html" block="{{ yes }}">متابعة الطلب</x-import></main><footer style="display: flex; justify-content: center; align-items: center; gap: 8px; padding: 20px 16px; border-top: 1px solid var(--stroke-weak); color: var(--text-weak); font-size: 14px;">يعمل بواسطة <x-import component-from-global-scope="OpsOne.Logo" height="{{ h20 }}"></x-import></footer></div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview": {"width": 390, "height": 900}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const noop = () => {};
+    return { yes: true, no: false, h28: 28, h24: 24, s16: 16, s24: 24, h20: 20, noop };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>استلام جزئي</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/opsone/tokens.css">
+<link rel="stylesheet" href="ds/opsone/components/bundle.css">
+<script src="ds/opsone/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:var(--link)}a:hover{color:var(--brand-hover)}
+</style>
+</helmet>
+<div dir="rtl" data-surface="panel" style="position: relative; width: 1440px; height: 1100px; overflow: hidden; background: var(--background); color: var(--text-strong); font-family: var(--font-sans); font-size: 14px; line-height: 24px;">
+  <div aria-hidden="true" inert="" style="position: absolute; inset: 0;">
+    <dc-import name="PurchaseList" hint-size="1440px,1000px"></dc-import>
+  </div>
+  <div aria-hidden="true" style="position: absolute; inset: 0; background: var(--overlay);"></div>
+
+  <div role="dialog" aria-modal="true" aria-labelledby="d-t" aria-describedby="d-d" class="o1-dialog" style="position: absolute; inset: 0; margin: auto; height: fit-content;">
+    <div class="o1-dialog-inner">
+    <div class="o1-dialog-head">
+      <h2 id="d-t" class="o1-dialog-title">استلام <bdi dir="ltr" style="font-family: var(--font-mono);">PO-0314</bdi></h2>
+      <button type="button" class="o1-dialog-close" aria-label="إغلاق"><x-import component-from-global-scope="OpsOne.Icon" name="x"></x-import></button>
+    </div>
+    <p id="d-d" class="o1-dialog-desc">منظم أدراج خشب 60 سم، مؤسسة الأدوات الحديثة.</p>
+    
+    <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1px; background: var(--stroke-weak); border: 1px solid var(--stroke-weak); border-radius: 8px; overflow: hidden;"><div style="display: flex; flex-direction: column; gap: 2px; padding: 10px 12px; background: var(--raised);"><span style="font-size: 14px; line-height: 20px; font-weight: 500; color: var(--text-weak);">المطلوب</span><span style="font-weight: 600;">10</span></div><div style="display: flex; flex-direction: column; gap: 2px; padding: 10px 12px; background: var(--raised);"><span style="font-size: 14px; line-height: 20px; font-weight: 500; color: var(--text-weak);">المقبول سابقًا</span><span style="font-weight: 600;">0</span></div><div style="display: flex; flex-direction: column; gap: 2px; padding: 10px 12px; background: var(--raised);"><span style="font-size: 14px; line-height: 20px; font-weight: 500; color: var(--text-weak);">المتبقي</span><span style="font-weight: 600;">10</span></div></div>
+    <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px 20px;">
+      <x-import component-from-global-scope="OpsOne.TextField" label="المستلم الآن" default-value="6" dir="ltr" required="{{ yes }}"></x-import>
+      <x-import component-from-global-scope="OpsOne.TextField" label="المقبول" default-value="5" dir="ltr" required="{{ yes }}"></x-import>
+      <x-import component-from-global-scope="OpsOne.TextField" label="المرفوض أو التالف" default-value="1" dir="ltr"></x-import>
+    </div>
+    <x-import component-from-global-scope="OpsOne.TextField" label="ملاحظة للمورد" default-value="قطعة مكسورة الحافة؛ تعاد مع الشحنة القادمة." multiline="{{ yes }}"></x-import>
+    <x-import component-from-global-scope="OpsOne.FileUpload" label="إثبات الاستلام" files="{{ proof }}" on-select="{{ noop }}" on-remove="{{ noop }}"></x-import>
+    <div style="display: flex; flex-direction: column; gap: 8px; padding: 12px 16px; background: var(--fill); border-radius: 8px;">
+      <span style="font-weight: 600;">عند الحفظ</span>
+      <span style="display: flex; gap: 8px;"><span style="color: var(--success-text); display: inline-flex;"><x-import component-from-global-scope="OpsOne.Icon" name="check" size="{{ s16 }}"></x-import></span><span>يزيد الموجود بـ 5 فقط؛ التالف لا يصبح متاحًا.</span></span>
+      <span style="display: flex; gap: 8px;"><span style="color: var(--success-text); display: inline-flex;"><x-import component-from-global-scope="OpsOne.Icon" name="check" size="{{ s16 }}"></x-import></span><span>يُغطى نقص طلب نورة الدوسري.</span></span>
+      <span style="display: flex; gap: 8px;"><span style="color: var(--info-text); display: inline-flex;"><x-import component-from-global-scope="OpsOne.Icon" name="info" size="{{ s16 }}"></x-import></span><span>المرفوض لا يُحسب مستلمًا: يبقى 5 متبقية والطلب «مستلم جزئيًا» حتى يصل بديله أو يُلغى المتبقي.</span></span>
+    </div>
+    <div class="o1-dialog-foot">
+      <x-import component-from-global-scope="OpsOne.Button" variant="ghost" href="PurchaseList.dc.html">إلغاء</x-import><x-import component-from-global-scope="OpsOne.Button" variant="secondary">إلغاء المتبقي</x-import><x-import component-from-global-scope="OpsOne.Button" variant="primary" href="PurchaseList.dc.html">تسجيل الاستلام</x-import>
+    </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview": {"width": 1440, "height": 1100}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const noop = () => {};
+    return { yes: true, no: false, h28: 28, h24: 24, s16: 16, s24: 24, noop, proof: [ { id: 'p1', name: 'سند-تسليم-المورد.jpg', size: 612300, status: 'done' } ] };
+  }
+}
+</script>
+</body>
+</html>

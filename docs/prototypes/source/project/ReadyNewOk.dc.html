@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>طلب جاهز جديد</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/opsone/tokens.css">
+<link rel="stylesheet" href="ds/opsone/components/bundle.css">
+<script src="ds/opsone/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:var(--link)}a:hover{color:var(--brand-hover)}
+</style>
+</helmet>
+<div dir="rtl" data-surface="panel" style="width: 1440px; min-height: 1300px; display: flex; background: var(--background); color: var(--text-strong); font-family: var(--font-sans); font-size: 14px; line-height: 24px;">
+
+<aside class="o1-sidebar" style="position: relative; height: auto; display: flex;">
+  <div class="o1-sidebar-brand"><x-import component-from-global-scope="OpsOne.Logo" height="{{ h28 }}"></x-import></div>
+  <div style="display: flex; flex-direction: column; gap: 2px; padding: 0 12px 16px; margin-bottom: 8px; border-bottom: 1px solid var(--stroke-weak);">
+    <span style="font-weight: 600;">مطابخ الركن الحديث</span>
+    <span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">مبيعات، فرع العليا</span>
+  </div>
+  <nav class="o1-nav" aria-label="القائمة الرئيسية"><ul>
+    <sc-for list="{{ nav }}" as="item" hint-placeholder-count="8">
+      <li><x-import component-from-global-scope="OpsOne.NavItem" label="{{ item.label }}" icon="{{ item.icon }}" href="{{ item.href }}" active="{{ item.active }}"></x-import></li>
+    </sc-for>
+  </ul></nav>
+  <div class="o1-sidebar-foot">
+    <x-import component-from-global-scope="OpsOne.NavItem" label="الإعدادات" icon="settings" href="#"></x-import>
+  </div>
+</aside>
+
+<div class="o1-shell-main" style="flex: 1; min-width: 0; display: flex; flex-direction: column;">
+  <header class="o1-topbar" style="position: relative; gap: 12px;">
+    <div style="width: 440px;"><x-import component-from-global-scope="OpsOne.SearchField" label="البحث العام" placeholder="رقم الطلب أو اسم العميل أو الجوال أو المستند"></x-import></div>
+    <div class="o1-topbar-end">
+      <x-import component-from-global-scope="OpsOne.Button" variant="ghost" icon="info" icon-only="{{ yes }}" aria-label="مساعدة هذه الصفحة"></x-import>
+      <x-import component-from-global-scope="OpsOne.Button" variant="ghost" icon="bell" icon-only="{{ yes }}" aria-label="الإشعارات"></x-import>
+      <x-import component-from-global-scope="OpsOne.Avatar" name="نورة الدوسري" size="sm"></x-import>
+    </div>
+  </header>
+
+  <main class="o1-main" style="max-width: none; padding: 32px; display: flex; flex-direction: column; gap: 20px;">
+<x-import component-from-global-scope="OpsOne.Breadcrumbs" items="{{ crumbs }}"></x-import><div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap;"><div style="display: flex; flex-direction: column; gap: 8px;"><div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;"><h1 style="margin: 0; font-size: 24px; line-height: 36px; font-weight: 700;">طلب جاهز <bdi dir="ltr" style="font-family: var(--font-mono);">ORD-24548</bdi></h1><x-import component-from-global-scope="OpsOne.Badge" tone="brand">جاهز</x-import><x-import component-from-global-scope="OpsOne.Badge" tone="neutral">مسودة</x-import></div><span style="color: var(--text-weak);">أنشأته نورة الدوسري اليوم 09:40.</span></div><div style="display: flex; gap: 8px; flex-wrap: wrap;"><x-import component-from-global-scope="OpsOne.Button" variant="secondary">حفظ المسودة</x-import><x-import component-from-global-scope="OpsOne.Button" variant="secondary" icon="external-link" href="ReadyLink.dc.html">إصدار رابط شراء</x-import><x-import component-from-global-scope="OpsOne.Button" variant="primary" icon="check">تأكيد الطلب</x-import></div></div><div style="display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 24px; align-items: start;"><div style="display: flex; flex-direction: column; gap: 24px;"><section class="o1-card o1-card--flush" aria-labelledby="ln-h">
+          <div class="o1-card-head" style="padding: 20px 24px 0; margin-bottom: 8px;"><div class="o1-card-heading"><h2 id="ln-h" class="o1-card-title">البنود</h2><p class="o1-card-desc">المتاح من مستودع العليا. السلة لا تحجز؛ الحجز عند التأكيد أو بدء الدفع.</p></div></div>
+          <div style="padding: 0 24px 12px;"><x-import component-from-global-scope="OpsOne.SearchField" label="إضافة منتج جاهز" placeholder="الاسم أو الرمز"></x-import></div><table class="o1-table"><caption class="o1-sr">البنود</caption><thead><tr><th scope="col">المنتج</th><th scope="col">المتاح</th><th scope="col">الكمية</th><th scope="col" class="o1-td--end">السعر</th><th scope="col" class="o1-td--end">المجموع</th><th scope="col" class="o1-td--end"><span class="o1-sr">حذف</span></th></tr></thead><tbody><tr><td><span style="display: flex; flex-direction: column;"><span style="font-weight: 600;">سلة زاوية دوارة</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">CRN-ROT، قياسي</span></span></td><td><bdi dir="ltr">3</bdi></td><td><div style="width: 120px;"><x-import component-from-global-scope="OpsOne.TextField" label="الكمية" default-value="1" dir="ltr" input-mode="numeric"></x-import></div></td><td class="o1-td--end"><x-import component-from-global-scope="OpsOne.Amount" value="690.00"></x-import></td><td class="o1-td--end"><x-import component-from-global-scope="OpsOne.Amount" value="690.00"></x-import></td><td class="o1-td--end"><x-import component-from-global-scope="OpsOne.Button" variant="ghost" icon="trash-2" icon-only="{{ yes }}" size="sm" aria-label="حذف البند"></x-import></td></tr><tr><td><span style="display: flex; flex-direction: column;"><span style="font-weight: 600;">منظم أدراج خشب</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">ORG-60، 60 سم</span></span></td><td><bdi dir="ltr" style="font-weight: 600; color: var(--warning-text);">1</bdi></td><td><div style="width: 120px;"><x-import component-from-global-scope="OpsOne.TextField" label="الكمية" default-value="1" dir="ltr" input-mode="numeric"></x-import></div></td><td class="o1-td--end"><x-import component-from-global-scope="OpsOne.Amount" value="220.00"></x-import></td><td class="o1-td--end"><x-import component-from-global-scope="OpsOne.Amount" value="220.00"></x-import></td><td class="o1-td--end"><x-import component-from-global-scope="OpsOne.Button" variant="ghost" icon="trash-2" icon-only="{{ yes }}" size="sm" aria-label="حذف البند"></x-import></td></tr><tr><td><span style="display: flex; flex-direction: column;"><span style="font-weight: 600;">مقبض ألمنيوم مخفي 60 سم</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">HND-60-BLK، أسود مطفي</span></span></td><td><bdi dir="ltr">128</bdi></td><td><div style="width: 120px;"><x-import component-from-global-scope="OpsOne.TextField" label="الكمية" default-value="8" dir="ltr" input-mode="numeric"></x-import></div></td><td class="o1-td--end"><x-import component-from-global-scope="OpsOne.Amount" value="45.00"></x-import></td><td class="o1-td--end"><x-import component-from-global-scope="OpsOne.Amount" value="360.00"></x-import></td><td class="o1-td--end"><x-import component-from-global-scope="OpsOne.Button" variant="ghost" icon="trash-2" icon-only="{{ yes }}" size="sm" aria-label="حذف البند"></x-import></td></tr></tbody></table>
+        </section><section class="o1-card" aria-labelledby="ds-h">
+          <div class="o1-card-head" style="margin-bottom: 12px;"><div class="o1-card-heading"><h2 id="ds-h" class="o1-card-title">الخصم</h2><p class="o1-card-desc">لا تُجمع الخصومات. كل خيار يعرض المبلغ النهائي ليختار البائع صراحةً.</p></div></div>
+          <div style="display: flex; flex-direction: column; gap: 16px;"><x-import component-from-global-scope="OpsOne.RadioGroup" label="خصم واحد على الطلب" options="{{ discs }}" default-value="coupon"></x-import><div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 20px;">
+      <x-import component-from-global-scope="OpsOne.TextField" label="رمز الكوبون" default-value="RIYADH10" dir="ltr"></x-import>
+      <span></span>
+    </div><dl style="margin: 0; display: flex; flex-direction: column;">
+            <div style="display: flex; justify-content: space-between; gap: 12px; padding: 8px 0;"><dt style="color: var(--text-weak);">المجموع</dt><dd style="margin: 0; text-align: end;"><x-import component-from-global-scope="OpsOne.Amount" value="1,270.00"></x-import></dd></div>
+            <div style="display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-top: 1px solid var(--stroke-weak);"><dt style="color: var(--text-weak);">خصم الكوبون RIYADH10، 10%</dt><dd style="margin: 0; text-align: end;"><bdi dir="ltr">-</bdi><x-import component-from-global-scope="OpsOne.Amount" value="127.00"></x-import></dd></div>
+            <div style="display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-top: 1px solid var(--stroke-weak);"><dt style="color: var(--text-weak); font-weight: 600;">الإجمالي شامل الضريبة</dt><dd style="margin: 0; text-align: end; font-weight: 600;"><x-import component-from-global-scope="OpsOne.Amount" value="1,143.00" strong="{{ yes }}"></x-import></dd></div>
+          </dl></div>
+        </section><section class="o1-card" aria-labelledby="cu-h">
+          <div class="o1-card-head" style="margin-bottom: 12px;"><div class="o1-card-heading"><h2 id="cu-h" class="o1-card-title">العميل والاستلام</h2></div></div>
+          <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 20px;">
+      <x-import component-from-global-scope="OpsOne.TextField" label="جوال العميل" default-value="0551234567" dir="ltr" optional="{{ yes }}" hint="اختياري حتى التأكيد."></x-import>
+      <x-import component-from-global-scope="OpsOne.SelectField" label="الاستلام" options="{{ pick }}" default-value="olaya"></x-import>
+    </div>
+        </section></div><section class="o1-card" aria-labelledby="lk-h">
+          <div class="o1-card-head" style="margin-bottom: 12px;"><div class="o1-card-heading"><h2 id="lk-h" class="o1-card-title">روابطي</h2><p class="o1-card-desc">آخر 7 أيام.</p></div></div>
+          <ul style="list-style: none; margin: 0; padding: 0;"><li style="display: flex; justify-content: space-between; gap: 8px; align-items: center; padding: 10px 0;"><span style="display: flex; flex-direction: column;"><span style="font-weight: 600;"><bdi dir="ltr" style="font-family: var(--font-mono);">ORD-24545</bdi>، عبير الغامدي</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">ينتهي غدًا 11:00</span></span><x-import component-from-global-scope="OpsOne.Badge" tone="info">فعال</x-import></li><li style="display: flex; justify-content: space-between; gap: 8px; align-items: center; padding: 10px 0; border-top: 1px solid var(--stroke-weak);"><span style="display: flex; flex-direction: column;"><span style="font-weight: 600;"><bdi dir="ltr" style="font-family: var(--font-mono);">ORD-24544</bdi>، ريان السالم</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">العميل في صفحة الدفع الآن</span></span><x-import component-from-global-scope="OpsOne.Badge" tone="warning">إتمام جارٍ</x-import></li><li style="display: flex; justify-content: space-between; gap: 8px; align-items: center; padding: 10px 0; border-top: 1px solid var(--stroke-weak);"><span style="display: flex; flex-direction: column;"><span style="font-weight: 600;"><bdi dir="ltr" style="font-family: var(--font-mono);">ORD-24543</bdi>، هيفاء المطيري</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">اشترت أمس؛ المبيعة لك</span></span><x-import component-from-global-scope="OpsOne.Badge" tone="success">مستخدم</x-import></li><li style="display: flex; justify-content: space-between; gap: 8px; align-items: center; padding: 10px 0; border-top: 1px solid var(--stroke-weak);"><span style="display: flex; flex-direction: column;"><span style="font-weight: 600;"><bdi dir="ltr" style="font-family: var(--font-mono);">ORD-24536</bdi>، منصور الخثعمي</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">انتهى دون شراء</span></span><x-import component-from-global-scope="OpsOne.Badge" tone="neutral">منتهٍ</x-import></li></ul>
+        </section></div>
+  </main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview": {"width": 1440, "height": 1300}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const noop = () => {};
+    return { yes: true, no: false, h28: 28, h24: 24, s16: 16, s24: 24, crumbs: [ { label: 'الطلبات', href: 'OrdersList.dc.html' }, { label: 'طلب جاهز جديد' } ], discs: [ { value: 'none', label: 'بلا خصم: 1,270.00 ر.س' }, { value: 'staff', label: 'خصم موظف 5% ضمن حدك: 1,206.50 ر.س' }, { value: 'coupon', label: 'كوبون العميل: 1,143.00 ر.س' } ], pick: [ { value: 'olaya', label: 'استلام من فرع العليا' }, { value: 'ship', label: 'توصيل' } ], nav: [ { label: 'الرئيسية', icon: 'layout-dashboard', href: 'HomeEmployee.dc.html', active: false }, { label: 'الطلبات', icon: 'clipboard-list', href: 'OrdersList.dc.html', active: true }, { label: 'العملاء', icon: 'users', href: 'CustomersList.dc.html', active: false }, { label: 'المهام والمواعيد', icon: 'calendar', href: 'TaskList.dc.html', active: false } ] };
+  }
+}
+</script>
+</body>
+</html>

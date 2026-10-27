@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>قبول دعوة موظف</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/opsone/tokens.css">
+<link rel="stylesheet" href="ds/opsone/components/bundle.css">
+<script src="ds/opsone/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:var(--link)}a:hover{color:var(--brand-hover)}
+</style>
+</helmet>
+<div dir="rtl" data-surface="panel" style="width: 390px; min-height: 900px; display: flex; flex-direction: column; background: var(--background); color: var(--text-strong); font-family: var(--font-sans); font-size: 14px; line-height: 24px;">
+  <header style="display: flex; align-items: center; gap: 4px; min-height: 64px; padding-inline: 8px 8px; background: var(--surface); border-bottom: 1px solid var(--stroke-weak);">
+    
+    <x-import component-from-global-scope="OpsOne.Logo" height="{{ h24 }}"></x-import>
+    
+  </header>
+  <main style="padding: 16px; display: flex; flex-direction: column; gap: 16px;">
+    <div style="display: flex; flex-direction: column; gap: 4px;"><h1 style="margin: 0; font-size: 22px; line-height: 34px; font-weight: 700;">انضم إلى مطابخ الركن الحديث</h1><span style="color: var(--text-weak);">دعاك فهد العتيبي. تنتهي الدعوة 30 أكتوبر.</span></div>
+    <section aria-labelledby="i1" style="display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--stroke-weak); border-radius: 12px;">
+      <h2 id="i1" style="margin: 0; padding: 12px 16px 8px; font-size: 16px; line-height: 26px; font-weight: 600;">دعوتك</h2>
+      <div style="display: flex; flex-direction: column; gap: 6px; padding: 12px 16px; border-top: 1px solid var(--stroke-weak);">
+        <dl style="margin: 0; display: flex; flex-direction: column;">
+            <div style="display: flex; justify-content: space-between; gap: 12px; padding: 8px 0;"><dt style="color: var(--text-weak);">الدور</dt><dd style="margin: 0; text-align: end;">منفذ</dd></div>
+            <div style="display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-top: 1px solid var(--stroke-weak);"><dt style="color: var(--text-weak);">القسم</dt><dd style="margin: 0; text-align: end;">القياس والتصميم</dd></div>
+            <div style="display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-top: 1px solid var(--stroke-weak);"><dt style="color: var(--text-weak);">النطاق</dt><dd style="margin: 0; text-align: end;">فرع الملقا</dd></div>
+          </dl>
+      </div>
+    </section>
+    <x-import component-from-global-scope="OpsOne.TextField" label="رمز التحقق" default-value="" dir="ltr" input-mode="numeric" required="{{ yes }}" hint="أُرسل إلى جوالك المنتهي بـ 2287. لم يصل؟ إعادة الإرسال بعد 45 ثانية، أو الإرسال إلى بريدك."></x-import>
+    <x-import component-from-global-scope="OpsOne.TextField" label="كلمة المرور" default-value="" type="password" required="{{ yes }}" hint="8 أحرف على الأقل."></x-import>
+    <x-import component-from-global-scope="OpsOne.Button" variant="primary" block="{{ yes }}">قبول الدعوة</x-import>
+    <span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">الدعوة لمرة واحدة. لا ترى إلا ما يسمح به دورك.</span>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview": {"width": 390, "height": 900}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const noop = () => {};
+    return { yes: true, no: false, h28: 28, h24: 24, s16: 16, s24: 24 };
+  }
+}
+</script>
+</body>
+</html>

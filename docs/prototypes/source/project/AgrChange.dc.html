@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>طلب تعديل الاتفاق</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/opsone/tokens.css">
+<link rel="stylesheet" href="ds/opsone/components/bundle.css">
+<script src="ds/opsone/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:var(--link)}a:hover{color:var(--brand-hover)}
+</style>
+</helmet>
+<div dir="rtl" data-surface="panel" style="position: relative; width: 1440px; height: 1200px; overflow: hidden; background: var(--background); color: var(--text-strong); font-family: var(--font-sans); font-size: 14px; line-height: 24px;">
+  <div aria-hidden="true" inert="" style="position: absolute; inset: 0;">
+    <dc-import name="AgrOrder" hint-size="1440px,1700px"></dc-import>
+  </div>
+  <div aria-hidden="true" style="position: absolute; inset: 0; background: var(--overlay);"></div>
+
+  <div role="dialog" aria-modal="true" aria-labelledby="d-t" aria-describedby="d-d" class="o1-dialog o1-dialog--lg" style="position: absolute; inset: 0; margin: auto; height: fit-content;">
+    <div class="o1-dialog-inner">
+    <div class="o1-dialog-head">
+      <h2 id="d-t" class="o1-dialog-title">تعديل الاتفاق <bdi dir="ltr" style="font-family: var(--font-mono);">QUO-3307</bdi></h2>
+      <button type="button" class="o1-dialog-close" aria-label="إغلاق"><x-import component-from-global-scope="OpsOne.Icon" name="x"></x-import></button>
+    </div>
+    <p id="d-d" class="o1-dialog-desc">الاتفاق الحالي نافذ حتى موافقة العميلة على التعديل.</p>
+    
+    <x-import component-from-global-scope="OpsOne.TextField" label="ما الذي تغير" default-value="طلبت العميلة سطح الجزيرة من الكوارتز الرمادي نفسه المستخدم في المطبخ بدل خشب الجوز." multiline="{{ yes }}" required="{{ yes }}"></x-import>
+    <div class="o1-table-wrap"><table class="o1-table">
+      <caption class="o1-sr">فرق البنود</caption>
+      <thead><tr><th scope="col">البند</th><th scope="col">الحالي</th><th scope="col">المقترح</th><th scope="col" class="o1-td--end">الفرق</th></tr></thead>
+      <tbody>
+        <tr><td style="font-weight: 500;">جزيرة وسطية بأدراج</td><td style="color: var(--text-weak);">سطح خشب جوز طبيعي</td><td>سطح كوارتز رمادي مطابق للمطبخ</td><td class="o1-td--end">+<x-import component-from-global-scope="OpsOne.Amount" value="1,200.00"></x-import></td></tr>
+      </tbody>
+    </table></div>
+    <div><x-import component-from-global-scope="OpsOne.Button" variant="ghost" size="sm" icon="pencil">تعديل البنود</x-import></div>
+    <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 20px;">
+      <div style="display: flex; flex-direction: column; gap: 4px;"><span style="font-size: 14px; line-height: 20px; font-weight: 500; color: var(--text-weak);">الإجمالي بعد التعديل</span><span style="display: flex; gap: 8px; align-items: baseline;"><x-import component-from-global-scope="OpsOne.Amount" value="19,650.00" strong="{{ yes }}"></x-import><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">بدل 18,450.00</span></span></div>
+      <x-import component-from-global-scope="OpsOne.SelectField" label="أثر على مدة التنفيذ" options="{{ delays }}" default-value="2d"></x-import>
+    </div>
+    <fieldset style="margin: 0; padding: 0; border: 0; display: flex; flex-direction: column; gap: 4px;"><legend style="padding: 0; margin-bottom: 4px; font-weight: 600;">العمل المتأثر</legend><span style="color: var(--text-weak);">يقترحه النظام من البنود المتغيرة، وتؤكده أنت. المحدد لا يبدأ قبل الحسم.</span><x-import component-from-global-scope="OpsOne.Checkbox" label="تصنيع الجزيرة، لم يبدأ" default-checked="{{ yes }}"></x-import><x-import component-from-global-scope="OpsOne.Checkbox" label="شراء سطح الكوارتز، لم يبدأ" default-checked="{{ yes }}"></x-import><x-import component-from-global-scope="OpsOne.Checkbox" label="تصنيع وحدات المطبخ"></x-import></fieldset>
+    <div style="display: flex; flex-direction: column; gap: 8px; padding: 12px 16px; background: var(--fill); border-radius: 8px;">
+      <span style="font-weight: 600;">الأثر</span>
+      <span style="display: flex; gap: 8px;"><span style="color: var(--info-text); display: inline-flex;"><x-import component-from-global-scope="OpsOne.Icon" name="info" size="{{ s16 }}"></x-import></span><span>يحتاج موافقة العميلة لأن السعر والمواصفات تغيرت.</span></span>
+      <span style="display: flex; gap: 8px;"><span style="color: var(--success-text); display: inline-flex;"><x-import component-from-global-scope="OpsOne.Icon" name="check" size="{{ s16 }}"></x-import></span><span>يبقى 18,450.00 ر.س نافذًا حتى موافقتها؛ عندها يُضاف الفرق 1,200.00 ر.س إلى المتبقي مرة واحدة.</span></span>
+      <span style="display: flex; gap: 8px;"><span style="color: var(--success-text); display: inline-flex;"><x-import component-from-global-scope="OpsOne.Icon" name="check" size="{{ s16 }}"></x-import></span><span>باقي العمل يستمر كما هو.</span></span>
+    </div>
+    <div class="o1-dialog-foot">
+      <x-import component-from-global-scope="OpsOne.Button" variant="ghost" href="AgrOrder.dc.html">إلغاء</x-import><x-import component-from-global-scope="OpsOne.Button" variant="secondary" href="AgrOrder.dc.html">حفظ مسودة</x-import><x-import component-from-global-scope="OpsOne.Button" variant="primary" href="AgrChangePending.dc.html">إرسال للعميلة</x-import>
+    </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview": {"width": 1440, "height": 1200}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const noop = () => {};
+    return { yes: true, no: false, h28: 28, s16: 16, s24: 24, delays: [ { value: '0', label: 'بلا أثر' }, { value: '2d', label: 'يومان إضافيان' }, { value: '1w', label: 'أسبوع إضافي' } ] };
+  }
+}
+</script>
+</body>
+</html>

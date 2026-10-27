@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>قائمة الطلبات</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/opsone/tokens.css">
+<link rel="stylesheet" href="ds/opsone/components/bundle.css">
+<script src="ds/opsone/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:var(--link)}a:hover{color:var(--brand-hover)}
+</style>
+</helmet>
+<div dir="rtl" data-surface="panel" style="width: 1440px; min-height: 1250px; display: flex; background: var(--background); color: var(--text-strong); font-family: var(--font-sans); font-size: 14px; line-height: 24px;">
+
+<aside class="o1-sidebar" style="position: relative; height: auto; display: flex;">
+  <div class="o1-sidebar-brand"><x-import component-from-global-scope="OpsOne.Logo" height="{{ h28 }}"></x-import></div>
+  <div style="display: flex; flex-direction: column; gap: 2px; padding: 0 12px 16px; margin-bottom: 8px; border-bottom: 1px solid var(--stroke-weak);">
+    <span style="font-weight: 600;">مطابخ الركن الحديث</span>
+    <span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">باقة نمو</span>
+  </div>
+  <nav class="o1-nav" aria-label="القائمة الرئيسية"><ul>
+    <sc-for list="{{ nav }}" as="item" hint-placeholder-count="8">
+      <li><x-import component-from-global-scope="OpsOne.NavItem" label="{{ item.label }}" icon="{{ item.icon }}" href="{{ item.href }}" active="{{ item.active }}"></x-import></li>
+    </sc-for>
+  </ul></nav>
+  <div class="o1-sidebar-foot">
+    <x-import component-from-global-scope="OpsOne.NavItem" label="الإعدادات" icon="settings" href="#"></x-import>
+  </div>
+</aside>
+
+<div class="o1-shell-main" style="flex: 1; min-width: 0; display: flex; flex-direction: column;">
+  <header class="o1-topbar" style="position: relative; gap: 12px;">
+    <div style="width: 440px;"><x-import component-from-global-scope="OpsOne.SearchField" label="البحث العام" placeholder="رقم الطلب أو اسم العميل أو الجوال أو المستند"></x-import></div>
+    <x-import component-from-global-scope="OpsOne.Button" variant="secondary" icon-end="chevron-down" aria-label="نطاق الفروع: كل الفروع">كل الفروع</x-import>
+    <div class="o1-topbar-end">
+      <x-import component-from-global-scope="OpsOne.Button" variant="ghost" icon="info" icon-only="{{ yes }}" aria-label="مساعدة هذه الصفحة"></x-import>
+      <div style="position: relative; display: inline-flex;">
+        <x-import component-from-global-scope="OpsOne.Button" variant="ghost" icon="bell" icon-only="{{ yes }}" aria-label="الإشعارات، 5 غير مقروءة"></x-import>
+        <span style="position: absolute; inset-block-start: 2px; inset-inline-end: 0;"><x-import component-from-global-scope="OpsOne.Counter" value="5"></x-import></span>
+      </div>
+      <button type="button" aria-label="قائمة الحساب" style="display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 8px; border: 0; border-radius: 8px; background: transparent; color: var(--text-strong); font: inherit; cursor: pointer;">
+        <x-import component-from-global-scope="OpsOne.Avatar" name="فهد العتيبي" size="sm" decorative="{{ yes }}"></x-import>
+        <span style="font-weight: 500;">فهد العتيبي</span>
+      </button>
+    </div>
+  </header>
+
+  <main class="o1-main" style="max-width: none; padding: 32px; display: flex; flex-direction: column; gap: 16px;">
+    <div class="o1-pagehead" style="margin-bottom: 8px;">
+      <div class="o1-pagehead-text">
+        <h1 class="o1-pagehead-title">الطلبات</h1>
+        <p class="o1-pagehead-desc">طلبات المخصص والجاهز ضمن نطاقك. افتح أي طلب لترى أين وصل وما المطلوب الآن.</p>
+      </div>
+      <div class="o1-pagehead-actions">
+        <x-import component-from-global-scope="OpsOne.Button" variant="secondary" icon="download">تصدير</x-import>
+        <x-import component-from-global-scope="OpsOne.Button" variant="secondary" icon="plus" href="ReadyNew.dc.html">طلب جاهز جديد</x-import>
+        <x-import component-from-global-scope="OpsOne.Button" variant="primary" icon="plus" href="CreateOrder.dc.html">طلب مخصص جديد</x-import>
+      </div>
+    </div>
+
+    <div role="tablist" aria-label="نوع الطلب" class="o1-tablist">
+      <button type="button" role="tab" aria-selected="true" class="o1-tab" style="position: relative; min-height: 44px; padding: 0 12px; border: 0; background: transparent; font: inherit; cursor: pointer;">الكل <span style="color: var(--text-weak); font-weight: 400;">236</span></button>
+      <button type="button" role="tab" aria-selected="false" class="o1-tab" style="position: relative; min-height: 44px; padding: 0 12px; border: 0; background: transparent; font: inherit; color: var(--text-weak); cursor: pointer;">المخصص <span style="font-weight: 400;">198</span></button>
+      <button type="button" role="tab" aria-selected="false" class="o1-tab" style="position: relative; min-height: 44px; padding: 0 12px; border: 0; background: transparent; font: inherit; color: var(--text-weak); cursor: pointer;">الجاهز <span style="font-weight: 400;">38</span></button>
+    </div>
+
+    <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;" role="group" aria-label="مرشحات سريعة">
+      <sc-for list="{{ quick }}" as="q" hint-placeholder-count="5">
+        <button type="button" aria-pressed="{{ q.pressed }}" class="o1-btn o1-btn--secondary o1-btn--sm" style="background: {{ q.bg }}; color: {{ q.fg }}; border-color: {{ q.border }};">{{ q.label }} <span style="font-weight: 400;">{{ q.count }}</span></button>
+      </sc-for>
+    </div>
+
+    <div style="display: grid; grid-template-columns: minmax(0, 2fr) repeat(4, minmax(0, 1fr)) auto; gap: 12px; align-items: end;">
+      <x-import component-from-global-scope="OpsOne.SearchField" label="البحث في الطلبات" placeholder="رقم الطلب أو اسم العميل أو الجوال"></x-import>
+      <x-import component-from-global-scope="OpsOne.SelectField" label="الحالة" options="{{ statuses }}" default-value="all"></x-import>
+      <x-import component-from-global-scope="OpsOne.SelectField" label="المرحلة" options="{{ stages }}" default-value="all"></x-import>
+      <x-import component-from-global-scope="OpsOne.SelectField" label="الفرع" options="{{ branches }}" default-value="all"></x-import>
+      <x-import component-from-global-scope="OpsOne.SelectField" label="المسؤول" options="{{ owners }}" default-value="all"></x-import>
+      <x-import component-from-global-scope="OpsOne.Button" variant="ghost">مسح التصفية</x-import>
+    </div>
+
+    <div class="o1-table-wrap">
+      <div class="o1-table-scroll">
+        <table class="o1-table">
+          <caption class="o1-sr">الطلبات، الصفحة 1 من 12</caption>
+          <thead><tr>
+            <th scope="col">رقم الطلب</th><th scope="col">العميل</th><th scope="col">المرحلة الحالية</th><th scope="col">أين وصل</th><th scope="col">المسؤول</th><th scope="col">الحالة</th><th scope="col" class="o1-td--end">المتبقي</th><th scope="col">آخر تحديث</th><th scope="col"><span class="o1-sr">إجراءات</span></th>
+          </tr></thead>
+          <tbody>
+            <sc-for list="{{ rows }}" as="r" hint-placeholder-count="12">
+              <tr class="o1-tr--click">
+                <td><div style="display: flex; flex-direction: column;"><x-import component-from-global-scope="OpsOne.Ref" href="{{ r.href }}">{{ r.ref }}</x-import><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">{{ r.type }}</span></div></td>
+                <td>{{ r.customer }}</td>
+                <td><div style="display: flex; flex-direction: column;"><span>{{ r.stage }}</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">{{ r.step }}</span></div></td>
+                <td style="color: {{ r.whereColor }}; max-width: 260px;">{{ r.where }}</td>
+                <td>{{ r.owner }}</td>
+                <td><x-import component-from-global-scope="OpsOne.Badge" tone="{{ r.tone }}">{{ r.status }}</x-import></td>
+                <td class="o1-td--end"><sc-if value="{{ r.known }}" hint-placeholder-val="{{ yes }}"><x-import component-from-global-scope="OpsOne.Amount" value="{{ r.left }}"></x-import></sc-if><sc-if value="{{ r.unknown }}" hint-placeholder-val="{{ no }}"><span style="color: var(--text-weak);">لم يحدد بعد</span></sc-if></td>
+                <td style="color: var(--text-weak); white-space: nowrap;">{{ r.updated }}</td>
+                <td class="o1-td--end"><x-import component-from-global-scope="OpsOne.Menu" label="إجراءات {{ r.ref }}" icon-only="{{ yes }}" variant="ghost" size="sm" items="{{ rowMenu }}"></x-import></td>
+              </tr>
+            </sc-for>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <x-import component-from-global-scope="OpsOne.Pagination" page="{{ p1 }}" page-count="{{ p12 }}" total="{{ p236 }}" page-size="{{ p20 }}" on-change="{{ noop }}"></x-import>
+  </main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1250}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const off = { pressed: 'false', bg: 'var(--surface)', fg: 'var(--text-strong)', border: 'var(--stroke-control)' };
+    const on = { pressed: 'true', bg: 'var(--brand-subtle)', fg: 'var(--brand-subtle-text)', border: 'var(--brand)' };
+    const noop = () => {};
+    return {
+      yes: true, h28: 28, p1: 1, p12: 12, p236: 236, p20: 20, noop,
+      rowMenu: [ { id: 'open', label: 'فتح الطلب', onSelect: noop }, { id: 'pause', label: 'إيقاف الطلب', onSelect: noop }, { id: 'branch', label: 'نقل الفرع', onSelect: noop } ],
+      nav: [
+        { label: 'الرئيسية', icon: 'layout-dashboard', href: 'Main.dc.html', active: false },
+        { label: 'الطلبات', icon: 'clipboard-list', href: 'OrdersList.dc.html', active: true },
+        { label: 'العملاء', icon: 'users', href: 'CustomersList.dc.html', active: false },
+        { label: 'المهام والمواعيد', icon: 'calendar', href: 'CalWeek.dc.html', active: false },
+        { label: 'المالية', icon: 'receipt', href: 'FinHome.dc.html', active: false },
+        { label: 'المخزون والتوريد', icon: 'package', href: 'StockList.dc.html', active: false },
+        { label: 'الموقع', icon: 'file-text', href: 'SitePages.dc.html', active: false },
+        { label: 'التقارير', icon: 'trending-up', href: '#', active: false }
+      ],
+      quick: [
+        { ...on, label: 'تحتاج إجراء', count: '14' },
+        { ...off, label: 'طلباتي', count: '11' },
+        { ...off, label: 'متأخر', count: '6' },
+        { ...off, label: 'غير مسند', count: '2' },
+        { ...off, label: 'منتهي التنفيذ مع مستحق', count: '3' }
+      ],
+      statuses: [ { value: 'all', label: 'كل الحالات' }, { value: 'run', label: 'جارٍ' }, { value: 'pause', label: 'موقوف' }, { value: 'done', label: 'منتهي التنفيذ' }, { value: 'cxp', label: 'إلغاء قيد المعالجة' }, { value: 'cx', label: 'ملغى' }, { value: 'closed', label: 'مقفل' } ],
+      stages: [ { value: 'all', label: 'كل المراحل' }, { value: 's1', label: 'القياس والمعاينة' }, { value: 's2', label: 'التصميم والعرض' }, { value: 's3', label: 'الاتفاق والدفعة الأولى' }, { value: 's4', label: 'التصنيع' }, { value: 's5', label: 'التركيب والتسليم' } ],
+      branches: [ { value: 'all', label: 'كل الفروع' }, { value: 'olaya', label: 'العليا' }, { value: 'malqa', label: 'الملقا' } ],
+      owners: [ { value: 'all', label: 'كل المسؤولين' }, { value: 'noura', label: 'نورة الدوسري' }, { value: 'khalid', label: 'خالد الزهراني' }, { value: 'sara', label: 'سارة القحطاني' } ],
+      no: false,
+      rows: this.mark([
+        { ref: 'ORD-24490', type: 'مخصص', customer: 'سلطان البقمي', stage: 'التركيب والتسليم', step: '5 من 5', where: 'بانتظار قرار السماح ببدء التركيب', whereColor: 'var(--warning-text)', owner: 'خالد الزهراني', status: 'جارٍ', tone: 'info', left: '6,200.00', updated: 'قبل يوم' },
+        { ref: 'ORD-24518', type: 'مخصص', customer: 'منيرة الشمري', stage: 'الاتفاق والدفعة الأولى', step: '3 من 5', where: 'بانتظار دفع 5,000 ر.س', whereColor: 'var(--warning-text)', owner: 'نورة الدوسري', status: 'جارٍ', tone: 'info', left: '18,450.00', updated: 'قبل يومين' },
+        { ref: 'ORD-24467', type: 'مخصص', customer: 'تركي العسيري', stage: 'التصنيع', step: '4 من 5', where: 'طلب إلغاء من العميل بانتظار القرار', whereColor: 'var(--warning-text)', owner: 'سارة القحطاني', status: 'إلغاء قيد المعالجة', tone: 'warning', left: '17,600.00', updated: 'قبل 4 أيام' },
+        { ref: 'ORD-24521', type: 'مخصص', customer: 'شركة دار الإعمار للمقاولات', stage: 'التصميم والعرض', step: '2 من 5', where: 'بانتظار قرار الخصم قبل إرسال العرض', whereColor: 'var(--warning-text)', owner: 'نورة الدوسري', status: 'جارٍ', tone: 'info', left: 'لم يحدد', updated: 'قبل 3 ساعات' },
+        { ref: 'ORD-24502', type: 'مخصص', customer: 'ناصر العمري', stage: 'التصنيع', step: '4 من 5', where: 'متأخر 4 أيام عن المدة المستهدفة', whereColor: 'var(--danger-text)', owner: 'خالد الزهراني', status: 'جارٍ', tone: 'info', left: '9,800.00', updated: 'قبل 6 ساعات' },
+        { ref: 'ORD-24533', type: 'مخصص', customer: 'تركي العسيري', stage: 'القياس والمعاينة', step: '1 من 5', where: 'زيارة القياس غير مسندة', whereColor: 'var(--warning-text)', owner: 'خالد الزهراني', status: 'جارٍ', tone: 'info', left: 'لم يحدد', updated: 'قبل 4 ساعات' },
+        { ref: 'ORD-24529', type: 'مخصص', customer: 'عبدالرحمن الفيفي', stage: 'التصميم والعرض', step: '2 من 5', where: 'إعداد عرض السعر متأخر يومين', whereColor: 'var(--danger-text)', owner: 'نورة الدوسري', status: 'جارٍ', tone: 'info', left: 'لم يحدد', updated: 'قبل يومين' },
+        { ref: 'ORD-24495', type: 'مخصص', customer: 'وليد السهلي', stage: 'التصنيع', step: '4 من 5', where: 'موقوف: بانتظار توفر خامة', whereColor: 'var(--warning-text)', owner: 'سارة القحطاني', status: 'موقوف', tone: 'warning', left: '11,250.00', updated: 'قبل 6 أيام' },
+        { ref: 'ORD-24480', type: 'مخصص', customer: 'عبدالرحمن الفيفي', stage: 'انتهى التشغيل', step: 'مكتمل', where: 'مستحق 3,450 ر.س منذ 9 أيام', whereColor: 'var(--danger-text)', owner: 'نورة الدوسري', status: 'منتهي التنفيذ', tone: 'success', left: '3,450.00', updated: 'قبل 9 أيام' },
+        { ref: 'ORD-24512', type: 'مخصص', customer: 'أمل السديري', stage: 'التصميم والعرض', step: '2 من 5', where: 'بانتظار موافقة العميل على التصميم', whereColor: 'var(--text-strong)', owner: 'نورة الدوسري', status: 'جارٍ', tone: 'info', left: 'لم يحدد', updated: 'قبل 3 أيام' },
+        { ref: 'ORD-24546', type: 'جاهز', customer: 'ريم القحطاني', stage: 'دورة الجاهز', step: 'الدفع', where: 'دفع وصل بعد انتهاء المهلة', whereColor: 'var(--warning-text)', owner: 'فهد العتيبي', status: 'يحتاج معالجة', tone: 'warning', left: '0.00', updated: 'قبل ساعة', href: 'ReadyReview.dc.html' },
+        { ref: 'ORD-24543', type: 'جاهز', customer: 'هيفاء المطيري', stage: 'دورة الجاهز', step: 'تجهيز', where: 'محجوز، استلام من فرع العليا', whereColor: 'var(--text-strong)', owner: 'نورة الدوسري', status: 'مؤكد', tone: 'info', left: '0.00', updated: 'أمس', href: 'ReadyOrder.dc.html' },
+        { ref: 'ORD-24531', type: 'مخصص', customer: 'شركة دار الإعمار للمقاولات', stage: 'القياس والمعاينة', step: '1 من 5', where: 'تثبيت الاحتياج والمواصفات', whereColor: 'var(--text-strong)', owner: 'نورة الدوسري', status: 'جارٍ', tone: 'info', left: 'لم يحدد', updated: 'اليوم' }
+      ])
+    };
+  }
+  mark(rows) { return rows.map((r) => ({ href: 'OrderOverview.dc.html', ...r, known: r.left !== 'لم يحدد', unknown: r.left === 'لم يحدد' })); }
+}
+</script>
+</body>
+</html>

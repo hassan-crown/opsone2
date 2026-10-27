@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>التراخيص</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/opsone/tokens.css">
+<link rel="stylesheet" href="ds/opsone/components/bundle.css">
+<script src="ds/opsone/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:var(--link)}a:hover{color:var(--brand-hover)}
+</style>
+</helmet>
+<div dir="rtl" data-surface="panel" style="width: 1440px; min-height: 650px; display: flex; background: var(--background); color: var(--text-strong); font-family: var(--font-sans); font-size: 14px; line-height: 24px;"><aside class="o1-sidebar" style="position: relative; height: auto; display: flex;"><div class="o1-sidebar-brand"><x-import component-from-global-scope="OpsOne.Logo" height="{{ h28 }}"></x-import></div><div style="display: flex; flex-direction: column; gap: 2px; padding: 0 12px 16px; margin-bottom: 8px; border-bottom: 1px solid var(--stroke-weak);"><span style="font-weight: 600;">تشغيل OpsOne</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">إصدار تراخيص</span></div><nav class="o1-nav" aria-label="القائمة الرئيسية"><ul><sc-for list="{{ nav }}" as="item" hint-placeholder-count="4"><li><x-import component-from-global-scope="OpsOne.NavItem" label="{{ item.label }}" icon="{{ item.icon }}" href="{{ item.href }}" active="{{ item.active }}"></x-import></li></sc-for></ul></nav></aside><div class="o1-shell-main" style="flex: 1; min-width: 0; display: flex; flex-direction: column;"><header class="o1-topbar" style="position: relative; gap: 12px;"><div style="width: 440px;"><x-import component-from-global-scope="OpsOne.SearchField" label="البحث" placeholder="رقم الطلب أو المنشأة أو البريد"></x-import></div><div class="o1-topbar-end"><x-import component-from-global-scope="OpsOne.Button" variant="ghost" icon="bell" icon-only="{{ yes }}" aria-label="الإشعارات"></x-import><x-import component-from-global-scope="OpsOne.Avatar" name="حسام البلوي" size="sm"></x-import></div></header><main class="o1-main" style="max-width: none; padding: 32px; display: flex; flex-direction: column; gap: 20px;"><div class="o1-pagehead" style="margin-bottom: 0;"><div class="o1-pagehead-text"><h1 class="o1-pagehead-title">التراخيص</h1><p class="o1-pagehead-desc">تعتمد البيانات، ويوقّع خادم معزول خارج التشغيل. لا تُكشف بيانات المنشآت.</p></div><div class="o1-pagehead-actions"></div></div><div role="group" aria-label="تصفية" style="display: flex; gap: 8px; flex-wrap: wrap;"><button type="button" aria-pressed="true" class="o1-btn o1-btn--secondary o1-btn--sm">بانتظار التوقيع 1</button><button type="button" aria-pressed="false" class="o1-btn o1-btn--secondary o1-btn--sm">بانتظار شرط 1</button><button type="button" aria-pressed="false" class="o1-btn o1-btn--secondary o1-btn--sm">الموقعة</button></div><div class="o1-table-wrap"><table class="o1-table"><caption class="o1-sr">طلبات التراخيص</caption><thead><tr><th scope="col">الطلب</th><th scope="col">المنشأة والنوع</th><th scope="col">الحالة</th><th scope="col">التاريخ</th><th scope="col"></th></tr></thead><tbody><tr><td><bdi dir="ltr" style="font-family: var(--font-mono); white-space: nowrap;">LIC-0388</bdi></td><td><span style="display: flex; flex-direction: column;"><span style="font-weight: 500;">ورشة الأفق للأثاث</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">تجهيز، نمو</span></span></td><td><x-import component-from-global-scope="OpsOne.Badge" tone="info">بانتظار التوقيع</x-import></td><td><span style="color: var(--text-weak);">اليوم 10:22</span></td><td><x-import component-from-global-scope="OpsOne.Button" variant="secondary" size="sm" href="LicenseSign.dc.html">مراجعة واعتماد</x-import></td></tr><tr><td><bdi dir="ltr" style="font-family: var(--font-mono); white-space: nowrap;">LIC-0387</bdi></td><td><span style="display: flex; flex-direction: column;"><span style="font-weight: 500;">مطابخ الركن الحديث</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">هدف تخفيض إلى أساس</span></span></td><td><x-import component-from-global-scope="OpsOne.Badge" tone="neutral">ينتظر شرطًا</x-import></td><td><span style="color: var(--text-weak);">اليوم 10:20</span></td><td><span></span></td></tr><tr><td><bdi dir="ltr" style="font-family: var(--font-mono); white-space: nowrap;">LIC-0385</bdi></td><td><span style="display: flex; flex-direction: column;"><span style="font-weight: 500;">مطابخ الديار</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">تجهيز، نمو</span></span></td><td><x-import component-from-global-scope="OpsOne.Badge" tone="success">موقّع ومركب</x-import></td><td><span style="color: var(--text-weak);">أمس</span></td><td><span></span></td></tr><tr><td><bdi dir="ltr" style="font-family: var(--font-mono); white-space: nowrap;">LIC-0384</bdi></td><td><span style="display: flex; flex-direction: column;"><span style="font-weight: 500;">ألمنيوم الصفوة</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">تجهيز، أساس</span></span></td><td><x-import component-from-global-scope="OpsOne.Badge" tone="success">موقّع ومركب</x-import></td><td><span style="color: var(--text-weak);">أمس</span></td><td><span></span></td></tr></tbody></table></div></main></div></div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview": {"width": 1440, "height": 650}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const noop = () => {};
+    return { yes: true, no: false, h28: 28, h24: 24, s16: 16, s24: 24, noop, nav: [ { label: 'الرئيسية', icon: 'layout-dashboard', href: 'OpsDash.dc.html', active: false }, { label: 'التراخيص', icon: 'lock', href: 'LicenseQueue.dc.html', active: true } ] };
+  }
+}
+</script>
+</body>
+</html>

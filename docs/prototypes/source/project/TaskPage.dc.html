@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>صفحة المهمة بدور المنفذ</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/opsone/tokens.css">
+<link rel="stylesheet" href="ds/opsone/components/bundle.css">
+<script src="ds/opsone/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:var(--link)}a:hover{color:var(--brand-hover)}
+</style>
+</helmet>
+<div dir="rtl" data-surface="panel" data-theme="{{ theme }}" style="width: 1440px; min-height: 1300px; display: flex; background: var(--background); color: var(--text-strong); font-family: var(--font-sans); font-size: 14px; line-height: 24px;">
+
+<aside class="o1-sidebar" style="position: relative; height: auto; display: flex;">
+  <div class="o1-sidebar-brand"><x-import component-from-global-scope="OpsOne.Logo" height="{{ h28 }}"></x-import></div>
+  <div style="display: flex; flex-direction: column; gap: 2px; padding: 0 12px 16px; margin-bottom: 8px; border-bottom: 1px solid var(--stroke-weak);">
+    <span style="font-weight: 600;">مطابخ الركن الحديث</span>
+    <span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">قسم التصنيع والتركيب</span>
+  </div>
+  <nav class="o1-nav" aria-label="القائمة الرئيسية"><ul>
+    <sc-for list="{{ nav }}" as="item" hint-placeholder-count="8">
+      <li><x-import component-from-global-scope="OpsOne.NavItem" label="{{ item.label }}" icon="{{ item.icon }}" href="{{ item.href }}" active="{{ item.active }}"></x-import></li>
+    </sc-for>
+  </ul></nav>
+  <div class="o1-sidebar-foot">
+    <x-import component-from-global-scope="OpsOne.NavItem" label="الإعدادات" icon="settings" href="#"></x-import>
+  </div>
+</aside>
+
+<div class="o1-shell-main" style="flex: 1; min-width: 0; display: flex; flex-direction: column; height: 1556px">
+  <header class="o1-topbar" style="position: relative; gap: 12px;">
+    <div style="width: 440px;"><x-import component-from-global-scope="OpsOne.SearchField" label="البحث العام" placeholder="رقم الطلب أو اسم العميل أو الجوال أو المستند"></x-import></div>
+    <div class="o1-topbar-end">
+      <x-import component-from-global-scope="OpsOne.Button" variant="ghost" icon="info" icon-only="{{ yes }}" aria-label="مساعدة هذه الصفحة"></x-import>
+      <x-import component-from-global-scope="OpsOne.Button" variant="ghost" icon="bell" icon-only="{{ yes }}" aria-label="الإشعارات"></x-import>
+      <x-import component-from-global-scope="OpsOne.Avatar" name="بندر القرني" size="sm"></x-import>
+    </div>
+  </header>
+
+  <main class="o1-main" style="max-width: none; padding: 24px 32px 32px; display: flex; flex-direction: column; gap: 20px;">
+    <x-import component-from-global-scope="OpsOne.Breadcrumbs" items="{{ crumbs }}"></x-import>
+    <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap;"><div style="display: flex; flex-direction: column; gap: 8px;"><div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;"><h1 style="margin: 0; font-size: 24px; line-height: 36px; font-weight: 700;">تركيب الخزائن</h1><x-import component-from-global-scope="OpsOne.Badge" tone="info">قيد التنفيذ</x-import></div><div style="display: flex; gap: 24px; flex-wrap: wrap; color: var(--text-weak);"><span>الطلب <bdi dir="ltr" style="font-family: var(--font-mono); color: var(--text-strong);">ORD-24476</bdi></span><span>المرحلة <strong style="color: var(--text-strong); font-weight: 500;">التركيب والتسليم</strong></span><span>الفريق <strong style="color: var(--text-strong); font-weight: 500;">ياسر الغامدي وبندر القرني</strong></span></div></div><div style="display: flex; gap: 8px;"><x-import component-from-global-scope="OpsOne.Button" variant="secondary" icon="clock" href="TaskWaiting.dc.html">بانتظار حاجة</x-import><x-import component-from-global-scope="OpsOne.Button" variant="primary" icon="check">إتمام المهمة</x-import></div></div>
+    <div style="display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 24px; align-items: start;">
+      <div style="display: flex; flex-direction: column; gap: 24px;"><section class="o1-card" aria-labelledby="nd-h">
+          <div class="o1-card-head" style="margin-bottom: 12px;"><div class="o1-card-heading"><h2 id="nd-h" class="o1-card-title">المطلوب</h2></div></div>
+          <div style="display: flex; flex-direction: column; gap: 12px;"><p style="margin: 0;">تركيب الخزانة ووحدة التلفاز ورفّي المكتب حسب التصميم المعتمد، وضبط الأبواب المنزلقة، وتنظيف الموقع.</p><table class="o1-table"><caption class="o1-sr">البنود</caption><thead><tr><th scope="col">البند</th><th scope="col">الكمية</th></tr></thead><tbody><tr><td>خزانة ملابس بأبواب منزلقة</td><td><bdi dir="ltr">1</bdi></td></tr><tr><td>وحدة تلفاز معلقة</td><td><bdi dir="ltr">1</bdi></td></tr><tr><td>رف مكتب</td><td><bdi dir="ltr">2</bdi></td></tr></tbody></table></div>
+        </section><section class="o1-card" aria-labelledby="fl-h">
+          <div class="o1-card-head" style="margin-bottom: 12px;"><div class="o1-card-heading"><h2 id="fl-h" class="o1-card-title">المرفقات اللازمة</h2></div></div>
+          <ul style="list-style: none; margin: 0; padding: 0;"><li style="padding: 4px 0;"><a href="#" style="display: inline-flex; align-items: center; gap: 8px; min-height: 44px; font-weight: 500;"><x-import component-from-global-scope="OpsOne.Icon" name="file-text"></x-import>التصميم المعتمد، PDF</a></li><li style="padding: 4px 0;"><a href="#" style="display: inline-flex; align-items: center; gap: 8px; min-height: 44px; font-weight: 500;"><x-import component-from-global-scope="OpsOne.Icon" name="paperclip"></x-import>مخطط القياس النهائي</a></li><li style="padding: 4px 0;"><a href="#" style="display: inline-flex; align-items: center; gap: 8px; min-height: 44px; font-weight: 500;"><x-import component-from-global-scope="OpsOne.Icon" name="paperclip"></x-import>صور الموقع بعد التجهيز</a></li></ul>
+        </section><section class="o1-card" aria-labelledby="rs-h">
+          <div class="o1-card-head" style="margin-bottom: 12px;"><div class="o1-card-heading"><h2 id="rs-h" class="o1-card-title">نتيجة التنفيذ</h2></div></div>
+          <div style="display: flex; flex-direction: column; gap: 16px;"><x-import component-from-global-scope="OpsOne.TextField" label="ملاحظات" default-value="رُكبت الخزانة ووحدة التلفاز ورف واحد. الرف الثاني تالف من النقل." multiline="{{ yes }}"></x-import><x-import component-from-global-scope="OpsOne.FileUpload" label="صور بعد التركيب" files="{{ photos }}" on-select="{{ noop }}" on-remove="{{ noop }}" hint="تظهر لفريق الطلب."></x-import><div style="display: flex; gap: 8px; flex-wrap: wrap;"><x-import component-from-global-scope="OpsOne.Button" variant="secondary" icon="check" href="DelRecord.dc.html">تسجيل التسليم</x-import></div><span style="color: var(--text-weak);">إتمام المهمة لا يسجل تسليمًا للعميل؛ التسليم إجراء منفصل بكمياته.</span></div>
+        </section></div>
+      <div style="display: flex; flex-direction: column; gap: 24px;"><section class="o1-card" aria-labelledby="vs-h">
+          <div class="o1-card-head" style="margin-bottom: 12px;"><div class="o1-card-heading"><h2 id="vs-h" class="o1-card-title">الزيارة</h2></div></div>
+          <dl style="margin: 0; display: flex; flex-direction: column;">
+            <div style="display: flex; justify-content: space-between; gap: 12px; padding: 8px 0;"><dt style="color: var(--text-weak);">الموعد</dt><dd style="margin: 0; text-align: end;">اليوم 13:30، ساعتان ونصف</dd></div>
+            <div style="display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-top: 1px solid var(--stroke-weak);"><dt style="color: var(--text-weak);">الحالة</dt><dd style="margin: 0; text-align: end;"><x-import component-from-global-scope="OpsOne.Badge" tone="success">مؤكد</x-import></dd></div>
+            <div style="display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-top: 1px solid var(--stroke-weak);"><dt style="color: var(--text-weak);">العميلة</dt><dd style="margin: 0; text-align: end;">لطيفة الحربي</dd></div>
+            <div style="display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-top: 1px solid var(--stroke-weak);"><dt style="color: var(--text-weak);">العنوان</dt><dd style="margin: 0; text-align: end;">حي الملقا، شارع أنس بن مالك، فيلا 14</dd></div>
+          </dl><div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 12px;"><x-import component-from-global-scope="OpsOne.Button" variant="secondary" icon="phone">اتصال</x-import><x-import component-from-global-scope="OpsOne.Button" variant="secondary" icon="map-pin">الخرائط</x-import></div>
+        </section><section class="o1-card" aria-labelledby="lm-h">
+          <div class="o1-card-head" style="margin-bottom: 12px;"><div class="o1-card-heading"><h2 id="lm-h" class="o1-card-title">ما لا تراه هنا</h2></div></div>
+          <p style="margin: 0; color: var(--text-weak);">ملف العميلة الكامل ومالية الطلب خارج هذه المهمة. لأي سؤال مالي تواصل مع خالد الزهراني، مسؤول الطلب.</p>
+        </section></div>
+    </div>
+  </main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme": {"editor": "enum", "options": ["light", "dark"], "default": "light"}, "$preview": {"width": 1440, "height": 1300}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const noop = () => {};
+    return { theme: this.props.theme ?? 'light', yes: true, no: false, h28: 28, h24: 24, s16: 16, s24: 24, noop, crumbs: [ { label: 'المهام والمواعيد', href: 'TaskPage.dc.html' }, { label: 'تركيب الخزائن' } ], photos: [ { id: 'p1', name: 'خزانة-بعد-التركيب.jpg', size: 1840220, status: 'done' }, { id: 'p2', name: 'رف-تالف.jpg', size: 1220400, status: 'done' } ], nav: [ { label: 'الرئيسية', icon: 'layout-dashboard', href: 'ExecHomeMobile.dc.html', active: false }, { label: 'المهام والمواعيد', icon: 'calendar', href: 'TaskPage.dc.html', active: true } ] };
+  }
+}
+</script>
+</body>
+</html>

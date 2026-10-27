@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>التوفر على الجوال</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/opsone/tokens.css">
+<link rel="stylesheet" href="ds/opsone/components/bundle.css">
+<script src="ds/opsone/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:var(--link)}a:hover{color:var(--brand-hover)}
+</style>
+</helmet>
+<div dir="rtl" data-surface="panel" style="width: 390px; min-height: 900px; display: flex; flex-direction: column; background: var(--background); color: var(--text-strong); font-family: var(--font-sans); font-size: 14px; line-height: 24px;">
+  <header style="display: flex; align-items: center; gap: 4px; min-height: 64px; padding-inline: 8px 8px; background: var(--surface); border-bottom: 1px solid var(--stroke-weak);">
+    <x-import component-from-global-scope="OpsOne.Button" variant="ghost" icon="arrow-left" icon-only="{{ yes }}" aria-label="رجوع إلى الرئيسية" href="HomeEmployee.dc.html"></x-import>
+    <span style="font-weight: 600;">المخزون</span>
+    <div style="margin-inline-start: auto; display: flex;"></div>
+  </header>
+  <main style="padding: 16px; display: flex; flex-direction: column; gap: 16px;">
+    <x-import component-from-global-scope="OpsOne.SearchField" label="البحث في المنتجات" placeholder="الاسم أو الرمز"></x-import>
+    <span style="color: var(--text-weak);">مستودع العليا. المتاح بعد المحجوز.</span>
+    <section aria-labelledby="m1" style="display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--stroke-weak); border-radius: 12px;">
+      <h2 id="m1" style="margin: 0; padding: 12px 16px 8px; font-size: 16px; line-height: 26px; font-weight: 600;">النتائج</h2>
+      <div style="display: flex; flex-direction: column; gap: 6px; padding: 12px 16px; border-top: 1px solid var(--stroke-weak);">
+        <span style="display: flex; justify-content: space-between; gap: 8px;"><span style="display: flex; flex-direction: column;"><span style="font-weight: 600;">منظم أدراج خشب، 60 سم</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">ORG-60</span></span><span style="display: flex; flex-direction: column; align-items: flex-end;"><span style="font-size: 20px; line-height: 28px;"><bdi dir="ltr" style="font-weight: 600; color: var(--warning-text);">1</bdi></span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">متاح</span></span></span>
+        <span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">قادم 6 من التوريد الأحد 25 أكتوبر.</span>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 6px; padding: 12px 16px; border-top: 1px solid var(--stroke-weak);">
+        <span style="display: flex; justify-content: space-between; gap: 8px;"><span style="display: flex; flex-direction: column;"><span style="font-weight: 600;">مقبض مخفي 60 سم، أسود</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">HND-60-BLK</span></span><span style="display: flex; flex-direction: column; align-items: flex-end;"><span style="font-size: 20px; line-height: 28px;"><bdi dir="ltr" style="font-weight: 600;">128</bdi></span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">متاح</span></span></span>
+              </div>
+      <div style="display: flex; flex-direction: column; gap: 6px; padding: 12px 16px; border-top: 1px solid var(--stroke-weak);">
+        <span style="display: flex; justify-content: space-between; gap: 8px;"><span style="display: flex; flex-direction: column;"><span style="font-weight: 600;">سلة زاوية دوارة</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">CRN-ROT</span></span><span style="display: flex; flex-direction: column; align-items: flex-end;"><span style="font-size: 20px; line-height: 28px;"><bdi dir="ltr" style="font-weight: 600;">3</bdi></span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">متاح</span></span></span>
+              </div>
+    </section>
+    <x-import component-from-global-scope="OpsOne.Button" variant="primary" icon="plus" href="ReadyNew.dc.html" block="{{ yes }}">طلب جاهز جديد</x-import>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview": {"width": 390, "height": 900}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const noop = () => {};
+    return { yes: true, no: false, h28: 28, h24: 24, s16: 16, s24: 24 };
+  }
+}
+</script>
+</body>
+</html>

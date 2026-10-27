@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>الكوبونات</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/opsone/tokens.css">
+<link rel="stylesheet" href="ds/opsone/components/bundle.css">
+<script src="ds/opsone/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:var(--link)}a:hover{color:var(--brand-hover)}
+</style>
+</helmet>
+<div dir="rtl" data-surface="panel" style="width: 1440px; min-height: 900px; display: flex; background: var(--background); color: var(--text-strong); font-family: var(--font-sans); font-size: 14px; line-height: 24px;">
+
+<aside class="o1-sidebar" style="position: relative; height: auto; display: flex;">
+  <div class="o1-sidebar-brand"><x-import component-from-global-scope="OpsOne.Logo" height="{{ h28 }}"></x-import></div>
+  <div style="display: flex; flex-direction: column; gap: 2px; padding: 0 12px 16px; margin-bottom: 8px; border-bottom: 1px solid var(--stroke-weak);">
+    <span style="font-weight: 600;">مطابخ الركن الحديث</span>
+    <span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">باقة نمو</span>
+  </div>
+  <nav class="o1-nav" aria-label="القائمة الرئيسية"><ul>
+    <sc-for list="{{ nav }}" as="item" hint-placeholder-count="8">
+      <li><x-import component-from-global-scope="OpsOne.NavItem" label="{{ item.label }}" icon="{{ item.icon }}" href="{{ item.href }}" active="{{ item.active }}"></x-import></li>
+    </sc-for>
+  </ul></nav>
+  <div class="o1-sidebar-foot">
+    <x-import component-from-global-scope="OpsOne.NavItem" label="الإعدادات" icon="settings" href="#"></x-import>
+  </div>
+</aside>
+
+<div class="o1-shell-main" style="flex: 1; min-width: 0; display: flex; flex-direction: column;">
+  <header class="o1-topbar" style="position: relative; gap: 12px;">
+    <div style="width: 440px;"><x-import component-from-global-scope="OpsOne.SearchField" label="البحث العام" placeholder="رقم الطلب أو اسم العميل أو الجوال أو المستند"></x-import></div>
+    <div class="o1-topbar-end">
+      <x-import component-from-global-scope="OpsOne.Button" variant="ghost" icon="info" icon-only="{{ yes }}" aria-label="مساعدة هذه الصفحة"></x-import>
+      <x-import component-from-global-scope="OpsOne.Button" variant="ghost" icon="bell" icon-only="{{ yes }}" aria-label="الإشعارات"></x-import>
+      <x-import component-from-global-scope="OpsOne.Avatar" name="فهد العتيبي" size="sm"></x-import>
+    </div>
+  </header>
+
+  <main class="o1-main" style="max-width: none; padding: 32px; display: flex; flex-direction: column; gap: 20px;">
+    <div class="o1-pagehead" style="margin-bottom: 0;"><div class="o1-pagehead-text"><h1 class="o1-pagehead-title">الموقع</h1><p class="o1-pagehead-desc">الكوبونات للجاهز فقط، وتُستخدم في الموقع وفي سلال المبيعات.</p></div><div class="o1-pagehead-actions"><x-import component-from-global-scope="OpsOne.Button" variant="primary" icon="plus" href="CouponNew.dc.html">كوبون جديد</x-import></div></div>
+    <div role="tablist" aria-label="الموقع" class="o1-tablist"><a role="tab" href="SitePages.dc.html" aria-selected="false" class="o1-tab" style="position: relative; display: inline-flex; align-items: center; min-height: 44px; padding: 0 12px; text-decoration: none; color: var(--text-weak);">الصفحات</a><a role="tab" href="ThemeEdit.dc.html" aria-selected="false" class="o1-tab" style="position: relative; display: inline-flex; align-items: center; min-height: 44px; padding: 0 12px; text-decoration: none; color: var(--text-weak);">الهوية</a><a role="tab" href="Coupons.dc.html" aria-selected="true" class="o1-tab" style="position: relative; display: inline-flex; align-items: center; min-height: 44px; padding: 0 12px; text-decoration: none; color: var(--text-strong);">الكوبونات</a></div>
+    <div class="o1-table-wrap"><table class="o1-table"><caption class="o1-sr">الكوبونات</caption><thead><tr><th scope="col">الرمز</th><th scope="col">الخصم</th><th scope="col">النطاق</th><th scope="col">المدة</th><th scope="col">الاستخدام</th><th scope="col">الحالة</th><th scope="col" class="o1-td--end"><span class="o1-sr">إجراءات</span></th></tr></thead><tbody><tr><td><bdi dir="ltr" style="font-family: var(--font-mono);"><strong>RIYADH10</strong></bdi></td><td><bdi dir="ltr">10%</bdi></td><td>كل الجاهز</td><td>حتى 31 أكتوبر</td><td><bdi dir="ltr">34 من 100</bdi></td><td><x-import component-from-global-scope="OpsOne.Badge" tone="success">فعال</x-import></td><td class="o1-td--end"><x-import component-from-global-scope="OpsOne.Menu" label="إجراءات الكوبون" icon-only="{{ yes }}" variant="ghost" size="sm" items="{{ cmenu }}"></x-import></td></tr><tr><td><bdi dir="ltr" style="font-family: var(--font-mono);"><strong>NOV15</strong></bdi></td><td><bdi dir="ltr">15%</bdi></td><td>كل الجاهز، فوق 300 ر.س</td><td>1 إلى 30 نوفمبر</td><td><bdi dir="ltr">0 من 200</bdi></td><td><x-import component-from-global-scope="OpsOne.Badge" tone="info">مجدول</x-import></td><td class="o1-td--end"><x-import component-from-global-scope="OpsOne.Menu" label="إجراءات الكوبون" icon-only="{{ yes }}" variant="ghost" size="sm" items="{{ cmenu }}"></x-import></td></tr><tr><td><bdi dir="ltr" style="font-family: var(--font-mono);"><strong>WELCOME50</strong></bdi></td><td><bdi dir="ltr">50 ر.س</bdi></td><td>أول شراء</td><td>بلا نهاية</td><td><bdi dir="ltr">61</bdi></td><td><x-import component-from-global-scope="OpsOne.Badge" tone="success">فعال</x-import></td><td class="o1-td--end"><x-import component-from-global-scope="OpsOne.Menu" label="إجراءات الكوبون" icon-only="{{ yes }}" variant="ghost" size="sm" items="{{ cmenu }}"></x-import></td></tr><tr><td><bdi dir="ltr" style="font-family: var(--font-mono);"><strong>SUMMER15</strong></bdi></td><td><bdi dir="ltr">15%</bdi></td><td>الإضاءة</td><td>انتهى 30 سبتمبر</td><td><bdi dir="ltr">88 من 100</bdi></td><td><x-import component-from-global-scope="OpsOne.Badge" tone="neutral">منتهٍ</x-import></td><td class="o1-td--end"><x-import component-from-global-scope="OpsOne.Menu" label="إجراءات الكوبون" icon-only="{{ yes }}" variant="ghost" size="sm" items="{{ cmenu }}"></x-import></td></tr><tr><td><bdi dir="ltr" style="font-family: var(--font-mono);"><strong>VIP200</strong></bdi></td><td><bdi dir="ltr">200 ر.س</bdi></td><td>السلال الدوارة</td><td>حتى 31 ديسمبر</td><td><bdi dir="ltr">3 من 10</bdi></td><td><x-import component-from-global-scope="OpsOne.Badge" tone="warning">موقوف</x-import></td><td class="o1-td--end"><x-import component-from-global-scope="OpsOne.Menu" label="إجراءات الكوبون" icon-only="{{ yes }}" variant="ghost" size="sm" items="{{ cmenu }}"></x-import></td></tr></tbody></table></div>
+  </main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview": {"width": 1440, "height": 900}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const noop = () => {};
+    return { yes: true, no: false, h28: 28, h24: 24, s16: 16, s24: 24, cmenu: [ { id: 'edit', label: 'تعديل', icon: 'pencil', onSelect: noop }, { id: 'stop', label: 'إيقاف', icon: 'circle-x', onSelect: noop } ], nav: [ { label: 'الرئيسية', icon: 'layout-dashboard', href: 'Main.dc.html', active: false }, { label: 'الطلبات', icon: 'clipboard-list', href: 'OrdersList.dc.html', active: false }, { label: 'العملاء', icon: 'users', href: 'CustomersList.dc.html', active: false }, { label: 'المهام والمواعيد', icon: 'calendar', href: 'CalWeek.dc.html', active: false }, { label: 'المالية', icon: 'receipt', href: 'FinHome.dc.html', active: false }, { label: 'المخزون والتوريد', icon: 'package', href: 'StockList.dc.html', active: false }, { label: 'الموقع', icon: 'file-text', href: 'SitePages.dc.html', active: true }, { label: 'التقارير', icon: 'trending-up', href: '#', active: false } ] };
+  }
+}
+</script>
+</body>
+</html>

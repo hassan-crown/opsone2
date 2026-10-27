@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>المالية: المتابعة</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/opsone/tokens.css">
+<link rel="stylesheet" href="ds/opsone/components/bundle.css">
+<script src="ds/opsone/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:var(--link)}a:hover{color:var(--brand-hover)}
+</style>
+</helmet>
+<div dir="rtl" data-surface="panel" style="width: 1440px; min-height: 1300px; display: flex; background: var(--background); color: var(--text-strong); font-family: var(--font-sans); font-size: 14px; line-height: 24px;">
+
+<aside class="o1-sidebar" style="position: relative; height: auto; display: flex;">
+  <div class="o1-sidebar-brand"><x-import component-from-global-scope="OpsOne.Logo" height="{{ h28 }}"></x-import></div>
+  <div style="display: flex; flex-direction: column; gap: 2px; padding: 0 12px 16px; margin-bottom: 8px; border-bottom: 1px solid var(--stroke-weak);">
+    <span style="font-weight: 600;">مطابخ الركن الحديث</span>
+    <span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">باقة نمو</span>
+  </div>
+  <nav class="o1-nav" aria-label="القائمة الرئيسية"><ul>
+    <sc-for list="{{ nav }}" as="item" hint-placeholder-count="8">
+      <li><x-import component-from-global-scope="OpsOne.NavItem" label="{{ item.label }}" icon="{{ item.icon }}" href="{{ item.href }}" active="{{ item.active }}"></x-import></li>
+    </sc-for>
+  </ul></nav>
+  <div class="o1-sidebar-foot">
+    <x-import component-from-global-scope="OpsOne.NavItem" label="الإعدادات" icon="settings" href="#"></x-import>
+  </div>
+</aside>
+
+<div class="o1-shell-main" style="flex: 1; min-width: 0; display: flex; flex-direction: column;">
+  <header class="o1-topbar" style="position: relative; gap: 12px;">
+    <div style="width: 440px;"><x-import component-from-global-scope="OpsOne.SearchField" label="البحث العام" placeholder="رقم الطلب أو اسم العميل أو الجوال أو المستند"></x-import></div>
+    <div class="o1-topbar-end">
+      <x-import component-from-global-scope="OpsOne.Button" variant="ghost" icon="info" icon-only="{{ yes }}" aria-label="مساعدة هذه الصفحة"></x-import>
+      <x-import component-from-global-scope="OpsOne.Button" variant="ghost" icon="bell" icon-only="{{ yes }}" aria-label="الإشعارات"></x-import>
+      <x-import component-from-global-scope="OpsOne.Avatar" name="فهد العتيبي" size="sm"></x-import>
+    </div>
+  </header>
+
+  <main class="o1-main" style="max-width: none; padding: 32px; display: flex; flex-direction: column; gap: 20px;">
+    <div class="o1-pagehead" style="margin-bottom: 0;"><div class="o1-pagehead-text"><h1 class="o1-pagehead-title">المالية</h1><p class="o1-pagehead-desc">ما استحق وما تأخر وما ينتظر قرارًا، في قائمة واحدة مرتبة بالأقدم استحقاقًا.</p></div><div class="o1-pagehead-actions"><x-import component-from-global-scope="OpsOne.Button" variant="secondary" icon="download">تصدير</x-import><x-import component-from-global-scope="OpsOne.Button" variant="primary" icon="bell" href="FinReminder.dc.html">إرسال تذكير</x-import></div></div>
+    <div role="tablist" aria-label="أقسام المالية" class="o1-tablist"><a role="tab" href="FinHome.dc.html" aria-selected="true" class="o1-tab" style="position: relative; display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 12px; text-decoration: none; color: var(--text-strong);">المتابعة</a><a role="tab" href="FinInvoices.dc.html" aria-selected="false" class="o1-tab" style="position: relative; display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 12px; text-decoration: none; color: var(--text-weak);">الفواتير الخارجية</a><a role="tab" href="FinCommissions.dc.html" aria-selected="false" class="o1-tab" style="position: relative; display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 12px; text-decoration: none; color: var(--text-weak);">العمولات</a></div>
+    <section aria-label="ملخص" style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px;"><x-import component-from-global-scope="OpsOne.StatCard" label="المستحق الآن" value="38,200.00 ر.س" hint="على 9 طلبات" icon="receipt"></x-import><x-import component-from-global-scope="OpsOne.StatCard" label="متأخر" value="12,750.00 ر.س" hint="4 دفعات تجاوزت موعدها" icon="clock"></x-import><x-import component-from-global-scope="OpsOne.StatCard" label="إثباتات بانتظار التحقق" value="7,500.00 ر.س" hint="لا تُحتسب قبل التأكيد" icon="inbox"></x-import><x-import component-from-global-scope="OpsOne.StatCard" label="يحتاج تسوية" value="5,000.00 ر.س" hint="طلبان" icon="circle-alert"></x-import></section>
+    <div role="group" aria-label="تصفية حسب النوع" style="display: flex; gap: 8px; flex-wrap: wrap;"><button type="button" aria-pressed="true" class="o1-btn o1-btn--secondary o1-btn--sm">الكل</button><button type="button" aria-pressed="false" class="o1-btn o1-btn--secondary o1-btn--sm">متأخر</button><button type="button" aria-pressed="false" class="o1-btn o1-btn--secondary o1-btn--sm">مستحق</button><button type="button" aria-pressed="false" class="o1-btn o1-btn--secondary o1-btn--sm">إثباتات</button><button type="button" aria-pressed="false" class="o1-btn o1-btn--secondary o1-btn--sm">تسوية</button><button type="button" aria-pressed="false" class="o1-btn o1-btn--secondary o1-btn--sm">نزاعات</button></div>
+    <div class="o1-table-wrap"><table class="o1-table"><caption class="o1-sr">المتابعة المالية</caption><thead><tr><th scope="col">الطلب</th><th scope="col">العميل</th><th scope="col">البند</th><th scope="col">النوع</th><th scope="col">العمر أو الموعد</th><th scope="col" class="o1-td--end">المبلغ</th><th scope="col"><span class="o1-sr">إجراء</span></th></tr></thead><tbody><tr><td><x-import component-from-global-scope="OpsOne.Ref">ORD-24518</x-import></td><td>منيرة الشمري</td><td>إيصال تحويل قيد المراجعة</td><td><x-import component-from-global-scope="OpsOne.Badge" tone="warning">إثبات</x-import></td><td>منذ يومين</td><td class="o1-td--end"><x-import component-from-global-scope="OpsOne.Amount" value="5,000.00"></x-import></td><td class="o1-td--end"><x-import component-from-global-scope="OpsOne.Button" variant="primary" size="sm" href="FinReceiptReview.dc.html">مراجعة الإيصال</x-import></td></tr><tr><td><x-import component-from-global-scope="OpsOne.Ref">ORD-24480</x-import></td><td>عبدالرحمن الفيفي</td><td>الدفعة الأخيرة، منتهي التنفيذ</td><td><x-import component-from-global-scope="OpsOne.Badge" tone="danger">متأخر</x-import></td><td>9 أيام</td><td class="o1-td--end"><x-import component-from-global-scope="OpsOne.Amount" value="3,450.00"></x-import></td><td class="o1-td--end"><x-import component-from-global-scope="OpsOne.Button" variant="secondary" size="sm" href="FinReminder.dc.html">تذكير</x-import></td></tr><tr><td><x-import component-from-global-scope="OpsOne.Ref">ORD-24476</x-import></td><td>لطيفة الحربي</td><td>الدفعة الثانية</td><td><x-import component-from-global-scope="OpsOne.Badge" tone="warning">مستحق</x-import></td><td>اليوم</td><td class="o1-td--end"><x-import component-from-global-scope="OpsOne.Amount" value="6,800.00"></x-import></td><td class="o1-td--end"><x-import component-from-global-scope="OpsOne.Button" variant="secondary" size="sm" href="FinRecordPayment.dc.html">تسجيل دفعة</x-import></td></tr><tr><td><x-import component-from-global-scope="OpsOne.Ref">ORD-24509</x-import></td><td>أمل السديري</td><td>إيصال تحويل قيد المراجعة، جزء من الدفعة الأولى</td><td><x-import component-from-global-scope="OpsOne.Badge" tone="warning">إثبات</x-import></td><td>أمس</td><td class="o1-td--end"><x-import component-from-global-scope="OpsOne.Amount" value="2,500.00"></x-import></td><td class="o1-td--end"><x-import component-from-global-scope="OpsOne.Button" variant="secondary" size="sm" href="#">مراجعة الإيصال</x-import></td></tr><tr><td><x-import component-from-global-scope="OpsOne.Ref">ORD-24495</x-import></td><td>وليد السهلي</td><td>دفعة بدء التصنيع، الطلب موقوف</td><td><x-import component-from-global-scope="OpsOne.Badge" tone="danger">متأخر</x-import></td><td>12 يومًا</td><td class="o1-td--end"><x-import component-from-global-scope="OpsOne.Amount" value="4,200.00"></x-import></td><td class="o1-td--end"><x-import component-from-global-scope="OpsOne.Button" variant="secondary" size="sm" href="FinReminder.dc.html">تذكير</x-import></td></tr><tr><td><x-import component-from-global-scope="OpsOne.Ref">ORD-24483</x-import></td><td>منى البلوي</td><td>الدفعة الأولى</td><td><x-import component-from-global-scope="OpsOne.Badge" tone="danger">متأخر</x-import></td><td>5 أيام</td><td class="o1-td--end"><x-import component-from-global-scope="OpsOne.Amount" value="3,000.00"></x-import></td><td class="o1-td--end"><x-import component-from-global-scope="OpsOne.Button" variant="secondary" size="sm" href="FinReminder.dc.html">تذكير</x-import></td></tr><tr><td><x-import component-from-global-scope="OpsOne.Ref">ORD-24527</x-import></td><td>ناصر العمري</td><td>الدفعة الأولى</td><td><x-import component-from-global-scope="OpsOne.Badge" tone="danger">متأخر</x-import></td><td>3 أيام</td><td class="o1-td--end"><x-import component-from-global-scope="OpsOne.Amount" value="2,100.00"></x-import></td><td class="o1-td--end"><x-import component-from-global-scope="OpsOne.Button" variant="secondary" size="sm" href="FinReminder.dc.html">تذكير</x-import></td></tr><tr><td><x-import component-from-global-scope="OpsOne.Ref">ORD-24461</x-import></td><td>ريم السبيعي</td><td>زيادة غير مخصصة بعد تعديل الاتفاق</td><td><x-import component-from-global-scope="OpsOne.Badge" tone="warning">تسوية</x-import></td><td>قبل 3 أيام</td><td class="o1-td--end"><x-import component-from-global-scope="OpsOne.Amount" value="1,000.00"></x-import></td><td class="o1-td--end"><x-import component-from-global-scope="OpsOne.Button" variant="secondary" size="sm" href="FinSettle.dc.html">فتح التسوية</x-import></td></tr><tr><td><x-import component-from-global-scope="OpsOne.Ref">ORD-24503</x-import></td><td>لطيفة الحربي</td><td>استرداد مطلوب بعد قبول المرتجع RET-0040</td><td><x-import component-from-global-scope="OpsOne.Badge" tone="warning">تسوية</x-import></td><td>أمس</td><td class="o1-td--end"><x-import component-from-global-scope="OpsOne.Amount" value="450.00"></x-import></td><td class="o1-td--end"><x-import component-from-global-scope="OpsOne.Button" variant="secondary" size="sm" href="FinRefundExec.dc.html">تنفيذ الاسترداد</x-import></td></tr><tr><td><x-import component-from-global-scope="OpsOne.Ref">ORD-24467</x-import></td><td>تركي العسيري</td><td>مقبوض على طلب بانتظار قرار الإلغاء</td><td><x-import component-from-global-scope="OpsOne.Badge" tone="warning">تسوية</x-import></td><td>قبل 4 أيام</td><td class="o1-td--end"><x-import component-from-global-scope="OpsOne.Amount" value="4,000.00"></x-import></td><td class="o1-td--end"><x-import component-from-global-scope="OpsOne.Button" variant="secondary" size="sm" href="CancelReview.dc.html">مراجعة الإلغاء</x-import></td></tr><tr><td><x-import component-from-global-scope="OpsOne.Ref">ORD-24452</x-import></td><td>سلطان البقمي</td><td>نزاع مفتوح: تحويل مكرر مدعى</td><td><x-import component-from-global-scope="OpsOne.Badge" tone="warning">نزاع</x-import></td><td>قبل أسبوع</td><td class="o1-td--end"><x-import component-from-global-scope="OpsOne.Amount" value="2,500.00"></x-import></td><td class="o1-td--end"><x-import component-from-global-scope="OpsOne.Button" variant="ghost" size="sm" href="FinDisputeResolve.dc.html">فتح النزاع</x-import></td></tr><tr><td><x-import component-from-global-scope="OpsOne.Ref">ORD-24490</x-import></td><td>سلطان البقمي</td><td>الدفعة الأخيرة، طُلب السماح بالتركيب قبلها</td><td><x-import component-from-global-scope="OpsOne.Badge" tone="warning">مستحق</x-import></td><td>قبل التركيب</td><td class="o1-td--end"><x-import component-from-global-scope="OpsOne.Amount" value="6,200.00"></x-import></td><td class="o1-td--end"><x-import component-from-global-scope="OpsOne.Button" variant="ghost" size="sm" href="AgrAllowDecision.dc.html">قرار السماح</x-import></td></tr></tbody></table></div>
+  </main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview": {"width": 1440, "height": 1300}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const noop = () => {};
+    return { yes: true, no: false, h28: 28, s16: 16, s24: 24, nav: [ { label: 'الرئيسية', icon: 'layout-dashboard', href: 'Main.dc.html', active: false }, { label: 'الطلبات', icon: 'clipboard-list', href: 'OrdersList.dc.html', active: false }, { label: 'العملاء', icon: 'users', href: 'CustomersList.dc.html', active: false }, { label: 'المهام والمواعيد', icon: 'calendar', href: 'CalWeek.dc.html', active: false }, { label: 'المالية', icon: 'receipt', href: 'FinHome.dc.html', active: true }, { label: 'المخزون والتوريد', icon: 'package', href: '#', active: false }, { label: 'الموقع', icon: 'file-text', href: '#', active: false }, { label: 'التقارير', icon: 'trending-up', href: '#', active: false } ] };
+  }
+}
+</script>
+</body>
+</html>

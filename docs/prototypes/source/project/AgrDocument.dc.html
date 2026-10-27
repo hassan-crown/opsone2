@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>مستند بانتظار العميل</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/opsone/tokens.css">
+<link rel="stylesheet" href="ds/opsone/components/bundle.css">
+<script src="ds/opsone/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:var(--link)}a:hover{color:var(--brand-hover)}
+</style>
+</helmet>
+<div dir="rtl" data-surface="panel" style="width: 1440px; min-height: 1200px; display: flex; background: var(--background); color: var(--text-strong); font-family: var(--font-sans); font-size: 14px; line-height: 24px;">
+
+<aside class="o1-sidebar" style="position: relative; height: auto; display: flex;">
+  <div class="o1-sidebar-brand"><x-import component-from-global-scope="OpsOne.Logo" height="{{ h28 }}"></x-import></div>
+  <div style="display: flex; flex-direction: column; gap: 2px; padding: 0 12px 16px; margin-bottom: 8px; border-bottom: 1px solid var(--stroke-weak);">
+    <span style="font-weight: 600;">مطابخ الركن الحديث</span>
+    <span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">باقة نمو</span>
+  </div>
+  <nav class="o1-nav" aria-label="القائمة الرئيسية"><ul>
+    <sc-for list="{{ nav }}" as="item" hint-placeholder-count="8">
+      <li><x-import component-from-global-scope="OpsOne.NavItem" label="{{ item.label }}" icon="{{ item.icon }}" href="{{ item.href }}" active="{{ item.active }}"></x-import></li>
+    </sc-for>
+  </ul></nav>
+  <div class="o1-sidebar-foot">
+    <x-import component-from-global-scope="OpsOne.NavItem" label="الإعدادات" icon="settings" href="#"></x-import>
+  </div>
+</aside>
+
+<div class="o1-shell-main" style="flex: 1; min-width: 0; display: flex; flex-direction: column;">
+  <header class="o1-topbar" style="position: relative; gap: 12px;">
+    <div style="width: 440px;"><x-import component-from-global-scope="OpsOne.SearchField" label="البحث العام" placeholder="رقم الطلب أو اسم العميل أو الجوال أو المستند"></x-import></div>
+    <div class="o1-topbar-end">
+      <x-import component-from-global-scope="OpsOne.Button" variant="ghost" icon="info" icon-only="{{ yes }}" aria-label="مساعدة هذه الصفحة"></x-import>
+      <x-import component-from-global-scope="OpsOne.Button" variant="ghost" icon="bell" icon-only="{{ yes }}" aria-label="الإشعارات"></x-import>
+      <x-import component-from-global-scope="OpsOne.Avatar" name="فهد العتيبي" size="sm"></x-import>
+    </div>
+  </header>
+
+  <main class="o1-main" style="max-width: none; padding: 24px 32px 32px; display: flex; flex-direction: column; gap: 20px;">
+    <x-import component-from-global-scope="OpsOne.Breadcrumbs" items="{{ crumbs }}"></x-import>
+    <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap;">
+      <div style="display: flex; flex-direction: column; gap: 8px;">
+        <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;"><h1 style="margin: 0; font-size: 24px; line-height: 36px; font-weight: 700;">عرض السعر <bdi dir="ltr" style="font-family: var(--font-mono);">QUO-3311</bdi></h1><x-import component-from-global-scope="OpsOne.Badge" tone="warning">بانتظار العميل</x-import></div>
+        <div style="display: flex; gap: 24px; flex-wrap: wrap; color: var(--text-weak);"><span>الطلب <bdi dir="ltr" style="font-family: var(--font-mono);">ORD-24521</bdi></span><span>شركة دار الإعمار للمقاولات</span><span>أُرسل <strong style="color: var(--text-strong); font-weight: 500;">أمس 15:05</strong></span></div>
+      </div>
+      <div style="display: flex; gap: 8px; align-items: center;"><x-import component-from-global-scope="OpsOne.Menu" label="إجراءات المستند" icon-only="{{ yes }}" items="{{ docMenu }}" variant="secondary"></x-import><x-import component-from-global-scope="OpsOne.Button" variant="secondary">إرسال بديل</x-import><x-import component-from-global-scope="OpsOne.Button" variant="primary" href="AgrExternal.dc.html">توثيق موافقة خارجية</x-import></div>
+    </div>
+    <div style="display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 24px; align-items: start;">
+      <section class="o1-card o1-card--flush" aria-labelledby="dc-h">
+          <div class="o1-card-head" style="padding: 20px 24px 0; margin-bottom: 8px;"><div class="o1-card-heading"><h2 id="dc-h" class="o1-card-title">المحتوى المرسل</h2><p class="o1-card-desc">هذا ما يراه العميل ولا يتغير. أي تعديل يُرسل بديلًا.</p></div></div>
+          <div style="display: flex; flex-direction: column; gap: 0;">
+          <div style="padding: 0 24px 16px;"><div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 20px;">
+      <div style="display: flex; flex-direction: column; gap: 2px;"><span style="font-size: 14px; line-height: 20px; font-weight: 500; color: var(--text-weak);">من</span><span>مطابخ الركن الحديث</span><span>الرياض، حي العليا</span></div>
+      <div style="display: flex; flex-direction: column; gap: 2px;"><span style="font-size: 14px; line-height: 20px; font-weight: 500; color: var(--text-weak);">إلى</span><span>شركة دار الإعمار للمقاولات</span><span>السجل التجاري <bdi dir="ltr">1010587342</bdi></span><span>الرقم الضريبي <bdi dir="ltr">310458712300003</bdi></span><span>طريق الملك فهد، برج الإعمار، الرياض</span></div>
+    </div></div>
+          <table class="o1-table">
+            <caption class="o1-sr">بنود العرض</caption>
+            <thead><tr><th scope="col">البند</th><th scope="col">المواصفات</th><th scope="col">الكمية</th><th scope="col">سعر الوحدة</th><th scope="col" class="o1-td--end">الإجمالي</th></tr></thead>
+            <tbody>
+              <tr><td style="font-weight: 500;">مطبخ علوي وسفلي لشقة</td><td style="color: var(--text-weak);">MDF مطلي أبيض، سطح كوارتز، مقابض مخفية</td><td><bdi dir="ltr">6</bdi></td><td><x-import component-from-global-scope="OpsOne.Amount" value="14,500.00"></x-import></td><td class="o1-td--end"><x-import component-from-global-scope="OpsOne.Amount" value="87,000.00"></x-import></td></tr>
+              <tr><td style="font-weight: 500;">تركيب في الموقع</td><td style="color: var(--text-weak);">لكل شقة، مع النقل</td><td><bdi dir="ltr">6</bdi></td><td><x-import component-from-global-scope="OpsOne.Amount" value="750.00"></x-import></td><td class="o1-td--end"><x-import component-from-global-scope="OpsOne.Amount" value="4,500.00"></x-import></td></tr>
+            </tbody>
+          </table>
+          
+          <div style="display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 24px; padding: 16px 24px; border-top: 1px solid var(--stroke-weak);"><div style="display: flex; flex-direction: column; gap: 4px;"><span style="font-size: 14px; line-height: 20px; font-weight: 500; color: var(--text-weak);">الشروط</span><span>دفعة أولى 40% عند الاتفاق، و40% عند بدء التركيب، و20% عند التسليم. يشمل العرض النقل والتركيب داخل الرياض. مدة التنفيذ التقديرية 35 يومًا.</span></div><dl style="margin: 0; display: flex; flex-direction: column;">
+            <div style="display: flex; justify-content: space-between; gap: 12px; padding: 8px 0;"><dt style="color: var(--text-weak);">الخصم 12%، معتمد</dt><dd style="margin: 0; text-align: end;"><x-import component-from-global-scope="OpsOne.Amount" value="10,980.00"></x-import></dd></div>
+            <div style="display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-top: 1px solid var(--stroke-weak);"><dt style="color: var(--text-weak);">الضريبة 15%</dt><dd style="margin: 0; text-align: end;"><x-import component-from-global-scope="OpsOne.Amount" value="12,078.00"></x-import></dd></div>
+            <div style="display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-top: 1px solid var(--stroke-weak);"><dt style="color: var(--text-weak); font-weight: 600;">الإجمالي</dt><dd style="margin: 0; text-align: end; font-weight: 600;"><x-import component-from-global-scope="OpsOne.Amount" value="92,598.00" strong="{{ yes }}"></x-import></dd></div>
+          </dl></div>
+        </div>
+        </section>
+      <div style="display: flex; flex-direction: column; gap: 24px;">
+        <section class="o1-card" aria-labelledby="st-h">
+          <div class="o1-card-head" style="margin-bottom: 12px;"><div class="o1-card-heading"><h2 id="st-h" class="o1-card-title">الحالة</h2></div></div>
+          <div style="display: flex; flex-direction: column; gap: 12px;"><x-import component-from-global-scope="OpsOne.Alert" tone="info">الفتح ليس موافقة. ينتظر العرض «موافقة» أو «طلب تعديل» من الجهة.</x-import><ul style="list-style: none; margin: 0; padding: 0;"><li style="display: flex; flex-direction: column; gap: 2px; padding: 10px 0;"><span>فتح م. عادل الشهري العرض للمرة الثانية</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">اليوم 09:12</span></li><li style="display: flex; flex-direction: column; gap: 2px; padding: 10px 0; border-top: 1px solid var(--stroke-weak);"><span>فتح م. عادل الشهري العرض</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">أمس 18:40</span></li><li style="display: flex; flex-direction: column; gap: 2px; padding: 10px 0; border-top: 1px solid var(--stroke-weak);"><span>أرسلته نورة الدوسري إلى حساب الجهة، وإشعار SMS وبريد إلى م. عادل الشهري</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">أمس 15:05</span></li><li style="display: flex; flex-direction: column; gap: 2px; padding: 10px 0; border-top: 1px solid var(--stroke-weak);"><span>اعتمد فهد العتيبي خصم 12%</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">أمس 14:10</span></li></ul></div>
+        </section>
+        <section class="o1-card" aria-labelledby="vd-h">
+          <div class="o1-card-head" style="margin-bottom: 12px;"><div class="o1-card-heading"><h2 id="vd-h" class="o1-card-title">الصلاحية</h2></div></div>
+          <dl style="margin: 0; display: flex; flex-direction: column;">
+            <div style="display: flex; justify-content: space-between; gap: 12px; padding: 8px 0;"><dt style="color: var(--text-weak);">صالح حتى</dt><dd style="margin: 0; text-align: end;">5 نوفمبر 2026</dd></div>
+            <div style="display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-top: 1px solid var(--stroke-weak);"><dt style="color: var(--text-weak);">المتبقي</dt><dd style="margin: 0; text-align: end;">13 يومًا</dd></div>
+          </dl>
+        </section>
+      </div>
+    </div>
+  </main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview": {"width": 1440, "height": 1200}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const noop = () => {};
+    return { yes: true, no: false, h28: 28, s16: 16, s24: 24, crumbs: [ { label: 'الطلبات', href: 'OrdersList.dc.html' }, { label: 'ORD-24521' }, { label: 'الاتفاق والمستندات' }, { label: 'QUO-3311' } ], docMenu: [ { id: 'design', label: 'رفع تصميم للطلب', icon: 'upload', onSelect: noop }, { id: 'extend', label: 'تمديد الصلاحية', icon: 'clock', disabled: true, onSelect: noop }, { separator: true }, { id: 'cancel', label: 'إلغاء طلب الاعتماد', icon: 'circle-x', danger: true, onSelect: noop } ], nav: [ { label: 'الرئيسية', icon: 'layout-dashboard', href: 'Main.dc.html', active: false }, { label: 'الطلبات', icon: 'clipboard-list', href: 'OrdersList.dc.html', active: true }, { label: 'العملاء', icon: 'users', href: 'CustomersList.dc.html', active: false }, { label: 'المهام والمواعيد', icon: 'calendar', href: 'CalWeek.dc.html', active: false }, { label: 'المالية', icon: 'receipt', href: 'FinHome.dc.html', active: false }, { label: 'المخزون والتوريد', icon: 'package', href: '#', active: false }, { label: 'الموقع', icon: 'file-text', href: '#', active: false }, { label: 'التقارير', icon: 'trending-up', href: '#', active: false } ] };
+  }
+}
+</script>
+</body>
+</html>

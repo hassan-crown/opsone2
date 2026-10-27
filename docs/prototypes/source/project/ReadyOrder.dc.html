@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>طلب جاهز</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/opsone/tokens.css">
+<link rel="stylesheet" href="ds/opsone/components/bundle.css">
+<script src="ds/opsone/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:var(--link)}a:hover{color:var(--brand-hover)}
+</style>
+</helmet>
+<div dir="rtl" data-surface="panel" style="width: 1440px; min-height: 1100px; display: flex; background: var(--background); color: var(--text-strong); font-family: var(--font-sans); font-size: 14px; line-height: 24px;">
+
+<aside class="o1-sidebar" style="position: relative; height: auto; display: flex;">
+  <div class="o1-sidebar-brand"><x-import component-from-global-scope="OpsOne.Logo" height="{{ h28 }}"></x-import></div>
+  <div style="display: flex; flex-direction: column; gap: 2px; padding: 0 12px 16px; margin-bottom: 8px; border-bottom: 1px solid var(--stroke-weak);">
+    <span style="font-weight: 600;">مطابخ الركن الحديث</span>
+    <span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">باقة نمو</span>
+  </div>
+  <nav class="o1-nav" aria-label="القائمة الرئيسية"><ul>
+    <sc-for list="{{ nav }}" as="item" hint-placeholder-count="8">
+      <li><x-import component-from-global-scope="OpsOne.NavItem" label="{{ item.label }}" icon="{{ item.icon }}" href="{{ item.href }}" active="{{ item.active }}"></x-import></li>
+    </sc-for>
+  </ul></nav>
+  <div class="o1-sidebar-foot">
+    <x-import component-from-global-scope="OpsOne.NavItem" label="الإعدادات" icon="settings" href="#"></x-import>
+  </div>
+</aside>
+
+<div class="o1-shell-main" style="flex: 1; min-width: 0; display: flex; flex-direction: column;">
+  <header class="o1-topbar" style="position: relative; gap: 12px;">
+    <div style="width: 440px;"><x-import component-from-global-scope="OpsOne.SearchField" label="البحث العام" placeholder="رقم الطلب أو اسم العميل أو الجوال أو المستند"></x-import></div>
+    <div class="o1-topbar-end">
+      <x-import component-from-global-scope="OpsOne.Button" variant="ghost" icon="info" icon-only="{{ yes }}" aria-label="مساعدة هذه الصفحة"></x-import>
+      <x-import component-from-global-scope="OpsOne.Button" variant="ghost" icon="bell" icon-only="{{ yes }}" aria-label="الإشعارات"></x-import>
+      <x-import component-from-global-scope="OpsOne.Avatar" name="فهد العتيبي" size="sm"></x-import>
+    </div>
+  </header>
+
+  <main class="o1-main" style="max-width: none; padding: 32px; display: flex; flex-direction: column; gap: 20px;">
+<x-import component-from-global-scope="OpsOne.Breadcrumbs" items="{{ crumbs }}"></x-import><div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap;"><div style="display: flex; flex-direction: column; gap: 8px;"><div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;"><h1 style="margin: 0; font-size: 24px; line-height: 36px; font-weight: 700;"><bdi dir="ltr" style="font-family: var(--font-mono);">ORD-24543</bdi> هيفاء المطيري</h1><x-import component-from-global-scope="OpsOne.Badge" tone="brand">جاهز</x-import><x-import component-from-global-scope="OpsOne.Badge" tone="info">مؤكد</x-import></div><div style="display: flex; gap: 24px; flex-wrap: wrap; color: var(--text-weak);"><span>المصدر <strong style="color: var(--text-strong); font-weight: 500;">رابط نورة الدوسري</strong></span><span>الاستلام <strong style="color: var(--text-strong); font-weight: 500;">من فرع العليا</strong></span><span>أُكد <strong style="color: var(--text-strong); font-weight: 500;">أمس 10:05</strong></span></div></div><div style="display: flex; gap: 8px; flex-wrap: wrap;"><x-import component-from-global-scope="OpsOne.Menu" label="إجراءات الطلب" items="{{ rmenu }}" variant="secondary"></x-import></div></div><div role="tablist" aria-label="أقسام الطلب" class="o1-tablist">
+      <a role="tab" href="ReadyOrder.dc.html" aria-selected="true" class="o1-tab" style="position: relative; display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 12px; text-decoration: none; color: var(--text-strong);">نظرة عامة</a>
+      <a role="tab" href="#" aria-selected="false" class="o1-tab" style="position: relative; display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 12px; text-decoration: none; color: var(--text-weak);">المالية</a>
+      <a role="tab" href="#" aria-selected="false" class="o1-tab" style="position: relative; display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 12px; text-decoration: none; color: var(--text-weak);">التسليم</a>
+      <a role="tab" href="#" aria-selected="false" class="o1-tab" style="position: relative; display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 12px; text-decoration: none; color: var(--text-weak);">النشاط</a>
+    </div><section aria-labelledby="now-h" style="display: flex; flex-direction: column; gap: 16px; padding: 20px 24px; background: var(--surface); border: 1px solid var(--stroke-weak); border-radius: 12px;">
+      <h2 id="now-h" class="o1-sr">أين وصل الطلب</h2>
+      <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px;">
+        <div style="display: flex; flex-direction: column; gap: 4px;"><span style="font-size: 14px; line-height: 20px; font-weight: 500; color: var(--text-weak);">الحالة</span><span style="font-weight: 600; font-size: 16px; line-height: 26px;">مؤكد</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">الكميات محجوزة</span></div>
+        <div style="display: flex; flex-direction: column; gap: 4px;"><span style="font-size: 14px; line-height: 20px; font-weight: 500; color: var(--text-weak);">الدفع</span><span style="font-weight: 600; font-size: 16px; line-height: 26px;">مدفوع بالكامل</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">إلكترونيًا، 1,120.00</span></div>
+        <div style="display: flex; flex-direction: column; gap: 4px;"><span style="font-size: 14px; line-height: 20px; font-weight: 500; color: var(--text-weak);">التسليم</span><span style="font-weight: 600; font-size: 16px; line-height: 26px;">لم يُسلَّم</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">استلام من فرع العليا</span></div>
+        <div style="display: flex; flex-direction: column; gap: 4px;"><span style="font-size: 14px; line-height: 20px; font-weight: 500; color: var(--text-weak);">التالي</span><span style="font-weight: 600; font-size: 16px; line-height: 26px;">تجهيز وتسليم</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">العميلة تُبلغ عند الجاهزية</span></div>
+      </div>
+      <div style="display: flex; gap: 8px; flex-wrap: wrap; padding-top: 16px; border-top: 1px solid var(--stroke-weak);"><x-import component-from-global-scope="OpsOne.Button" variant="primary" icon="check" href="ReadyDeliver.dc.html">تسجيل التسليم</x-import><x-import component-from-global-scope="OpsOne.Button" variant="secondary" icon="phone">إبلاغ العميلة بالجاهزية</x-import><x-import component-from-global-scope="OpsOne.Button" variant="ghost" icon="circle-x">إلغاء غير المسلَّم</x-import></div>
+    </section><div style="display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 24px; align-items: start;"><section class="o1-card o1-card--flush" aria-labelledby="ln-h">
+          <div class="o1-card-head" style="padding: 20px 24px 0; margin-bottom: 8px;"><div class="o1-card-heading"><h2 id="ln-h" class="o1-card-title">البنود</h2></div></div>
+          <table class="o1-table"><caption class="o1-sr">البنود</caption><thead><tr><th scope="col">المنتج</th><th scope="col">الكمية</th><th scope="col">المحجوز</th><th scope="col">المسلَّم</th><th scope="col" class="o1-td--end">السعر</th><th scope="col" class="o1-td--end">المجموع</th></tr></thead><tbody><tr><td><span style="font-weight: 600;">منظم أدراج خشب، 60 سم</span></td><td><bdi dir="ltr">2</bdi></td><td><bdi dir="ltr">2</bdi></td><td><bdi dir="ltr">0</bdi></td><td class="o1-td--end"><x-import component-from-global-scope="OpsOne.Amount" value="220.00"></x-import></td><td class="o1-td--end"><x-import component-from-global-scope="OpsOne.Amount" value="440.00"></x-import></td></tr><tr><td><span style="font-weight: 600;">مقبض ألمنيوم مخفي 60 سم، أسود</span></td><td><bdi dir="ltr">12</bdi></td><td><bdi dir="ltr">12</bdi></td><td><bdi dir="ltr">0</bdi></td><td class="o1-td--end"><x-import component-from-global-scope="OpsOne.Amount" value="45.00"></x-import></td><td class="o1-td--end"><x-import component-from-global-scope="OpsOne.Amount" value="540.00"></x-import></td></tr><tr><td><span style="font-weight: 600;">مفصلة إغلاق هادئ، عبوة قطعتين</span></td><td><bdi dir="ltr">4</bdi></td><td><bdi dir="ltr">4</bdi></td><td><bdi dir="ltr">0</bdi></td><td class="o1-td--end"><x-import component-from-global-scope="OpsOne.Amount" value="35.00"></x-import></td><td class="o1-td--end"><x-import component-from-global-scope="OpsOne.Amount" value="140.00"></x-import></td></tr></tbody></table>
+        </section><div style="display: flex; flex-direction: column; gap: 24px;"><section class="o1-card" aria-labelledby="py-h">
+          <div class="o1-card-head" style="margin-bottom: 12px;"><div class="o1-card-heading"><h2 id="py-h" class="o1-card-title">الدفع</h2></div></div>
+          <dl style="margin: 0; display: flex; flex-direction: column;">
+            <div style="display: flex; justify-content: space-between; gap: 12px; padding: 8px 0;"><dt style="color: var(--text-weak);">الإجمالي</dt><dd style="margin: 0; text-align: end;"><x-import component-from-global-scope="OpsOne.Amount" value="1,120.00"></x-import></dd></div>
+            <div style="display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-top: 1px solid var(--stroke-weak);"><dt style="color: var(--text-weak);">الخصم</dt><dd style="margin: 0; text-align: end;">بلا خصم</dd></div>
+            <div style="display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-top: 1px solid var(--stroke-weak);"><dt style="color: var(--text-weak);">المقبوض</dt><dd style="margin: 0; text-align: end;"><x-import component-from-global-scope="OpsOne.Amount" value="1,120.00"></x-import></dd></div>
+            <div style="display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-top: 1px solid var(--stroke-weak);"><dt style="color: var(--text-weak); font-weight: 600;">المتبقي</dt><dd style="margin: 0; text-align: end; font-weight: 600;"><x-import component-from-global-scope="OpsOne.Amount" value="0.00"></x-import></dd></div>
+          </dl>
+        </section><section class="o1-card" aria-labelledby="cm-h">
+          <div class="o1-card-head" style="margin-bottom: 12px;"><div class="o1-card-heading"><h2 id="cm-h" class="o1-card-title">النسبة</h2></div></div>
+          <p style="margin: 0; color: var(--text-weak);">المبيعة لنورة الدوسري من رابطها. العمولة تُحسب بعد التحصيل وفق القاعدة.</p>
+        </section></div></div>
+  </main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview": {"width": 1440, "height": 1100}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const noop = () => {};
+    return { yes: true, no: false, h28: 28, h24: 24, s16: 16, s24: 24, crumbs: [ { label: 'الطلبات', href: 'OrdersList.dc.html' }, { label: 'ORD-24543' } ], rmenu: [ { id: 'print', label: 'طباعة ملخص الطلب', icon: 'printer', onSelect: noop } ], nav: [ { label: 'الرئيسية', icon: 'layout-dashboard', href: 'Main.dc.html', active: false }, { label: 'الطلبات', icon: 'clipboard-list', href: 'OrdersList.dc.html', active: true }, { label: 'العملاء', icon: 'users', href: 'CustomersList.dc.html', active: false }, { label: 'المهام والمواعيد', icon: 'calendar', href: 'CalWeek.dc.html', active: false }, { label: 'المالية', icon: 'receipt', href: 'FinHome.dc.html', active: false }, { label: 'المخزون والتوريد', icon: 'package', href: 'StockList.dc.html', active: false }, { label: 'الموقع', icon: 'file-text', href: 'SitePages.dc.html', active: false }, { label: 'التقارير', icon: 'trending-up', href: '#', active: false } ] };
+  }
+}
+</script>
+</body>
+</html>

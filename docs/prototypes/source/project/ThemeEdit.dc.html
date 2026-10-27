@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>هوية الموقع</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/opsone/tokens.css">
+<link rel="stylesheet" href="ds/opsone/components/bundle.css">
+<script src="ds/opsone/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:var(--link)}a:hover{color:var(--brand-hover)}
+.o1h{transition:border-color 120ms,transform 200ms;overflow:hidden}.o1h:hover{border-color:var(--brand)!important;transform:translateY(-2px)}.o1h .o1h-img{transition:transform 300ms}.o1h:hover .o1h-img{transform:scale(1.03)}.o1-snap{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;padding-bottom:4px}.o1-snap::-webkit-scrollbar{display:none}.o1-snap>*{scroll-snap-align:start;flex:0 0 var(--snap-w,85%)}@media (prefers-reduced-motion:reduce){.o1h,.o1h .o1h-img{transition:none}.o1h:hover{transform:none}}
+</style>
+</helmet>
+<div dir="rtl" data-surface="panel" style="width: 1440px; min-height: 1150px; display: flex; background: var(--background); color: var(--text-strong); font-family: var(--font-sans); font-size: 14px; line-height: 24px;">
+
+<aside class="o1-sidebar" style="position: relative; height: auto; display: flex;">
+  <div class="o1-sidebar-brand"><x-import component-from-global-scope="OpsOne.Logo" height="{{ h28 }}"></x-import></div>
+  <div style="display: flex; flex-direction: column; gap: 2px; padding: 0 12px 16px; margin-bottom: 8px; border-bottom: 1px solid var(--stroke-weak);">
+    <span style="font-weight: 600;">مطابخ الركن الحديث</span>
+    <span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">باقة نمو</span>
+  </div>
+  <nav class="o1-nav" aria-label="القائمة الرئيسية"><ul>
+    <sc-for list="{{ nav }}" as="item" hint-placeholder-count="8">
+      <li><x-import component-from-global-scope="OpsOne.NavItem" label="{{ item.label }}" icon="{{ item.icon }}" href="{{ item.href }}" active="{{ item.active }}"></x-import></li>
+    </sc-for>
+  </ul></nav>
+  <div class="o1-sidebar-foot">
+    <x-import component-from-global-scope="OpsOne.NavItem" label="الإعدادات" icon="settings" href="#"></x-import>
+  </div>
+</aside>
+
+<div class="o1-shell-main" style="flex: 1; min-width: 0; display: flex; flex-direction: column;">
+  <header class="o1-topbar" style="position: relative; gap: 12px;">
+    <div style="width: 440px;"><x-import component-from-global-scope="OpsOne.SearchField" label="البحث العام" placeholder="رقم الطلب أو اسم العميل أو الجوال أو المستند"></x-import></div>
+    <div class="o1-topbar-end">
+      <x-import component-from-global-scope="OpsOne.Button" variant="ghost" icon="info" icon-only="{{ yes }}" aria-label="مساعدة هذه الصفحة"></x-import>
+      <x-import component-from-global-scope="OpsOne.Button" variant="ghost" icon="bell" icon-only="{{ yes }}" aria-label="الإشعارات"></x-import>
+      <x-import component-from-global-scope="OpsOne.Avatar" name="فهد العتيبي" size="sm"></x-import>
+    </div>
+  </header>
+
+  <main class="o1-main" style="max-width: none; padding: 32px; display: flex; flex-direction: column; gap: 20px;">
+    <div class="o1-pagehead" style="margin-bottom: 0;"><div class="o1-pagehead-text"><h1 class="o1-pagehead-title">الموقع</h1><p class="o1-pagehead-desc">هوية موقعك ومساحة عملائك. الإدارة تبقى بهوية OpsOne.</p></div><div class="o1-pagehead-actions"><x-import component-from-global-scope="OpsOne.Button" variant="ghost" icon="refresh-cw">استعادة الافتراضي</x-import><x-import component-from-global-scope="OpsOne.Button" variant="secondary">حفظ مسودة</x-import><x-import component-from-global-scope="OpsOne.Button" variant="primary">تطبيق</x-import></div></div><div role="tablist" aria-label="الموقع" class="o1-tablist"><a role="tab" href="SitePages.dc.html" aria-selected="false" class="o1-tab" style="position: relative; display: inline-flex; align-items: center; min-height: 44px; padding: 0 12px; text-decoration: none; color: var(--text-weak);">الصفحات</a><a role="tab" href="ThemeEdit.dc.html" aria-selected="true" class="o1-tab" style="position: relative; display: inline-flex; align-items: center; min-height: 44px; padding: 0 12px; text-decoration: none; color: var(--text-strong);">الهوية</a><a role="tab" href="Coupons.dc.html" aria-selected="false" class="o1-tab" style="position: relative; display: inline-flex; align-items: center; min-height: 44px; padding: 0 12px; text-decoration: none; color: var(--text-weak);">الكوبونات</a></div><div style="display: grid; grid-template-columns: minmax(0, 1fr) 520px; gap: 24px; align-items: start;"><div style="display: flex; flex-direction: column; gap: 20px;"><section class="o1-card" aria-labelledby="lg-h">
+          <div class="o1-card-head" style="margin-bottom: 12px;"><div class="o1-card-heading"><h2 id="lg-h" class="o1-card-title">الشعار والأيقونة</h2></div></div>
+          <div style="display: flex; flex-direction: column; gap: 16px;"><x-import component-from-global-scope="OpsOne.FileUpload" label="الشعار" files="{{ lg }}" on-select="{{ noop }}" on-remove="{{ noop }}"></x-import><x-import component-from-global-scope="OpsOne.FileUpload" label="أيقونة الموقع" files="{{ fv }}" on-select="{{ noop }}" on-remove="{{ noop }}"></x-import><span style="color: var(--text-weak);">يظهر الشعار في الموقع ومساحة العميل والمستندات الجديدة.</span></div>
+        </section><section class="o1-card" aria-labelledby="cl-h">
+          <div class="o1-card-head" style="margin-bottom: 12px;"><div class="o1-card-heading"><h2 id="cl-h" class="o1-card-title">لون العلامة</h2></div></div>
+          <div style="display: flex; gap: 16px; flex-wrap: wrap;"><label style="display: inline-flex; flex-direction: column; align-items: center; gap: 4px; font-size: 13px;"><input type="radio" name="c" checked="" style="position: absolute; opacity: 0;"><span style="width: 40px; height: 40px; border-radius: 8px; background: #0f766e; outline: 2px solid var(--focus); outline-offset: 2px;"></span>أخضر مزرق</label><label style="display: inline-flex; flex-direction: column; align-items: center; gap: 4px; font-size: 13px;"><input type="radio" name="c" style="position: absolute; opacity: 0;"><span style="width: 40px; height: 40px; border-radius: 8px; background: #1d4ed8; outline: 1px solid var(--stroke-weak);"></span>أزرق</label><label style="display: inline-flex; flex-direction: column; align-items: center; gap: 4px; font-size: 13px;"><input type="radio" name="c" style="position: absolute; opacity: 0;"><span style="width: 40px; height: 40px; border-radius: 8px; background: #8a5a2b; outline: 1px solid var(--stroke-weak);"></span>بني</label><label style="display: inline-flex; flex-direction: column; align-items: center; gap: 4px; font-size: 13px;"><input type="radio" name="c" style="position: absolute; opacity: 0;"><span style="width: 40px; height: 40px; border-radius: 8px; background: #374151; outline: 1px solid var(--stroke-weak);"></span>رمادي</label></div><span style="color: var(--text-weak);">نشتق بقية الألوان ونحافظ على وضوح القراءة في الفاتح والداكن.</span>
+        </section><section class="o1-card" aria-labelledby="md-h">
+          <div class="o1-card-head" style="margin-bottom: 12px;"><div class="o1-card-heading"><h2 id="md-h" class="o1-card-title">وضع العرض الافتراضي</h2></div></div>
+          <x-import component-from-global-scope="OpsOne.RadioGroup" label="للموقع ومساحة العميل" options="{{ mode }}" default-value="sys"></x-import><span style="color: var(--text-weak);">تفضيل العميل الشخصي يتقدم على هذا الافتراضي.</span>
+        </section></div><section class="o1-card" aria-labelledby="pv-h">
+          <div class="o1-card-head" style="margin-bottom: 12px;"><div class="o1-card-heading"><h2 id="pv-h" class="o1-card-title">معاينة</h2></div></div>
+          <div style="border: 1px solid var(--stroke-weak); border-radius: 12px; overflow: hidden;"><div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background: var(--fill);"><span style="display: flex; gap: 8px;"><x-import component-from-global-scope="OpsOne.SelectField" label="الصفحة" options="{{ pp }}" default-value="home"></x-import></span><span style="display: flex; gap: 4px;"><x-import component-from-global-scope="OpsOne.Button" variant="secondary" size="sm">الجوال</x-import><x-import component-from-global-scope="OpsOne.Button" variant="ghost" size="sm">الحاسوب</x-import><x-import component-from-global-scope="OpsOne.Button" variant="ghost" size="sm">English</x-import></span></div><div style="display: grid; place-items: center; padding: 16px; background: var(--background);"><div data-surface="site" style="width: 300px; display: flex; flex-direction: column; gap: 14px; padding: 16px; border: 1px solid var(--stroke-weak); border-radius: 12px; background: var(--background);"><span style="display: inline-flex; align-items: center; gap: 10px; color: var(--text-strong);"><span aria-hidden="true" style="width: 32px; height: 32px; border-radius: 8px; background: var(--brand); color: var(--on-brand); display: inline-grid; place-items: center; font-weight: 700;">ر</span><span style="font-weight: 700; font-size: 16px;">مطابخ الركن الحديث</span></span><span style="font-size: 24px; line-height: 34px; font-weight: 700;">مطابخ وخزائن بمقاس بيتك</span><span style="color: var(--text-weak);">نقيس ونصمم ونصنع ونركب في الرياض.</span><x-import component-from-global-scope="OpsOne.Button" variant="primary" block="{{ yes }}">أرسل احتياجك</x-import><div role="img" class="o1h-img" aria-label="صورة: مطبخ منفذ حديثًا" style="aspect-ratio: 4 / 3; background: var(--fill); border-radius: 8px; display: grid; place-items: center; color: var(--text-weak); font-size: 14px; text-align: center; padding: 8px;">صورة: مطبخ منفذ حديثًا</div></div></div><p style="margin: 0; padding: 0 16px 16px; color: var(--text-weak); font-size: 13px;">يتأثر: رأس الموقع والأزرار والروابط في الموقع ومساحة العميل، ولمسة اللون في الإدارة.</p></div>
+        </section></div>
+  </main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview": {"width": 1440, "height": 1150}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const noop = () => {};
+    return { yes: true, no: false, h28: 28, h24: 24, s16: 16, s24: 24, noop, pp: [ { value: 'home', label: 'الرئيسية' } ], mode: [ { value: 'sys', label: 'حسب جهاز الزائر' }, { value: 'l', label: 'فاتح' }, { value: 'd', label: 'داكن' } ], lg: [ { id: 'l1', name: 'شعار-الركن.svg', size: 8210, status: 'done' } ], fv: [], nav: [ { label: 'الرئيسية', icon: 'layout-dashboard', href: 'Main.dc.html', active: false }, { label: 'الطلبات', icon: 'clipboard-list', href: 'OrdersList.dc.html', active: false }, { label: 'العملاء', icon: 'users', href: 'CustomersList.dc.html', active: false }, { label: 'المهام والمواعيد', icon: 'calendar', href: 'CalWeek.dc.html', active: false }, { label: 'المالية', icon: 'receipt', href: 'FinHome.dc.html', active: false }, { label: 'المخزون والتوريد', icon: 'package', href: 'StockList.dc.html', active: false }, { label: 'الموقع', icon: 'file-text', href: 'SitePages.dc.html', active: true }, { label: 'التقارير', icon: 'trending-up', href: '#', active: false } ] };
+  }
+}
+</script>
+</body>
+</html>

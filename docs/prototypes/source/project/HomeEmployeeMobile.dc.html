@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>الرئيسية: الموظف على الجوال</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/opsone/tokens.css">
+<link rel="stylesheet" href="ds/opsone/components/bundle.css">
+<script src="ds/opsone/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:var(--link)}a:hover{color:var(--brand-hover)}
+</style>
+</helmet>
+<div dir="rtl" data-surface="panel" style="width: 390px; min-height: 1500px; display: flex; flex-direction: column; background: var(--background); color: var(--text-strong); font-family: var(--font-sans); font-size: 14px; line-height: 24px;">
+  <header style="display: flex; align-items: center; gap: 4px; min-height: 64px; padding-inline: 8px 16px; background: var(--surface); border-bottom: 1px solid var(--stroke-weak);">
+    <x-import component-from-global-scope="OpsOne.Button" variant="ghost" icon="menu" icon-only="{{ yes }}" aria-label="فتح القائمة" href="ShellMobileNav.dc.html"></x-import>
+    <x-import component-from-global-scope="OpsOne.Logo" height="{{ h24 }}"></x-import>
+    <div style="margin-inline-start: auto; display: flex;">
+      <x-import component-from-global-scope="OpsOne.Button" variant="ghost" icon="search" icon-only="{{ yes }}" aria-label="البحث العام" href="ShellMobileSearch.dc.html"></x-import>
+      <x-import component-from-global-scope="OpsOne.Button" variant="ghost" icon="bell" icon-only="{{ yes }}" aria-label="الإشعارات، 5 غير مقروءة" href="ShellMobileNotifications.dc.html"></x-import>
+    </div>
+  </header>
+  <main style="padding: 16px; display: flex; flex-direction: column; gap: 16px;">
+    <div style="display: flex; flex-direction: column; gap: 4px;">
+      <h1 style="margin: 0; font-size: 24px; line-height: 36px; font-weight: 700;">صباح الخير، نورة</h1>
+      <p style="margin: 0; color: var(--text-weak);">خمسة أعمال مطلوبة منك اليوم، منها عمل متأخر.</p>
+    </div>
+    <x-import component-from-global-scope="OpsOne.Button" variant="primary" icon="plus" href="CreateOrderMobile.dc.html" block="{{ yes }}">طلب مخصص جديد</x-import>
+    <section aria-labelledby="m1" style="display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--stroke-weak); border-radius: 12px;">
+      <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 16px;"><span style="display: inline-flex; gap: 8px; align-items: center;"><h2 id="m1" style="margin: 0; font-size: 16px; line-height: 26px; font-weight: 600;">مطلوب منك</h2><x-import component-from-global-scope="OpsOne.Counter" value="5"></x-import></span><a href="#" style="min-height: 44px; display: inline-flex; align-items: center; font-weight: 500;">كل مهامي</a></div>
+      <div style="display: flex; flex-direction: column; gap: 6px; padding: 12px 16px; border-top: 1px solid var(--stroke-weak);">
+        <span style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;"><span style="font-weight: 600;">إعداد عرض سعر</span><x-import component-from-global-scope="OpsOne.Badge" tone="danger">متأخر يومين</x-import></span>
+        <span style="display: flex; gap: 12px; align-items: center; color: var(--text-weak);"><x-import component-from-global-scope="OpsOne.Ref" href="OrderMobile.dc.html">ORD-24529</x-import><span>عبدالرحمن الفيفي</span></span>
+        <div><x-import component-from-global-scope="OpsOne.Button" variant="secondary" size="sm" href="OrderStagesMobile.dc.html">فتح المهمة</x-import></div>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 6px; padding: 12px 16px; border-top: 1px solid var(--stroke-weak);">
+        <span style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;"><span style="font-weight: 600;">تأكيد موعد القياس مع العميل</span><x-import component-from-global-scope="OpsOne.Badge" tone="warning">اليوم 16:00</x-import></span>
+        <span style="display: flex; gap: 12px; align-items: center; color: var(--text-weak);"><x-import component-from-global-scope="OpsOne.Ref" href="OrderMobile.dc.html">ORD-24533</x-import><span>تركي العسيري</span></span>
+        <div><x-import component-from-global-scope="OpsOne.Button" variant="secondary" size="sm" href="#">تسجيل تأكيد هاتفي</x-import></div>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 6px; padding: 12px 16px; border-top: 1px solid var(--stroke-weak);">
+        <span style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;"><span style="font-weight: 600;">متابعة موافقة العميل على التصميم</span><x-import component-from-global-scope="OpsOne.Badge" tone="neutral">بانتظار العميل</x-import></span>
+        <span style="display: flex; gap: 12px; align-items: center; color: var(--text-weak);"><x-import component-from-global-scope="OpsOne.Ref" href="OrderMobile.dc.html">ORD-24512</x-import><span>أمل السديري</span></span>
+        <div><x-import component-from-global-scope="OpsOne.Button" variant="secondary" size="sm" href="#">إرسال تذكير</x-import></div>
+      </div>
+    </section>
+    <section aria-labelledby="m2" style="display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--stroke-weak); border-radius: 12px;">
+      <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 16px;"><span style="display: inline-flex; gap: 8px; align-items: center;"><h2 id="m2" style="margin: 0; font-size: 16px; line-height: 26px; font-weight: 600;">اهتمامات جديدة</h2><x-import component-from-global-scope="OpsOne.Counter" value="2"></x-import></span><a href="InterestsMobile.dc.html" style="min-height: 44px; display: inline-flex; align-items: center; font-weight: 500;">الكل</a></div>
+      <div style="display: flex; flex-direction: column; gap: 6px; padding: 12px 16px; border-top: 1px solid var(--stroke-weak);">
+        <span style="display: flex; gap: 8px; align-items: center;"><x-import component-from-global-scope="OpsOne.Ref" href="InterestsMobile.dc.html">INT-1047</x-import><span style="font-weight: 600;">لطيفة الحربي</span></span>
+        <span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">خزانة ملابس بأبواب منزلقة</span>
+        <div><x-import component-from-global-scope="OpsOne.Button" variant="secondary" size="sm">تولي المتابعة</x-import></div>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 6px; padding: 12px 16px; border-top: 1px solid var(--stroke-weak);">
+        <span style="display: flex; gap: 8px; align-items: center;"><x-import component-from-global-scope="OpsOne.Ref" href="InterestsMobile.dc.html">INT-1048</x-import><span style="font-weight: 600;">بدر القحطاني</span></span>
+        <span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">باب خشبي رئيسي مع إطار</span>
+        <div><x-import component-from-global-scope="OpsOne.Button" variant="secondary" size="sm">تولي المتابعة</x-import></div>
+      </div>
+    </section>
+    <section aria-labelledby="m3" style="display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--stroke-weak); border-radius: 12px;">
+      <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 16px;"><span style="display: inline-flex; gap: 8px; align-items: center;"><h2 id="m3" style="margin: 0; font-size: 16px; line-height: 26px; font-weight: 600;">مواعيدي اليوم</h2></span></div>
+      <div style="display: flex; flex-direction: column; gap: 6px; padding: 12px 16px; border-top: 1px solid var(--stroke-weak);">
+        <span style="display: flex; gap: 8px; align-items: center;"><bdi dir="ltr" style="font-weight: 600;">16:00</bdi><span style="font-weight: 600;">زيارة قياس</span><x-import component-from-global-scope="OpsOne.Badge" tone="warning">بانتظار التأكيد</x-import></span>
+        <span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">ORD-24533، حي العارض</span>
+      </div>
+    </section>
+
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":1500}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const noop = () => {};
+    return { yes: true, h24: 24 };
+  }
+}
+</script>
+</body>
+</html>

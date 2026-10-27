@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>قائمة الحساب للمبيعات</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/opsone/tokens.css">
+<link rel="stylesheet" href="ds/opsone/components/bundle.css">
+<script src="ds/opsone/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:var(--link)}a:hover{color:var(--brand-hover)}
+</style>
+</helmet>
+<div dir="rtl" data-surface="panel" style="position: relative; width: 1440px; height: 900px; overflow: hidden; display: flex; background: var(--background); color: var(--text-strong); font-family: var(--font-sans); font-size: 14px; line-height: 24px;">
+
+<aside class="o1-sidebar" style="position: relative; height: auto; display: flex;">
+  <div class="o1-sidebar-brand"><x-import component-from-global-scope="OpsOne.Logo" height="{{ h28 }}"></x-import></div>
+  <nav class="o1-nav" aria-label="القائمة الرئيسية"><ul>
+    <sc-for list="{{ nav }}" as="item" hint-placeholder-count="8">
+      <li><x-import component-from-global-scope="OpsOne.NavItem" label="{{ item.label }}" icon="{{ item.icon }}" href="{{ item.href }}" active="{{ item.active }}"></x-import></li>
+    </sc-for>
+  </ul></nav>
+</aside>
+
+<div class="o1-shell-main" style="flex: 1; min-width: 0; display: flex; flex-direction: column;">
+  <header class="o1-topbar" style="position: relative; gap: 12px; z-index: 2;">
+    <div style="width: 440px;"><x-import component-from-global-scope="OpsOne.SearchField" label="البحث العام" placeholder="رقم الطلب أو اسم العميل أو الجوال أو المستند"></x-import></div>
+    <div class="o1-topbar-end" style="position: relative;">
+      <x-import component-from-global-scope="OpsOne.Button" variant="ghost" icon="info" icon-only="{{ yes }}" aria-label="مساعدة هذه الصفحة"></x-import>
+      <x-import component-from-global-scope="OpsOne.Button" variant="ghost" icon="bell" icon-only="{{ yes }}" aria-label="الإشعارات"></x-import>
+      <button type="button" aria-label="قائمة الحساب" aria-expanded="true" aria-haspopup="menu" style="display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 8px; border: 0; border-radius: 8px; background: var(--hover); color: var(--text-strong); font: inherit; cursor: pointer; outline: 2px solid var(--focus); outline-offset: 2px;">
+        <x-import component-from-global-scope="OpsOne.Avatar" name="نورة الدوسري" size="sm" decorative="{{ yes }}"></x-import>
+        <span style="font-weight: 500;">نورة الدوسري</span>
+        <x-import component-from-global-scope="OpsOne.Icon" name="chevron-up" size="{{ s16 }}"></x-import>
+      </button>
+
+      <div role="menu" aria-label="قائمة الحساب" style="position: absolute; inset-block-start: 56px; inset-inline-end: 0; width: 320px; display: flex; flex-direction: column; background: var(--raised); border: 1px solid var(--stroke-weak); border-radius: 12px; box-shadow: var(--shadow-raised);">
+        <div style="display: flex; align-items: center; gap: 12px; padding: 16px;">
+          <x-import component-from-global-scope="OpsOne.Avatar" name="نورة الدوسري" size="md" decorative="{{ yes }}"></x-import>
+          <div style="display: flex; flex-direction: column; min-width: 0;">
+            <span style="font-weight: 600;">نورة الدوسري</span>
+            <span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">مبيعات، فرع العليا</span>
+            <bdi dir="ltr" style="font-size: 13px; line-height: 20px; color: var(--text-weak); text-align: start;">noura@alrukn-kitchens.sa</bdi>
+          </div>
+        </div>
+        <div style="padding: 12px 16px; border-top: 1px solid var(--stroke-weak);">
+          <x-import component-from-global-scope="OpsOne.RadioGroup" label="اللغة" options="{{ langs }}" default-value="ar" inline="{{ yes }}"></x-import>
+        </div>
+        <div style="padding: 12px 16px; border-top: 1px solid var(--stroke-weak);">
+          <x-import component-from-global-scope="OpsOne.RadioGroup" label="المظهر" options="{{ themes }}" default-value="system"></x-import>
+        </div>
+        <div style="padding: 8px; border-top: 1px solid var(--stroke-weak); display: flex; flex-direction: column;">
+          <a role="menuitem" href="#" style="display: flex; align-items: center; gap: 12px; min-height: 44px; padding: 0 8px; border-radius: 8px; color: var(--text-strong); text-decoration: none;"><x-import component-from-global-scope="OpsOne.Icon" name="user"></x-import>ملفي الشخصي</a>
+          <a role="menuitem" href="FinMyCommission.dc.html" style="display: flex; align-items: center; gap: 12px; min-height: 44px; padding: 0 8px; border-radius: 8px; color: var(--text-strong); text-decoration: none;"><x-import component-from-global-scope="OpsOne.Icon" name="trending-up"></x-import>كشف عمولاتي</a>
+          <a role="menuitem" href="#" style="display: flex; align-items: center; gap: 12px; min-height: 44px; padding: 0 8px; border-radius: 8px; color: var(--text-strong); text-decoration: none;"><x-import component-from-global-scope="OpsOne.Icon" name="log-out"></x-import>تسجيل الخروج</a>
+        </div>
+      </div>
+    </div>
+  </header>
+  <main class="o1-main" style="max-width: none; padding: 32px; display: flex; flex-direction: column; gap: 24px;">
+    <h1 class="o1-pagehead-title">صباح الخير، نورة</h1>
+    <div class="o1-card" style="height: 420px;"><h2 class="o1-card-title">مطلوب منك</h2></div>
+  </main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {
+      yes: true, h28: 28, s16: 16,
+      langs: [ { value: 'ar', label: 'العربية' }, { value: 'en', label: 'English' } ],
+      themes: [ { value: 'system', label: 'حسب الجهاز' }, { value: 'light', label: 'فاتح' }, { value: 'dark', label: 'داكن' } ],
+      nav: [ { label: 'الرئيسية', icon: 'layout-dashboard', href: 'HomeEmployee.dc.html', active: true }, { label: 'الطلبات', icon: 'clipboard-list', href: 'OrdersList.dc.html', active: false }, { label: 'العملاء', icon: 'users', href: 'CustomersList.dc.html', active: false }, { label: 'المهام والمواعيد', icon: 'calendar', href: 'TaskList.dc.html', active: false } ]
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>كشف عمولاتي</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/opsone/tokens.css">
+<link rel="stylesheet" href="ds/opsone/components/bundle.css">
+<script src="ds/opsone/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:var(--link)}a:hover{color:var(--brand-hover)}
+</style>
+</helmet>
+<div dir="rtl" data-surface="panel" style="width: 1440px; min-height: 1100px; display: flex; background: var(--background); color: var(--text-strong); font-family: var(--font-sans); font-size: 14px; line-height: 24px;">
+
+<aside class="o1-sidebar" style="position: relative; height: auto; display: flex;">
+  <div class="o1-sidebar-brand"><x-import component-from-global-scope="OpsOne.Logo" height="{{ h28 }}"></x-import></div>
+  <div style="display: flex; flex-direction: column; gap: 2px; padding: 0 12px 16px; margin-bottom: 8px; border-bottom: 1px solid var(--stroke-weak);">
+    <span style="font-weight: 600;">مطابخ الركن الحديث</span>
+    <span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">باقة نمو</span>
+  </div>
+  <nav class="o1-nav" aria-label="القائمة الرئيسية"><ul>
+    <sc-for list="{{ nav }}" as="item" hint-placeholder-count="8">
+      <li><x-import component-from-global-scope="OpsOne.NavItem" label="{{ item.label }}" icon="{{ item.icon }}" href="{{ item.href }}" active="{{ item.active }}"></x-import></li>
+    </sc-for>
+  </ul></nav>
+  <div class="o1-sidebar-foot">
+    <x-import component-from-global-scope="OpsOne.NavItem" label="الإعدادات" icon="settings" href="#"></x-import>
+  </div>
+</aside>
+
+<div class="o1-shell-main" style="flex: 1; min-width: 0; display: flex; flex-direction: column;">
+  <header class="o1-topbar" style="position: relative; gap: 12px;">
+    <div style="width: 440px;"><x-import component-from-global-scope="OpsOne.SearchField" label="البحث العام" placeholder="رقم الطلب أو اسم العميل أو الجوال أو المستند"></x-import></div>
+    <div class="o1-topbar-end">
+      <x-import component-from-global-scope="OpsOne.Button" variant="ghost" icon="info" icon-only="{{ yes }}" aria-label="مساعدة هذه الصفحة"></x-import>
+      <x-import component-from-global-scope="OpsOne.Button" variant="ghost" icon="bell" icon-only="{{ yes }}" aria-label="الإشعارات"></x-import>
+      <x-import component-from-global-scope="OpsOne.Avatar" name="نورة الدوسري" size="sm"></x-import>
+    </div>
+  </header>
+
+  <main class="o1-main" style="max-width: none; padding: 32px; display: flex; flex-direction: column; gap: 20px;">
+    <x-import component-from-global-scope="OpsOne.Breadcrumbs" items="{{ crumbs }}"></x-import>
+    <div class="o1-pagehead" style="margin-bottom: 0;"><div class="o1-pagehead-text"><h1 class="o1-pagehead-title">كشف عمولاتي</h1><p class="o1-pagehead-desc">أكتوبر 2026. نسبتك 2% من قيمة المنتجات المحصلة فعلًا، بعد الخصم وقبل الضريبة.</p></div><div class="o1-pagehead-actions"><x-import component-from-global-scope="OpsOne.SelectField" label="الفترة" options="{{ periods }}" default-value="oct"></x-import></div></div>
+    <section aria-label="ملخص" style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px;"><x-import component-from-global-scope="OpsOne.StatCard" label="المستحق" value="4,820.40 ر.س" hint="من بداية السنة" icon="trending-up"></x-import><x-import component-from-global-scope="OpsOne.StatCard" label="المحجوز" value="0.00 ر.س" hint="لا تسويات أو نزاعات على طلباتك" icon="lock"></x-import><x-import component-from-global-scope="OpsOne.StatCard" label="المصروف" value="3,100.00 ر.س" hint="آخر صرف 30 سبتمبر" icon="circle-check"></x-import><x-import component-from-global-scope="OpsOne.StatCard" label="المتاح للصرف" value="1,720.40 ر.س" hint="يصرفه المالك أو المالية" icon="receipt"></x-import></section>
+    <div style="display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 24px; align-items: start;">
+      <section class="o1-card o1-card--flush" aria-labelledby="sl-h">
+          <div class="o1-card-head" style="padding: 20px 24px 0; margin-bottom: 8px;"><div class="o1-card-heading"><h2 id="sl-h" class="o1-card-title">مبيعاتي هذا الشهر</h2><p class="o1-card-desc">العمولة تتبع ما حُصّل فعلًا؛ الإيصال المعلق لا يُحتسب.</p></div></div>
+          <table class="o1-table"><caption class="o1-sr">مبيعاتي</caption><thead><tr><th scope="col">الطلب</th><th scope="col">العميل</th><th scope="col" class="o1-td--end">قيمة المنتجات</th><th scope="col" class="o1-td--end">المحصل</th><th scope="col" class="o1-td--end">عمولتي</th><th scope="col">مال الطلب</th></tr></thead><tbody><tr><td><x-import component-from-global-scope="OpsOne.Ref">ORD-24518</x-import></td><td>منيرة الشمري</td><td class="o1-td--end"><x-import component-from-global-scope="OpsOne.Amount" value="16,043.48"></x-import></td><td class="o1-td--end"><x-import component-from-global-scope="OpsOne.Amount" value="5,000.00"></x-import></td><td class="o1-td--end"><x-import component-from-global-scope="OpsOne.Amount" value="86.96" strong="{{ yes }}"></x-import></td><td><x-import component-from-global-scope="OpsOne.Badge" tone="warning">جزئي</x-import></td></tr><tr><td><x-import component-from-global-scope="OpsOne.Ref">ORD-24471</x-import></td><td>نوف الحمدان</td><td class="o1-td--end"><x-import component-from-global-scope="OpsOne.Amount" value="21,260.87"></x-import></td><td class="o1-td--end"><x-import component-from-global-scope="OpsOne.Amount" value="24,450.00"></x-import></td><td class="o1-td--end"><x-import component-from-global-scope="OpsOne.Amount" value="425.22" strong="{{ yes }}"></x-import></td><td><x-import component-from-global-scope="OpsOne.Badge" tone="success">مسدد</x-import></td></tr><tr><td><x-import component-from-global-scope="OpsOne.Ref">ORD-24521</x-import></td><td>شركة دار الإعمار للمقاولات</td><td class="o1-td--end"><span style="color: var(--text-weak);">لم يُعتمد الاتفاق</span></td><td class="o1-td--end"><x-import component-from-global-scope="OpsOne.Amount" value="0.00"></x-import></td><td class="o1-td--end"><x-import component-from-global-scope="OpsOne.Amount" value="0.00" strong="{{ yes }}"></x-import></td><td><x-import component-from-global-scope="OpsOne.Badge" tone="neutral">بلا تحصيل</x-import></td></tr><tr><td><x-import component-from-global-scope="OpsOne.Ref">ORD-24503</x-import></td><td>لطيفة الحربي</td><td class="o1-td--end"><x-import component-from-global-scope="OpsOne.Amount" value="14,782.61"></x-import></td><td class="o1-td--end"><x-import component-from-global-scope="OpsOne.Amount" value="17,000.00"></x-import></td><td class="o1-td--end"><x-import component-from-global-scope="OpsOne.Amount" value="295.65" strong="{{ yes }}"></x-import></td><td><x-import component-from-global-scope="OpsOne.Badge" tone="success">مسدد</x-import></td></tr></tbody></table>
+        </section>
+      <section class="o1-card" aria-labelledby="mv-h">
+          <div class="o1-card-head" style="margin-bottom: 12px;"><div class="o1-card-heading"><h2 id="mv-h" class="o1-card-title">آخر الحركات</h2></div></div>
+          <ul style="list-style: none; margin: 0; padding: 0;"><li style="display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px; padding: 10px 0;"><span style="display: flex; flex-direction: column;"><span style="font-weight: 500;">صرف</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">30 سبتمبر، مع الراتب. المرجع SAL-2609-07</span></span><bdi dir="ltr" style="font-weight: 600;">-3,100.00</bdi></li><li style="display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px; padding: 10px 0; border-top: 1px solid var(--stroke-weak);"><span style="display: flex; flex-direction: column;"><span style="font-weight: 500;">استحقاق من تحصيل</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">ORD-24471، 12 أكتوبر</span></span><bdi dir="ltr" style="font-weight: 600;">+425.22</bdi></li><li style="display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px; padding: 10px 0; border-top: 1px solid var(--stroke-weak);"><span style="display: flex; flex-direction: column;"><span style="font-weight: 500;">استحقاق من تحصيل</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">ORD-24518 بعد تأكيد الدفعة الأولى</span></span><bdi dir="ltr" style="font-weight: 600;">+86.96</bdi></li></ul>
+        </section>
+    </div>
+  </main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview": {"width": 1440, "height": 1100}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const noop = () => {};
+    return { yes: true, no: false, h28: 28, s16: 16, periods: [ { value: 'oct', label: 'أكتوبر 2026' }, { value: 'sep', label: 'سبتمبر 2026' }, { value: 'year', label: 'من بداية السنة' } ], crumbs: [ { label: 'حسابي', href: 'FinAccountSales.dc.html' }, { label: 'كشف عمولاتي' } ], nav: [ { label: 'الرئيسية', icon: 'layout-dashboard', href: 'HomeEmployee.dc.html', active: false }, { label: 'الطلبات', icon: 'clipboard-list', href: 'OrdersList.dc.html', active: false }, { label: 'العملاء', icon: 'users', href: 'CustomersList.dc.html', active: false }, { label: 'المهام والمواعيد', icon: 'calendar', href: 'TaskList.dc.html', active: false } ] };
+  }
+}
+</script>
+</body>
+</html>

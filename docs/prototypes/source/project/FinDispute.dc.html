@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>تسجيل نزاع مالي</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/opsone/tokens.css">
+<link rel="stylesheet" href="ds/opsone/components/bundle.css">
+<script src="ds/opsone/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:var(--link)}a:hover{color:var(--brand-hover)}
+</style>
+</helmet>
+<div dir="rtl" data-surface="panel" style="position: relative; width: 1440px; height: 1000px; overflow: hidden; background: var(--background); color: var(--text-strong); font-family: var(--font-sans); font-size: 14px; line-height: 24px;">
+  <div aria-hidden="true" inert="" style="position: absolute; inset: 0;">
+    <dc-import name="FinSettle" hint-size="1440px,1700px"></dc-import>
+  </div>
+  <div aria-hidden="true" style="position: absolute; inset: 0; background: var(--overlay);"></div>
+
+  <div role="dialog" aria-modal="true" aria-labelledby="d-t" class="o1-dialog o1-dialog--lg" style="position: absolute; inset: 0; margin: auto; height: fit-content;">
+    <div class="o1-dialog-inner">
+    <div class="o1-dialog-head">
+      <h2 id="d-t" class="o1-dialog-title">تسجيل نزاع مالي على <bdi dir="ltr" style="font-family: var(--font-mono);">ORD-24461</bdi></h2>
+      <button type="button" class="o1-dialog-close" aria-label="إغلاق"><x-import component-from-global-scope="OpsOne.Icon" name="x"></x-import></button>
+    </div>
+    
+    <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 20px;">
+      <x-import component-from-global-scope="OpsOne.SelectField" label="المعاملة" options="{{ txs }}" default-value="rcv1150" required="{{ yes }}"></x-import>
+      <x-import component-from-global-scope="OpsOne.SelectField" label="الموضوع" options="{{ topics }}" default-value="settle" required="{{ yes }}"></x-import>
+      <x-import component-from-global-scope="OpsOne.TextField" label="المبلغ المتنازع عليه" default-value="500.00" dir="ltr" required="{{ yes }}"></x-import>
+      <x-import component-from-global-scope="OpsOne.SelectField" label="المسؤول" options="{{ owners }}" default-value="hind" required="{{ yes }}"></x-import>
+    </div>
+    <x-import component-from-global-scope="OpsOne.TextField" label="السبب" default-value="ترى العميلة أن التسوية 1,500.00 لأن خزانة المدخل شملت تركيبًا مستقلًا." multiline="{{ yes }}" required="{{ yes }}"></x-import>
+    <div style="display: flex; flex-direction: column; gap: 8px; padding: 12px 16px; background: var(--fill); border-radius: 8px;">
+      <span style="font-weight: 600;">الأثر</span>
+      <span style="display: flex; gap: 8px;"><span style="color: var(--warning-text); display: inline-flex;"><x-import component-from-global-scope="OpsOne.Icon" name="triangle-alert" size="{{ s16 }}"></x-import></span><span>يمنع إقفال الطلب حتى الحسم.</span></span>
+      <span style="display: flex; gap: 8px;"><span style="color: var(--info-text); display: inline-flex;"><x-import component-from-global-scope="OpsOne.Icon" name="info" size="{{ s16 }}"></x-import></span><span>يُحجز صرف عمولة الجزء المتأثر فقط.</span></span>
+      <span style="display: flex; gap: 8px;"><span style="color: var(--success-text); display: inline-flex;"><x-import component-from-global-scope="OpsOne.Icon" name="check" size="{{ s16 }}"></x-import></span><span>الحسم بإثبات المعالجة؛ أي رد أو تصحيح يُنفذ من إجرائه، وإغلاق تذكرة دعم لا يحسمه.</span></span>
+    </div>
+    <div class="o1-dialog-foot">
+      <x-import component-from-global-scope="OpsOne.Button" variant="ghost" href="FinSettle.dc.html">إلغاء</x-import><x-import component-from-global-scope="OpsOne.Button" variant="primary" href="FinSettle.dc.html">تسجيل النزاع</x-import>
+    </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview": {"width": 1440, "height": 1000}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const noop = () => {};
+    return { yes: true, no: false, h28: 28, s16: 16, s24: 24, txs: [ { value: 'rcv1150', label: 'RCV-1150، 9,000.00' }, { value: 'rcv1102', label: 'RCV-1102، 10,000.00' } ], topics: [ { value: 'settle', label: 'مبلغ التسوية' }, { value: 'dup', label: 'تحويل مكرر' }, { value: 'diff', label: 'مبلغ مختلف' }, { value: 'refund', label: 'رد لم يصل' } ], owners: [ { value: 'hind', label: 'هند العنزي' }, { value: 'fahad', label: 'فهد العتيبي' } ] };
+  }
+}
+</script>
+</body>
+</html>

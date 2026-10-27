@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>الرئيسية: التحميل</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/opsone/tokens.css">
+<link rel="stylesheet" href="ds/opsone/components/bundle.css">
+<script src="ds/opsone/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:var(--link)}a:hover{color:var(--brand-hover)}
+</style>
+</helmet>
+<div dir="rtl" data-surface="panel" style="width: 1440px; min-height: 1100px; display: flex; background: var(--background); color: var(--text-strong); font-family: var(--font-sans); font-size: 14px; line-height: 24px;">
+
+<aside class="o1-sidebar" style="position: relative; height: auto; display: flex;">
+  <div class="o1-sidebar-brand"><x-import component-from-global-scope="OpsOne.Logo" height="{{ h28 }}"></x-import></div>
+  <div style="display: flex; flex-direction: column; gap: 2px; padding: 0 12px 16px; margin-bottom: 8px; border-bottom: 1px solid var(--stroke-weak);">
+    <span style="font-weight: 600;">مطابخ الركن الحديث</span>
+    <span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">باقة نمو</span>
+  </div>
+  <nav class="o1-nav" aria-label="القائمة الرئيسية"><ul>
+    <sc-for list="{{ nav }}" as="item" hint-placeholder-count="8">
+      <li><x-import component-from-global-scope="OpsOne.NavItem" label="{{ item.label }}" icon="{{ item.icon }}" href="{{ item.href }}" active="{{ item.active }}"></x-import></li>
+    </sc-for>
+  </ul></nav>
+  <div class="o1-sidebar-foot">
+    <x-import component-from-global-scope="OpsOne.NavItem" label="الإعدادات" icon="settings" href="#"></x-import>
+  </div>
+</aside>
+
+<div class="o1-shell-main" style="flex: 1; min-width: 0; display: flex; flex-direction: column;">
+  <header class="o1-topbar" style="position: relative; gap: 12px;">
+    <div style="width: 440px;"><x-import component-from-global-scope="OpsOne.SearchField" label="البحث العام" placeholder="رقم الطلب أو اسم العميل أو الجوال أو المستند"></x-import></div>
+    <x-import component-from-global-scope="OpsOne.Button" variant="secondary" icon-end="chevron-down" aria-label="نطاق الفروع: كل الفروع">كل الفروع</x-import>
+    <div class="o1-topbar-end">
+      <x-import component-from-global-scope="OpsOne.Button" variant="ghost" icon="info" icon-only="{{ yes }}" aria-label="مساعدة هذه الصفحة"></x-import>
+      <x-import component-from-global-scope="OpsOne.Button" variant="ghost" icon="bell" icon-only="{{ yes }}" aria-label="الإشعارات"></x-import>
+      <button type="button" aria-label="قائمة الحساب" style="display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 8px; border: 0; border-radius: 8px; background: transparent; color: var(--text-strong); font: inherit; cursor: pointer;">
+        <x-import component-from-global-scope="OpsOne.Avatar" name="فهد العتيبي" size="sm" decorative="{{ yes }}"></x-import>
+        <span style="font-weight: 500;">فهد العتيبي</span>
+      </button>
+    </div>
+  </header>
+
+  <main class="o1-main" aria-busy="true" aria-label="جارٍ تحميل الرئيسية" style="max-width: none; padding: 32px; display: flex; flex-direction: column; gap: 24px;">
+    <div class="o1-pagehead" style="margin-bottom: 0;">
+      <div class="o1-pagehead-text">
+        <h1 class="o1-pagehead-title">صباح الخير، فهد</h1>
+        <div style="margin-top: 8px;"><x-import component-from-global-scope="OpsOne.Skeleton" width="420px" height="{{ h16 }}"></x-import></div>
+      </div>
+      <div class="o1-pagehead-actions">
+        <x-import component-from-global-scope="OpsOne.Button" variant="secondary" icon="users">عميل جديد</x-import>
+        <x-import component-from-global-scope="OpsOne.Button" variant="primary" icon="plus">طلب مخصص جديد</x-import>
+      </div>
+    </div>
+
+    <section style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px;">
+      <x-import component-from-global-scope="OpsOne.StatCard" label="المستحق الآن" value="" loading="{{ yes }}" icon="receipt"></x-import>
+      <x-import component-from-global-scope="OpsOne.StatCard" label="تحصيل متأخر" value="" loading="{{ yes }}" icon="clock"></x-import>
+      <x-import component-from-global-scope="OpsOne.StatCard" label="صافي المقبوض هذا الشهر" value="" loading="{{ yes }}" icon="circle-check"></x-import>
+      <x-import component-from-global-scope="OpsOne.StatCard" label="إيصالات بانتظار التأكيد" value="" loading="{{ yes }}" icon="inbox"></x-import>
+    </section>
+
+    <div style="display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 24px; align-items: start;">
+      <section class="o1-card" aria-label="تحتاج قرارك، جارٍ التحميل">
+        <h2 class="o1-card-title" style="margin-bottom: 16px;">تحتاج قرارك</h2>
+        <sc-for list="{{ rows4 }}" as="r" hint-placeholder-count="4">
+          <div style="display: grid; grid-template-columns: minmax(0, 1fr) 120px; gap: 16px; align-items: center; padding: 16px 0; border-top: 1px solid var(--stroke-weak);">
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+              <x-import component-from-global-scope="OpsOne.Skeleton" width="55%" height="{{ h16 }}"></x-import>
+              <x-import component-from-global-scope="OpsOne.Skeleton" width="35%" height="{{ h12 }}"></x-import>
+              <x-import component-from-global-scope="OpsOne.Skeleton" width="80%" height="{{ h12 }}"></x-import>
+            </div>
+            <x-import component-from-global-scope="OpsOne.Skeleton" width="120px" height="{{ h36 }}" radius="8px"></x-import>
+          </div>
+        </sc-for>
+      </section>
+      <section class="o1-card" aria-label="مواعيد اليوم، جارٍ التحميل">
+        <h2 class="o1-card-title" style="margin-bottom: 16px;">مواعيد اليوم</h2>
+        <sc-for list="{{ rows3 }}" as="r" hint-placeholder-count="3">
+          <div style="display: flex; flex-direction: column; gap: 8px; padding: 14px 0; border-top: 1px solid var(--stroke-weak);">
+            <x-import component-from-global-scope="OpsOne.Skeleton" width="40%" height="{{ h16 }}"></x-import>
+            <x-import component-from-global-scope="OpsOne.Skeleton" width="70%" height="{{ h12 }}"></x-import>
+          </div>
+        </sc-for>
+      </section>
+    </div>
+  </main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1100}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {
+      yes: true, h28: 28, h16: 16, h12: 12, h36: 36,
+      rows4: [1, 2, 3, 4], rows3: [1, 2, 3],
+      nav: [
+        { label: 'الرئيسية', icon: 'layout-dashboard', href: 'Main.dc.html', active: true },
+        { label: 'الطلبات', icon: 'clipboard-list', href: 'OrdersList.dc.html', active: false },
+        { label: 'العملاء', icon: 'users', href: 'CustomersList.dc.html', active: false },
+        { label: 'المهام والمواعيد', icon: 'calendar', href: '#', active: false },
+        { label: 'المالية', icon: 'receipt', href: '#', active: false },
+        { label: 'المخزون والتوريد', icon: 'package', href: '#', active: false },
+        { label: 'الموقع', icon: 'file-text', href: '#', active: false },
+        { label: 'التقارير', icon: 'trending-up', href: '#', active: false }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

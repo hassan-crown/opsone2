@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>لا تملك صلاحية عرض الطلب</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/opsone/tokens.css">
+<link rel="stylesheet" href="ds/opsone/components/bundle.css">
+<script src="ds/opsone/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:var(--link)}a:hover{color:var(--brand-hover)}
+</style>
+</helmet>
+<div dir="rtl" data-surface="panel" style="width: 1440px; min-height: 800px; display: flex; background: var(--background); color: var(--text-strong); font-family: var(--font-sans); font-size: 14px; line-height: 24px;">
+
+<aside class="o1-sidebar" style="position: relative; height: auto; display: flex;">
+  <div class="o1-sidebar-brand"><x-import component-from-global-scope="OpsOne.Logo" height="{{ h28 }}"></x-import></div>
+  <div style="display: flex; flex-direction: column; gap: 2px; padding: 0 12px 16px; margin-bottom: 8px; border-bottom: 1px solid var(--stroke-weak);">
+    <span style="font-weight: 600;">مطابخ الركن الحديث</span>
+    <span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">فرع العليا</span>
+  </div>
+  <nav class="o1-nav" aria-label="القائمة الرئيسية"><ul>
+    <sc-for list="{{ nav }}" as="item" hint-placeholder-count="4">
+      <li><x-import component-from-global-scope="OpsOne.NavItem" label="{{ item.label }}" icon="{{ item.icon }}" href="{{ item.href }}" active="{{ item.active }}"></x-import></li>
+    </sc-for>
+  </ul></nav>
+</aside>
+
+<div class="o1-shell-main" style="flex: 1; min-width: 0; display: flex; flex-direction: column;">
+  <header class="o1-topbar" style="position: relative; gap: 12px;">
+    <div style="width: 440px;"><x-import component-from-global-scope="OpsOne.SearchField" label="البحث العام" placeholder="رقم الطلب أو اسم العميل أو الجوال أو المستند"></x-import></div>
+    <div class="o1-topbar-end">
+      <x-import component-from-global-scope="OpsOne.Button" variant="ghost" icon="bell" icon-only="{{ yes }}" aria-label="الإشعارات"></x-import>
+      <x-import component-from-global-scope="OpsOne.Avatar" name="نورة الدوسري" size="sm"></x-import>
+    </div>
+  </header>
+  <main class="o1-main" style="max-width: none; padding: 32px; display: flex; flex-direction: column; gap: 16px;">
+    <x-import component-from-global-scope="OpsOne.Breadcrumbs" items="{{ crumbs }}"></x-import>
+    <div class="o1-card" style="padding: 56px 24px;">
+      <div class="o1-empty">
+        <span class="o1-empty-icon" aria-hidden="true"><x-import component-from-global-scope="OpsOne.Icon" name="lock" size="{{ s24 }}"></x-import></span>
+        <p class="o1-empty-title">لا تملك صلاحية عرض هذا الطلب</p>
+        <p class="o1-empty-desc">الطلب خارج نطاق فروعك. إن كنت تحتاجه لعملك، اطلب الوصول من مدير الجهة.</p>
+        <div class="o1-empty-action" style="display: flex; gap: 8px; justify-content: center;">
+          <x-import component-from-global-scope="OpsOne.Button" variant="secondary" href="OrdersList.dc.html">العودة إلى الطلبات</x-import>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":800}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {
+      yes: true, h28: 28, s24: 24,
+      crumbs: [ { label: 'الطلبات', href: 'OrdersList.dc.html' }, { label: 'طلب غير متاح' } ],
+      nav: [
+        { label: 'الرئيسية', icon: 'layout-dashboard', href: 'HomeEmployee.dc.html', active: false },
+        { label: 'الطلبات', icon: 'clipboard-list', href: 'OrdersList.dc.html', active: true },
+        { label: 'العملاء', icon: 'users', href: 'CustomersList.dc.html', active: false },
+        { label: 'المهام والمواعيد', icon: 'calendar', href: '#', active: false }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

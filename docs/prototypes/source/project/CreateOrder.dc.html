@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>إنشاء طلب مخصص</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/opsone/tokens.css">
+<link rel="stylesheet" href="ds/opsone/components/bundle.css">
+<script src="ds/opsone/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:var(--link)}a:hover{color:var(--brand-hover)}
+</style>
+</helmet>
+<div dir="rtl" data-surface="panel" style="width: 1440px; min-height: 1450px; display: flex; background: var(--background); color: var(--text-strong); font-family: var(--font-sans); font-size: 14px; line-height: 24px;">
+
+<aside class="o1-sidebar" style="position: relative; height: auto; display: flex;">
+  <div class="o1-sidebar-brand"><x-import component-from-global-scope="OpsOne.Logo" height="{{ h28 }}"></x-import></div>
+  <div style="display: flex; flex-direction: column; gap: 2px; padding: 0 12px 16px; margin-bottom: 8px; border-bottom: 1px solid var(--stroke-weak);">
+    <span style="font-weight: 600;">مطابخ الركن الحديث</span>
+    <span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">باقة نمو</span>
+  </div>
+  <nav class="o1-nav" aria-label="القائمة الرئيسية"><ul>
+    <sc-for list="{{ nav }}" as="item" hint-placeholder-count="8">
+      <li><x-import component-from-global-scope="OpsOne.NavItem" label="{{ item.label }}" icon="{{ item.icon }}" href="{{ item.href }}" active="{{ item.active }}"></x-import></li>
+    </sc-for>
+  </ul></nav>
+  <div class="o1-sidebar-foot">
+    <x-import component-from-global-scope="OpsOne.NavItem" label="الإعدادات" icon="settings" href="#"></x-import>
+  </div>
+</aside>
+
+<div class="o1-shell-main" style="flex: 1; min-width: 0; display: flex; flex-direction: column;">
+  <header class="o1-topbar" style="position: relative; gap: 12px;">
+    <div style="width: 440px;"><x-import component-from-global-scope="OpsOne.SearchField" label="البحث العام" placeholder="رقم الطلب أو اسم العميل أو الجوال أو المستند"></x-import></div>
+    <div class="o1-topbar-end">
+      <x-import component-from-global-scope="OpsOne.Button" variant="ghost" icon="info" icon-only="{{ yes }}" aria-label="مساعدة هذه الصفحة"></x-import>
+      <x-import component-from-global-scope="OpsOne.Button" variant="ghost" icon="bell" icon-only="{{ yes }}" aria-label="الإشعارات"></x-import>
+      <button type="button" aria-label="قائمة الحساب" style="display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 8px; border: 0; border-radius: 8px; background: transparent; color: var(--text-strong); font: inherit; cursor: pointer;">
+        <x-import component-from-global-scope="OpsOne.Avatar" name="نورة الدوسري" size="sm" decorative="{{ yes }}"></x-import>
+        <span style="font-weight: 500;">نورة الدوسري</span>
+      </button>
+    </div>
+  </header>
+
+  <main class="o1-main" style="max-width: none; padding: 32px; display: flex; flex-direction: column; gap: 16px;">
+    <x-import component-from-global-scope="OpsOne.Breadcrumbs" items="{{ crumbs }}"></x-import>
+    <div class="o1-pagehead" style="margin-bottom: 8px;">
+      <div class="o1-pagehead-text">
+        <h1 class="o1-pagehead-title">طلب مخصص جديد</h1>
+        <p class="o1-pagehead-desc">المطلوب الآن عميل وفرع ومسؤول وملخص احتياج. السعر والقياسات والعرض تستكمل لاحقًا على الطلب نفسه.</p>
+      </div>
+    </div>
+
+    <form style="display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 24px; align-items: start;" aria-label="إنشاء طلب مخصص">
+      <div style="display: flex; flex-direction: column; gap: 24px;">
+
+        <section class="o1-card" aria-labelledby="c-h">
+          <div class="o1-card-head"><div class="o1-card-heading"><h2 id="c-h" class="o1-card-title">العميل</h2></div></div>
+          <div style="display: flex; flex-direction: column; gap: 16px;">
+            <x-import component-from-global-scope="OpsOne.RadioGroup" label="نوع الاختيار" options="{{ custMode }}" default-value="existing" inline="{{ yes }}"></x-import>
+            <div style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; border: 1px solid var(--brand); border-radius: 8px; background: var(--brand-subtle);">
+              <x-import component-from-global-scope="OpsOne.Avatar" name="منيرة الشمري" size="md" decorative="{{ yes }}"></x-import>
+              <div style="display: flex; flex-direction: column; flex: 1; min-width: 0;">
+                <span style="font-weight: 600;">منيرة الشمري</span>
+                <span style="display: flex; gap: 16px; color: var(--text-weak);"><bdi dir="ltr">+966 55 214 7781</bdi><bdi dir="ltr">munira.alshammari@gmail.com</bdi></span>
+              </div>
+              <x-import component-from-global-scope="OpsOne.Button" variant="ghost" size="sm">تغيير العميل</x-import>
+            </div>
+            <x-import component-from-global-scope="OpsOne.Alert" tone="info">لدى العميلة طلب جارٍ ORD-24518 لمطبخ. أنشئ طلبًا جديدًا إن كان هذا احتياجًا مستقلًا، أو أضف البنود إلى الطلب القائم إن كان المشروع نفسه.</x-import>
+          </div>
+        </section>
+
+        <section class="o1-card" aria-labelledby="o-h">
+          <div class="o1-card-head"><div class="o1-card-heading"><h2 id="o-h" class="o1-card-title">الطلب</h2></div></div>
+          <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 20px;">
+            <x-import component-from-global-scope="OpsOne.SelectField" label="الفرع" options="{{ branches }}" default-value="olaya" required="{{ yes }}"></x-import>
+            <x-import component-from-global-scope="OpsOne.SelectField" label="المسؤول" options="{{ owners }}" default-value="noura" required="{{ yes }}" hint="يتابع الطلب حتى إقفاله، ويمكن تغييره لاحقًا"></x-import>
+            <div style="grid-column: 1 / -1;"><x-import component-from-global-scope="OpsOne.TextField" label="ملخص الاحتياج" multiline="{{ yes }}" required="{{ yes }}" default-value="خزانة ملابس بأبواب منزلقة لغرفة النوم الرئيسية، بعرض الجدار تقريبًا، مع أدراج داخلية." hint="ما يحتاجه العميل بكلماته. التفاصيل الفنية تستكمل في القياس والتصميم."></x-import></div>
+            <x-import component-from-global-scope="OpsOne.SelectField" label="عنوان التنفيذ" options="{{ addresses }}" default-value="home" optional="{{ yes }}" hint="يلزم قبل أول موعد ميداني"></x-import>
+            <x-import component-from-global-scope="OpsOne.SelectField" label="قناة الطلب" options="{{ channels }}" default-value="showroom" optional="{{ yes }}"></x-import>
+          </div>
+        </section>
+
+        <section class="o1-card" aria-labelledby="n-h">
+          <div class="o1-card-head"><div class="o1-card-heading"><h2 id="n-h" class="o1-card-title">الحاجة للقياس والتصميم</h2><p class="o1-card-desc">تحدد الإجراءات المطلوبة في المسار. ما لا يلزم يظهر «غير مطلوب».</p></div></div>
+          <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 20px;">
+            <x-import component-from-global-scope="OpsOne.RadioGroup" label="يحتاج قياسًا" options="{{ need }}" default-value="yes" inline="{{ yes }}"></x-import>
+            <x-import component-from-global-scope="OpsOne.RadioGroup" label="يحتاج تصميمًا" options="{{ need }}" default-value="tbd" inline="{{ yes }}" hint="يظهر مانع لحسمها قبل إعداد التصميم، ولا يسقط الإجراء تلقائيًا"></x-import>
+          </div>
+        </section>
+
+        <section class="o1-card" aria-labelledby="i-h">
+          <div class="o1-card-head">
+            <div class="o1-card-heading"><h2 id="i-h" class="o1-card-title">البنود <span style="font-weight: 400; color: var(--text-weak); font-size: 14px;">(اختياري)</span></h2><p class="o1-card-desc">وصف مبدئي إن عُرف. لا سعر هنا؛ يحدد في العرض.</p></div>
+          </div>
+          <div style="display: grid; grid-template-columns: minmax(0, 1fr) 120px 160px 44px; gap: 12px; align-items: end;">
+            <x-import component-from-global-scope="OpsOne.TextField" label="وصف البند" default-value="خزانة ملابس بأبواب منزلقة"></x-import>
+            <x-import component-from-global-scope="OpsOne.TextField" label="الكمية" default-value="1" dir="ltr" input-mode="decimal"></x-import>
+            <x-import component-from-global-scope="OpsOne.SelectField" label="الوحدة" options="{{ units }}" default-value="unit"></x-import>
+            <x-import component-from-global-scope="OpsOne.Button" variant="ghost" icon="trash-2" icon-only="{{ yes }}" aria-label="حذف البند"></x-import>
+          </div>
+          <div style="margin-top: 12px;"><x-import component-from-global-scope="OpsOne.Button" variant="ghost" icon="plus">إضافة بند</x-import></div>
+        </section>
+
+        <div style="display: flex; justify-content: flex-end; gap: 8px; padding-top: 8px; border-top: 1px solid var(--stroke-weak);">
+          <x-import component-from-global-scope="OpsOne.Button" variant="ghost" href="OrdersList.dc.html">إلغاء</x-import>
+          <x-import component-from-global-scope="OpsOne.Button" variant="primary" href="OrderCreated.dc.html">إنشاء الطلب</x-import>
+        </div>
+      </div>
+
+      <aside class="o1-card" aria-labelledby="after-h" style="display: flex; flex-direction: column; gap: 12px;">
+        <h2 id="after-h" class="o1-card-title">بعد الإنشاء</h2>
+        <ul style="margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 12px;">
+          <sc-for list="{{ after }}" as="a" hint-placeholder-count="4">
+            <li style="display: grid; grid-template-columns: 20px minmax(0, 1fr); gap: 8px;">
+              <span style="color: var(--brand); display: inline-flex; margin-top: 2px;"><x-import component-from-global-scope="OpsOne.Icon" name="{{ a.icon }}"></x-import></span>
+              <span>{{ a.text }}</span>
+            </li>
+          </sc-for>
+        </ul>
+      </aside>
+    </form>
+  </main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1450}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {
+      yes: true, h28: 28,
+      crumbs: [ { label: 'الطلبات', href: 'OrdersList.dc.html' }, { label: 'طلب مخصص جديد' } ],
+      custMode: [ { value: 'existing', label: 'عميل قائم' }, { value: 'new', label: 'عميل جديد' } ],
+      branches: [ { value: 'olaya', label: 'العليا' }, { value: 'malqa', label: 'الملقا' } ],
+      owners: [ { value: 'noura', label: 'نورة الدوسري' }, { value: 'khalid', label: 'خالد الزهراني' }, { value: 'sara', label: 'سارة القحطاني' } ],
+      addresses: [ { value: 'home', label: 'المنزل، حي الياسمين، الرياض' }, { value: 'new', label: 'إضافة عنوان جديد' } ],
+      channels: [ { value: 'showroom', label: 'زيارة المعرض' }, { value: 'phone', label: 'اتصال هاتفي' }, { value: 'site', label: 'الموقع' }, { value: 'whatsapp', label: 'واتساب' } ],
+      need: [ { value: 'yes', label: 'نعم' }, { value: 'no', label: 'لا' }, { value: 'tbd', label: 'لم يحدد بعد' } ],
+      units: [ { value: 'unit', label: 'وحدة' }, { value: 'm', label: 'متر طولي' }, { value: 'm2', label: 'متر مربع' }, { value: 'pc', label: 'قطعة' } ],
+      after: [
+        { icon: 'clipboard-list', text: 'رقم طلب ثابت تلحق به القياسات والعروض والدفعات والتسليم.' },
+        { icon: 'calendar', text: 'تبدأ مرحلة «القياس والمعاينة»، وتصل مهمة زيارة القياس إلى صندوق قسم القياس في فرع العليا.' },
+        { icon: 'circle-alert', text: 'حاجة التصميم «لم يحدد بعد» تظهر مانعًا قبل إعداد التصميم فقط.' },
+        { icon: 'receipt', text: 'لا يظهر مبلغ قبل الاتفاق؛ المالية تبدأ مع العرض المعتمد.' }
+      ],
+      nav: [
+        { label: 'الرئيسية', icon: 'layout-dashboard', href: 'HomeEmployee.dc.html', active: false },
+        { label: 'الطلبات', icon: 'clipboard-list', href: 'OrdersList.dc.html', active: true },
+        { label: 'العملاء', icon: 'users', href: 'CustomersList.dc.html', active: false },
+        { label: 'المهام والمواعيد', icon: 'calendar', href: '#', active: false }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

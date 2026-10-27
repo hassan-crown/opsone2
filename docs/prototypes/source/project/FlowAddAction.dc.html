@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>إضافة إجراء</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/opsone/tokens.css">
+<link rel="stylesheet" href="ds/opsone/components/bundle.css">
+<script src="ds/opsone/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:var(--link)}a:hover{color:var(--brand-hover)}
+</style>
+</helmet>
+<div dir="rtl" data-surface="panel" style="position: relative; width: 1440px; height: 1250px; overflow: hidden; background: var(--background); color: var(--text-strong); font-family: var(--font-sans); font-size: 14px; line-height: 24px;">
+  <div aria-hidden="true" inert="" style="position: absolute; inset: 0;">
+    <dc-import name="FlowEdit" hint-size="1440px,1250px"></dc-import>
+  </div>
+  <div aria-hidden="true" style="position: absolute; inset: 0; background: var(--overlay);"></div>
+
+  <div role="dialog" aria-modal="true" aria-labelledby="d-t" aria-describedby="d-d" class="o1-dialog o1-dialog--lg" style="position: absolute; inset: 0; margin: auto; height: fit-content;">
+    <div class="o1-dialog-inner">
+    <div class="o1-dialog-head">
+      <h2 id="d-t" class="o1-dialog-title">إضافة إجراء إلى المرحلة</h2>
+      <button type="button" class="o1-dialog-close" aria-label="إغلاق"><x-import component-from-global-scope="OpsOne.Icon" name="x"></x-import></button>
+    </div>
+    <p id="d-d" class="o1-dialog-desc">قائمة إجراءات النظام كاملة. اختر إجراءً ثم اضبطه لهذه المرحلة؛ لا يمكن إنشاء إجراء جديد.</p>
+    <div style="display: flex; flex-direction: column;"><div style="padding: 12px 0 4px; font-size: 13px; line-height: 20px; font-weight: 600; color: var(--text-weak);">المعلومات والقياس</div><div style="display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 16px; align-items: center; padding: 10px 0; border-top: 1px solid var(--stroke-weak);"><span style="display: flex; flex-direction: column;"><span style="font-weight: 600;">تثبيت الاحتياج والمواصفات</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">حفظ المعلومات المطلوبة للطلب.</span></span><span></span><x-import component-from-global-scope="OpsOne.Button" variant="secondary" size="sm" href="FlowAction_info.dc.html">اختيار</x-import></div><div style="display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 16px; align-items: center; padding: 10px 0; border-top: 1px solid var(--stroke-weak);"><span style="display: flex; flex-direction: column;"><span style="font-weight: 600;">تسجيل القياسات</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">حفظ القياسات والمرفقات المطلوبة. يتكرر لغرض مختلف: قياس أولي ونهائي.</span></span><span></span><x-import component-from-global-scope="OpsOne.Button" variant="secondary" size="sm" href="FlowAction_meas.dc.html">اختيار</x-import></div><div style="display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 16px; align-items: center; padding: 10px 0; border-top: 1px solid var(--stroke-weak);"><span style="display: flex; flex-direction: column;"><span style="font-weight: 600;">إعداد التصميم</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">رفع التصميم جاهزًا للمراجعة.</span></span><span></span><x-import component-from-global-scope="OpsOne.Button" variant="secondary" size="sm" href="FlowAction_design.dc.html">اختيار</x-import></div><div style="padding: 12px 0 4px; font-size: 13px; line-height: 20px; font-weight: 600; color: var(--text-weak);">الاتفاق والاعتماد</div><div style="display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 16px; align-items: center; padding: 10px 0; border-top: 1px solid var(--stroke-weak);"><span style="display: flex; flex-direction: column;"><span style="font-weight: 600;">إعداد عرض سعر أو عقد</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">حفظ المستند في الطلب؛ إعداده ليس موافقة. يتكرر: عرض ثم عقد.</span></span><span></span><x-import component-from-global-scope="OpsOne.Button" variant="secondary" size="sm" href="FlowAction_doc.dc.html">اختيار</x-import></div><div style="display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 16px; align-items: center; padding: 10px 0; border-top: 1px solid var(--stroke-weak);"><span style="display: flex; flex-direction: column;"><span style="font-weight: 600;">موافقة على عرض أو تصميم أو عقد</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">موافقة العميل على المستند، أو توثيق المخول موافقته الخارجية بإثبات. مرة لكل مستند.</span></span><span></span><x-import component-from-global-scope="OpsOne.Button" variant="secondary" size="sm" href="FlowAction_appr.dc.html">اختيار</x-import></div><div style="display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 16px; align-items: center; padding: 10px 0; border-top: 1px solid var(--stroke-weak);"><span style="display: flex; flex-direction: column;"><span style="font-weight: 600;">إرفاق مستند مطلوب</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">وجود المستند، ومراجعته إن طُلبت.</span></span><span></span><x-import component-from-global-scope="OpsOne.Button" variant="secondary" size="sm" href="FlowAction_attach.dc.html">اختيار</x-import></div><div style="padding: 12px 0 4px; font-size: 13px; line-height: 20px; font-weight: 600; color: var(--text-weak);">التنفيذ والتوريد</div><div style="display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 16px; align-items: center; padding: 10px 0; border-top: 1px solid var(--stroke-weak);"><span style="display: flex; flex-direction: column;"><span style="font-weight: 600;">مهمة عمل</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">إنجاز العمل وإرفاق ما يطلبه. يتكرر بأسماء مختلفة.</span></span><x-import component-from-global-scope="OpsOne.Badge" tone="neutral">في المرحلة مرتين</x-import><x-import component-from-global-scope="OpsOne.Button" variant="secondary" size="sm" href="FlowAction_task.dc.html">اختيار</x-import></div><div style="display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 16px; align-items: center; padding: 10px 0; border-top: 1px solid var(--stroke-weak);"><span style="display: flex; flex-direction: column;"><span style="font-weight: 600;">متابعة شراء أو استلام</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">تحقق النتيجة من سجل التوريد المرتبط بالطلب.</span></span><x-import component-from-global-scope="OpsOne.Badge" tone="neutral">في المرحلة</x-import><x-import component-from-global-scope="OpsOne.Button" variant="secondary" size="sm" href="FlowAction_supply.dc.html">اختيار</x-import></div><div style="padding: 12px 0 4px; font-size: 13px; line-height: 20px; font-weight: 600; color: var(--text-weak);">المالية</div><div style="display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 16px; align-items: center; padding: 10px 0; border-top: 1px solid var(--stroke-weak);"><span style="display: flex; flex-direction: column;"><span style="font-weight: 600;">تحقق التحصيل</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">تحصيل دفعة أو نسبة منها من جدول دفعات الطلب. يتكرر: دفعة أولى وأخيرة.</span></span><span></span><x-import component-from-global-scope="OpsOne.Button" variant="secondary" size="sm" href="FlowAction_pay.dc.html">اختيار</x-import></div><div style="padding: 12px 0 4px; font-size: 13px; line-height: 20px; font-weight: 600; color: var(--text-weak);">التسليم</div><div style="display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 16px; align-items: center; padding: 10px 0; border-top: 1px solid var(--stroke-weak);"><span style="display: flex; flex-direction: column;"><span style="font-weight: 600;">تسجيل تسليم</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">تسجيل ما سُلّم فعلًا بإثبات.</span></span><span></span><x-import component-from-global-scope="OpsOne.Button" variant="secondary" size="sm" href="FlowAction_deliv.dc.html">اختيار</x-import></div></div>
+    <div class="o1-dialog-foot">
+      <x-import component-from-global-scope="OpsOne.Button" variant="ghost" href="FlowEdit.dc.html">إلغاء</x-import>
+    </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview": {"width": 1440, "height": 1250}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const noop = () => {};
+    return { yes: true, no: false, s16: 16, noop };
+  }
+}
+</script>
+</body>
+</html>

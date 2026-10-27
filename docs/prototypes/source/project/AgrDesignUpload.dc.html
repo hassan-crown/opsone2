@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>رفع تصميم</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/opsone/tokens.css">
+<link rel="stylesheet" href="ds/opsone/components/bundle.css">
+<script src="ds/opsone/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:var(--link)}a:hover{color:var(--brand-hover)}
+</style>
+</helmet>
+<div dir="rtl" data-surface="panel" style="position: relative; width: 1440px; height: 1100px; overflow: hidden; background: var(--background); color: var(--text-strong); font-family: var(--font-sans); font-size: 14px; line-height: 24px;">
+  <div aria-hidden="true" inert="" style="position: absolute; inset: 0;">
+    <dc-import name="AgrDocument" hint-size="1440px,1200px"></dc-import>
+  </div>
+  <div aria-hidden="true" style="position: absolute; inset: 0; background: var(--overlay);"></div>
+
+  <div role="dialog" aria-modal="true" aria-labelledby="d-t" class="o1-dialog" style="position: absolute; inset: 0; margin: auto; height: fit-content;">
+    <div class="o1-dialog-inner">
+    <div class="o1-dialog-head">
+      <h2 id="d-t" class="o1-dialog-title">رفع تصميم لـ <bdi dir="ltr" style="font-family: var(--font-mono);">ORD-24521</bdi></h2>
+      <button type="button" class="o1-dialog-close" aria-label="إغلاق"><x-import component-from-global-scope="OpsOne.Icon" name="x"></x-import></button>
+    </div>
+    
+    <x-import component-from-global-scope="OpsOne.FileUpload" label="ملف التصميم" files="{{ files }}" on-select="{{ noop }}" on-remove="{{ noop }}" required="{{ yes }}" hint="PDF أو صور، حتى 25 ميجابايت للملف."></x-import>
+    <fieldset style="margin: 0; padding: 0; border: 0; display: flex; flex-direction: column; gap: 4px;"><legend style="padding: 0; margin-bottom: 4px; font-weight: 600;">البنود المعنية</legend><x-import component-from-global-scope="OpsOne.Checkbox" label="مطبخ علوي وسفلي لشقة، 6" default-checked="{{ yes }}"></x-import><x-import component-from-global-scope="OpsOne.Checkbox" label="تركيب في الموقع"></x-import></fieldset>
+    <x-import component-from-global-scope="OpsOne.TextField" label="وصف للعميل" default-value="مخطط موحد للشقق الست، مع خيارين للون الواجهات." multiline="{{ yes }}"></x-import>
+    <div style="display: flex; flex-direction: column; gap: 8px; padding: 12px 16px; background: var(--fill); border-radius: 8px;">
+      <span style="font-weight: 600;">بعد الحفظ</span>
+      <span style="display: flex; gap: 8px;"><span style="color: var(--info-text); display: inline-flex;"><x-import component-from-global-scope="OpsOne.Icon" name="info" size="{{ s16 }}"></x-import></span><span>الطلب يحتاج تصميمًا، فيُطلب اعتماد العميل على هذا الملف.</span></span>
+      <span style="display: flex; gap: 8px;"><span style="color: var(--success-text); display: inline-flex;"><x-import component-from-global-scope="OpsOne.Icon" name="check" size="{{ s16 }}"></x-import></span><span>الرفع ليس اعتمادًا. الإرسال يثبت الملف، وأي ملف لاحق يُرسل بديلًا ويُحفظ هذا.</span></span>
+    </div>
+    <div class="o1-dialog-foot">
+      <x-import component-from-global-scope="OpsOne.Button" variant="ghost" href="AgrDocument.dc.html">إلغاء</x-import><x-import component-from-global-scope="OpsOne.Button" variant="secondary" href="AgrDocument.dc.html">حفظ دون إرسال</x-import><x-import component-from-global-scope="OpsOne.Button" variant="primary" href="AgrDocument.dc.html">حفظ وإرسال للعميل</x-import>
+    </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview": {"width": 1440, "height": 1100}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const noop = () => {};
+    return { yes: true, no: false, h28: 28, s16: 16, s24: 24, noop, files: [ { id: 'f1', name: 'تصميم-مطابخ-الشقق.pdf', size: 4404019, status: 'done' } ] };
+  }
+}
+</script>
+</body>
+</html>

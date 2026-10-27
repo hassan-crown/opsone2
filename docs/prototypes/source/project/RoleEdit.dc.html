@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>دور وصلاحياته</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/opsone/tokens.css">
+<link rel="stylesheet" href="ds/opsone/components/bundle.css">
+<script src="ds/opsone/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:var(--link)}a:hover{color:var(--brand-hover)}
+</style>
+</helmet>
+<div dir="rtl" data-surface="panel" style="width: 1440px; min-height: 1100px; display: flex; background: var(--background); color: var(--text-strong); font-family: var(--font-sans); font-size: 14px; line-height: 24px;">
+
+<aside class="o1-sidebar" style="position: relative; height: auto; display: flex;">
+  <div class="o1-sidebar-brand"><x-import component-from-global-scope="OpsOne.Logo" height="{{ h28 }}"></x-import></div>
+  <div style="display: flex; flex-direction: column; gap: 2px; padding: 0 12px 16px; margin-bottom: 8px; border-bottom: 1px solid var(--stroke-weak);">
+    <span style="font-weight: 600;">مطابخ الركن الحديث</span>
+    <span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">باقة نمو</span>
+  </div>
+  <nav class="o1-nav" aria-label="القائمة الرئيسية"><ul>
+    <sc-for list="{{ nav }}" as="item" hint-placeholder-count="8">
+      <li><x-import component-from-global-scope="OpsOne.NavItem" label="{{ item.label }}" icon="{{ item.icon }}" href="{{ item.href }}" active="{{ item.active }}"></x-import></li>
+    </sc-for>
+  </ul></nav>
+  <div class="o1-sidebar-foot">
+    <x-import component-from-global-scope="OpsOne.NavItem" label="الإعدادات" icon="settings" href="SettingsHome.dc.html" active="{{ yes }}"></x-import>
+  </div>
+</aside>
+
+<div class="o1-shell-main" style="flex: 1; min-width: 0; display: flex; flex-direction: column;">
+  <header class="o1-topbar" style="position: relative; gap: 12px;">
+    <div style="width: 440px;"><x-import component-from-global-scope="OpsOne.SearchField" label="البحث العام" placeholder="رقم الطلب أو اسم العميل أو الجوال أو المستند"></x-import></div>
+    <div class="o1-topbar-end">
+      <x-import component-from-global-scope="OpsOne.Button" variant="ghost" icon="info" icon-only="{{ yes }}" aria-label="مساعدة هذه الصفحة"></x-import>
+      <x-import component-from-global-scope="OpsOne.Button" variant="ghost" icon="bell" icon-only="{{ yes }}" aria-label="الإشعارات"></x-import>
+      <x-import component-from-global-scope="OpsOne.Avatar" name="فهد العتيبي" size="sm"></x-import>
+    </div>
+  </header>
+
+  <main class="o1-main" style="max-width: none; padding: 32px; display: flex; flex-direction: column; gap: 20px;">
+<x-import component-from-global-scope="OpsOne.Breadcrumbs" items="{{ crumbs }}"></x-import><div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap;"><div style="display: flex; flex-direction: column; gap: 8px;"><div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;"><h1 style="margin: 0; font-size: 24px; line-height: 36px; font-weight: 700;">دور المبيعات</h1><x-import component-from-global-scope="OpsOne.Badge" tone="neutral">دور بداية</x-import></div><span style="color: var(--text-weak);">عضوان: نورة الدوسري وسارة القحطاني.</span></div><div style="display: flex; gap: 8px; flex-wrap: wrap;"><x-import component-from-global-scope="OpsOne.Button" variant="secondary" icon="copy">إنشاء دور مشتق</x-import><x-import component-from-global-scope="OpsOne.Button" variant="primary">حفظ الدور</x-import></div></div><div role="tablist" aria-label="الفريق والأدوار" class="o1-tablist"><a role="tab" href="TeamList.dc.html" aria-selected="false" class="o1-tab" style="position: relative; display: inline-flex; align-items: center; min-height: 44px; padding: 0 12px; text-decoration: none; color: var(--text-weak);">الأعضاء 11</a><a role="tab" href="#" aria-selected="false" class="o1-tab" style="position: relative; display: inline-flex; align-items: center; min-height: 44px; padding: 0 12px; text-decoration: none; color: var(--text-weak);">الدعوات 1</a><a role="tab" href="RoleEdit.dc.html" aria-selected="true" class="o1-tab" style="position: relative; display: inline-flex; align-items: center; min-height: 44px; padding: 0 12px; text-decoration: none; color: var(--text-strong);">الأدوار 8</a></div><div style="display: grid; grid-template-columns: 260px minmax(0, 1fr); gap: 24px; align-items: start;"><ul style="list-style: none; margin: 0; padding: 0; border: 1px solid var(--stroke-weak); border-radius: 12px; background: var(--surface);"><li style=""><a href="#" style="display: flex; justify-content: space-between; align-items: center; min-height: 48px; padding: 0 16px; text-decoration: none; color: var(--text-strong);"><span>المالك</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">ثابت، 1 عضو</span></a></li><li style="border-top: 1px solid var(--stroke-weak);"><a href="#" style="display: flex; justify-content: space-between; align-items: center; min-height: 48px; padding: 0 16px; text-decoration: none; color: var(--text-strong);"><span>مدير</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">1 عضو</span></a></li><li style="border-top: 1px solid var(--stroke-weak);"><a href="#" style="display: flex; justify-content: space-between; align-items: center; min-height: 48px; padding: 0 16px; text-decoration: none; color: var(--text-strong);"><span>مشرف قسم</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">1 عضو</span></a></li><li style="border-top: 1px solid var(--stroke-weak);"><a href="#" style="display: flex; justify-content: space-between; align-items: center; min-height: 48px; padding: 0 16px; text-decoration: none; color: var(--text-strong); background: var(--brand-subtle); font-weight: 600;"><span>مبيعات</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">عضوان</span></a></li><li style="border-top: 1px solid var(--stroke-weak);"><a href="#" style="display: flex; justify-content: space-between; align-items: center; min-height: 48px; padding: 0 16px; text-decoration: none; color: var(--text-strong);"><span>منفذ</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">5 عضو</span></a></li><li style="border-top: 1px solid var(--stroke-weak);"><a href="#" style="display: flex; justify-content: space-between; align-items: center; min-height: 48px; padding: 0 16px; text-decoration: none; color: var(--text-strong);"><span>مسؤول مالي</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">1 عضو</span></a></li><li style="border-top: 1px solid var(--stroke-weak);"><a href="#" style="display: flex; justify-content: space-between; align-items: center; min-height: 48px; padding: 0 16px; text-decoration: none; color: var(--text-strong);"><span>مخزون وتوريد</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">1 عضو</span></a></li><li style="border-top: 1px solid var(--stroke-weak);"><a href="#" style="display: flex; justify-content: space-between; align-items: center; min-height: 48px; padding: 0 16px; text-decoration: none; color: var(--text-strong);"><span>محتوى</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">0 عضو</span></a></li></ul><div style="display: flex; flex-direction: column; gap: 16px;"><x-import component-from-global-scope="OpsOne.Alert" tone="info" title="يسري الحفظ فورًا على الجلسات القائمة">النطاق يُحدد لكل عضو عند منحه الدور، ولا تمنح ما لا تملكه.</x-import><div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; align-items: start;"><section class="o1-card" aria-labelledby="pg-562">
+          <div class="o1-card-head" style="margin-bottom: 12px;"><div class="o1-card-heading"><h2 id="pg-562" class="o1-card-title">العملاء والطلبات</h2></div></div>
+          <div style="display: flex; flex-direction: column; gap: 4px;"><x-import component-from-global-scope="OpsOne.Checkbox" label="إنشاء عميل أو اهتمام" default-checked="{{ yes }}"></x-import><x-import component-from-global-scope="OpsOne.Checkbox" label="تعديل بيانات العميل" default-checked="{{ yes }}"></x-import><x-import component-from-global-scope="OpsOne.Checkbox" label="إنشاء طلب مخصص أو تأكيد طلب جاهز" default-checked="{{ yes }}"></x-import><x-import component-from-global-scope="OpsOne.Checkbox" label="نقل الطلب إلى فرع آخر"></x-import></div>
+        </section><section class="o1-card" aria-labelledby="pg-402">
+          <div class="o1-card-head" style="margin-bottom: 12px;"><div class="o1-card-heading"><h2 id="pg-402" class="o1-card-title">العروض والخصم</h2></div></div>
+          <div style="display: flex; flex-direction: column; gap: 4px;"><x-import component-from-global-scope="OpsOne.Checkbox" label="تسعير العرض وخصم الجاهز" default-checked="{{ yes }}"></x-import><div style="padding-inline-start: 30px; max-width: 280px;"><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">حد الخصم 10%، يضبطه المالك من <a href="SettingsSales.dc.html">الإعدادات، المبيعات</a></span></div><x-import component-from-global-scope="OpsOne.Checkbox" label="اعتماد تجاوز خصم"></x-import></div>
+        </section><section class="o1-card" aria-labelledby="pg-448">
+          <div class="o1-card-head" style="margin-bottom: 12px;"><div class="o1-card-heading"><h2 id="pg-448" class="o1-card-title">المواعيد والمبيعات</h2></div></div>
+          <div style="display: flex; flex-direction: column; gap: 4px;"><x-import component-from-global-scope="OpsOne.Checkbox" label="اقتراح وتأكيد المواعيد" default-checked="{{ yes }}"></x-import><x-import component-from-global-scope="OpsOne.Checkbox" label="سلة ورابط شراء للجاهز" default-checked="{{ yes }}"></x-import><x-import component-from-global-scope="OpsOne.Checkbox" label="عرض كشف عمولتي" default-checked="{{ yes }}"></x-import></div>
+        </section><section class="o1-card" aria-labelledby="pg-543">
+          <div class="o1-card-head" style="margin-bottom: 12px;"><div class="o1-card-heading"><h2 id="pg-543" class="o1-card-title">المخزون والكتالوج</h2></div></div>
+          <div style="display: flex; flex-direction: column; gap: 4px;"><x-import component-from-global-scope="OpsOne.Checkbox" label="عرض المتاح فقط" default-checked="{{ yes }}"></x-import><x-import component-from-global-scope="OpsOne.Checkbox" label="إدارة منتجات المخصص" default-checked="{{ yes }}"></x-import></div>
+        </section></div></div></div>
+  </main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview": {"width": 1440, "height": 1100}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const noop = () => {};
+    return { yes: true, no: false, h28: 28, h24: 24, s16: 16, s24: 24, crumbs: [ { label: 'الإعدادات', href: 'SettingsHome.dc.html' }, { label: 'الفريق والأدوار', href: 'TeamList.dc.html' }, { label: 'المبيعات' } ], nav: [ { label: 'الرئيسية', icon: 'layout-dashboard', href: 'Main.dc.html', active: false }, { label: 'الطلبات', icon: 'clipboard-list', href: 'OrdersList.dc.html', active: false }, { label: 'العملاء', icon: 'users', href: 'CustomersList.dc.html', active: false }, { label: 'المهام والمواعيد', icon: 'calendar', href: 'CalWeek.dc.html', active: false }, { label: 'المالية', icon: 'receipt', href: 'FinHome.dc.html', active: false }, { label: 'المخزون والتوريد', icon: 'package', href: 'StockList.dc.html', active: false }, { label: 'الموقع', icon: 'file-text', href: 'SitePages.dc.html', active: false }, { label: 'التقارير', icon: 'trending-up', href: '#', active: false } ] };
+  }
+}
+</script>
+</body>
+</html>

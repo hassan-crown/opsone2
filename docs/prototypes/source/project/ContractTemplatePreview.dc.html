@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>معاينة نموذج عقد</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/opsone/tokens.css">
+<link rel="stylesheet" href="ds/opsone/components/bundle.css">
+<script src="ds/opsone/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:var(--link)}a:hover{color:var(--brand-hover)}
+</style>
+</helmet>
+<div dir="rtl" data-surface="panel" style="position: relative; width: 1440px; height: 1800px; overflow: hidden; background: var(--background); color: var(--text-strong); font-family: var(--font-sans); font-size: 14px; line-height: 24px;">
+  <div aria-hidden="true" inert="" style="position: absolute; inset: 0;">
+    <dc-import name="ContractTemplateEdit" hint-size="1440px,1800px"></dc-import>
+  </div>
+  <div aria-hidden="true" style="position: absolute; inset: 0; background: var(--overlay);"></div>
+
+  <div role="dialog" aria-modal="true" aria-labelledby="d-t" aria-describedby="d-d" class="o1-dialog o1-dialog--lg" style="position: absolute; inset: 0; margin: auto; height: fit-content;">
+    <div class="o1-dialog-inner">
+    <div class="o1-dialog-head">
+      <h2 id="d-t" class="o1-dialog-title">معاينة «عقد توريد وتركيب مطبخ» بالتعديلات</h2>
+      <button type="button" class="o1-dialog-close" aria-label="إغلاق"><x-import component-from-global-scope="OpsOne.Icon" name="x"></x-import></button>
+    </div>
+    <p id="d-d" class="o1-dialog-desc">الحقول ممتلئة من طلب حقيقي كما ستظهر في العقد.</p>
+    
+    <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 20px;">
+      <x-import component-from-global-scope="OpsOne.SelectField" label="الطلب للمعاينة" options="{{ pord }}" default-value="24518" hint="معاينة فقط؛ لا يُنشأ عقد ولا يُرسل شيء."></x-import>
+      <x-import component-from-global-scope="OpsOne.SelectField" label="النص" options="{{ langs }}" default-value="ar"></x-import>
+    </div>
+    <article aria-label="العقد بعد ملء الحقول" style="background: var(--surface); border: 1px solid var(--stroke-weak); border-radius: 8px; padding: 32px 40px; font-size: 15px; line-height: 28px; max-height: none;"><h2 style="margin: 0 0 16px; text-align: center; font-size: 20px; line-height: 32px; font-weight: 700;">عقد توريد وتركيب مطبخ</h2><p style="margin: 0 0 6px;">حُرر هذا العقد بتاريخ <strong>25 أكتوبر 2026</strong> للطلب <bdi dir="ltr" style="font-family: var(--font-mono);">ORD-24518</bdi> بين:</p><p style="margin: 0 0 6px;"><strong>الطرف الأول:</strong> مطابخ الركن الحديث، سجل تجاري <bdi dir="ltr">1010734521</bdi>، العنوان الرياض، حي العليا.</p><p style="margin: 0 0 6px;"><strong>الطرف الثاني:</strong> منيرة الشمري، جوال <bdi dir="ltr">+966 55 214 7781</bdi>، عنوان التنفيذ حي الياسمين، شارع الأمير سعود بن عبدالله، الرياض.</p><h3 style="margin: 16px 0 4px; font-size: 15px; line-height: 26px; font-weight: 700;">البند الأول: موضوع العقد</h3><p style="margin: 0 0 6px;">يلتزم الطرف الأول بتصنيع وتوريد وتركيب ما يلي وفق التصميم المعتمد:</p><table class="o1-table" style="margin: 8px 0;"><caption class="o1-sr">البنود</caption><thead><tr><th scope="col">البند</th><th scope="col">الوصف</th><th scope="col" class="o1-td--end">الكمية</th></tr></thead><tbody><tr><td>وحدات المطبخ العلوية والسفلية</td><td>MDF مطلي، مقابض مخفية</td><td class="o1-td--end">1</td></tr><tr><td>جزيرة وسطية بأدراج</td><td>سطح خشب جوز طبيعي</td><td class="o1-td--end">1</td></tr></tbody></table><h3 style="margin: 16px 0 4px; font-size: 15px; line-height: 26px; font-weight: 700;">البند الثاني: القيمة وطريقة الدفع</h3><p style="margin: 0 0 6px;">قيمة العقد <strong>18,450.00 ر.س شاملة الضريبة</strong>، وتُدفع وفق الجدول الآتي:</p><table class="o1-table" style="margin: 8px 0;"><caption class="o1-sr">الدفعات</caption><thead><tr><th scope="col">الدفعة</th><th scope="col">الاستحقاق</th><th scope="col" class="o1-td--end">المبلغ</th></tr></thead><tbody><tr><td>الدفعة الأولى</td><td>عند الاتفاق</td><td class="o1-td--end"><x-import component-from-global-scope="OpsOne.Amount" value="5,000.00"></x-import></td></tr><tr><td>الدفعة الأخيرة</td><td>عند التسليم</td><td class="o1-td--end"><x-import component-from-global-scope="OpsOne.Amount" value="13,450.00"></x-import></td></tr></tbody></table><h3 style="margin: 16px 0 4px; font-size: 15px; line-height: 26px; font-weight: 700;">البند الثالث: مدة التنفيذ</h3><p style="margin: 0 0 6px;">يُنفذ العمل خلال <strong>21 يومًا</strong> من تأكيد الدفعة الأولى، ولا تُحتسب مدة التأخير الناتج عن تعديل يطلبه الطرف الثاني.</p><h3 style="margin: 16px 0 4px; font-size: 15px; line-height: 26px; font-weight: 700;">البند الرابع: الضمان</h3><p style="margin: 0 0 6px;">يضمن الطرف الأول الهيكل والمفصلات سنتين من تاريخ التسليم، ولا يشمل الضمان سوء الاستخدام.</p><h3 style="margin: 16px 0 4px; font-size: 15px; line-height: 26px; font-weight: 700;">البند الخامس: التعديلات</h3><p style="margin: 0 0 6px;">أي تغيير في المواصفات أو السعر أو المدة بعد الاتفاق يتم بطلب تعديل يوافق عليه الطرف الثاني.</p><h3 style="margin: 16px 0 4px; font-size: 15px; line-height: 26px; font-weight: 700;">البند السادس: شروط إضافية</h3><p style="margin: 0 0 6px;">لا شروط إضافية.</p><div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 32px;"><div><strong>الطرف الأول</strong><br>مطابخ الركن الحديث<br><span style="color: var(--text-weak);">أُعد 25 أكتوبر 2026</span></div><div><strong>الطرف الثاني</strong><br>منيرة الشمري<br><span style="color: var(--text-weak);">الموافقة الإلكترونية: تُضاف هنا عند موافقتها من حسابها، بوقتها وجوالها.</span></div></div></article>
+    <div class="o1-dialog-foot">
+      <x-import component-from-global-scope="OpsOne.Button" variant="ghost" icon="printer">طباعة</x-import><x-import component-from-global-scope="OpsOne.Button" variant="primary" href="ContractTemplateEdit.dc.html">رجوع إلى التعديل</x-import>
+    </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview": {"width": 1440, "height": 1800}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const noop = () => {};
+    return { yes: true, no: false, h28: 28, h24: 24, s16: 16, s24: 24, pord: [ { value: '24518', label: 'ORD-24518، منيرة الشمري' }, { value: '24483', label: 'ORD-24483، منى البلوي' } ], langs: [ { value: 'ar', label: 'العربية' }, { value: 'en', label: 'English' } ] };
+  }
+}
+</script>
+</body>
+</html>

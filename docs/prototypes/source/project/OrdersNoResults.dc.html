@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>الطلبات: لا نتائج مطابقة</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/opsone/tokens.css">
+<link rel="stylesheet" href="ds/opsone/components/bundle.css">
+<script src="ds/opsone/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:var(--link)}a:hover{color:var(--brand-hover)}
+</style>
+</helmet>
+<div dir="rtl" data-surface="panel" style="width: 1440px; min-height: 800px; display: flex; background: var(--background); color: var(--text-strong); font-family: var(--font-sans); font-size: 14px; line-height: 24px;">
+
+<aside class="o1-sidebar" style="position: relative; height: auto; display: flex;">
+  <div class="o1-sidebar-brand"><x-import component-from-global-scope="OpsOne.Logo" height="{{ h28 }}"></x-import></div>
+  <nav class="o1-nav" aria-label="القائمة الرئيسية"><ul>
+    <sc-for list="{{ nav }}" as="item" hint-placeholder-count="8">
+      <li><x-import component-from-global-scope="OpsOne.NavItem" label="{{ item.label }}" icon="{{ item.icon }}" href="{{ item.href }}" active="{{ item.active }}"></x-import></li>
+    </sc-for>
+  </ul></nav>
+</aside>
+
+<div class="o1-shell-main" style="flex: 1; min-width: 0; display: flex; flex-direction: column;">
+  <header class="o1-topbar" style="position: relative; gap: 12px;">
+    <div style="width: 440px;"><x-import component-from-global-scope="OpsOne.SearchField" label="البحث العام" placeholder="رقم الطلب أو اسم العميل أو الجوال أو المستند"></x-import></div>
+    <div class="o1-topbar-end">
+      <x-import component-from-global-scope="OpsOne.Button" variant="ghost" icon="bell" icon-only="{{ yes }}" aria-label="الإشعارات"></x-import>
+      <x-import component-from-global-scope="OpsOne.Avatar" name="فهد العتيبي" size="sm"></x-import>
+    </div>
+  </header>
+  <main class="o1-main" style="max-width: none; padding: 32px; display: flex; flex-direction: column; gap: 16px;">
+    <div class="o1-pagehead" style="margin-bottom: 8px;">
+      <div class="o1-pagehead-text"><h1 class="o1-pagehead-title">الطلبات</h1></div>
+      <div class="o1-pagehead-actions">
+        <x-import component-from-global-scope="OpsOne.Button" variant="primary" icon="plus" href="CreateOrder.dc.html">طلب مخصص جديد</x-import>
+      </div>
+    </div>
+    <div style="display: grid; grid-template-columns: minmax(0, 2fr) repeat(4, minmax(0, 1fr)) auto; gap: 12px; align-items: end;">
+      <x-import component-from-global-scope="OpsOne.SearchField" label="البحث في الطلبات" default-value="الخالدي"></x-import>
+      <x-import component-from-global-scope="OpsOne.SelectField" label="الحالة" options="{{ statuses }}" default-value="pause"></x-import>
+      <x-import component-from-global-scope="OpsOne.SelectField" label="المرحلة" options="{{ stages }}" default-value="all"></x-import>
+      <x-import component-from-global-scope="OpsOne.SelectField" label="الفرع" options="{{ branches }}" default-value="malqa"></x-import>
+      <x-import component-from-global-scope="OpsOne.SelectField" label="المسؤول" options="{{ owners }}" default-value="all"></x-import>
+      <x-import component-from-global-scope="OpsOne.Button" variant="ghost">مسح التصفية</x-import>
+    </div>
+    <div class="o1-table-wrap">
+      <table class="o1-table">
+        <caption class="o1-sr">الطلبات المطابقة للتصفية</caption>
+        <thead><tr><th scope="col">رقم الطلب</th><th scope="col">العميل</th><th scope="col">المرحلة الحالية</th><th scope="col">أين وصل</th><th scope="col">المسؤول</th><th scope="col">الحالة</th><th scope="col" class="o1-td--end">المتبقي</th></tr></thead>
+        <tbody><tr class="o1-tr--state"><td colspan="7">
+          <div class="o1-empty o1-empty--compact" style="padding-block: 40px;">
+            <span class="o1-empty-icon" aria-hidden="true"><x-import component-from-global-scope="OpsOne.Icon" name="search" size="{{ s24 }}"></x-import></span>
+            <p class="o1-empty-title">لا توجد نتائج مطابقة</p>
+            <p class="o1-empty-desc">لا طلب موقوف في فرع الملقا يطابق «الخالدي». جرّب اسمًا آخر أو وسّع التصفية.</p>
+            <div class="o1-empty-action"><x-import component-from-global-scope="OpsOne.Button" variant="secondary">مسح التصفية</x-import></div>
+          </div>
+        </td></tr></tbody>
+      </table>
+    </div>
+  </main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":800}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {
+      yes: true, h28: 28, s24: 24,
+      statuses: [ { value: 'all', label: 'كل الحالات' }, { value: 'run', label: 'جارٍ' }, { value: 'pause', label: 'موقوف' } ],
+      stages: [ { value: 'all', label: 'كل المراحل' } ],
+      branches: [ { value: 'all', label: 'كل الفروع' }, { value: 'olaya', label: 'العليا' }, { value: 'malqa', label: 'الملقا' } ],
+      owners: [ { value: 'all', label: 'كل المسؤولين' } ],
+      nav: [
+        { label: 'الرئيسية', icon: 'layout-dashboard', href: 'Main.dc.html', active: false },
+        { label: 'الطلبات', icon: 'clipboard-list', href: 'OrdersList.dc.html', active: true },
+        { label: 'العملاء', icon: 'users', href: 'CustomersList.dc.html', active: false },
+        { label: 'المهام والمواعيد', icon: 'calendar', href: '#', active: false },
+        { label: 'المالية', icon: 'receipt', href: '#', active: false },
+        { label: 'المخزون والتوريد', icon: 'package', href: '#', active: false },
+        { label: 'الموقع', icon: 'file-text', href: '#', active: false },
+        { label: 'التقارير', icon: 'trending-up', href: '#', active: false }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

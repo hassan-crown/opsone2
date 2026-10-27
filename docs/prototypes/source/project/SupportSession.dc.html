@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>جلسة دعم</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/opsone/tokens.css">
+<link rel="stylesheet" href="ds/opsone/components/bundle.css">
+<script src="ds/opsone/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:var(--link)}a:hover{color:var(--brand-hover)}
+</style>
+</helmet>
+<div dir="rtl" data-surface="panel" style="width: 1440px; min-height: 850px; display: flex; background: var(--background); color: var(--text-strong); font-family: var(--font-sans); font-size: 14px; line-height: 24px;"><aside class="o1-sidebar" style="position: relative; height: auto; display: flex;"><div class="o1-sidebar-brand"><x-import component-from-global-scope="OpsOne.Logo" height="{{ h28 }}"></x-import></div><div style="display: flex; flex-direction: column; gap: 2px; padding: 0 12px 16px; margin-bottom: 8px; border-bottom: 1px solid var(--stroke-weak);"><span style="font-weight: 600;">تشغيل OpsOne</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">دعم OpsOne</span></div><nav class="o1-nav" aria-label="القائمة الرئيسية"><ul><sc-for list="{{ nav }}" as="item" hint-placeholder-count="4"><li><x-import component-from-global-scope="OpsOne.NavItem" label="{{ item.label }}" icon="{{ item.icon }}" href="{{ item.href }}" active="{{ item.active }}"></x-import></li></sc-for></ul></nav></aside><div class="o1-shell-main" style="flex: 1; min-width: 0; display: flex; flex-direction: column;"><header class="o1-topbar" style="position: relative; gap: 12px;"><div style="width: 440px;"><x-import component-from-global-scope="OpsOne.SearchField" label="البحث" placeholder="رقم الطلب أو المنشأة أو البريد"></x-import></div><div class="o1-topbar-end"><x-import component-from-global-scope="OpsOne.Button" variant="ghost" icon="bell" icon-only="{{ yes }}" aria-label="الإشعارات"></x-import><x-import component-from-global-scope="OpsOne.Avatar" name="طلال الحمدان" size="sm"></x-import></div></header><div role="status" style="display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 10px 32px; background: var(--warning-bg); color: var(--warning-text); border-bottom: 1px solid var(--warning-text);"><span style="display: inline-flex; gap: 8px; align-items: center; font-weight: 600;"><x-import component-from-global-scope="OpsOne.Icon" name="lock" size="{{ s16 }}"></x-import>جلسة دعم لدى مطابخ الركن الحديث: الإشعارات والتكاملات فقط، تنتهي بعد 46 ساعة</span><x-import component-from-global-scope="OpsOne.Button" variant="secondary" size="sm" href="SupportInbox.dc.html">إنهاء الجلسة</x-import></div><main class="o1-main" style="max-width: none; padding: 32px; display: flex; flex-direction: column; gap: 20px;"><div class="o1-pagehead" style="margin-bottom: 0;"><div class="o1-pagehead-text"><h1 class="o1-pagehead-title">الإشعارات والتكاملات</h1><p class="o1-pagehead-desc">ما تراه في نطاق التفويض. بقية المنشأة غير متاحة، وأرقام العملاء مقنّعة.</p></div><div class="o1-pagehead-actions"></div></div><div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; align-items: start;"><section class="o1-card" aria-labelledby="sm-h">
+          <div class="o1-card-head" style="margin-bottom: 12px;"><div class="o1-card-heading"><h2 id="sm-h" class="o1-card-title">رسائل SMS</h2></div><x-import component-from-global-scope="OpsOne.Button" variant="secondary" size="sm">إرسال الحل للمالك</x-import></div>
+          <dl style="margin: 0; display: flex; flex-direction: column;">
+            <div style="display: flex; justify-content: space-between; gap: 12px; padding: 8px 0;"><dt style="color: var(--text-weak);">الحساب</dt><dd style="margin: 0; text-align: end;">حساب الجهة لدى مزود الرسائل</dd></div>
+            <div style="display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-top: 1px solid var(--stroke-weak);"><dt style="color: var(--text-weak);">الاتصال</dt><dd style="margin: 0; text-align: end;">يعمل</dd></div>
+            <div style="display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-top: 1px solid var(--stroke-weak);"><dt style="color: var(--text-weak);">اسم المرسل</dt><dd style="margin: 0; text-align: end;"><span style="display: inline-flex; gap: 6px; align-items: center;"><bdi dir="ltr">ALRUKN</bdi><x-import component-from-global-scope="OpsOne.Badge" tone="danger">يرفضه المزود منذ أمس</x-import></span></dd></div>
+          </dl><span style="color: var(--text-weak);">الحساب والاعتماد بين الجهة ومزودها. يجدد المالك اعتماد اسم المرسل لدى المزود، والربط يعمل بعدها دون تغيير.</span>
+        </section><section class="o1-card" aria-labelledby="em-h">
+          <div class="o1-card-head" style="margin-bottom: 12px;"><div class="o1-card-heading"><h2 id="em-h" class="o1-card-title">البريد</h2></div></div>
+          <dl style="margin: 0; display: flex; flex-direction: column;">
+            <div style="display: flex; justify-content: space-between; gap: 12px; padding: 8px 0;"><dt style="color: var(--text-weak);">الحالة</dt><dd style="margin: 0; text-align: end;">يعمل</dd></div>
+            <div style="display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-top: 1px solid var(--stroke-weak);"><dt style="color: var(--text-weak);">آخر إرسال</dt><dd style="margin: 0; text-align: end;">اليوم 10:05</dd></div>
+          </dl>
+        </section></div><section class="o1-card o1-card--flush" aria-labelledby="lg-h">
+          <div class="o1-card-head" style="padding: 20px 24px 0; margin-bottom: 8px;"><div class="o1-card-heading"><h2 id="lg-h" class="o1-card-title">آخر الرسائل</h2></div></div>
+          <table class="o1-table"><caption class="o1-sr">آخر الرسائل</caption><thead><tr><th scope="col">الوقت</th><th scope="col">النتيجة</th><th scope="col">إلى</th><th scope="col">السبب</th></tr></thead><tbody><tr><td><span style="color: var(--text-weak);">اليوم 10:02</span></td><td><x-import component-from-global-scope="OpsOne.Badge" tone="danger">رفض المزود</x-import></td><td><bdi dir="ltr">+966 55 *** 7781</bdi></td><td><span style="color: var(--text-weak);">اسم المرسل غير معتمد</span></td></tr><tr><td><span style="color: var(--text-weak);">اليوم 09:40</span></td><td><x-import component-from-global-scope="OpsOne.Badge" tone="danger">رفض المزود</x-import></td><td><bdi dir="ltr">+966 50 *** 1203</bdi></td><td><span style="color: var(--text-weak);">اسم المرسل غير معتمد</span></td></tr><tr><td><span style="color: var(--text-weak);">أمس 17:55</span></td><td><x-import component-from-global-scope="OpsOne.Badge" tone="success">وصلت</x-import></td><td><bdi dir="ltr">+966 55 *** 7781</bdi></td><td><span style="color: var(--text-weak);"></span></td></tr></tbody></table>
+        </section></main></div></div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview": {"width": 1440, "height": 850}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const noop = () => {};
+    return { yes: true, no: false, h28: 28, h24: 24, s16: 16, s24: 24, nav: [ { label: 'الرئيسية', icon: 'layout-dashboard', href: 'OpsDash.dc.html', active: false }, { label: 'المنشآت', icon: 'users', href: 'Tenants.dc.html', active: false }, { label: 'الدعم', icon: 'phone', href: 'SupportInbox.dc.html', active: true } ] };
+  }
+}
+</script>
+</body>
+</html>

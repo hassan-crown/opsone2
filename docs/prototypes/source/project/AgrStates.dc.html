@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>حالات الاتفاق</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/opsone/tokens.css">
+<link rel="stylesheet" href="ds/opsone/components/bundle.css">
+<script src="ds/opsone/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:var(--link)}a:hover{color:var(--brand-hover)}
+</style>
+</helmet>
+<div dir="rtl" data-surface="panel" style="width: 1440px; min-height: 1700px; box-sizing: border-box; padding: 40px; display: flex; flex-direction: column; gap: 24px; background: var(--background); color: var(--text-strong); font-family: var(--font-sans); font-size: 14px; line-height: 24px;">
+  <h1 style="margin: 0; font-size: 24px; line-height: 36px; font-weight: 700;">حالات الاتفاق</h1>
+  <section class="o1-card o1-card--flush" aria-label="مستند الاعتماد: عرض أو تصميم أو عقد">
+      <div class="o1-card-head" style="padding: 20px 24px 0; margin-bottom: 8px;"><h2 class="o1-card-title">مستند الاعتماد: عرض أو تصميم أو عقد</h2></div>
+      <table class="o1-table">
+        <caption class="o1-sr">مستند الاعتماد: عرض أو تصميم أو عقد</caption>
+        <thead><tr><th scope="col" style="width: 180px;">الحالة</th><th scope="col">ما تعنيه</th><th scope="col">ما يتاح</th></tr></thead>
+        <tbody>
+          <tr><td><x-import component-from-global-scope="OpsOne.Badge" tone="neutral">مسودة</x-import></td><td>يُعدّ ويُصحح بحرية، ولا يراه العميل.</td><td style="color: var(--text-weak);">إرسال، إلغاء</td></tr>
+          <tr><td><x-import component-from-global-scope="OpsOne.Badge" tone="warning">بانتظار العميل</x-import></td><td>أُرسل بمحتوى ثابت. الفتح والتنزيل ليسا موافقة.</td><td style="color: var(--text-weak);">توثيق موافقة خارجية، إرسال بديل، إلغاء</td></tr>
+          <tr><td><x-import component-from-global-scope="OpsOne.Badge" tone="warning">طلب تعديل</x-import></td><td>ردّ العميل بملاحظة تصل للمسؤول. الطلب لا يُرفض ولا يعاد مساره.</td><td style="color: var(--text-weak);">إرسال بديل يحفظ هذا النص، أو إلغاء</td></tr>
+          <tr><td><x-import component-from-global-scope="OpsOne.Badge" tone="warning">منتهي الصلاحية</x-import></td><td>عرض لم يُعتمد في مدته؛ لا يقبل موافقة.</td><td style="color: var(--text-weak);">تمديد بالمحتوى نفسه، إرسال بديل</td></tr>
+          <tr><td><x-import component-from-global-scope="OpsOne.Badge" tone="success">موافق عليه</x-import></td><td>تحقق الإجراء، ويظهر ما وافق عليه العميل وتاريخه وطريقته. لا ينتهي بانتهاء المدة لاحقًا.</td><td style="color: var(--text-weak);">تعديل الاتفاق</td></tr>
+          <tr><td><x-import component-from-global-scope="OpsOne.Badge" tone="neutral">مستبدل</x-import></td><td>حل محله مستند أحدث. يبقى إثباتًا، ورابطه لا يقبل موافقة.</td><td style="color: var(--text-weak);">عرض فقط</td></tr>
+          <tr><td><x-import component-from-global-scope="OpsOne.Badge" tone="danger">ملغى</x-import></td><td>أُلغي طلب الاعتماد بسبب، دون مس اتفاق مثبت.</td><td style="color: var(--text-weak);">عرض فقط</td></tr>
+        </tbody>
+      </table>
+    </section>
+  <section class="o1-card o1-card--flush" aria-label="تعديل الاتفاق">
+      <div class="o1-card-head" style="padding: 20px 24px 0; margin-bottom: 8px;"><h2 class="o1-card-title">تعديل الاتفاق</h2></div>
+      <table class="o1-table">
+        <caption class="o1-sr">تعديل الاتفاق</caption>
+        <thead><tr><th scope="col" style="width: 180px;">الحالة</th><th scope="col">ما تعنيه</th><th scope="col">ما يتاح</th></tr></thead>
+        <tbody>
+          <tr><td><x-import component-from-global-scope="OpsOne.Badge" tone="neutral">مسودة</x-import></td><td>فرق المبلغ والمواصفات والموعد والعمل المتأثر قيد الإعداد.</td><td style="color: var(--text-weak);">إرسال للعميل، عدول</td></tr>
+          <tr><td><x-import component-from-global-scope="OpsOne.Badge" tone="warning">بانتظار الموافقة</x-import></td><td>الاتفاق السابق نافذ، والعمل المتأثر وحده لا يبدأ.</td><td style="color: var(--text-weak);">توثيق موافقة خارجية، عدول</td></tr>
+          <tr><td><x-import component-from-global-scope="OpsOne.Badge" tone="warning">يحتاج تعديلًا</x-import></td><td>طلب العميل تصحيحًا؛ يبقى السابق نافذًا.</td><td style="color: var(--text-weak);">إعادة الإرسال، عدول</td></tr>
+          <tr><td><x-import component-from-global-scope="OpsOne.Badge" tone="success">مطبق</x-import></td><td>تغير الاتفاق والدفعات مرة واحدة. الزيادة تُضاف للمتبقي، والنقص عن المقبوض يظهر للتسوية.</td><td style="color: var(--text-weak);">عرض فقط</td></tr>
+          <tr><td><x-import component-from-global-scope="OpsOne.Badge" tone="danger">ملغى</x-import></td><td>عدول عن المقترح فقط؛ يُرفع تعليق العمل المتأثر، والاتفاق السابق كما هو.</td><td style="color: var(--text-weak);">عرض فقط</td></tr>
+        </tbody>
+      </table>
+    </section>
+  <section class="o1-card o1-card--flush" aria-label="قرار الخصم أو السماح بالمتابعة">
+      <div class="o1-card-head" style="padding: 20px 24px 0; margin-bottom: 8px;"><h2 class="o1-card-title">قرار الخصم أو السماح بالمتابعة</h2></div>
+      <table class="o1-table">
+        <caption class="o1-sr">قرار الخصم أو السماح بالمتابعة</caption>
+        <thead><tr><th scope="col" style="width: 180px;">الحالة</th><th scope="col">ما تعنيه</th><th scope="col">ما يتاح</th></tr></thead>
+        <tbody>
+          <tr><td><x-import component-from-global-scope="OpsOne.Badge" tone="warning">مطلوب</x-import></td><td>ينتظر قرار المخول في «تحتاج قرارك»، والشرط أو الحد يبقى مانعًا.</td><td style="color: var(--text-weak);">اعتماد، رفض، عدول من صاحب الطلب</td></tr>
+          <tr><td><x-import component-from-global-scope="OpsOne.Badge" tone="success">موافق عليه</x-import></td><td>للمحتوى أو الشرط المحدد وحده. تغيّر المحتوى يطلب قرارًا جديدًا.</td><td style="color: var(--text-weak);">عرض فقط</td></tr>
+          <tr><td><x-import component-from-global-scope="OpsOne.Badge" tone="danger">مرفوض</x-import></td><td>بسبب واضح يصل لصاحب الطلب، والمانع باقٍ.</td><td style="color: var(--text-weak);">طلب جديد بمحتوى مختلف</td></tr>
+          <tr><td><x-import component-from-global-scope="OpsOne.Badge" tone="danger">ملغى</x-import></td><td>زالت الحاجة أو عدل صاحب الطلب.</td><td style="color: var(--text-weak);">عرض فقط</td></tr>
+        </tbody>
+      </table>
+    </section>
+  <section class="o1-card" aria-labelledby="se-h">
+      <h2 id="se-h" class="o1-card-title" style="margin-bottom: 12px;">تعديل مطبق بنقص عن المقبوض</h2>
+      <x-import component-from-global-scope="OpsOne.Alert" tone="warning" title="1,000.00 ر.س تحتاج تسوية">خُفض اتفاق ORD-24461 من 20,000.00 إلى 18,000.00 بعد قبض 19,000.00. يظهر الفرق في مالية الطلب ولا يُرد تلقائيًا؛ الرد إجراء مستقل في المالية.</x-import>
+    </section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview": {"width": 1440, "height": 1700}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const noop = () => {};
+    return { yes: true, no: false, h28: 28, h24: 24, s16: 16 };
+  }
+}
+</script>
+</body>
+</html>

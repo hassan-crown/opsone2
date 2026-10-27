@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>معالج الإعداد: مسار التشغيل</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/opsone/tokens.css">
+<link rel="stylesheet" href="ds/opsone/components/bundle.css">
+<script src="ds/opsone/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:var(--link)}a:hover{color:var(--brand-hover)}
+</style>
+</helmet>
+<div dir="rtl" data-surface="panel" style="width: 1440px; min-height: 1000px; display: flex; flex-direction: column; background: var(--background); color: var(--text-strong); font-family: var(--font-sans); font-size: 14px; line-height: 24px;"><header style="display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 64px; padding: 0 32px; background: var(--surface); border-bottom: 1px solid var(--stroke-weak);"><div style="display: flex; align-items: center; gap: 16px;"><x-import component-from-global-scope="OpsOne.Logo" height="{{ h28 }}"></x-import><span style="color: var(--text-weak);">إعداد مطابخ الركن الحديث</span></div><x-import component-from-global-scope="OpsOne.Button" variant="ghost" href="HomeSetup.dc.html">حفظ والمتابعة لاحقًا</x-import></header><div style="display: grid; grid-template-columns: 260px minmax(0, 760px); gap: 48px; justify-content: center; padding: 40px 32px;"><div><x-import component-from-global-scope="OpsOne.Steps" label="خطوات الإعداد" steps="{{ wsteps }}" current="{{ cur }}" orientation="vertical"></x-import></div><section aria-labelledby="w-h" style="display: flex; flex-direction: column; gap: 20px; padding: 28px 32px; background: var(--surface); border: 1px solid var(--stroke-weak); border-radius: 12px;"><div style="display: flex; flex-direction: column; gap: 4px;"><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">الخطوة 3 من 5</span><h1 id="w-h" style="margin: 0; font-size: 22px; line-height: 34px; font-weight: 700;">مسار التشغيل</h1><span style="color: var(--text-weak);">اختر أقرب قالب لعملك؛ هو نقطة بداية لا قيد.</span></div><fieldset style="margin: 0; padding: 0; border: 0; display: flex; flex-direction: column; gap: 10px;"><legend style="padding: 0; margin-bottom: 10px; font-weight: 600;">قالب البداية</legend><label style="display: grid; grid-template-columns: 24px minmax(0, 1fr); gap: 12px; padding: 16px; border: 1px solid var(--brand); border-radius: 8px; background: var(--brand-subtle);"><input type="radio" name="tpl" value="a" checked="" style="width: 18px; height: 18px; margin-top: 3px; accent-color: var(--brand);"><span style="display: flex; flex-direction: column; gap: 2px;"><span style="font-weight: 600;">المسار الافتراضي، بالقياس والتصميم</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">القياس والمعاينة، التصميم والعرض (القياس والتصميم عند الحاجة)، الاتفاق والدفعة الأولى، التصنيع، التركيب والتسليم. منشور الآن.</span></span></label><label style="display: grid; grid-template-columns: 24px minmax(0, 1fr); gap: 12px; padding: 16px; border: 1px solid var(--stroke-weak); border-radius: 8px;"><input type="radio" name="tpl" value="b" style="width: 18px; height: 18px; margin-top: 3px; accent-color: var(--brand);"><span style="display: flex; flex-direction: column; gap: 2px;"><span style="font-weight: 600;">تصنيع وتركيب بلا تصميم</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">القياس، الاتفاق والدفعة الأولى، التصنيع، التركيب والتسليم</span></span></label><label style="display: grid; grid-template-columns: 24px minmax(0, 1fr); gap: 12px; padding: 16px; border: 1px solid var(--stroke-weak); border-radius: 8px;"><input type="radio" name="tpl" value="c" style="width: 18px; height: 18px; margin-top: 3px; accent-color: var(--brand);"><span style="display: flex; flex-direction: column; gap: 2px;"><span style="font-weight: 600;">توريد وتركيب بسيط</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">الاتفاق والدفعة، التوريد، التركيب والتسليم</span></span></label></fieldset><div style="display: flex; flex-direction: column; gap: 8px; padding: 12px 16px; background: var(--fill); border-radius: 8px;">
+      <span style="font-weight: 600;">بعد الاختيار</span>
+      <span style="display: flex; gap: 8px;"><span style="color: var(--success-text); display: inline-flex;"><x-import component-from-global-scope="OpsOne.Icon" name="check" size="{{ s16 }}"></x-import></span><span>مساحتك تعمل بالمسار الافتراضي منذ تجهيزها؛ اختيار قالب آخر يستبدله فورًا للطلبات الجديدة.</span></span>
+      <span style="display: flex; gap: 8px;"><span style="color: var(--success-text); display: inline-flex;"><x-import component-from-global-scope="OpsOne.Icon" name="check" size="{{ s16 }}"></x-import></span><span>التخطي يبقي الافتراضي، فلا يتوقف فتح الطلبات أبدًا.</span></span>
+      <span style="display: flex; gap: 8px;"><span style="color: var(--info-text); display: inline-flex;"><x-import component-from-global-scope="OpsOne.Icon" name="info" size="{{ s16 }}"></x-import></span><span>أي تعديل لاحق يسري على الطلبات الجديدة فقط.</span></span>
+    </div><p style="margin: 0; display: flex; gap: 8px; color: var(--text-weak);"><x-import component-from-global-scope="OpsOne.Icon" name="info" size="{{ s16 }}"></x-import><span>مكانه الدائم: الإعدادات، مسار التشغيل.</span></p><div style="display: flex; justify-content: space-between; gap: 8px; padding-top: 16px; border-top: 1px solid var(--stroke-weak);"><x-import component-from-global-scope="OpsOne.Button" variant="ghost" icon="arrow-left" href="WizardOrg.dc.html">رجوع</x-import><div style="display: flex; gap: 8px;"><x-import component-from-global-scope="OpsOne.Button" variant="secondary" href="FlowEdit.dc.html">مراجعة المراحل</x-import><x-import component-from-global-scope="OpsOne.Button" variant="primary" icon="chevron-right" href="WizardTeam.dc.html">التالي</x-import></div></div></section></div></div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview": {"width": 1440, "height": 1000}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const noop = () => {};
+    return { yes: true, no: false, h28: 28, h24: 24, s16: 16, s24: 24, noop, cur: 2, wsteps: [ { label: 'بيانات المنشأة' }, { label: 'تنظيم العمل' }, { label: 'مسار التشغيل' }, { label: 'دعوة الفريق' }, { label: 'المراجعة والإتمام' } ] };
+  }
+}
+</script>
+</body>
+</html>

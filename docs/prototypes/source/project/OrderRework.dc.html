@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>إعادة عمل إجراء مكتمل</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/opsone/tokens.css">
+<link rel="stylesheet" href="ds/opsone/components/bundle.css">
+<script src="ds/opsone/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:var(--link)}a:hover{color:var(--brand-hover)}
+</style>
+</helmet>
+<div dir="rtl" data-surface="panel" style="position: relative; width: 1440px; height: 1000px; overflow: hidden; background: var(--background); color: var(--text-strong); font-family: var(--font-sans); font-size: 14px; line-height: 24px;">
+  <div aria-hidden="true" inert="" style="position: absolute; inset: 0;">
+    <dc-import name="OrderStages" hint-size="1440px,1900px"></dc-import>
+  </div>
+  <div aria-hidden="true" style="position: absolute; inset: 0; background: var(--overlay);"></div>
+
+  <div role="dialog" aria-modal="true" aria-labelledby="d-t" aria-describedby="d-d" style="position: absolute; inset-block-start: 96px; inset-inline-start: 50%; transform: translateX(50%); width: 600px; box-sizing: border-box; display: flex; flex-direction: column; gap: 16px; padding: 24px; background: var(--raised); border: 1px solid var(--stroke-weak); border-radius: 12px; box-shadow: var(--shadow-raised);">
+    <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 16px;">
+      <h2 id="d-t" style="margin: 0; font-size: 16px; line-height: 26px; font-weight: 600;">إعادة عمل إجراء مكتمل؟</h2>
+      <x-import component-from-global-scope="OpsOne.Button" variant="ghost" icon="x" icon-only="{{ yes }}" aria-label="إغلاق"></x-import>
+    </div>
+    <p id="d-d" style="margin: -8px 0 0; color: var(--text-weak);">للجزء المتأثر فقط. السابق يُحفظ ولا يُمحى.</p>
+    <x-import component-from-global-scope="OpsOne.SelectField" label="الإجراء المكتمل المتأثر" options="{{ acts }}" default-value="measure" required="{{ yes }}" hint="المكتمل فقط. ما يرتبط بقبض أو صرف لا يظهر هنا"></x-import>
+    <x-import component-from-global-scope="OpsOne.TextField" label="السبب" default-value="قررت العميلة نقل الثلاجة إلى الجدار ب، ويلزم إعادة قياس الجدار ب وحده." multiline="{{ yes }}" required="{{ yes }}"></x-import>
+    <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 20px;">
+      <x-import component-from-global-scope="OpsOne.SelectField" label="المنفذ" options="{{ techs }}" default-value="omar" required="{{ yes }}"></x-import>
+      <x-import component-from-global-scope="OpsOne.TextField" label="الموعد المستهدف" default-value="26/10/2026" dir="ltr" optional="{{ yes }}"></x-import>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 8px; padding: 12px 16px; background: var(--fill); border-radius: 8px;">
+      <span style="font-weight: 600;">أثر إعادة العمل</span>
+      <span style="display: flex; gap: 8px;"><span style="color: var(--success-text); display: inline-flex;"><x-import component-from-global-scope="OpsOne.Icon" name="check" size="{{ s16 }}"></x-import></span><span>تُنشأ مهمة «إعادة القياس» في المرحلة الحالية، وتبقى النتيجة السابقة في النشاط.</span></span>
+      <span style="display: flex; gap: 8px;"><span style="color: var(--success-text); display: inline-flex;"><x-import component-from-global-scope="OpsOne.Icon" name="check" size="{{ s16 }}"></x-import></span><span>لا تُعاد المراحل الأخرى، ولا يتكرر قبض أو صرف.</span></span>
+      <span style="display: flex; gap: 8px;"><span style="color: var(--info-text); display: inline-flex;"><x-import component-from-global-scope="OpsOne.Icon" name="info" size="{{ s16 }}"></x-import></span><span>تصبح مرحلة القياس «مكتملة مع تصحيح مطلوب». العرض المعتمد QUO-3307 بُني على هذه القياسات، فيتوقف ما يعتمد عليها في التصنيع حتى تُحسم؛ إن تغيرت القيم يُفتح تعديل الاتفاق.</span></span>
+    </div>
+
+    <div style="display: flex; justify-content: flex-end; gap: 8px; flex-wrap: wrap; padding-top: 4px;">
+      <x-import component-from-global-scope="OpsOne.Button" variant="ghost" href="OrderStages.dc.html">إلغاء</x-import>
+      <x-import component-from-global-scope="OpsOne.Button" variant="primary" href="OrderStages.dc.html">إعادة العمل</x-import>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1000}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const noop = () => {};
+    return { yes: true, s16: 16, acts: [ { value: 'measure', label: 'القياسات النهائية، مرحلة القياس والمعاينة' }, { value: 'design', label: 'اعتماد التصميم، مرحلة التصميم والعرض' } ], techs: [ { value: 'omar', label: 'عمر المطيري' }, { value: 'box', label: 'صندوق قسم القياس' } ] };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>روابطي على الجوال</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/opsone/tokens.css">
+<link rel="stylesheet" href="ds/opsone/components/bundle.css">
+<script src="ds/opsone/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:var(--link)}a:hover{color:var(--brand-hover)}
+</style>
+</helmet>
+<div dir="rtl" data-surface="panel" style="width: 390px; min-height: 1000px; display: flex; flex-direction: column; background: var(--background); color: var(--text-strong); font-family: var(--font-sans); font-size: 14px; line-height: 24px;">
+  <header style="display: flex; align-items: center; gap: 4px; min-height: 64px; padding-inline: 8px 8px; background: var(--surface); border-bottom: 1px solid var(--stroke-weak);">
+    <x-import component-from-global-scope="OpsOne.Button" variant="ghost" icon="arrow-left" icon-only="{{ yes }}" aria-label="رجوع إلى الرئيسية" href="HomeEmployee.dc.html"></x-import>
+    <span style="font-weight: 600;">روابطي</span>
+    <div style="margin-inline-start: auto; display: flex;"></div>
+  </header>
+  <main style="padding: 16px; display: flex; flex-direction: column; gap: 16px;">
+    <section aria-labelledby="l1" style="display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--stroke-weak); border-radius: 12px;">
+      <h2 id="l1" style="margin: 0; padding: 12px 16px 8px; font-size: 16px; line-height: 26px; font-weight: 600;">روابطي</h2>
+      <div style="display: flex; flex-direction: column; gap: 6px; padding: 12px 16px; border-top: 1px solid var(--stroke-weak);">
+        <span style="display: flex; justify-content: space-between; gap: 8px; align-items: center;"><span style="font-weight: 600;"><bdi dir="ltr" style="font-family: var(--font-mono);">ORD-24545</bdi>، عبير الغامدي</span><x-import component-from-global-scope="OpsOne.Badge" tone="info">فعال</x-import></span>
+        <span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">1,860.00 ر.س. ينتهي غدًا 11:00.</span>
+        <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px;"><x-import component-from-global-scope="OpsOne.Button" variant="secondary" icon="copy" block="{{ yes }}">نسخ</x-import><x-import component-from-global-scope="OpsOne.Button" variant="secondary" icon="phone" block="{{ yes }}">إرسال SMS</x-import></div>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 6px; padding: 12px 16px; border-top: 1px solid var(--stroke-weak);">
+        <span style="display: flex; justify-content: space-between; gap: 8px; align-items: center;"><span style="font-weight: 600;"><bdi dir="ltr" style="font-family: var(--font-mono);">ORD-24544</bdi>، ريان السالم</span><x-import component-from-global-scope="OpsOne.Badge" tone="warning">إتمام جارٍ</x-import></span>
+        <span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">العميل في صفحة الدفع؛ لا رابط بديل حتى تُحسم المحاولة.</span>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 6px; padding: 12px 16px; border-top: 1px solid var(--stroke-weak);">
+        <span style="display: flex; justify-content: space-between; gap: 8px; align-items: center;"><span style="font-weight: 600;"><bdi dir="ltr" style="font-family: var(--font-mono);">ORD-24543</bdi>، هيفاء المطيري</span><x-import component-from-global-scope="OpsOne.Badge" tone="success">مستخدم</x-import></span>
+        <span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">اشترت أمس 10:05. المبيعة لك.</span>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 6px; padding: 12px 16px; border-top: 1px solid var(--stroke-weak);">
+        <span style="display: flex; justify-content: space-between; gap: 8px; align-items: center;"><span style="font-weight: 600;"><bdi dir="ltr" style="font-family: var(--font-mono);">ORD-24536</bdi>، منصور الخثعمي</span><x-import component-from-global-scope="OpsOne.Badge" tone="neutral">منتهٍ</x-import></span>
+        <span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">انتهى دون شراء.</span>
+        <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px;"><x-import component-from-global-scope="OpsOne.Button" variant="secondary" icon="refresh-cw" block="{{ yes }}">رابط جديد</x-import><x-import component-from-global-scope="OpsOne.Button" variant="ghost" block="{{ yes }}">فتح السلة</x-import></div>
+      </div>
+    </section>
+
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview": {"width": 390, "height": 1000}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const noop = () => {};
+    return { yes: true, no: false, h28: 28, h24: 24, s16: 16, s24: 24 };
+  }
+}
+</script>
+</body>
+</html>

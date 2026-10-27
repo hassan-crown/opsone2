@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>الإشعارات على الجوال</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/opsone/tokens.css">
+<link rel="stylesheet" href="ds/opsone/components/bundle.css">
+<script src="ds/opsone/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:var(--link)}a:hover{color:var(--brand-hover)}
+</style>
+</helmet>
+<div dir="rtl" data-surface="panel" style="width: 390px; min-height: 844px; display: flex; flex-direction: column; background: var(--background); color: var(--text-strong); font-family: var(--font-sans); font-size: 14px; line-height: 24px;">
+  <header style="display: flex; align-items: center; gap: 4px; min-height: 64px; padding-inline: 8px 16px; background: var(--surface); border-bottom: 1px solid var(--stroke-weak);">
+    <x-import component-from-global-scope="OpsOne.Button" variant="ghost" icon="arrow-left" icon-only="{{ yes }}" aria-label="إغلاق الإشعارات" href="HomeMobile.dc.html"></x-import>
+    <span style="font-weight: 600;">الإشعارات</span>
+    <div style="margin-inline-start: auto; display: flex;"></div>
+  </header>
+  <main style="padding: 16px; display: flex; flex-direction: column; gap: 16px;">
+    <div style="display: flex; justify-content: space-between; align-items: center;"><span style="color: var(--text-weak);">5 غير مقروءة</span><x-import component-from-global-scope="OpsOne.Button" variant="ghost" size="sm">تعليم الكل كمقروء</x-import></div>
+    <section aria-label="الإشعارات" style="display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--stroke-weak); border-radius: 12px;">
+      <a href="OrderMobile.dc.html" style="display: grid; grid-template-columns: 10px minmax(0, 1fr); gap: 10px; padding: 12px 16px; border-top: 1px solid var(--stroke-weak); color: var(--text-strong); text-decoration: none; min-height: 44px;">
+        <span aria-hidden="true" style="width: 8px; height: 8px; margin-top: 8px; border-radius: 9999px; background: var(--brand);"></span>
+        <span style="display: flex; flex-direction: column; gap: 2px;"><span style="font-weight: 600;">إيصال تحويل بانتظار التأكيد<span class="o1-sr">، غير مقروء</span></span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">ORD-24518، منيرة الشمري. 5,000.00 ر.س</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">قبل ساعتين</span></span>
+      </a>
+      <a href="OrderMobile.dc.html" style="display: grid; grid-template-columns: 10px minmax(0, 1fr); gap: 10px; padding: 12px 16px; border-top: 1px solid var(--stroke-weak); color: var(--text-strong); text-decoration: none; min-height: 44px;">
+        <span aria-hidden="true" style="width: 8px; height: 8px; margin-top: 8px; border-radius: 9999px; background: var(--brand);"></span>
+        <span style="display: flex; flex-direction: column; gap: 2px;"><span style="font-weight: 600;">طلب سماح بالمتابعة<span class="o1-sr">، غير مقروء</span></span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">ORD-24490، طلبه ماجد الحربي</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">أمس</span></span>
+      </a>
+      <a href="OrderMobile.dc.html" style="display: grid; grid-template-columns: 10px minmax(0, 1fr); gap: 10px; padding: 12px 16px; border-top: 1px solid var(--stroke-weak); color: var(--text-strong); text-decoration: none; min-height: 44px;">
+        <span aria-hidden="true" style="width: 8px; height: 8px; margin-top: 8px; border-radius: 9999px; background: var(--brand);"></span>
+        <span style="display: flex; flex-direction: column; gap: 2px;"><span style="font-weight: 600;">طلب إلغاء من العميل<span class="o1-sr">، غير مقروء</span></span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">ORD-24467، تركي العسيري</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">قبل 4 أيام</span></span>
+      </a>
+      <a href="OrderMobile.dc.html" style="display: grid; grid-template-columns: 10px minmax(0, 1fr); gap: 10px; padding: 12px 16px; border-top: 1px solid var(--stroke-weak); color: var(--text-strong); text-decoration: none; min-height: 44px;">
+        <span aria-hidden="true" style="width: 8px; height: 8px; margin-top: 8px; border-radius: 9999px; background: transparent;"></span>
+        <span style="display: flex; flex-direction: column; gap: 2px;"><span style="font-weight: 400;">اكتملت مرحلة التصنيع</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">ORD-24476، لطيفة الحربي</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">قبل 5 أيام</span></span>
+      </a>
+    </section>
+    <p style="margin: 0; color: var(--text-weak);">قراءة الإشعار لا تحسم القرار؛ يختفي القرار من «تحتاج قرارك» عند حسمه في مصدره.</p>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const noop = () => {};
+    return { yes: true };
+  }
+}
+</script>
+</body>
+</html>

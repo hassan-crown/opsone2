@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>ما الجديد</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/opsone/tokens.css">
+<link rel="stylesheet" href="ds/opsone/components/bundle.css">
+<script src="ds/opsone/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:var(--link)}a:hover{color:var(--brand-hover)}
+</style>
+</helmet>
+<div dir="rtl" data-surface="panel" style="width: 1440px; min-height: 750px; display: flex; background: var(--background); color: var(--text-strong); font-family: var(--font-sans); font-size: 14px; line-height: 24px;">
+
+<aside class="o1-sidebar" style="position: relative; height: auto; display: flex;">
+  <div class="o1-sidebar-brand"><x-import component-from-global-scope="OpsOne.Logo" height="{{ h28 }}"></x-import></div>
+  <div style="display: flex; flex-direction: column; gap: 2px; padding: 0 12px 16px; margin-bottom: 8px; border-bottom: 1px solid var(--stroke-weak);">
+    <span style="font-weight: 600;">مطابخ الركن الحديث</span>
+    <span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">باقة نمو</span>
+  </div>
+  <nav class="o1-nav" aria-label="القائمة الرئيسية"><ul>
+    <sc-for list="{{ nav }}" as="item" hint-placeholder-count="8">
+      <li><x-import component-from-global-scope="OpsOne.NavItem" label="{{ item.label }}" icon="{{ item.icon }}" href="{{ item.href }}" active="{{ item.active }}"></x-import></li>
+    </sc-for>
+  </ul></nav>
+  <div class="o1-sidebar-foot">
+    <x-import component-from-global-scope="OpsOne.NavItem" label="الإعدادات" icon="settings" href="#"></x-import>
+  </div>
+</aside>
+
+<div class="o1-shell-main" style="flex: 1; min-width: 0; display: flex; flex-direction: column;">
+  <header class="o1-topbar" style="position: relative; gap: 12px;">
+    <div style="width: 440px;"><x-import component-from-global-scope="OpsOne.SearchField" label="البحث العام" placeholder="رقم الطلب أو اسم العميل أو الجوال أو المستند"></x-import></div>
+    <div class="o1-topbar-end">
+      <x-import component-from-global-scope="OpsOne.Button" variant="ghost" icon="info" icon-only="{{ yes }}" aria-label="مساعدة هذه الصفحة"></x-import>
+      <x-import component-from-global-scope="OpsOne.Button" variant="ghost" icon="bell" icon-only="{{ yes }}" aria-label="الإشعارات"></x-import>
+      <x-import component-from-global-scope="OpsOne.Avatar" name="فهد العتيبي" size="sm"></x-import>
+    </div>
+  </header>
+
+  <main class="o1-main" style="max-width: none; padding: 32px; display: flex; flex-direction: column; gap: 20px;">
+    <x-import component-from-global-scope="OpsOne.Breadcrumbs" items="{{ crumbs }}"></x-import><div class="o1-pagehead" style="margin-bottom: 0;"><div class="o1-pagehead-text"><h1 class="o1-pagehead-title">ما الجديد</h1><p class="o1-pagehead-desc">أحدث ما أُضيف إلى OpsOne وما تغيّر فيه، الأحدث أولًا. يصل التحديث لمنشأتك دون أي إجراء منك.</p></div><div class="o1-pagehead-actions"></div></div><div style="max-width: 820px; display: flex; flex-direction: column; gap: 16px;"><section style="display: flex; flex-direction: column; gap: 8px; padding: 16px 20px; background: var(--surface); border: 1px solid var(--stroke-weak); border-radius: 12px;"><div style="display: flex; justify-content: space-between; align-items: center;"><span style="font-size: 18px; font-weight: 700;">الإصدار <bdi dir="ltr">1.8.3</bdi></span><span style="color: var(--text-weak);">24 أكتوبر 2026</span></div><div style="display: grid; grid-template-columns: 72px minmax(0, 1fr); gap: 12px; align-items: start; padding: 8px 0; border-top: 1px solid var(--stroke-weak);"><x-import component-from-global-scope="OpsOne.Badge" tone="success">جديد</x-import><span>التذاكر بأنواعها: مشكلة، سؤال، طلب، أخرى، ومرشح بالنوع.</span></div><div style="display: grid; grid-template-columns: 72px minmax(0, 1fr); gap: 12px; align-items: start; padding: 8px 0; border-top: 1px solid var(--stroke-weak);"><x-import component-from-global-scope="OpsOne.Badge" tone="success">جديد</x-import><span>تذكرة بلا طلب تصل لمسؤول التذاكر العامة من إعدادات المبيعات.</span></div><div style="display: grid; grid-template-columns: 72px minmax(0, 1fr); gap: 12px; align-items: start; padding: 8px 0; border-top: 1px solid var(--stroke-weak);"><x-import component-from-global-scope="OpsOne.Badge" tone="info">تحسين</x-import><span>النوافذ في وسط الشاشة بعرض ثابت، وأزرارها في مكان واحد.</span></div><div style="display: grid; grid-template-columns: 72px minmax(0, 1fr); gap: 12px; align-items: start; padding: 8px 0; border-top: 1px solid var(--stroke-weak);"><x-import component-from-global-scope="OpsOne.Badge" tone="neutral">إصلاح</x-import><span>عداد «المهام والمواعيد» لا يحتسب التذاكر المغلقة.</span></div></section><section style="display: flex; flex-direction: column; gap: 8px; padding: 16px 20px; background: var(--surface); border: 1px solid var(--stroke-weak); border-radius: 12px;"><div style="display: flex; justify-content: space-between; align-items: center;"><span style="font-size: 18px; font-weight: 700;">الإصدار <bdi dir="ltr">1.8.2</bdi></span><span style="color: var(--text-weak);">5 أكتوبر 2026</span></div><div style="display: grid; grid-template-columns: 72px minmax(0, 1fr); gap: 12px; align-items: start; padding: 8px 0; border-top: 1px solid var(--stroke-weak);"><x-import component-from-global-scope="OpsOne.Badge" tone="success">جديد</x-import><span>النشر لكل لغة: نقص الإنجليزية لا يمنع نشر العربية.</span></div><div style="display: grid; grid-template-columns: 72px minmax(0, 1fr); gap: 12px; align-items: start; padding: 8px 0; border-top: 1px solid var(--stroke-weak);"><x-import component-from-global-scope="OpsOne.Badge" tone="info">تحسين</x-import><span>أعمار التحصيل في التقارير تطابق المالية.</span></div></section></div>
+  </main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview": {"width": 1440, "height": 750}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const noop = () => {};
+    return { yes: true, no: false, h28: 28, h24: 24, s16: 16, s24: 24, crumbs: [ { label: 'المساعدة', href: 'HelpCenter.dc.html' }, { label: 'ما الجديد' } ], nav: [ { label: 'الرئيسية', icon: 'layout-dashboard', href: 'Main.dc.html', active: false }, { label: 'الطلبات', icon: 'clipboard-list', href: 'OrdersList.dc.html', active: false }, { label: 'العملاء', icon: 'users', href: 'CustomersList.dc.html', active: false }, { label: 'المهام والمواعيد', icon: 'calendar', href: 'CalWeek.dc.html', active: false }, { label: 'المالية', icon: 'receipt', href: 'FinHome.dc.html', active: false }, { label: 'المخزون والتوريد', icon: 'package', href: 'StockList.dc.html', active: false }, { label: 'الموقع', icon: 'file-text', href: 'SitePages.dc.html', active: false }, { label: 'التقارير', icon: 'trending-up', href: 'ReportsHome.dc.html', active: false } ] };
+  }
+}
+</script>
+</body>
+</html>

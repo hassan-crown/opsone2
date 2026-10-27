@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>دخول المشتركين</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/opsone/tokens.css">
+<link rel="stylesheet" href="ds/opsone/components/bundle.css">
+<script src="ds/opsone/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:var(--link)}a:hover{color:var(--brand-hover)}
+.o1h{transition:border-color 120ms,transform 200ms;overflow:hidden}.o1h:hover{border-color:var(--brand)!important;transform:translateY(-2px)}.o1h .o1h-img{transition:transform 300ms}.o1h:hover .o1h-img{transform:scale(1.03)}.o1-snap{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;padding-bottom:4px}.o1-snap::-webkit-scrollbar{display:none}.o1-snap>*{scroll-snap-align:start;flex:0 0 var(--snap-w,85%)}@media (prefers-reduced-motion:reduce){.o1h,.o1h .o1h-img{transition:none}.o1h:hover{transform:none}}
+</style>
+</helmet>
+<div dir="rtl" data-surface="site" style="position: relative; width: 390px; min-height: 850px; display: flex; flex-direction: column; background: var(--background); color: var(--text-strong); font-family: var(--font-sans); font-size: 16px; line-height: 28px;"><header class="o1-site" style="position: relative;"><div class="o1-site-inner"><a href="OpsHome.dc.html" class="o1-site-brand" style="text-decoration: none;" aria-label="OpsOne، الرئيسية"><x-import component-from-global-scope="OpsOne.Logo" height="{{ h28 }}"></x-import></a><nav aria-label="القائمة" class="o1-site-nav"><ul class="o1-site-links"><li><a href="OpsHome.dc.html" class="o1-site-link">المزايا</a></li><li><a href="Pricing.dc.html" class="o1-site-link">الباقات</a></li><li><a href="OpsHome.dc.html" class="o1-site-link">الأسئلة</a></li></ul></nav><div class="o1-site-actions"><x-import component-from-global-scope="OpsOne.Button" variant="ghost" icon="languages">English</x-import><x-import component-from-global-scope="OpsOne.Button" variant="ghost" href="SubLogin.dc.html">دخول المشتركين</x-import><x-import component-from-global-scope="OpsOne.Button" variant="primary" href="Pricing.dc.html">اشترك</x-import></div><button type="button" class="o1-icon-btn o1-site-menu" aria-label="فتح القائمة" style="margin-inline-start: auto;"><x-import component-from-global-scope="OpsOne.Icon" name="menu"></x-import></button></div></header><main id="o1-main" style="flex: 1; box-sizing: border-box; width: 100%; max-width: 1248px; margin: 0 auto; padding: 24px 16px 32px; display: flex; flex-direction: column; gap: 20px;"><div style="display: flex; flex-direction: column; gap: 6px;"><h1 style="margin: 0; font-size: 24px; line-height: 33px; font-weight: 700;">دخول المشتركين</h1><p style="margin: 0; color: var(--text-weak);">حساب اشتراكك في OpsOne، مستقل عن دخول منصتك.</p></div><x-import component-from-global-scope="OpsOne.TextField" label="البريد" default-value="a.alrashed@alofuq.sa" dir="ltr" required="{{ yes }}"></x-import><x-import component-from-global-scope="OpsOne.TextField" label="رمز التحقق" default-value="" dir="ltr" required="{{ yes }}" hint="نرسله إلى بريدك. لا كلمة مرور."></x-import><x-import component-from-global-scope="OpsOne.Button" variant="primary" href="OrderTrack.dc.html" block="{{ yes }}">دخول</x-import><div style="display: flex; flex-direction: column; gap: 8px; padding: 12px 16px; background: var(--fill); border-radius: 8px;">
+      <span style="font-weight: 600;">في حسابك</span>
+      <span style="display: flex; gap: 8px;"><span style="color: var(--success-text); display: inline-flex;"><x-import component-from-global-scope="OpsOne.Icon" name="check" size="{{ s16 }}"></x-import></span><span>طلبات اشتراكك ومدفوعاتك وفواتيرك وتواريخ خدمتك.</span></span>
+      <span style="display: flex; gap: 8px;"><span style="color: var(--info-text); display: inline-flex;"><x-import component-from-global-scope="OpsOne.Icon" name="info" size="{{ s16 }}"></x-import></span><span>لدخول منصتك نفسها استخدم رابطها الخاص بها.</span></span>
+    </div></main><footer style="border-top: 1px solid var(--stroke-weak); background: var(--surface);"><div style="max-width: 1248px; margin: 0 auto; padding: 24px; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 16px; align-items: center; color: var(--text-weak); font-size: 14px;"><span style="display: flex; align-items: center; gap: 12px;"><x-import component-from-global-scope="OpsOne.Logo" height="{{ h20 }}"></x-import><span>نظام تشغيل لأعمال التصنيع حسب الطلب</span></span><nav aria-label="روابط الموقع" style="display: flex; flex-wrap: wrap; gap: 16px;"><a href="#">شروط الاشتراك</a><a href="#">سياسة الشراء والاسترداد</a><a href="#">الخصوصية</a><a href="#">تواصل معنا</a></nav></div></footer></div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview": {"width": 390, "height": 850}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const noop = () => {};
+    return { yes: true, no: false, h28: 28, h24: 24, s16: 16, s24: 24, h20: 20, noop };
+  }
+}
+</script>
+</body>
+</html>

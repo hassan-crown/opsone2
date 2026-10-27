@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>تم إنشاء الطلب</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/opsone/tokens.css">
+<link rel="stylesheet" href="ds/opsone/components/bundle.css">
+<script src="ds/opsone/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:var(--link)}a:hover{color:var(--brand-hover)}
+</style>
+</helmet>
+<div dir="rtl" data-surface="panel" style="position: relative; width: 1440px; min-height: 1000px; display: flex; background: var(--background); color: var(--text-strong); font-family: var(--font-sans); font-size: 14px; line-height: 24px;">
+
+<aside class="o1-sidebar" style="position: relative; height: auto; display: flex;">
+  <div class="o1-sidebar-brand"><x-import component-from-global-scope="OpsOne.Logo" height="{{ h28 }}"></x-import></div>
+  <div style="display: flex; flex-direction: column; gap: 2px; padding: 0 12px 16px; margin-bottom: 8px; border-bottom: 1px solid var(--stroke-weak);">
+    <span style="font-weight: 600;">مطابخ الركن الحديث</span>
+    <span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">فرع العليا</span>
+  </div>
+  <nav class="o1-nav" aria-label="القائمة الرئيسية"><ul>
+    <sc-for list="{{ nav }}" as="item" hint-placeholder-count="4">
+      <li><x-import component-from-global-scope="OpsOne.NavItem" label="{{ item.label }}" icon="{{ item.icon }}" href="{{ item.href }}" active="{{ item.active }}"></x-import></li>
+    </sc-for>
+  </ul></nav>
+</aside>
+
+<div class="o1-shell-main" style="flex: 1; min-width: 0; display: flex; flex-direction: column;">
+  <header class="o1-topbar" style="position: relative; gap: 12px;">
+    <div style="width: 440px;"><x-import component-from-global-scope="OpsOne.SearchField" label="البحث العام" placeholder="رقم الطلب أو اسم العميل أو الجوال أو المستند"></x-import></div>
+    <div class="o1-topbar-end">
+      <x-import component-from-global-scope="OpsOne.Button" variant="ghost" icon="bell" icon-only="{{ yes }}" aria-label="الإشعارات"></x-import>
+      <x-import component-from-global-scope="OpsOne.Avatar" name="نورة الدوسري" size="sm"></x-import>
+    </div>
+  </header>
+
+  <main class="o1-main" style="max-width: none; padding: 24px 32px 32px; display: flex; flex-direction: column; gap: 20px;">
+    <x-import component-from-global-scope="OpsOne.Breadcrumbs" items="{{ crumbs }}"></x-import>
+    <div style="display: flex; flex-direction: column; gap: 8px;">
+      <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+        <h1 style="margin: 0; font-size: 24px; line-height: 36px; font-weight: 700;"><bdi dir="ltr" style="font-family: var(--font-mono); font-weight: 600;">ORD-24534</bdi> منيرة الشمري</h1>
+        <x-import component-from-global-scope="OpsOne.Badge" tone="brand">مخصص</x-import>
+        <x-import component-from-global-scope="OpsOne.Badge" tone="info">جارٍ</x-import>
+      </div>
+      <div style="display: flex; gap: 24px; flex-wrap: wrap; color: var(--text-weak);">
+        <span>الفرع <strong style="color: var(--text-strong); font-weight: 500;">العليا</strong></span>
+        <span>المسؤول <strong style="color: var(--text-strong); font-weight: 500;">نورة الدوسري</strong></span>
+        <span>أُنشئ <strong style="color: var(--text-strong); font-weight: 500;">الآن</strong></span>
+      </div>
+    </div>
+
+    <section aria-labelledby="now-h" style="display: flex; flex-direction: column; gap: 16px; padding: 20px 24px; background: var(--surface); border: 1px solid var(--stroke-weak); border-radius: 12px;">
+      <h2 id="now-h" class="o1-sr">أين وصل الطلب</h2>
+      <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px;">
+        <div style="display: flex; flex-direction: column; gap: 4px;"><span style="font-size: 14px; line-height: 20px; font-weight: 500; color: var(--text-weak);">المرحلة الحالية</span><span style="font-weight: 600; font-size: 16px;">القياس والمعاينة</span><span style="display: flex; gap: 8px; align-items: center;"><x-import component-from-global-scope="OpsOne.Badge" tone="info">جارية</x-import><span style="font-size: 13px; color: var(--text-weak);">1 من 5</span></span></div>
+        <div style="display: flex; flex-direction: column; gap: 4px;"><span style="font-size: 14px; line-height: 20px; font-weight: 500; color: var(--text-weak);">المطلوب الآن</span><span style="font-weight: 600; font-size: 16px;">جدولة زيارة القياس</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">المهمة في صندوق قسم القياس</span></div>
+        <div style="display: flex; flex-direction: column; gap: 4px;"><span style="font-size: 14px; line-height: 20px; font-weight: 500; color: var(--text-weak);">المانع</span><span style="font-weight: 600; font-size: 16px;">لا يوجد</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">حاجة التصميم تُحسم قبل المرحلة 2</span></div>
+        <div style="display: flex; flex-direction: column; gap: 4px;"><span style="font-size: 14px; line-height: 20px; font-weight: 500; color: var(--text-weak);">المسؤول</span><span style="font-weight: 600; font-size: 16px;">نورة الدوسري</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">مسؤول المتابعة الدائم</span></div>
+      </div>
+      <div style="display: flex; gap: 8px; flex-wrap: wrap; padding-top: 16px; border-top: 1px solid var(--stroke-weak);">
+        <x-import component-from-global-scope="OpsOne.Button" variant="primary" icon="calendar">جدولة زيارة القياس</x-import>
+        <x-import component-from-global-scope="OpsOne.Button" variant="secondary">تحديد حاجة التصميم</x-import>
+      </div>
+    </section>
+
+    <x-import component-from-global-scope="OpsOne.Steps" steps="{{ steps }}" current="{{ zero }}" label="مراحل الطلب"></x-import>
+    <x-import component-from-global-scope="OpsOne.Alert" tone="info" title="حاجة التصميم لم تحدد بعد">لن يسقط إجراء التصميم تلقائيًا. حددها قبل بدء مرحلة «التصميم والعرض» حتى لا تتوقف عندها.</x-import>
+  </main>
+</div>
+
+<div role="status" style="position: absolute; inset-block-end: 24px; inset-inline-end: 24px; width: 400px; display: grid; grid-template-columns: 24px minmax(0, 1fr) 44px; gap: 12px; align-items: start; padding: 16px; background: var(--raised); border: 1px solid var(--stroke-weak); border-radius: 8px; box-shadow: var(--shadow-raised);">
+  <span style="color: var(--success-text); display: inline-flex; margin-top: 2px;"><x-import component-from-global-scope="OpsOne.Icon" name="circle-check"></x-import></span>
+  <div style="display: flex; flex-direction: column; gap: 2px;">
+    <span style="font-weight: 600;">تم إنشاء الطلب <bdi dir="ltr" style="font-family: var(--font-mono);">ORD-24534</bdi></span>
+    <span style="color: var(--text-weak);">وصلت مهمة زيارة القياس إلى صندوق قسم القياس في فرع العليا.</span>
+  </div>
+  <x-import component-from-global-scope="OpsOne.Button" variant="ghost" icon="x" icon-only="{{ yes }}" aria-label="إغلاق الإشعار"></x-import>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1000}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {
+      yes: true, h28: 28, zero: 0,
+      crumbs: [ { label: 'الطلبات', href: 'OrdersList.dc.html' }, { label: 'ORD-24534' } ],
+      steps: [
+        { label: 'القياس والمعاينة', description: 'بدأت الآن' },
+        { label: 'التصميم والعرض', description: 'الحاجة لم تحدد' },
+        { label: 'الاتفاق والدفعة الأولى', description: 'لم تبدأ' },
+        { label: 'التصنيع', description: 'لم تبدأ' },
+        { label: 'التركيب والتسليم', description: 'لم تبدأ' }
+      ],
+      nav: [
+        { label: 'الرئيسية', icon: 'layout-dashboard', href: 'HomeEmployee.dc.html', active: false },
+        { label: 'الطلبات', icon: 'clipboard-list', href: 'OrdersList.dc.html', active: true },
+        { label: 'العملاء', icon: 'users', href: 'CustomersList.dc.html', active: false },
+        { label: 'المهام والمواعيد', icon: 'calendar', href: '#', active: false }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

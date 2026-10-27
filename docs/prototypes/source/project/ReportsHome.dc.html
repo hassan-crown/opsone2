@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>التقارير</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/opsone/tokens.css">
+<link rel="stylesheet" href="ds/opsone/components/bundle.css">
+<script src="ds/opsone/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:var(--link)}a:hover{color:var(--brand-hover)}
+</style>
+</helmet>
+<div dir="rtl" data-surface="panel" data-theme="{{ theme }}" style="width: 1440px; min-height: 1250px; display: flex; background: var(--background); color: var(--text-strong); font-family: var(--font-sans); font-size: 14px; line-height: 24px;">
+
+<aside class="o1-sidebar" style="position: relative; height: auto; display: flex;">
+  <div class="o1-sidebar-brand"><x-import component-from-global-scope="OpsOne.Logo" height="{{ h28 }}"></x-import></div>
+  <div style="display: flex; flex-direction: column; gap: 2px; padding: 0 12px 16px; margin-bottom: 8px; border-bottom: 1px solid var(--stroke-weak);">
+    <span style="font-weight: 600;">مطابخ الركن الحديث</span>
+    <span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">باقة نمو</span>
+  </div>
+  <nav class="o1-nav" aria-label="القائمة الرئيسية"><ul>
+    <sc-for list="{{ nav }}" as="item" hint-placeholder-count="8">
+      <li><x-import component-from-global-scope="OpsOne.NavItem" label="{{ item.label }}" icon="{{ item.icon }}" href="{{ item.href }}" active="{{ item.active }}"></x-import></li>
+    </sc-for>
+  </ul></nav>
+  <div class="o1-sidebar-foot">
+    <x-import component-from-global-scope="OpsOne.NavItem" label="الإعدادات" icon="settings" href="#"></x-import>
+  </div>
+</aside>
+
+<div class="o1-shell-main" style="flex: 1; min-width: 0; display: flex; flex-direction: column;">
+  <header class="o1-topbar" style="position: relative; gap: 12px;">
+    <div style="width: 440px;"><x-import component-from-global-scope="OpsOne.SearchField" label="البحث العام" placeholder="رقم الطلب أو اسم العميل أو الجوال أو المستند"></x-import></div>
+    <div class="o1-topbar-end">
+      <x-import component-from-global-scope="OpsOne.Button" variant="ghost" icon="info" icon-only="{{ yes }}" aria-label="مساعدة هذه الصفحة"></x-import>
+      <x-import component-from-global-scope="OpsOne.Button" variant="ghost" icon="bell" icon-only="{{ yes }}" aria-label="الإشعارات"></x-import>
+      <x-import component-from-global-scope="OpsOne.Avatar" name="فهد العتيبي" size="sm"></x-import>
+    </div>
+  </header>
+
+  <main class="o1-main" style="max-width: none; padding: 32px; display: flex; flex-direction: column; gap: 20px;">
+    <div class="o1-pagehead" style="margin-bottom: 0;"><div class="o1-pagehead-text"><h1 class="o1-pagehead-title">التقارير</h1><p class="o1-pagehead-desc">أرقام من مصادرها مباشرة. التعريف ثابت، والمدة والفرع ظاهران.</p></div><div class="o1-pagehead-actions"></div></div><div role="tablist" aria-label="التقارير" class="o1-tablist"><a role="tab" href="ReportsHome.dc.html" aria-selected="true" class="o1-tab" style="position: relative; display: inline-flex; align-items: center; min-height: 44px; padding: 0 12px; text-decoration: none; color: var(--text-strong);">نظرة عامة</a><a role="tab" href="#" aria-selected="false" class="o1-tab" style="position: relative; display: inline-flex; align-items: center; min-height: 44px; padding: 0 12px; text-decoration: none; color: var(--text-weak);">التشغيل</a><a role="tab" href="ReportCollection.dc.html" aria-selected="false" class="o1-tab" style="position: relative; display: inline-flex; align-items: center; min-height: 44px; padding: 0 12px; text-decoration: none; color: var(--text-weak);">المال</a><a role="tab" href="#" aria-selected="false" class="o1-tab" style="position: relative; display: inline-flex; align-items: center; min-height: 44px; padding: 0 12px; text-decoration: none; color: var(--text-weak);">المخزون</a><a role="tab" href="#" aria-selected="false" class="o1-tab" style="position: relative; display: inline-flex; align-items: center; min-height: 44px; padding: 0 12px; text-decoration: none; color: var(--text-weak);">المبيعات والإلغاء</a><a role="tab" href="ReportCompare.dc.html" aria-selected="false" class="o1-tab" style="position: relative; display: inline-flex; align-items: center; min-height: 44px; padding: 0 12px; text-decoration: none; color: var(--text-weak);">مقارنة الفروع</a></div><div style="display: grid; grid-template-columns: repeat(3, minmax(0, 220px)) 1fr; gap: 12px; align-items: end;"><x-import component-from-global-scope="OpsOne.SelectField" label="المدة" options="{{ per }}" default-value="m"></x-import><x-import component-from-global-scope="OpsOne.SelectField" label="الفرع" options="{{ br }}" default-value="all"></x-import><x-import component-from-global-scope="OpsOne.SelectField" label="المسؤول" options="{{ own }}" default-value="all"></x-import><div style="display: flex; justify-content: flex-end;"><x-import component-from-global-scope="OpsOne.Button" variant="secondary" icon="download" href="ReportExport.dc.html">تصدير</x-import></div></div><section aria-label="المؤشرات" style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px;"><a href="ReportCollection.dc.html" style="display: flex; flex-direction: column; gap: 4px; padding: 16px 20px; background: var(--surface); border: 1px solid var(--stroke-weak); border-radius: 12px; text-decoration: none; color: var(--text-strong);"><span style="font-size: 14px; line-height: 20px; font-weight: 500; color: var(--text-weak);">صافي المقبوض</span><span style="font-size: 22px; line-height: 32px; font-weight: 700;">146,300.00 ر.س</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">بعد التصحيحات والردود</span></a><a href="ReportCollection.dc.html" style="display: flex; flex-direction: column; gap: 4px; padding: 16px 20px; background: var(--surface); border: 1px solid var(--stroke-weak); border-radius: 12px; text-decoration: none; color: var(--text-strong);"><span style="font-size: 14px; line-height: 20px; font-weight: 500; color: var(--text-weak);">المستحق الآن</span><span style="font-size: 22px; line-height: 32px; font-weight: 700;">38,200.00 ر.س</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">على 9 طلبات</span></a><a href="OrdersList.dc.html" style="display: flex; flex-direction: column; gap: 4px; padding: 16px 20px; background: var(--surface); border: 1px solid var(--stroke-weak); border-radius: 12px; text-decoration: none; color: var(--text-strong);"><span style="font-size: 14px; line-height: 20px; font-weight: 500; color: var(--text-weak);">أعمال متأخرة</span><span style="font-size: 22px; line-height: 32px; font-weight: 700; color: var(--warning-text);">6 طلبات</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">وغير مسند 2</span></a><a href="CalWeek.dc.html" style="display: flex; flex-direction: column; gap: 4px; padding: 16px 20px; background: var(--surface); border: 1px solid var(--stroke-weak); border-radius: 12px; text-decoration: none; color: var(--text-strong);"><span style="font-size: 14px; line-height: 20px; font-weight: 500; color: var(--text-weak);">مواعيد اليوم</span><span style="font-size: 22px; line-height: 32px; font-weight: 700;">3</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">2 قياس وتركيب</span></a></section><div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; align-items: start;"><section class="o1-card" aria-labelledby="rs-h">
+          <div class="o1-card-head" style="margin-bottom: 12px;"><div class="o1-card-heading"><h2 id="rs-h" class="o1-card-title">الطلبات الجارية حسب المرحلة</h2><p class="o1-card-desc">110 طلبًا مخصصًا جاريًا.</p></div><x-import component-from-global-scope="OpsOne.Button" variant="ghost" size="sm">فتح التقرير</x-import></div>
+          <div style="display: flex; flex-direction: column; gap: 4px;" role="img" aria-label="الطلبات الجارية حسب المرحلة: القياس 18، التصميم 24، الاتفاق 21، التصنيع 31، التركيب 16"><div style="display: grid; grid-template-columns: 150px minmax(0, 1fr) 56px; gap: 12px; align-items: center; min-height: 36px;"><span>القياس والمعاينة</span><span aria-hidden="true" style="height: 12px; border-radius: 6px; background: var(--fill); overflow: hidden;"><span style="display: block; height: 100%; width: 58%; background: var(--brand); border-radius: 6px;"></span></span><bdi dir="ltr" style="font-weight: 600; text-align: end;">18</bdi></div><div style="display: grid; grid-template-columns: 150px minmax(0, 1fr) 56px; gap: 12px; align-items: center; min-height: 36px;"><span>التصميم والعرض</span><span aria-hidden="true" style="height: 12px; border-radius: 6px; background: var(--fill); overflow: hidden;"><span style="display: block; height: 100%; width: 77%; background: var(--brand); border-radius: 6px;"></span></span><bdi dir="ltr" style="font-weight: 600; text-align: end;">24</bdi></div><div style="display: grid; grid-template-columns: 150px minmax(0, 1fr) 56px; gap: 12px; align-items: center; min-height: 36px;"><span>الاتفاق والدفعة الأولى</span><span aria-hidden="true" style="height: 12px; border-radius: 6px; background: var(--fill); overflow: hidden;"><span style="display: block; height: 100%; width: 68%; background: var(--brand); border-radius: 6px;"></span></span><bdi dir="ltr" style="font-weight: 600; text-align: end;">21</bdi></div><div style="display: grid; grid-template-columns: 150px minmax(0, 1fr) 56px; gap: 12px; align-items: center; min-height: 36px;"><span>التصنيع</span><span aria-hidden="true" style="height: 12px; border-radius: 6px; background: var(--fill); overflow: hidden;"><span style="display: block; height: 100%; width: 100%; background: var(--brand); border-radius: 6px;"></span></span><bdi dir="ltr" style="font-weight: 600; text-align: end;">31</bdi></div><div style="display: grid; grid-template-columns: 150px minmax(0, 1fr) 56px; gap: 12px; align-items: center; min-height: 36px;"><span>التركيب والتسليم</span><span aria-hidden="true" style="height: 12px; border-radius: 6px; background: var(--fill); overflow: hidden;"><span style="display: block; height: 100%; width: 52%; background: var(--brand); border-radius: 6px;"></span></span><bdi dir="ltr" style="font-weight: 600; text-align: end;">16</bdi></div></div>
+        </section><section class="o1-card" aria-labelledby="ag-h">
+          <div class="o1-card-head" style="margin-bottom: 12px;"><div class="o1-card-heading"><h2 id="ag-h" class="o1-card-title">أعمار التحصيل المتأخر</h2></div><x-import component-from-global-scope="OpsOne.Button" variant="ghost" size="sm" href="ReportCollection.dc.html">فتح التقرير</x-import></div>
+          <div style="display: flex; flex-direction: column; gap: 4px;" role="img" aria-label="أعمار المتأخر"><div style="display: grid; grid-template-columns: 150px minmax(0, 1fr) 56px; gap: 12px; align-items: center; min-height: 36px;"><span>1 إلى 7 أيام</span><span aria-hidden="true" style="height: 12px; border-radius: 6px; background: var(--fill); overflow: hidden;"><span style="display: block; height: 100%; width: 100%; background: var(--warning-text); border-radius: 6px;"></span></span><bdi dir="ltr" style="font-weight: 600; text-align: end;">2</bdi></div><div style="display: grid; grid-template-columns: 150px minmax(0, 1fr) 56px; gap: 12px; align-items: center; min-height: 36px;"><span>8 إلى 30 يومًا</span><span aria-hidden="true" style="height: 12px; border-radius: 6px; background: var(--fill); overflow: hidden;"><span style="display: block; height: 100%; width: 100%; background: var(--warning-text); border-radius: 6px;"></span></span><bdi dir="ltr" style="font-weight: 600; text-align: end;">2</bdi></div><div style="display: grid; grid-template-columns: 150px minmax(0, 1fr) 56px; gap: 12px; align-items: center; min-height: 36px;"><span>أكثر من 30 يومًا</span><span aria-hidden="true" style="height: 12px; border-radius: 6px; background: var(--fill); overflow: hidden;"><span style="display: block; height: 100%; width: 0%; background: var(--danger-text); border-radius: 6px;"></span></span><bdi dir="ltr" style="font-weight: 600; text-align: end;">0</bdi></div></div><span style="color: var(--text-weak);">4 دفعات بمجموع 12,750.00 ر.س.</span>
+        </section><section class="o1-card" aria-labelledby="iv-h">
+          <div class="o1-card-head" style="margin-bottom: 12px;"><div class="o1-card-heading"><h2 id="iv-h" class="o1-card-title">المخزون والتوريد</h2></div><x-import component-from-global-scope="OpsOne.Button" variant="ghost" size="sm">فتح التقرير</x-import></div>
+          <dl style="margin: 0; display: flex; flex-direction: column;">
+            <div style="display: flex; justify-content: space-between; gap: 12px; padding: 8px 0;"><dt style="color: var(--text-weak);">تحت حد الطلب</dt><dd style="margin: 0; text-align: end;">3 منتجات</dd></div>
+            <div style="display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-top: 1px solid var(--stroke-weak);"><dt style="color: var(--text-weak);">ناقص لسلة قيد الإعداد</dt><dd style="margin: 0; text-align: end;">منظم أدراج خشب، 1</dd></div>
+            <div style="display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-top: 1px solid var(--stroke-weak);"><dt style="color: var(--text-weak);">طلبات توريد مفتوحة</dt><dd style="margin: 0; text-align: end;">3</dd></div>
+          </dl>
+        </section><section class="o1-card" aria-labelledby="sl-h">
+          <div class="o1-card-head" style="margin-bottom: 12px;"><div class="o1-card-heading"><h2 id="sl-h" class="o1-card-title">المبيعات والإلغاء</h2><p class="o1-card-desc">التحويل ليس بيعًا؛ البيع عند الاتفاق.</p></div><x-import component-from-global-scope="OpsOne.Button" variant="ghost" size="sm">فتح التقرير</x-import></div>
+          <dl style="margin: 0; display: flex; flex-direction: column;">
+            <div style="display: flex; justify-content: space-between; gap: 12px; padding: 8px 0;"><dt style="color: var(--text-weak);">اهتمامات جديدة</dt><dd style="margin: 0; text-align: end;">14</dd></div>
+            <div style="display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-top: 1px solid var(--stroke-weak);"><dt style="color: var(--text-weak);">حُولت إلى طلبات</dt><dd style="margin: 0; text-align: end;">6</dd></div>
+            <div style="display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-top: 1px solid var(--stroke-weak);"><dt style="color: var(--text-weak);">اتفاقات موقعة</dt><dd style="margin: 0; text-align: end;">4</dd></div>
+            <div style="display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-top: 1px solid var(--stroke-weak);"><dt style="color: var(--text-weak);">طلبات إلغاء</dt><dd style="margin: 0; text-align: end;">1 قيد المراجعة</dd></div>
+          </dl>
+        </section></div><span style="color: var(--text-weak);">إيصالات بانتظار التأكيد (7,500.00 ر.س) لا تُحسب في المقبوض حتى تأكيدها.</span>
+  </main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme": {"editor": "enum", "options": ["light", "dark"], "default": "light"}, "$preview": {"width": 1440, "height": 1250}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const noop = () => {};
+    return { yes: true, no: false, h28: 28, h24: 24, s16: 16, s24: 24, theme: this.props.theme ?? 'light', per: [ { value: 'm', label: 'هذا الشهر، حتى 24 أكتوبر' } ], br: [ { value: 'all', label: 'كل الفروع' } ], own: [ { value: 'all', label: 'كل المسؤولين' } ], nav: [ { label: 'الرئيسية', icon: 'layout-dashboard', href: 'Main.dc.html', active: false }, { label: 'الطلبات', icon: 'clipboard-list', href: 'OrdersList.dc.html', active: false }, { label: 'العملاء', icon: 'users', href: 'CustomersList.dc.html', active: false }, { label: 'المهام والمواعيد', icon: 'calendar', href: 'CalWeek.dc.html', active: false }, { label: 'المالية', icon: 'receipt', href: 'FinHome.dc.html', active: false }, { label: 'المخزون والتوريد', icon: 'package', href: 'StockList.dc.html', active: false }, { label: 'الموقع', icon: 'file-text', href: 'SitePages.dc.html', active: false }, { label: 'التقارير', icon: 'trending-up', href: 'ReportsHome.dc.html', active: true } ] };
+  }
+}
+</script>
+</body>
+</html>

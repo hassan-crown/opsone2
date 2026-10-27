@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>الاهتمامات</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/opsone/tokens.css">
+<link rel="stylesheet" href="ds/opsone/components/bundle.css">
+<script src="ds/opsone/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:var(--link)}a:hover{color:var(--brand-hover)}
+</style>
+</helmet>
+<div dir="rtl" data-surface="panel" style="width: 1440px; min-height: 1000px; display: flex; background: var(--background); color: var(--text-strong); font-family: var(--font-sans); font-size: 14px; line-height: 24px;">
+
+<aside class="o1-sidebar" style="position: relative; height: auto; display: flex;">
+  <div class="o1-sidebar-brand"><x-import component-from-global-scope="OpsOne.Logo" height="{{ h28 }}"></x-import></div>
+  <div style="display: flex; flex-direction: column; gap: 2px; padding: 0 12px 16px; margin-bottom: 8px; border-bottom: 1px solid var(--stroke-weak);">
+    <span style="font-weight: 600;">مطابخ الركن الحديث</span>
+    <span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">باقة نمو</span>
+  </div>
+  <nav class="o1-nav" aria-label="القائمة الرئيسية"><ul>
+    <sc-for list="{{ nav }}" as="item" hint-placeholder-count="8">
+      <li><x-import component-from-global-scope="OpsOne.NavItem" label="{{ item.label }}" icon="{{ item.icon }}" href="{{ item.href }}" active="{{ item.active }}"></x-import></li>
+    </sc-for>
+  </ul></nav>
+</aside>
+
+<div class="o1-shell-main" style="flex: 1; min-width: 0; display: flex; flex-direction: column;">
+  <header class="o1-topbar" style="position: relative; gap: 12px;">
+    <div style="width: 440px;"><x-import component-from-global-scope="OpsOne.SearchField" label="البحث العام" placeholder="رقم الطلب أو اسم العميل أو الجوال أو المستند"></x-import></div>
+    <div class="o1-topbar-end">
+      <x-import component-from-global-scope="OpsOne.Button" variant="ghost" icon="bell" icon-only="{{ yes }}" aria-label="الإشعارات"></x-import>
+      <x-import component-from-global-scope="OpsOne.Avatar" name="فهد العتيبي" size="sm"></x-import>
+    </div>
+  </header>
+
+  <main class="o1-main" style="max-width: none; padding: 32px; display: flex; flex-direction: column; gap: 16px;">
+    <div class="o1-pagehead" style="margin-bottom: 8px;">
+      <div class="o1-pagehead-text">
+        <h1 class="o1-pagehead-title">العملاء</h1>
+      </div>
+      <div class="o1-pagehead-actions">
+        <x-import component-from-global-scope="OpsOne.Button" variant="primary" icon="plus">تسجيل اهتمام</x-import>
+      </div>
+    </div>
+
+    <div role="tablist" aria-label="أقسام العملاء" class="o1-tablist">
+      <a role="tab" href="CustomersList.dc.html" aria-selected="false" class="o1-tab" style="position: relative; display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 12px; text-decoration: none; color: var(--text-weak);">العملاء</a>
+      <a role="tab" href="InterestsList.dc.html" aria-selected="true" class="o1-tab" style="position: relative; display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 12px; text-decoration: none; color: var(--text-strong);">الاهتمامات <x-import component-from-global-scope="OpsOne.Counter" value="4" label="4 اهتمامات جديدة"></x-import></a>
+      <a role="tab" href="Tickets.dc.html" aria-selected="false" class="o1-tab" style="position: relative; display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 12px; text-decoration: none; color: var(--text-weak);">التذاكر <x-import component-from-global-scope="OpsOne.Counter" value="1" label="تذكرة جديدة"></x-import></a>
+    </div>
+
+    <div style="display: flex; gap: 8px; flex-wrap: wrap;" role="group" aria-label="تصفية حسب الحالة">
+      <button type="button" aria-pressed="true" class="o1-btn o1-btn--secondary o1-btn--sm" style="background: var(--brand-subtle); color: var(--brand-subtle-text); border-color: var(--brand);">الكل</button>
+      <button type="button" aria-pressed="false" class="o1-btn o1-btn--secondary o1-btn--sm">جديد 4</button>
+      <button type="button" aria-pressed="false" class="o1-btn o1-btn--secondary o1-btn--sm">قيد المتابعة 9</button>
+      <button type="button" aria-pressed="false" class="o1-btn o1-btn--secondary o1-btn--sm">محول</button>
+      <button type="button" aria-pressed="false" class="o1-btn o1-btn--secondary o1-btn--sm">مغلق</button>
+    </div>
+
+    <div class="o1-table-wrap">
+      <table class="o1-table">
+        <caption class="o1-sr">الاهتمامات</caption>
+        <thead><tr><th scope="col">المرجع</th><th scope="col">الاسم</th><th scope="col">الاحتياج</th><th scope="col">القناة</th><th scope="col">المتابع</th><th scope="col">الحالة</th><th scope="col">منذ</th><th scope="col"><span class="o1-sr">إجراء</span></th></tr></thead>
+        <tbody>
+          <sc-for list="{{ rows }}" as="r" hint-placeholder-count="8">
+            <tr>
+              <td><x-import component-from-global-scope="OpsOne.Ref">{{ r.ref }}</x-import></td>
+              <td><div style="display: flex; flex-direction: column;"><span style="font-weight: 600;">{{ r.name }}</span><span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">{{ r.cust }}</span></div></td>
+              <td style="max-width: 300px;">{{ r.need }}</td>
+              <td style="color: var(--text-weak);">{{ r.channel }}</td>
+              <td style="color: {{ r.ownerColor }};">{{ r.owner }}</td>
+              <td><x-import component-from-global-scope="OpsOne.Badge" tone="{{ r.tone }}">{{ r.status }}</x-import></td>
+              <td style="color: var(--text-weak); white-space: nowrap;">{{ r.since }}</td>
+              <td class="o1-td--end"><span style="display: inline-flex; gap: 4px;"><x-import component-from-global-scope="OpsOne.Button" variant="{{ r.variant }}" size="sm" href="{{ r.href }}">{{ r.action }}</x-import><sc-if value="{{ r.close }}" hint-placeholder-val="{{ no }}"><x-import component-from-global-scope="OpsOne.Button" variant="ghost" size="sm" href="InterestClose.dc.html">إغلاق</x-import></sc-if></span></td>
+            </tr>
+          </sc-for>
+        </tbody>
+      </table>
+    </div>
+  </main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1000}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const none = 'var(--warning-text)', some = 'var(--text-strong)';
+    return {
+      yes: true, no: false, h28: 28,
+      rows: [
+        { ref: 'INT-1047', name: 'لطيفة الحربي', cust: 'عميلة قائمة', need: 'خزانة ملابس بأبواب منزلقة لغرفة النوم الرئيسية', channel: 'نموذج الموقع', owner: 'بلا متابع', ownerColor: none, status: 'جديد', tone: 'info', since: 'قبل ساعتين', action: 'تولي المتابعة', variant: 'secondary', href: '#', close: true },
+        { ref: 'INT-1048', name: 'بدر القحطاني', cust: 'عميل قائم', need: 'باب خشبي رئيسي مع إطار', channel: 'اتصال هاتفي', owner: 'بلا متابع', ownerColor: none, status: 'جديد', tone: 'info', since: 'أمس', action: 'تولي المتابعة', variant: 'secondary', href: '#', close: true },
+        { ref: 'INT-1046', name: 'ريم العتيبي', cust: 'ليست عميلة بعد', need: 'ستائر للصالة وغرفتي نوم', channel: 'واتساب', owner: 'بلا متابع', ownerColor: none, status: 'جديد', tone: 'info', since: 'أمس', action: 'تولي المتابعة', variant: 'secondary', href: '#', close: true },
+        { ref: 'INT-1045', name: 'فيصل الدوسري', cust: 'ليس عميلًا بعد', need: 'مطبخ لشقة جديدة، يريد زيارة المعرض أولًا', channel: 'زيارة المعرض', owner: 'بلا متابع', ownerColor: none, status: 'جديد', tone: 'info', since: 'قبل يومين', action: 'تولي المتابعة', variant: 'secondary', href: '#', close: true },
+        { ref: 'INT-1042', name: 'منيرة الشمري', cust: 'عميلة قائمة', need: 'أبواب داخلية لثلاث غرف', channel: 'اتصال هاتفي', owner: 'نورة الدوسري', ownerColor: some, status: 'قيد المتابعة', tone: 'neutral', since: 'قبل 5 أيام', action: 'تحويل إلى طلب', variant: 'primary', href: 'ConvertInterest.dc.html', close: true },
+        { ref: 'INT-1039', name: 'شركة دار الإعمار للمقاولات', cust: 'جهة قائمة', need: 'خزائن لمكاتب الإدارة في المشروع الثاني', channel: 'بريد إلكتروني', owner: 'نورة الدوسري', ownerColor: some, status: 'قيد المتابعة', tone: 'neutral', since: 'قبل أسبوع', action: 'تحويل إلى طلب', variant: 'secondary', href: 'ConvertInterest.dc.html', close: true },
+        { ref: 'INT-0981', name: 'منيرة الشمري', cust: 'عميلة قائمة', need: 'مطبخ علوي وسفلي مع جزيرة', channel: 'زيارة المعرض', owner: 'نورة الدوسري', ownerColor: some, status: 'محول', tone: 'success', since: '8 أكتوبر', action: 'فتح ORD-24518', variant: 'ghost', href: 'OrderOverview.dc.html' },
+        { ref: 'INT-0972', name: 'سامي الحربي', cust: 'ليس عميلًا', need: 'تجديد واجهات مطبخ قائم', channel: 'نموذج الموقع', owner: 'خالد الزهراني', ownerColor: some, status: 'مغلق', tone: 'neutral', since: '2 أكتوبر', action: 'إعادة المتابعة', variant: 'ghost', href: 'InterestReopen.dc.html' }
+      ],
+      nav: [
+        { label: 'الرئيسية', icon: 'layout-dashboard', href: 'Main.dc.html', active: false },
+        { label: 'الطلبات', icon: 'clipboard-list', href: 'OrdersList.dc.html', active: false },
+        { label: 'العملاء', icon: 'users', href: 'CustomersList.dc.html', active: true },
+        { label: 'المهام والمواعيد', icon: 'calendar', href: 'CalWeek.dc.html', active: false },
+        { label: 'المالية', icon: 'receipt', href: 'FinHome.dc.html', active: false },
+        { label: 'المخزون والتوريد', icon: 'package', href: 'StockList.dc.html', active: false },
+        { label: 'الموقع', icon: 'file-text', href: 'SitePages.dc.html', active: false },
+        { label: 'التقارير', icon: 'trending-up', href: 'ReportsHome.dc.html', active: false }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

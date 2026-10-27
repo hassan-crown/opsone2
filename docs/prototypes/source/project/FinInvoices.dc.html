@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>المالية: الفواتير الخارجية</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/opsone/tokens.css">
+<link rel="stylesheet" href="ds/opsone/components/bundle.css">
+<script src="ds/opsone/components/bundle.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:var(--link)}a:hover{color:var(--brand-hover)}
+</style>
+</helmet>
+<div dir="rtl" data-surface="panel" style="width: 1440px; min-height: 1100px; display: flex; background: var(--background); color: var(--text-strong); font-family: var(--font-sans); font-size: 14px; line-height: 24px;">
+
+<aside class="o1-sidebar" style="position: relative; height: auto; display: flex;">
+  <div class="o1-sidebar-brand"><x-import component-from-global-scope="OpsOne.Logo" height="{{ h28 }}"></x-import></div>
+  <div style="display: flex; flex-direction: column; gap: 2px; padding: 0 12px 16px; margin-bottom: 8px; border-bottom: 1px solid var(--stroke-weak);">
+    <span style="font-weight: 600;">مطابخ الركن الحديث</span>
+    <span style="font-size: 13px; line-height: 20px; color: var(--text-weak);">باقة نمو</span>
+  </div>
+  <nav class="o1-nav" aria-label="القائمة الرئيسية"><ul>
+    <sc-for list="{{ nav }}" as="item" hint-placeholder-count="8">
+      <li><x-import component-from-global-scope="OpsOne.NavItem" label="{{ item.label }}" icon="{{ item.icon }}" href="{{ item.href }}" active="{{ item.active }}"></x-import></li>
+    </sc-for>
+  </ul></nav>
+  <div class="o1-sidebar-foot">
+    <x-import component-from-global-scope="OpsOne.NavItem" label="الإعدادات" icon="settings" href="#"></x-import>
+  </div>
+</aside>
+
+<div class="o1-shell-main" style="flex: 1; min-width: 0; display: flex; flex-direction: column;">
+  <header class="o1-topbar" style="position: relative; gap: 12px;">
+    <div style="width: 440px;"><x-import component-from-global-scope="OpsOne.SearchField" label="البحث العام" placeholder="رقم الطلب أو اسم العميل أو الجوال أو المستند"></x-import></div>
+    <div class="o1-topbar-end">
+      <x-import component-from-global-scope="OpsOne.Button" variant="ghost" icon="info" icon-only="{{ yes }}" aria-label="مساعدة هذه الصفحة"></x-import>
+      <x-import component-from-global-scope="OpsOne.Button" variant="ghost" icon="bell" icon-only="{{ yes }}" aria-label="الإشعارات"></x-import>
+      <x-import component-from-global-scope="OpsOne.Avatar" name="فهد العتيبي" size="sm"></x-import>
+    </div>
+  </header>
+
+  <main class="o1-main" style="max-width: none; padding: 32px; display: flex; flex-direction: column; gap: 20px;">
+    <div class="o1-pagehead" style="margin-bottom: 0;"><div class="o1-pagehead-text"><h1 class="o1-pagehead-title">المالية</h1><p class="o1-pagehead-desc">الفواتير تصدر من نظام المحاسبة وتُربط هنا بالطلب والحدث؛ OpsOne لا يصدرها.</p></div><div class="o1-pagehead-actions"><x-import component-from-global-scope="OpsOne.Button" variant="primary" icon="paperclip" href="FinInvoiceLink.dc.html">ربط فاتورة</x-import></div></div>
+    <div role="tablist" aria-label="أقسام المالية" class="o1-tablist"><a role="tab" href="FinHome.dc.html" aria-selected="false" class="o1-tab" style="position: relative; display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 12px; text-decoration: none; color: var(--text-weak);">المتابعة</a><a role="tab" href="FinInvoices.dc.html" aria-selected="true" class="o1-tab" style="position: relative; display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 12px; text-decoration: none; color: var(--text-strong);">الفواتير الخارجية</a><a role="tab" href="FinCommissions.dc.html" aria-selected="false" class="o1-tab" style="position: relative; display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 12px; text-decoration: none; color: var(--text-weak);">العمولات</a></div>
+    <section class="o1-card o1-card--flush" aria-labelledby="nd-h">
+          <div class="o1-card-head" style="padding: 20px 24px 0; margin-bottom: 8px;"><div class="o1-card-heading"><h2 id="nd-h" class="o1-card-title">مستندات مطلوبة</h2><p class="o1-card-desc">حسب أحداث الفوترة في إعداد المنشأة.</p></div></div>
+          <ul style="list-style: none; margin: 0; padding: 0;"><li style="display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 16px; align-items: center; padding: 14px 24px; border-top: 1px solid var(--stroke-weak);"><span style="display: flex; flex-direction: column; gap: 2px;"><span style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;"><x-import component-from-global-scope="OpsOne.Ref">ORD-24521</x-import><span style="font-weight: 600;">فاتورة ضريبية للدفعة الأولى 40%، بعد اعتماد العرض</span><x-import component-from-global-scope="OpsOne.Badge" tone="neutral">بعد الاعتماد</x-import></span><span style="color: var(--text-weak);">شركة دار الإعمار للمقاولات. الرقم الضريبي والسجل والعنوان مكتملة في ملفها.</span></span><x-import component-from-global-scope="OpsOne.Button" variant="secondary" size="sm" icon="paperclip" href="FinInvoiceLink.dc.html">ربط فاتورة</x-import></li><li style="display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 16px; align-items: center; padding: 14px 24px; border-top: 1px solid var(--stroke-weak);"><span style="display: flex; flex-direction: column; gap: 2px;"><span style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;"><x-import component-from-global-scope="OpsOne.Ref">ORD-24518</x-import><span style="font-weight: 600;">فاتورة مبسطة للدفعة الأولى</span><x-import component-from-global-scope="OpsOne.Badge" tone="warning">مطلوب</x-import></span><span style="color: var(--text-weak);">منيرة الشمري. تُربط بعد تأكيد إيصالها وصدور السند.</span></span><x-import component-from-global-scope="OpsOne.Button" variant="secondary" size="sm" icon="paperclip" href="FinInvoiceLink.dc.html">ربط فاتورة</x-import></li></ul>
+        </section>
+    <section class="o1-card o1-card--flush" aria-labelledby="ln-h">
+          <div class="o1-card-head" style="padding: 20px 24px 0; margin-bottom: 8px;"><div class="o1-card-heading"><h2 id="ln-h" class="o1-card-title">المربوطة</h2></div></div>
+          <table class="o1-table"><caption class="o1-sr">الفواتير المربوطة</caption><thead><tr><th scope="col">الرقم</th><th scope="col">النوع</th><th scope="col">الطلب</th><th scope="col">الحدث</th><th scope="col">التاريخ</th><th scope="col" class="o1-td--end">المبلغ</th><th scope="col">المراجعة</th></tr></thead><tbody><tr><td><bdi dir="ltr" style="font-family: var(--font-mono);">INV-2026-0398</bdi></td><td>ضريبية</td><td><x-import component-from-global-scope="OpsOne.Ref">ORD-24476</x-import></td><td>الدفعة الأولى</td><td>20 سبتمبر</td><td class="o1-td--end"><x-import component-from-global-scope="OpsOne.Amount" value="6,800.00"></x-import></td><td><x-import component-from-global-scope="OpsOne.Badge" tone="success">مقبول</x-import></td></tr><tr><td><bdi dir="ltr" style="font-family: var(--font-mono);">INV-2026-0401</bdi></td><td>مبسطة</td><td><x-import component-from-global-scope="OpsOne.Ref">ORD-24461</x-import></td><td>الدفعة الأولى</td><td>16 سبتمبر</td><td class="o1-td--end"><x-import component-from-global-scope="OpsOne.Amount" value="10,000.00"></x-import></td><td><x-import component-from-global-scope="OpsOne.Badge" tone="success">مقبول</x-import></td></tr><tr><td><bdi dir="ltr" style="font-family: var(--font-mono);">INV-2026-0405</bdi></td><td>ضريبية</td><td><x-import component-from-global-scope="OpsOne.Ref">ORD-24433</x-import></td><td>التسليم</td><td>2 أكتوبر</td><td class="o1-td--end"><x-import component-from-global-scope="OpsOne.Amount" value="12,400.00"></x-import></td><td><x-import component-from-global-scope="OpsOne.Badge" tone="warning">يحتاج تصحيحًا</x-import></td></tr><tr><td><bdi dir="ltr" style="font-family: var(--font-mono);">INV-2026-0409</bdi></td><td>مبسطة</td><td><x-import component-from-global-scope="OpsOne.Ref">ORD-24471</x-import></td><td>الدفعة الأخيرة</td><td>21 أكتوبر</td><td class="o1-td--end"><x-import component-from-global-scope="OpsOne.Amount" value="14,450.00"></x-import></td><td><x-import component-from-global-scope="OpsOne.Badge" tone="warning">مرفق بانتظار المراجعة</x-import></td></tr></tbody></table>
+        </section>
+  </main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview": {"width": 1440, "height": 1100}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const noop = () => {};
+    return { yes: true, no: false, h28: 28, s16: 16, s24: 24, nav: [ { label: 'الرئيسية', icon: 'layout-dashboard', href: 'Main.dc.html', active: false }, { label: 'الطلبات', icon: 'clipboard-list', href: 'OrdersList.dc.html', active: false }, { label: 'العملاء', icon: 'users', href: 'CustomersList.dc.html', active: false }, { label: 'المهام والمواعيد', icon: 'calendar', href: 'CalWeek.dc.html', active: false }, { label: 'المالية', icon: 'receipt', href: 'FinHome.dc.html', active: true }, { label: 'المخزون والتوريد', icon: 'package', href: '#', active: false }, { label: 'الموقع', icon: 'file-text', href: '#', active: false }, { label: 'التقارير', icon: 'trending-up', href: '#', active: false } ] };
+  }
+}
+</script>
+</body>
+</html>
