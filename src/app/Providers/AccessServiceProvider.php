@@ -4,8 +4,8 @@ namespace App\Providers;
 
 use App\Access\Authorizer;
 use App\Access\Contracts\LicenseCapabilities;
+use App\Access\LicensedCapabilities;
 use App\Access\Permission;
-use App\Access\PermissiveLicenseCapabilities;
 use App\Access\SessionRevoker;
 use App\Models\User;
 use Illuminate\Auth\Access\Response;
@@ -18,8 +18,7 @@ class AccessServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        // TODO(P2 wave 2): bind an adapter over App\Licensing instead of the permissive placeholder.
-        $this->app->singleton(LicenseCapabilities::class, PermissiveLicenseCapabilities::class);
+        $this->app->scoped(LicenseCapabilities::class, LicensedCapabilities::class);
         $this->app->scoped(Authorizer::class);
         $this->app->singleton(SessionRevoker::class);
     }

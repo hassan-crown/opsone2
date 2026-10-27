@@ -146,6 +146,8 @@
     "access.denied.unknown_permission": "إجراء غير معروف.",
     "access.denied.audience": "هذا الإجراء غير متاح لحسابك.",
     "access.denied.license": "هذه الميزة غير مشمولة في ترخيص المنشأة.",
+    "access.denied.license_read_only": "اشتراك المنشأة يسمح حاليًا بالقراءة والتصدير فقط.",
+    "access.denied.license_no_new_work": "الطلبات والمستخدمون الجدد موقوفون خلال فترة إتمام القائم.",
     "access.denied.inactive_account": "حسابك غير نشط في هذه المنشأة.",
     "access.denied.no_grant": "لا تملك صلاحية هذا الإجراء.",
     "access.denied.out_of_scope": "هذا السجل خارج نطاق صلاحيتك.",
@@ -164,5 +166,8 @@
     "license.provisioned_body": "الترخيص مُركّب، وتبدأ مدة الاشتراك عند تسليم المنصة.",
     "license.needs_attention_title": "الترخيص يحتاج معالجة",
     "license.needs_attention_body": "تعذّر التحقق من ترخيص المنصة. يستمر العمل على آخر حالة موثوقة، وتتوقف المزايا التي لا يمكن إثباتها. تواصل مع الدعم.",
-    "license.reference": "المرجع: :code"
+    "license.reference": "المرجع: :code",
+    "license.limit.seats": "جميع مقاعد الموظفين في الباقة مستخدمة (:used من :limit). ألغِ دعوة معلقة أو عطّل عضوًا أو أضف مقاعد من حسابك في OpsOne.",
+    "license.limit.branches": "جميع الفروع النشطة في الباقة مستخدمة (:used من :limit). عطّل فرعًا أو أضف فروعًا من حسابك في OpsOne.",
+    "license.limit.unproven": "الترخيص الحالي لا يسمح بإضافة موظفين أو فروع. جدّد الترخيص أو راجعه ثم أعد المحاولة."
 }

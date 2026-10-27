@@ -6,6 +6,7 @@ use App\Access\Authorizer;
 use App\Access\DelegationGuard;
 use App\Access\Exceptions\InvalidTransition;
 use App\Access\GrantResolver;
+use App\Access\LicenseLimits;
 use App\Access\Permission;
 use App\Access\TransitionRecorder;
 use App\Enums\InvitationStatus;
@@ -20,8 +21,7 @@ use InvalidArgumentException;
 /**
  * M-01-T00 (implicit creation): invite a staff member (P-05) with roles and placement.
  * Returns the plain link token once; only its hash is stored. Valid for seven days.
- *
- * TODO(P2 wave 2): reserve a seat against the license limit (concurrent invitations must not exceed it).
+ * A pending invitation reserves one seat against the license limit (LicenseLimits).
  */
 final class T00CreateInvitation
 {
@@ -30,6 +30,7 @@ final class T00CreateInvitation
         private readonly GrantResolver $resolver,
         private readonly DelegationGuard $delegation,
         private readonly TransitionRecorder $transitions,
+        private readonly LicenseLimits $limits,
     ) {}
 
     /**
@@ -65,6 +66,7 @@ final class T00CreateInvitation
                 ->where('expires_at', '>', now())->lockForUpdate()->exists()) {
                 throw new InvalidTransition(StateMachine::M01, 'T00', 'pending_exists');
             }
+            $this->limits->reserveSeat();
 
             $token = Str::random(64);
             $invitation->fill([

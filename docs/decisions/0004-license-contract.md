@@ -105,7 +105,8 @@
 
 `App\Licensing\CurrentLicense`: `status()`، `allows(string $capability): bool`، `limit(string $key): ?int`،
 `daysRemaining(): ?int`، `acceptsNewWork(): bool`، `problem()`. `limit()` يعيد `null` حين لا يوجد حد مُثبت،
-ويجب أن يعامله المستهلك كمنع للزيادة. Gate الصلاحيات (`app/Access/`) يستهلك هذه الواجهة لاحقًا.
+ويجب أن يعامله المستهلك كمنع للزيادة. Gate الصلاحيات (`app/Access/`) يستهلك هذه الواجهة عبر
+`LicensedCapabilities` و`LicenseLimits` (المقاعد والفروع)؛ التفاصيل في ADR-0005 «التكامل مع الترخيص».
 
 ## البدائل
 

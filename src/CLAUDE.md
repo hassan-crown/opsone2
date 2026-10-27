@@ -26,6 +26,7 @@
   session revocation — `docs/decisions/0005-access-model.md`. Domain records implement `Access\Contracts\ScopedRecord`.
 - `app/Actions/StateMachines/M{nn}*/T{nn}*` — one Action per transition; log via `TransitionRecorder` (`state_transitions`).
 - `app/Licensing` — signed-license verification (ADR-0004); use `CurrentLicense` (`allows()`, `limit()`, `status()`), never read the file.
+  The Gate's license step and seat/branch limits (`Access\LicenseLimits`, inside the adding transaction) are in ADR-0005.
 - `app/Actions/Fortify` — Fortify actions; `app/Http/{Controllers,Requests,Middleware}`; `app/Concerns` — shared validation rules.
 - `resources/js/pages` — Inertia pages; `resources/js/components/ui` — shadcn/ui components.
 - `routes/web.php`, `routes/settings.php`. Use `Route::get($uri, fn () => redirect($to))`, not `Route::redirect()`.

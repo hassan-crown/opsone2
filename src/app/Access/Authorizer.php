@@ -6,6 +6,7 @@ use App\Access\Contracts\LicenseCapabilities;
 use App\Access\Contracts\StatefulRecord;
 use App\Access\Enums\Audience;
 use App\Access\Enums\DenyReason;
+use App\Access\Enums\LicenseMode;
 use App\Enums\MembershipStatus;
 use App\Models\Facility;
 use App\Models\Membership;
@@ -15,7 +16,7 @@ use Illuminate\Contracts\Auth\Authenticatable;
 
 /**
  * The central Gate. Deny by default; evaluation order:
- * license capability → active account → scoped grant → record state.
+ * license (capability, then phase) → active account → scoped grant → record state.
  *
  * Effective grants are memoized per request and keyed by the user's `access_version`, which is read fresh
  * on every check, so a grant change or disable takes effect immediately even inside the same request.
@@ -62,6 +63,17 @@ final class Authorizer
         $capability = $permission->capability();
         if ($capability !== null && ! $this->license->allows($capability)) {
             return AccessDecision::deny(DenyReason::License);
+        }
+
+        // The user's own account (sign-in, password, sessions, notifications) stays open in every license phase.
+        if ($audience === Audience::Staff) {
+            $mode = $this->license->mode();
+            if ($mode === LicenseMode::ReadOnly && ! $permission->availableReadOnly()) {
+                return AccessDecision::deny(DenyReason::LicenseReadOnly);
+            }
+            if ($mode === LicenseMode::NoNewWork && $permission->startsNewWork()) {
+                return AccessDecision::deny(DenyReason::LicenseNoNewWork);
+            }
         }
 
         $state = $this->stateFor($user);

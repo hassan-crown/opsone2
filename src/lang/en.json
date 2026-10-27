@@ -146,6 +146,8 @@
     "access.denied.unknown_permission": "Unknown action.",
     "access.denied.audience": "This action is not available to your account.",
     "access.denied.license": "This feature is not included in the facility license.",
+    "access.denied.license_read_only": "The facility subscription currently allows reading and export only.",
+    "access.denied.license_no_new_work": "New orders and new users are paused while existing work is completed (subscription wind-down).",
     "access.denied.inactive_account": "Your account is not active in this facility.",
     "access.denied.no_grant": "You do not have permission for this action.",
     "access.denied.out_of_scope": "This record is outside your access scope.",
@@ -164,5 +166,8 @@
     "license.provisioned_body": "The license is installed; the subscription term starts at delivery.",
     "license.needs_attention_title": "License needs attention",
     "license.needs_attention_body": "We could not verify the platform license. Work continues on the last verified state, and features that cannot be verified are paused. Contact support.",
-    "license.reference": "Reference: :code"
+    "license.reference": "Reference: :code",
+    "license.limit.seats": "All staff seats in the plan are in use (:used of :limit). Cancel a pending invitation, disable a member, or add seats from your OpsOne account.",
+    "license.limit.branches": "All active branches in the plan are in use (:used of :limit). Disable a branch or add branches from your OpsOne account.",
+    "license.limit.unproven": "The current license does not allow adding staff or branches. Renew or check the license, then try again."
 }

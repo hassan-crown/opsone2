@@ -571,7 +571,7 @@ final class PermissionCatalogue
             'en' => 'View aggregated comparisons',
             'scopes' => ['branches', 'region', 'tenant'],
             'roles' => ['owner', 'manager'],
-            'capability' => 'comparisons',
+            'capability' => 'branch_comparisons',
         ],
         'P-62' => [
             'group' => 'reports',

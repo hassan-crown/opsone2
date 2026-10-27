@@ -152,4 +152,25 @@ enum Permission: string
     {
         return PermissionCatalogue::definition($this)['capability'];
     }
+
+    /**
+     * Staff actions still open when the license phase allows reading and export only (M-19: expired,
+     * provisioned, unproven license): views, reports, export, and protective actions that only narrow access
+     * (disabling a member, managing support authorizations). Data protection is never sold separately.
+     */
+    public function availableReadOnly(): bool
+    {
+        return in_array($this, [
+            self::P01, self::P08, self::P16, self::P37, self::P48, self::P60, self::P61, self::P62, self::P63,
+            self::P82, self::P94, self::P06, self::P79,
+        ], true);
+    }
+
+    /**
+     * Staff actions that start new work: new users or new orders, stopped during wind-down (M-19-T02).
+     */
+    public function startsNewWork(): bool
+    {
+        return in_array($this, [self::P05, self::P15, self::P92], true);
+    }
 }

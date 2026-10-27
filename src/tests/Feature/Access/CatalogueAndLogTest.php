@@ -4,6 +4,7 @@ use App\Access\Access;
 use App\Access\Contracts\LicenseCapabilities;
 use App\Access\Enums\Audience;
 use App\Access\Enums\DenyReason;
+use App\Access\Enums\LicenseMode;
 use App\Access\Enums\Scope;
 use App\Access\Permission;
 use App\Access\PermissionCatalogue;
@@ -52,14 +53,19 @@ it('seeds the eight default role templates from the matrix', function () {
 
 it('checks the license capability first', function () {
     $org = Org::make();
+    app()->forgetScopedInstances();
     app()->instance(LicenseCapabilities::class, new class implements LicenseCapabilities
     {
         public function allows(string $capability): bool
         {
             return $capability !== 'ready_goods';
         }
+
+        public function mode(): LicenseMode
+        {
+            return LicenseMode::Full;
+        }
     });
-    app()->forgetScopedInstances();
 
     expect(Access::inspect($org->owner, 'P-12')->reason)->toBe(DenyReason::License)
         ->and(Access::can($org->owner, 'P-11'))->toBeTrue();
