@@ -13,6 +13,7 @@ use App\Models\Facility;
 use App\Models\Membership;
 use App\Models\OwnershipTransfer;
 use App\Models\User;
+use App\Notifications\Notifier;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -26,6 +27,7 @@ final class T00RequestOwnershipTransfer
     public function __construct(
         private readonly Authorizer $access,
         private readonly TransitionRecorder $transitions,
+        private readonly Notifier $notifier,
     ) {}
 
     public function handle(User $actor, string $currentPassword, Membership $recipient, ?string $reason = null, string $source = TransitionRecorder::SOURCE_WEB): OwnershipTransfer
@@ -59,6 +61,9 @@ final class T00RequestOwnershipTransfer
             ]);
 
             $this->transitions->record(StateMachine::M37, 'T00', $transfer, null, OwnershipTransferStatus::Requested, $actor, $source, $reason);
+
+            // In-app and email notice for the recipient; both commit with the request and are sent after commit.
+            $this->notifier->send($recipient->user, 'ownership.transfer_requested', ['from' => $actor->name], null, 'ownership-transfer:'.$transfer->id);
 
             return $transfer;
         });

@@ -1,5 +1,6 @@
 import type { Auth } from '@/types/auth';
 import type { LicenseBanner } from '@/types/license';
+import type { NotificationFeed } from '@/types/notifications';
 import type { Direction, Locale } from '@/lib/i18n';
 
 declare module 'react' {
@@ -18,6 +19,7 @@ declare module '@inertiajs/core' {
             locales: Locale[];
             translations: Record<string, string>;
             license?: LicenseBanner | null;
+            notifications?: NotificationFeed | null;
             orgNav?: { team: boolean; branches: boolean } | null;
             [key: string]: unknown;
         };

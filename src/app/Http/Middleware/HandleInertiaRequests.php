@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use App\Access\Access;
 use App\Access\Permission;
+use App\Notifications\NotificationFeed;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -49,6 +50,8 @@ class HandleInertiaRequests extends Middleware
             ],
             // Navigation entries the Gate allows; every route still enforces access server-side.
             'orgNav' => fn () => $this->orgNav($request),
+            // Bell data (SHR-05); the client polls it with a partial reload instead of a socket (Q-26).
+            'notifications' => fn () => app(NotificationFeed::class)->for($request->user()),
         ];
     }
 

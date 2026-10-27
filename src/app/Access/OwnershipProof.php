@@ -2,12 +2,11 @@
 
 namespace App\Access;
 
-use App\Mail\OrgMessage;
 use App\Models\Facility;
 use App\Models\Invitation;
 use App\Models\OwnerInvitation;
+use App\Notifications\Outbox;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\ValidationException;
 
 /**
@@ -23,6 +22,8 @@ final class OwnershipProof
     public const MAX_ATTEMPTS = 10;
 
     public const RESEND_SECONDS = 45;
+
+    public function __construct(private readonly Outbox $outbox) {}
 
     public function send(Invitation|OwnerInvitation $subject): void
     {
@@ -51,12 +52,14 @@ final class OwnershipProof
         }
 
         $locale = Facility::current()->default_locale ?? 'ar';
-        Mail::to($subject->email)->send(
-            (new OrgMessage(
-                title: __('org.mail.code_subject'),
-                lines: [__('org.mail.code_line', ['code' => $code, 'minutes' => self::VALID_MINUTES]), __('org.mail.code_ignore')],
-                dir: $locale === 'ar' ? 'rtl' : 'ltr',
-            ))->locale($locale),
+        // One key per issued code (keyed hash, so the key does not reveal the code): a replayed send is a no-op.
+        $this->outbox->enqueueMail(
+            $subject->email,
+            __('org.mail.code_subject', [], $locale),
+            [__('org.mail.code_line', ['code' => $code, 'minutes' => self::VALID_MINUTES], $locale), __('org.mail.code_ignore', [], $locale)],
+            null,
+            $locale,
+            'proof:'.class_basename($subject).':'.$subject->id.':'.substr(hash_hmac('sha256', $subject->id.'|'.$code, (string) config('app.key')), 0, 24),
         );
     }
 
