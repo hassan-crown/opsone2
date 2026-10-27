@@ -53,6 +53,20 @@ enum AuditAction: string
     case SupportSignedIn = 'support_access.signed_in';
     case SupportViewed = 'support_access.viewed';
 
+    case CustomerCreated = 'customer.created';
+    case CustomerUpdated = 'customer.updated';
+    case CustomerContactAdded = 'customer.contact_added';
+    case CustomerContactUpdated = 'customer.contact_updated';
+    case CustomerContactPrimaryChanged = 'customer.contact_primary_changed';
+    case CustomerContactRemoved = 'customer.contact_removed';
+
+    case InterestCreated = 'interest.created';
+    case InterestUpdated = 'interest.updated';
+    case InterestFollowed = 'interest.followed';
+    case InterestConverted = 'interest.converted';
+    case InterestClosed = 'interest.closed';
+    case InterestReopened = 'interest.reopened';
+
     public function area(): string
     {
         return match ($this) {
@@ -70,6 +84,10 @@ enum AuditAction: string
             self::SupportRequestSubmitted, self::SupportAccessRequested, self::SupportAccessGranted,
             self::SupportAccessRejected, self::SupportAccessRevoked, self::SupportAccessExpired,
             self::SupportSignedIn, self::SupportViewed => 'support',
+            self::CustomerCreated, self::CustomerUpdated, self::CustomerContactAdded, self::CustomerContactUpdated,
+            self::CustomerContactPrimaryChanged, self::CustomerContactRemoved => 'customers',
+            self::InterestCreated, self::InterestUpdated, self::InterestFollowed, self::InterestConverted,
+            self::InterestClosed, self::InterestReopened => 'interests',
         };
     }
 
