@@ -1,0 +1,82 @@
+name: CI - Laravel Starter
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  validate-infrastructure:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Shell syntax
+        run: bash -n manage.sh scripts/*.sh
+      - name: Docker Compose (local)
+        run: docker compose --env-file .infra_env.example -f docker-compose.yml config --quiet
+      - name: Docker Compose (Traefik override)
+        run: docker compose --env-file .infra_env.example -f docker-compose.yml -f docker-compose.prod.yml config --quiet
+
+  laravel-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Detect application
+        id: app
+        run: |
+          if [ -f src/composer.json ]; then echo "exists=true" >> "$GITHUB_OUTPUT"; else echo "exists=false" >> "$GITHUB_OUTPUT"; fi
+      - uses: shivammathur/setup-php@v2
+        if: steps.app.outputs.exists == 'true'
+        with:
+          php-version: '8.5'
+          extensions: mbstring, intl, zip, bcmath, pdo_sqlite, pdo_mysql, redis
+          coverage: none
+      - name: Install PHP dependencies
+        if: steps.app.outputs.exists == 'true'
+        working-directory: src
+        run: composer install --no-interaction --prefer-dist
+      - name: Run tests
+        if: steps.app.outputs.exists == 'true'
+        working-directory: src
+        run: |
+          cp -n .env.example .env
+          php artisan key:generate --force
+          php artisan test
+        env:
+          DB_CONNECTION: sqlite
+          DB_DATABASE: ':memory:'
+          CACHE_STORE: array
+          SESSION_DRIVER: array
+          QUEUE_CONNECTION: sync
+      - name: No application installed yet
+        if: steps.app.outputs.exists != 'true'
+        run: echo 'Starter is intentionally empty; app tests start after /project-init.'
+
+  frontend-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Detect frontend
+        id: frontend
+        run: |
+          if [ -f src/package.json ]; then echo "exists=true" >> "$GITHUB_OUTPUT"; else echo "exists=false" >> "$GITHUB_OUTPUT"; fi
+      - uses: shivammathur/setup-php@v2
+        if: steps.frontend.outputs.exists == 'true'
+        with:
+          php-version: '8.5'
+          extensions: mbstring, intl, zip, bcmath, pdo_sqlite, pdo_mysql
+          coverage: none
+      - name: Install Composer dependencies required by Vite/Wayfinder
+        if: steps.frontend.outputs.exists == 'true'
+        working-directory: src
+        run: composer install --no-interaction --prefer-dist
+      - uses: actions/setup-node@v4
+        if: steps.frontend.outputs.exists == 'true'
+        with:
+          node-version: '24'
+      - name: Install and build
+        if: steps.frontend.outputs.exists == 'true'
+        working-directory: src
+        run: |
+          corepack enable
+          if [ -f pnpm-lock.yaml ]; then pnpm install --frozen-lockfile; else pnpm install; fi
+          pnpm run build

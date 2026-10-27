@@ -1,0 +1,27 @@
+# Infrastructure secrets
+.env
+.env.*
+!.env.example
+!.infra_env.example
+
+# Laravel runtime and secrets
+src/.env
+src/.env.*
+!src/.env.example
+src/vendor/
+src/node_modules/
+src/.composer/
+src/.pnpm-store/
+src/.cache/
+src/.puppeteer/
+src/public/build/
+src/public/hot
+src/storage/*.key
+src/storage/oauth-*.key
+src/bootstrap/cache/*.php
+
+# Editor and operating system
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

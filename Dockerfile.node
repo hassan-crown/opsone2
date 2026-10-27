@@ -1,0 +1,5 @@
+# Dedicated Node image so pnpm can run under WWWUSER:WWWGROUP without root writes.
+ARG NODE_MAJOR=24
+FROM node:${NODE_MAJOR}-bookworm-slim
+RUN corepack enable
+WORKDIR /var/www/html

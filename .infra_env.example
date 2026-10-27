@@ -1,0 +1,78 @@
+# -----------------------------------------------------------------------------
+# Application identity
+# -----------------------------------------------------------------------------
+APP_NAME=laravel
+
+# -----------------------------------------------------------------------------
+# Environment (local, dev, stage, prod)
+# -----------------------------------------------------------------------------
+ENVIRONMENT=local
+
+# -----------------------------------------------------------------------------
+# Required settings on server
+# -----------------------------------------------------------------------------
+WEB_DOMAIN=laravel.developer-web.net
+PMA_DOMAIN=pma-laravel.developer-web.net
+GIT_BRANCH=main
+
+# -----------------------------------------------------------------------------
+# Optional build settings
+# -----------------------------------------------------------------------------
+WITH_XDEBUG=false
+INSTALL_NODE=false
+NODE_MAJOR=24
+
+# -----------------------------------------------------------------------------
+# Database credentials
+# -----------------------------------------------------------------------------
+DB_ROOT_PASSWORD=strong_root_password_here
+DB_PASSWORD=strong_user_password_here
+
+# -----------------------------------------------------------------------------
+# phpMyAdmin Basic Auth
+# Generate using:
+# htpasswd -nb admin STRONG_PASSWORD
+# Use double $$ to escape $ in .env files.
+# -----------------------------------------------------------------------------
+PMA_BASIC_AUTH=admin:$$apr1$$xxxxxxxx$$xxxxxxxxxxxxxxxxxxxxxx
+
+# -----------------------------------------------------------------------------
+# Resource tuning (optional, default shown)
+# Redis: when full, only keys with TTL (cache/sessions) are evicted, never queue keys.
+# -----------------------------------------------------------------------------
+# MariaDB: buffer pool ~ 50-70% of the RAM you give MySQL; >= size of hot data.
+MYSQL_BUFFER_POOL_SIZE=256M
+MYSQL_MAX_CONNECTIONS=100
+MYSQL_PERFORMANCE_SCHEMA=OFF
+# Redis: when full, only keys with TTL (cache/sessions) are evicted.
+REDIS_MAX_MEMORY=256mb
+# PHP: worst-case app memory ~= PHP_FPM_MAX_CHILDREN x PHP_MEMORY_LIMIT.
+PHP_MEMORY_LIMIT=512M
+PHP_FPM_MAX_CHILDREN=5
+APP_MEM_LIMIT=1g
+WORKER_MEM_LIMIT=512m
+
+# -----------------------------------------------------------------------------
+# Ports
+# -----------------------------------------------------------------------------
+APP_PORT=8080
+FORWARD_DB_PORT=3306
+FORWARD_REDIS_PORT=6379
+PHPMYADMIN_PORT=8081
+VITE_PORT=5173
+
+# -----------------------------------------------------------------------------
+# User and group IDs
+# Check using:
+# id -u deploy && id -g deploy
+# -----------------------------------------------------------------------------
+WWWUSER=1000
+WWWGROUP=1000
+
+# -----------------------------------------------------------------------------
+# Important commands
+# -----------------------------------------------------------------------------
+# chmod +x manage.sh
+# chmod +x scripts/installer.sh
+# chmod +x scripts/new-laravel-from-docker.sh
+# sudo chown -R "$USER:$USER" src

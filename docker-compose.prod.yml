@@ -1,0 +1,78 @@
+# -----------------------------------------------------------------------------
+# Production overrides
+# -----------------------------------------------------------------------------
+# This file adds Traefik routing and removes direct host port exposure
+# where needed.
+# Usage:
+# docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+# -----------------------------------------------------------------------------
+
+services:
+  mariadb:
+    ports: !reset []
+
+  redis:
+    ports: !reset []
+
+  web:
+    ports: !reset []
+    networks:
+      - internal
+      - proxy
+    labels:
+      - "traefik.enable=true"
+
+      # HTTP router
+      - "traefik.http.routers.${APP_NAME}-${ENVIRONMENT}-http.rule=Host(`${WEB_DOMAIN}`)"
+      - "traefik.http.routers.${APP_NAME}-${ENVIRONMENT}-http.entrypoints=web"
+      - "traefik.http.routers.${APP_NAME}-${ENVIRONMENT}-http.middlewares=${APP_NAME}-${ENVIRONMENT}-https-redirect"
+
+      # HTTPS redirect middleware
+      - "traefik.http.middlewares.${APP_NAME}-${ENVIRONMENT}-https-redirect.redirectscheme.scheme=https"
+
+      # HTTPS router
+      - "traefik.http.routers.${APP_NAME}-${ENVIRONMENT}-https.rule=Host(`${WEB_DOMAIN}`)"
+      - "traefik.http.routers.${APP_NAME}-${ENVIRONMENT}-https.entrypoints=websecure"
+      - "traefik.http.routers.${APP_NAME}-${ENVIRONMENT}-https.tls=true"
+      - "traefik.http.routers.${APP_NAME}-${ENVIRONMENT}-https.tls.certresolver=letsencrypt"
+
+      # Service
+      - "traefik.http.services.${APP_NAME}-${ENVIRONMENT}-https.loadbalancer.server.port=80"
+
+  phpmyadmin:
+    ports: !reset []
+    networks:
+      - internal
+      - proxy
+    labels:
+      - "traefik.enable=true"
+
+      # HTTP router
+      - "traefik.http.routers.${APP_NAME}-${ENVIRONMENT}-pma-http.rule=Host(`${PMA_DOMAIN}`)"
+      - "traefik.http.routers.${APP_NAME}-${ENVIRONMENT}-pma-http.entrypoints=web"
+      - "traefik.http.routers.${APP_NAME}-${ENVIRONMENT}-pma-http.middlewares=${APP_NAME}-${ENVIRONMENT}-pma-https-redirect"
+
+      # HTTPS redirect middleware
+      - "traefik.http.middlewares.${APP_NAME}-${ENVIRONMENT}-pma-https-redirect.redirectscheme.scheme=https"
+
+      # HTTPS router
+      - "traefik.http.routers.${APP_NAME}-${ENVIRONMENT}-pma-https.rule=Host(`${PMA_DOMAIN}`)"
+      - "traefik.http.routers.${APP_NAME}-${ENVIRONMENT}-pma-https.entrypoints=websecure"
+      - "traefik.http.routers.${APP_NAME}-${ENVIRONMENT}-pma-https.tls=true"
+      - "traefik.http.routers.${APP_NAME}-${ENVIRONMENT}-pma-https.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.${APP_NAME}-${ENVIRONMENT}-pma-https.middlewares=${APP_NAME}-${ENVIRONMENT}-pma-auth"
+
+      # Basic Auth middleware for phpMyAdmin
+      # Generate using:
+      # htpasswd -nb admin STRONG_PASSWORD
+      #
+      # In .env, escape $ as $$:
+      # PMA_BASIC_AUTH=admin:$$apr1$$xxxxxxxx$$xxxxxxxxxxxxxxxxxxxxxx
+      - "traefik.http.middlewares.${APP_NAME}-${ENVIRONMENT}-pma-auth.basicauth.users=${PMA_BASIC_AUTH}"
+
+      # Service
+      - "traefik.http.services.${APP_NAME}-${ENVIRONMENT}-pma-https.loadbalancer.server.port=80"
+
+networks:
+  proxy:
+    external: true
