@@ -9,14 +9,18 @@ use Symfony\Component\HttpFoundation\Response;
 
 class HandleAppearance
 {
+    public const MODES = ['light', 'dark', 'contrast', 'system'];
+
     /**
-     * Handle an incoming request.
+     * Share the stored theme preference (cookie `appearance`) with the root view.
      *
      * @param  Closure(Request): (Response)  $next
      */
     public function handle(Request $request, Closure $next): Response
     {
-        View::share('appearance', $request->cookie('appearance') ?? 'system');
+        $appearance = $request->cookie('appearance');
+
+        View::share('appearance', in_array($appearance, self::MODES, true) ? $appearance : 'system');
 
         return $next($request);
     }

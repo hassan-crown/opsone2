@@ -2,8 +2,11 @@ import { useCallback } from 'react';
 
 export type GetInitialsFn = (fullName: string) => string;
 
+/** Arabic definite article ("ال") is skipped so "الحسن" gives "ح", not "ا". */
 function getInitial(name: string): string {
-    return Array.from(name)[0] ?? '';
+    const stripped = name.length > 2 ? name.replace(/^ال/u, '') : name;
+
+    return Array.from(stripped)[0] ?? '';
 }
 
 export function useInitials(): GetInitialsFn {

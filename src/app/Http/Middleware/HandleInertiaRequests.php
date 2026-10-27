@@ -38,10 +38,29 @@ class HandleInertiaRequests extends Middleware
         return [
             ...parent::share($request),
             'name' => config('app.name'),
+            'locale' => app()->getLocale(),
+            'dir' => SetLocale::direction(app()->getLocale()),
+            'locales' => config('app.available_locales'),
+            'translations' => $this->translations(),
             'auth' => [
                 'user' => $request->user(),
             ],
-            'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
         ];
+    }
+
+    /**
+     * JSON translations for the active locale, over the fallback locale.
+     *
+     * @return array<string, string>
+     */
+    private function translations(): array
+    {
+        $load = static function (string $locale): array {
+            $path = lang_path($locale.'.json');
+
+            return is_file($path) ? (array) json_decode((string) file_get_contents($path), true) : [];
+        };
+
+        return array_merge($load(config('app.fallback_locale')), $load(app()->getLocale()));
     }
 }
