@@ -70,6 +70,7 @@ export default defineConfig({
             '.github/**',
             'composer.json',
             'resources/js/components/ui/*',
+            'resources/css/opsone/tokens.css',
             'resources/views/mail/*',
         ],
         sortTailwindcss: {
