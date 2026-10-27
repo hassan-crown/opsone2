@@ -18,6 +18,7 @@ declare module '@inertiajs/core' {
             locales: Locale[];
             translations: Record<string, string>;
             license?: LicenseBanner | null;
+            orgNav?: { team: boolean; branches: boolean } | null;
             [key: string]: unknown;
         };
     }

@@ -2,6 +2,8 @@
 
 namespace App\Http\Middleware;
 
+use App\Access\Access;
+use App\Access\Permission;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -45,6 +47,8 @@ class HandleInertiaRequests extends Middleware
             'auth' => [
                 'user' => $request->user(),
             ],
+            // Navigation entries the Gate allows; every route still enforces access server-side.
+            'orgNav' => fn () => $this->orgNav($request),
         ];
     }
 
@@ -62,5 +66,22 @@ class HandleInertiaRequests extends Middleware
         };
 
         return array_merge($load(config('app.fallback_locale')), $load(app()->getLocale()));
+    }
+
+    /**
+     * @return array{team: bool, branches: bool}|null
+     */
+    private function orgNav(Request $request): ?array
+    {
+        $user = $request->user();
+
+        if ($user === null) {
+            return null;
+        }
+
+        return [
+            'team' => Access::can($user, Permission::P04) || Access::can($user, Permission::P05) || Access::can($user, Permission::P06),
+            'branches' => Access::can($user, Permission::P03),
+        ];
     }
 }

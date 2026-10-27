@@ -27,15 +27,20 @@ use Illuminate\Support\Carbon;
  * @property int|null $membership_id
  * @property Carbon $expires_at
  * @property Carbon|null $accepted_at
+ * @property string|null $code_hash
+ * @property Carbon|null $code_sent_at
+ * @property Carbon|null $code_expires_at
+ * @property int $code_attempts
  */
 #[Fillable(['email', 'name', 'token_hash', 'job_title', 'department_id', 'branch_ids', 'roles', 'invited_by_membership_id', 'expires_at'])]
-#[Hidden(['token_hash'])]
+#[Hidden(['token_hash', 'code_hash'])]
 class Invitation extends Model implements ScopedRecord
 {
     public const VALID_DAYS = 7;
 
     protected $attributes = [
         'status' => 'pending',
+        'code_attempts' => 0,
     ];
 
     public static function hashToken(string $token): string
@@ -88,6 +93,8 @@ class Invitation extends Model implements ScopedRecord
             'roles' => 'array',
             'expires_at' => 'datetime',
             'accepted_at' => 'datetime',
+            'code_sent_at' => 'datetime',
+            'code_expires_at' => 'datetime',
         ];
     }
 }
