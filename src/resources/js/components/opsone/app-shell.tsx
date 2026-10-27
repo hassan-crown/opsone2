@@ -5,6 +5,7 @@ import type { ReactNode } from 'react';
 import { Breadcrumbs } from '@/components/opsone/breadcrumbs';
 import { Icon } from '@/components/opsone/icon';
 import { LanguageSwitch } from '@/components/opsone/language-switch';
+import { LicenseBanner } from '@/components/opsone/license-banner';
 import { Logo } from '@/components/opsone/logo';
 import { ThemeSwitch } from '@/components/opsone/theme-switch';
 import { Button } from '@/components/ui/button';
@@ -25,12 +26,13 @@ import { useCurrentUrl } from '@/hooks/use-current-url';
 import { useT } from '@/lib/i18n';
 import { mainNav } from '@/lib/navigation';
 import { cn, toUrl } from '@/lib/utils';
-import { edit } from '@/routes/profile';
+import { home as settingsHome } from '@/routes/settings';
 import type { BreadcrumbItem } from '@/types';
 
 function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
     const t = useT();
     const { isCurrentOrParentUrl } = useCurrentUrl();
+    const { orgNav } = usePage().props;
 
     const item = (
         key: string,
@@ -64,14 +66,26 @@ function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
         <>
             <nav aria-label={t('ui.main_nav')} className="flex-1">
                 <ul className="m-0 flex list-none flex-col gap-1 p-0">
-                    {mainNav.map((nav) =>
-                        item(toUrl(nav.href), nav.href, t(nav.label), nav.icon),
-                    )}
+                    {mainNav
+                        .filter((nav) => !nav.access || orgNav?.[nav.access])
+                        .map((nav) =>
+                            item(
+                                toUrl(nav.href),
+                                nav.href,
+                                t(nav.label),
+                                nav.icon,
+                            ),
+                        )}
                 </ul>
             </nav>
             <div className="mt-auto border-t border-stroke-weak pt-4">
                 <ul className="m-0 flex list-none flex-col gap-1 p-0">
-                    {item('settings', edit(), t('nav.settings'), Settings)}
+                    {item(
+                        'settings',
+                        settingsHome(),
+                        t('nav.settings'),
+                        Settings,
+                    )}
                 </ul>
             </div>
         </>
@@ -190,6 +204,7 @@ export function AppShell({
                     tabIndex={-1}
                     className="box-border w-full max-w-[calc(var(--container-content)+3rem)] flex-1 p-4 outline-none md:p-6"
                 >
+                    <LicenseBanner />
                     {children}
                 </main>
             </div>

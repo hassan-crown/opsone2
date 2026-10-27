@@ -6,7 +6,6 @@ import { CheckboxField, Field, TextField } from '@/components/opsone/field';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
 import { useT } from '@/lib/i18n';
-import { register } from '@/routes';
 import { store } from '@/routes/login';
 import { request } from '@/routes/password';
 
@@ -90,12 +89,9 @@ export default function Login({ status, canResetPassword }: Props) {
                             </Button>
                         </div>
 
-                        <div className="text-center text-body text-weak">
-                            {t('auth.no_account')}{' '}
-                            <TextLink href={register()} tabIndex={5}>
-                                {t('auth.sign_up')}
-                            </TextLink>
-                        </div>
+                        <p className="text-center text-body text-weak">
+                            {t('auth.invite_only')}
+                        </p>
                     </>
                 )}
             </Form>

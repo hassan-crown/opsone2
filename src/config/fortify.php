@@ -161,7 +161,7 @@ return [
     */
 
     'features' => [
-        Features::registration(),
+        // Public registration is disabled: staff join by invitation only (Q-16, M-01).
         Features::resetPasswords(),
         Features::emailVerification(),
         Features::twoFactorAuthentication([

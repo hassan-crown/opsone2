@@ -11,7 +11,7 @@ import { UserInfo } from '@/components/user-info';
 import { useMobileNavigation } from '@/hooks/use-mobile-navigation';
 import { useT } from '@/lib/i18n';
 import { logout } from '@/routes';
-import { edit } from '@/routes/profile';
+import { home as settingsHome } from '@/routes/settings';
 import type { User } from '@/types';
 
 type Props = {
@@ -37,7 +37,7 @@ export function UserMenuContent({ user }: Props) {
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
                 <DropdownMenuItem asChild>
-                    <Link href={edit()} prefetch onClick={cleanup}>
+                    <Link href={settingsHome()} prefetch onClick={cleanup}>
                         <Icon icon={Settings} />
                         {t('nav.settings')}
                     </Link>

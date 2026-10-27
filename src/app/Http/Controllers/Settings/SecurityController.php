@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Settings;
 
+use App\Access\SessionRevoker;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Settings\PasswordUpdateRequest;
 use App\Http\Requests\Settings\TwoFactorAuthenticationRequest;
@@ -51,13 +52,14 @@ class SecurityController extends Controller
     }
 
     /**
-     * Update the user's password.
+     * Update the user's password and sign out every other device.
      */
-    public function update(PasswordUpdateRequest $request): RedirectResponse
+    public function update(PasswordUpdateRequest $request, SessionRevoker $sessions): RedirectResponse
     {
         $request->user()->update([
             'password' => $request->password,
         ]);
+        $sessions->revokeOthers($request->user(), $request->session());
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Password updated.')]);
 

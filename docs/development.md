@@ -30,6 +30,12 @@
 - لعرض المنافذ الحالية وفحصها يدويًا: `./manage.sh ports`.
 - في `dev` و`stage` و`prod` لا تُنشر منافذ web وDB وRedis على المضيف، لأن Traefik يتولى التوجيه.
 
+## الترخيص محليًا
+
+التحقق من الترخيص لا يُعطَّل في أي بيئة (ADR-0004). محليًا: `./manage.sh artisan license:dev-issue`
+(خيارات `--plan=basic|growth|scale`، `--days`، `--unactivated`) يوقّع بمفتاح اختبار غير سري ويركّبه، و
+`./manage.sh artisan license:status` للتشخيص. في dev/stage/prod: `license:install <path>` لملف من التطبيق المركزي.
+
 ## معيار Pull Request مختصر
 
 - لا نقل لتطبيق Laravel خارج `src/`.
