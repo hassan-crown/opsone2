@@ -7,7 +7,8 @@ use Illuminate\Validation\Rule;
 
 /**
  * Shape of one order line in a request. Catalog facts (selectable item, option keys, whole quantities for ready
- * goods) are checked against the database by App\Orders\OrderLineBuilder.
+ * goods) are checked against the database by App\Orders\OrderLineBuilder. Quantities are plain decimals with at
+ * most three places (the column's scale), so nothing is silently rounded to zero.
  */
 final class OrderLineRules
 {
@@ -21,7 +22,7 @@ final class OrderLineRules
             $prefix.'type' => ['required', Rule::in(array_map(fn (OrderLineType $t) => $t->value, $types))],
             $prefix.'product_id' => ['nullable', 'required_if:'.$prefix.'type,custom_product', 'integer'],
             $prefix.'variant_id' => ['nullable', 'required_if:'.$prefix.'type,ready_variant', 'integer'],
-            $prefix.'quantity' => ['nullable', 'required_if:'.$prefix.'type,ready_variant', 'numeric', 'gt:0', 'max:999999'],
+            $prefix.'quantity' => ['nullable', 'required_if:'.$prefix.'type,ready_variant', 'numeric', 'decimal:0,3', 'min:0.001', 'max:999999'],
             $prefix.'unit' => ['nullable', 'string', 'max:16'],
             $prefix.'description' => ['nullable', 'required_if:'.$prefix.'type,custom_need', 'string', 'max:2000'],
             $prefix.'options' => ['nullable', 'array', 'max:30'],

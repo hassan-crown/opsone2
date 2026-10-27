@@ -53,7 +53,7 @@ class BranchTransferController extends Controller
         $actor = $this->actor($request);
         $target = TransferOrderBranch::target($customer->branch_id, $this->branchId($request));
         Access::authorize($actor, Permission::P10, $customer);
-        Access::authorize($actor, Permission::P10, BranchTransferImpact::customerIn($customer, $target->id));
+        Access::authorize($actor, Permission::P10, BranchTransferImpact::customerTarget($customer, $target->id));
 
         return response()->json(['impact' => BranchTransferImpact::forCustomer($customer, $target)]);
     }

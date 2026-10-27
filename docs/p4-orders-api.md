@@ -33,8 +33,8 @@ render a «hidden» placeholder when `financials_hidden` is true — never `0`.
 | `DELETE /orders/{order}/lines/{line}` | `orders.lines.destroy` | P-17 | Remove a line (kept in history) |
 | `GET /orders/{order}/branch-transfer?branch_id=` | `orders.branch-transfer.preview` | P-19 over both branches | Impact review |
 | `POST /orders/{order}/branch-transfer` | `orders.branch-transfer.apply` | P-19 over both branches | Atomic transfer |
-| `GET /customers/{customer}/branch-transfer?branch_id=` | `customers.branch-transfer.preview` | P-10 over both branches | Impact review |
-| `POST /customers/{customer}/branch-transfer` | `customers.branch-transfer.apply` | P-10 over both branches | Atomic transfer |
+| `GET /customers/{customer}/branch-transfer?branch_id=` | `customers.branch-transfer.preview` | P-10 over both branches (target: branch/region/facility grant only) | Impact review |
+| `POST /customers/{customer}/branch-transfer` | `customers.branch-transfer.apply` | P-10 over both branches (target: branch/region/facility grant only) | Atomic transfer |
 
 `POST /orders` uses its own rate limiter (`orders-create`, 30/min per user).
 
@@ -106,9 +106,15 @@ on retry/double-click. Field `idempotency_key` or header `Idempotency-Key` (8–
 - `custom` + `ready` together ⇒ two orders sharing a **new purchase reference** (`PR-YYYY-nnnnn`). The reference is not
   an order and has no amount.
 - Custom order ⇒ M-04 `in_progress`, `total_minor: null`, lines without price. Ready ⇒ M-05 `draft`, line prices
-  frozen from the variant's current version, `total_minor` = sum of active lines.
+  frozen from the variant's current version, `total_minor` = sum of active lines. A line total or an order total above
+  `MinorUnits::MAX` (999,999,999.99 SAR) is refused with `422` (`ready.lines.N.quantity` / `ready.lines`), never stored
+  saturated.
+- `quantity` is a plain decimal with at most three places, `0.001..999999` (no exponent form); ready lines take whole
+  numbers. Creating orders is throttled at 30/min per user (`orders-create`); adding lines and applying a branch
+  transfer share the `records-create` limit (60/min per user) with the other P4 create endpoints ⇒ `429`.
 - Response `201` `{orders: [OrderDetail...], purchase_reference_id, replayed: false}`; a replay of the same key and
-  payload returns `200` with `replayed: true` and the same orders. Same key + different payload ⇒ `422` on
+  payload returns `200` with `replayed: true` and the same orders — only those the actor may still open (P-16), so a
+  replay after a transfer or a grant change can return `orders: []`. Same key + different payload ⇒ `422` on
   `idempotency_key`. Field errors of a part are prefixed (`custom.lines.0.product_id`, `custom.assignee_id`, …).
 
 ### `GET /orders/{order}` → `{order: OrderDetail}`

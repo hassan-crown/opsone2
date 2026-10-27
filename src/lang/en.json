@@ -1300,6 +1300,7 @@
     "orders.validation.item_unavailable": "This item is not available for new orders.",
     "orders.validation.unknown_option": "Choose options of this product only.",
     "orders.validation.whole_quantity": "Enter a whole quantity of at least 1.",
+    "orders.validation.total_too_large": "The order total exceeds the largest amount the system accepts.",
     "orders.validation.customer_hidden": "Choose a customer you can see.",
     "orders.validation.reference_customer": "The purchase reference must belong to the same customer.",
     "orders.validation.branch_inactive": "Choose an active branch.",

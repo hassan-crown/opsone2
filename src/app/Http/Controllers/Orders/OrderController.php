@@ -198,8 +198,10 @@ class OrderController extends Controller
         $actor = $this->actor($request);
         ['result' => $result, 'replayed' => $replayed] = $create->handle($actor, (string) $request->validated('idempotency_key'), $request->orderData());
 
+        // A replay may come after a transfer or a grant change: only orders the actor still sees come back.
         $orders = Order::query()->whereIn('id', $result['order_ids'])->orderBy('id')->get()
-            ->map(fn (Order $o) => OrderPresenter::detail($o, $actor))->all();
+            ->filter(fn (Order $o) => OrderAccess::canView($actor, $o))
+            ->map(fn (Order $o) => OrderPresenter::detail($o, $actor))->values()->all();
 
         return response()->json([
             'orders' => $orders,

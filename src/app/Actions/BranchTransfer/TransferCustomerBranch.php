@@ -29,7 +29,7 @@ final class TransferCustomerBranch
     {
         $target = TransferOrderBranch::target($customer->branch_id, $targetBranchId);
         $this->access->authorize($actor, Permission::P10, $customer);
-        $this->access->authorize($actor, Permission::P10, BranchTransferImpact::customerIn($customer, $target->id));
+        $this->access->authorize($actor, Permission::P10, BranchTransferImpact::customerTarget($customer, $target->id));
 
         return DB::transaction(function () use ($actor, $customer, $target, $reason, $assigneeId, $source) {
             $locked = Customer::query()->lockForUpdate()->findOrFail($customer->id);
@@ -37,6 +37,7 @@ final class TransferCustomerBranch
                 throw ValidationException::withMessages(['branch_id' => __('orders.validation.customer_moved')]);
             }
             $this->access->authorize($actor, Permission::P10, $locked);
+            $this->access->authorize($actor, Permission::P10, BranchTransferImpact::customerTarget($locked, $target->id));
             $impact = BranchTransferImpact::forCustomer($locked, $target);
 
             $fromBranch = $locked->branch_id;

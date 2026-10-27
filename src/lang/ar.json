@@ -1300,6 +1300,7 @@
     "orders.validation.item_unavailable": "هذا الصنف غير متاح للطلبات الجديدة.",
     "orders.validation.unknown_option": "اختر من خيارات هذا المنتج فقط.",
     "orders.validation.whole_quantity": "أدخل كمية صحيحة لا تقل عن 1.",
+    "orders.validation.total_too_large": "إجمالي الطلب يتجاوز أكبر مبلغ يقبله النظام.",
     "orders.validation.customer_hidden": "اختر عميلًا ضمن صلاحيتك.",
     "orders.validation.reference_customer": "يجب أن يتبع مرجع الشراء العميل نفسه.",
     "orders.validation.branch_inactive": "اختر فرعًا نشطًا.",

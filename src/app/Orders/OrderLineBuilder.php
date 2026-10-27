@@ -2,6 +2,7 @@
 
 namespace App\Orders;
 
+use App\Catalog\MinorUnits;
 use App\Enums\OrderKind;
 use App\Enums\OrderLineType;
 use App\Models\Catalog\CatalogItem;
@@ -114,6 +115,9 @@ final class OrderLineBuilder
 
         $version = $this->currentVersion($variant);
         $price = (int) $version->payload['price_minor'];
+        if ($price * $quantity > MinorUnits::MAX) {
+            throw ValidationException::withMessages([$errorKey.'.quantity' => __('orders.validation.total_too_large')]);
+        }
         $line->forceFill([
             'catalog_version_id' => $version->id,
             'catalog_item_type' => $variant->getMorphClass(),
@@ -145,13 +149,22 @@ final class OrderLineBuilder
 
     /**
      * Ready orders carry the sum of their active lines; custom orders have no price at opening (null, not zero).
+     * Summed as integers and bounded by MinorUnits::MAX, so a huge order is refused instead of saturating.
      */
-    public static function total(Order $order): ?int
+    public static function total(Order $order, string $errorKey = 'lines'): ?int
     {
         if ($order->kind !== OrderKind::Ready) {
             return null;
         }
 
-        return (int) $order->activeLines()->sum('line_total_minor');
+        $total = 0;
+        foreach ($order->activeLines()->pluck('line_total_minor') as $amount) {
+            $total += (int) $amount;
+            if ($total > MinorUnits::MAX) {
+                throw ValidationException::withMessages([$errorKey => __('orders.validation.total_too_large')]);
+            }
+        }
+
+        return $total;
     }
 }

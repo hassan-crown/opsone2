@@ -20,11 +20,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('orders/{order}', [OrderController::class, 'show'])->whereNumber('order')->name('orders.show');
     Route::put('orders/{order}', [OrderController::class, 'update'])->whereNumber('order')->name('orders.update');
 
-    Route::post('orders/{order}/lines', [OrderLineController::class, 'store'])->whereNumber('order')->name('orders.lines.store');
+    Route::post('orders/{order}/lines', [OrderLineController::class, 'store'])->whereNumber('order')->middleware('throttle:records-create')->name('orders.lines.store');
     Route::delete('orders/{order}/lines/{line}', [OrderLineController::class, 'destroy'])->whereNumber(['order', 'line'])->scopeBindings()->name('orders.lines.destroy');
 
     Route::get('orders/{order}/branch-transfer', [BranchTransferController::class, 'previewOrder'])->whereNumber('order')->name('orders.branch-transfer.preview');
-    Route::post('orders/{order}/branch-transfer', [BranchTransferController::class, 'applyOrder'])->whereNumber('order')->name('orders.branch-transfer.apply');
+    Route::post('orders/{order}/branch-transfer', [BranchTransferController::class, 'applyOrder'])->whereNumber('order')->middleware('throttle:records-create')->name('orders.branch-transfer.apply');
     Route::get('customers/{customer}/branch-transfer', [BranchTransferController::class, 'previewCustomer'])->whereNumber('customer')->name('customers.branch-transfer.preview');
-    Route::post('customers/{customer}/branch-transfer', [BranchTransferController::class, 'applyCustomer'])->whereNumber('customer')->name('customers.branch-transfer.apply');
+    Route::post('customers/{customer}/branch-transfer', [BranchTransferController::class, 'applyCustomer'])->whereNumber('customer')->middleware('throttle:records-create')->name('customers.branch-transfer.apply');
 });

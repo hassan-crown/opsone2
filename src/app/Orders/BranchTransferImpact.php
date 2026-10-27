@@ -66,6 +66,19 @@ final class BranchTransferImpact
         return $copy;
     }
 
+    /**
+     * The customer as the target branch would hold it, with no owner or assignee: the P-10 check on the target must
+     * come from a branch, region or facility grant, so an own/assigned grant cannot move a customer into any branch.
+     */
+    public static function customerTarget(Customer $customer, int $branchId): Customer
+    {
+        $copy = self::customerIn($customer, $branchId);
+        $copy->created_by = null;
+        $copy->assignee_id = null;
+
+        return $copy;
+    }
+
     public static function isValidCustomerAssignee(?int $userId, Customer $customer): bool
     {
         $user = $userId === null ? null : User::query()->find($userId);

@@ -11,6 +11,7 @@ use App\Http\Controllers\Controller;
 use App\Models\AuditEvent;
 use App\Models\Branch;
 use App\Models\Facility;
+use App\Models\Order;
 use App\Models\User;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Builder;
@@ -141,12 +142,18 @@ final class AuditLogController extends Controller
         }
 
         $branchIds = $event->accessBranchIds();
+        $before = $event->before === null ? null : AuditRecorder::redact($event->before);
+        $after = $event->after === null ? null : AuditRecorder::redact($event->after);
+        if (! $this->canSeeMoney($user, $event)) {
+            $before = $before === null ? null : self::withoutMoney($before);
+            $after = $after === null ? null : self::withoutMoney($after);
+        }
 
         return [
             ...$this->row($event),
             'subject_id' => $event->subject_id,
-            'before' => $event->before === null ? null : AuditRecorder::redact($event->before),
-            'after' => $event->after === null ? null : AuditRecorder::redact($event->after),
+            'before' => $before,
+            'after' => $after,
             'reason' => $event->reason,
             'request_id' => $event->request_id,
             'user_agent' => $event->user_agent,
@@ -154,5 +161,36 @@ final class AuditLogController extends Controller
             'branches' => $branchIds === [] ? [] : Branch::query()->whereIn('id', $branchIds)->orderBy('id')->get()
                 ->map(fn (Branch $b) => $b->name_ar.($b->name_en ? ' / '.$b->name_en : ''))->all(),
         ];
+    }
+
+    /**
+     * Order amounts in an event are hidden fields for a viewer without P-37 over that order (P-63: «تنقيح الأسرار
+     * والحقول المحجوبة»). An order that no longer exists falls back to any P-37 grant.
+     */
+    private function canSeeMoney(User $user, AuditEvent $event): bool
+    {
+        if ($event->subject_type !== (new Order)->getMorphClass()) {
+            return true;
+        }
+        $order = $event->subject_id === null ? null : Order::query()->find($event->subject_id);
+
+        return $this->access->can($user, Permission::P37, $order);
+    }
+
+    /**
+     * @param  array<array-key, mixed>  $values
+     * @return array<array-key, mixed>
+     */
+    private static function withoutMoney(array $values): array
+    {
+        foreach ($values as $key => $value) {
+            if (is_string($key) && str_ends_with($key, '_minor')) {
+                $values[$key] = AuditRecorder::REDACTED;
+            } elseif (is_array($value)) {
+                $values[$key] = self::withoutMoney($value);
+            }
+        }
+
+        return $values;
     }
 }

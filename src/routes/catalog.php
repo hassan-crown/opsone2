@@ -17,7 +17,7 @@ Route::middleware(['auth', 'verified'])->prefix('catalog')->name('catalog.')->gr
 
     Route::get('products', [ProductController::class, 'index'])->name('products.index');
     Route::get('products/new', [ProductController::class, 'create'])->name('products.create');
-    Route::post('products', [ProductController::class, 'store'])->name('products.store');
+    Route::post('products', [ProductController::class, 'store'])->middleware('throttle:records-create')->name('products.store');
     Route::get('products/{product}', [ProductController::class, 'edit'])->name('products.edit');
     Route::put('products/{product}', [ProductController::class, 'update'])->name('products.update');
     Route::post('products/{product}/disable', [ProductController::class, 'disable'])->name('products.disable');
@@ -25,7 +25,7 @@ Route::middleware(['auth', 'verified'])->prefix('catalog')->name('catalog.')->gr
     Route::post('products/{product}/images', [ImageController::class, 'product'])->middleware('throttle:30,1')->name('products.images');
 
     Route::get('materials', [MaterialController::class, 'index'])->name('materials.index');
-    Route::post('materials', [MaterialController::class, 'store'])->name('materials.store');
+    Route::post('materials', [MaterialController::class, 'store'])->middleware('throttle:records-create')->name('materials.store');
     Route::put('materials/{material}', [MaterialController::class, 'update'])->name('materials.update');
     Route::post('materials/{material}/disable', [MaterialController::class, 'disable'])->name('materials.disable');
     Route::post('materials/{material}/enable', [MaterialController::class, 'enable'])->name('materials.enable');
@@ -33,12 +33,12 @@ Route::middleware(['auth', 'verified'])->prefix('catalog')->name('catalog.')->gr
 
     Route::get('ready', [ReadyProductController::class, 'index'])->name('ready.index');
     Route::get('ready/new', [ReadyProductController::class, 'create'])->name('ready.create');
-    Route::post('ready', [ReadyProductController::class, 'store'])->name('ready.store');
+    Route::post('ready', [ReadyProductController::class, 'store'])->middleware('throttle:records-create')->name('ready.store');
     Route::get('ready/{ready}', [ReadyProductController::class, 'edit'])->name('ready.edit');
     Route::put('ready/{ready}', [ReadyProductController::class, 'update'])->name('ready.update');
     Route::post('ready/{ready}/status', [ReadyProductController::class, 'status'])->name('ready.status');
     Route::post('ready/{ready}/images', [ImageController::class, 'ready'])->middleware('throttle:30,1')->name('ready.images');
-    Route::post('ready/{ready}/variants', [ReadyProductController::class, 'storeVariant'])->name('ready.variants.store');
+    Route::post('ready/{ready}/variants', [ReadyProductController::class, 'storeVariant'])->middleware('throttle:records-create')->name('ready.variants.store');
     Route::put('ready/{ready}/variants/{variant}', [ReadyProductController::class, 'updateVariant'])->name('ready.variants.update');
     Route::post('ready/{ready}/variants/{variant}/status', [ReadyProductController::class, 'variantStatus'])->name('ready.variants.status');
 });

@@ -96,7 +96,7 @@ final class OrderOpener
         foreach (array_values($data['lines'] ?? []) as $i => $input) {
             $this->lines->build($order, $input, $actor, $i + 1, $errorPrefix.'lines.'.$i)->save();
         }
-        $order->total_minor = OrderLineBuilder::total($order);
+        $order->total_minor = OrderLineBuilder::total($order, $errorPrefix.'lines');
         $order->save();
 
         $this->transitions->record($kind->machine(), 'T00', $order, null, $initial, $actor, $source, context: [

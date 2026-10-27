@@ -13,6 +13,7 @@ use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use LogicException;
 
 /**
  * The central order record (COM-08..12). Custom and ready orders are separate rows; `status` holds an M-04 or M-05
@@ -49,6 +50,18 @@ class Order extends Model implements LicensedRecord, ScopedRecord, StatefulRecor
     protected $guarded = ['id', 'number', 'lock_version'];
 
     protected $attributes = ['lock_version' => 1];
+
+    /** Identity of the order, fixed once written: its number, kind (COM-10: no kind change), customer and creator. */
+    private const IMMUTABLE = ['number', 'kind', 'customer_id', 'created_by'];
+
+    protected static function booted(): void
+    {
+        static::updating(function (self $order) {
+            if (array_intersect(array_keys($order->getDirty()), self::IMMUTABLE) !== []) {
+                throw new LogicException('An order keeps its number, kind, customer and creator.');
+            }
+        });
+    }
 
     /**
      * @return BelongsTo<Customer, $this>
