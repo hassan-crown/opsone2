@@ -32,6 +32,7 @@ import type { BreadcrumbItem } from '@/types';
 function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
     const t = useT();
     const { isCurrentOrParentUrl } = useCurrentUrl();
+    const { orgNav } = usePage().props;
 
     const item = (
         key: string,
@@ -65,9 +66,16 @@ function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
         <>
             <nav aria-label={t('ui.main_nav')} className="flex-1">
                 <ul className="m-0 flex list-none flex-col gap-1 p-0">
-                    {mainNav.map((nav) =>
-                        item(toUrl(nav.href), nav.href, t(nav.label), nav.icon),
-                    )}
+                    {mainNav
+                        .filter((nav) => !nav.access || orgNav?.[nav.access])
+                        .map((nav) =>
+                            item(
+                                toUrl(nav.href),
+                                nav.href,
+                                t(nav.label),
+                                nav.icon,
+                            ),
+                        )}
                 </ul>
             </nav>
             <div className="mt-auto border-t border-stroke-weak pt-4">
