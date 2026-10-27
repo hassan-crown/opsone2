@@ -3,6 +3,7 @@ import {
     ChevronRight,
     CreditCard,
     KeyRound,
+    LifeBuoy,
     MonitorSmartphone,
     Bell,
     Mail,
@@ -26,6 +27,7 @@ import { edit as profile } from '@/routes/profile';
 import { edit as security } from '@/routes/security';
 import { basic, home } from '@/routes/settings';
 import { index as sessions } from '@/routes/sessions';
+import { index as supportAccess } from '@/routes/support-access';
 
 type Props = {
     facility: {
@@ -45,8 +47,10 @@ type Props = {
         editProfile: boolean;
         viewPlan: boolean;
         transferOwnership: boolean;
+        manageSupportAccess: boolean;
     };
     pendingTransferForMe: boolean;
+    pendingSupportRequests: number;
 };
 
 type Card = {
@@ -109,6 +113,7 @@ export default function SettingsHome({
     plan: planInfo,
     can,
     pendingTransferForMe,
+    pendingSupportRequests,
 }: Props) {
     const t = useT();
 
@@ -154,6 +159,23 @@ export default function SettingsHome({
                 ? t('account.home.ownership.pending')
                 : t('account.home.ownership.description'),
             badge: pendingTransferForMe ? '1' : undefined,
+        });
+    }
+
+    if (can.manageSupportAccess) {
+        facilityCards.push({
+            key: 'support-access',
+            href: supportAccess(),
+            icon: LifeBuoy,
+            title: t('account.home.support_access.title'),
+            description:
+                pendingSupportRequests > 0
+                    ? t('account.home.support_access.pending')
+                    : t('account.home.support_access.description'),
+            badge:
+                pendingSupportRequests > 0
+                    ? String(pendingSupportRequests)
+                    : undefined,
         });
     }
 

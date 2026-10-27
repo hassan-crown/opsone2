@@ -2,11 +2,14 @@
 
 use App\Integrations\FacilityMail;
 use App\Integrations\IntegrationSettings;
+use App\Integrations\PublicHost;
 use App\Mail\OrgMessage;
+use App\Models\AuditEvent;
 use App\Models\IntegrationSetting;
 use App\Notifications\Channels\SmsChannel;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Inertia\Testing\AssertableInertia as Assert;
 use Tests\Support\Org;
@@ -152,4 +155,43 @@ it('shows sms as not configured until a provider is connected', function () {
 
     $this->actingAs($this->org->owner)->get(route('integrations.edit'))
         ->assertInertia(fn (Assert $page) => $page->where('sms.configured', false));
+});
+
+it('audits settings changes without credentials', function () {
+    $this->actingAs($this->org->owner);
+    $this->put(route('integrations.smtp.update'), ($this->smtp)())->assertRedirect();
+    $this->post(route('integrations.smtp.disable'))->assertRedirect();
+
+    $events = AuditEvent::query()->where('area', 'integrations')->get();
+    expect($events->pluck('action')->all())->toContain('integrations.smtp_saved', 'integrations.smtp_disabled')
+        ->and(json_encode($events->map->only(['before', 'after'])))->not->toContain(SECRET)
+        ->and(json_encode($events->map->only(['before', 'after'])))->not->toContain('mailer@example.com');
+});
+
+it('refuses a public-looking host that resolves inside the network (SSRF)', function () {
+    app()->detectEnvironment(fn () => 'production');
+    app()->instance(PublicHost::class, new class extends PublicHost
+    {
+        protected function resolve(string $host): array
+        {
+            return $host === 'smtp.example.com' ? ['93.184.216.34'] : ['169.254.169.254'];
+        }
+    });
+    $this->actingAs($this->org->owner)->withSession(['_token' => 'csrf']);
+
+    $this->put(route('integrations.smtp.update'), ($this->smtp)(['host' => 'rebind.example.net', '_token' => 'csrf']))->assertSessionHasErrors('host');
+    $this->put(route('integrations.smtp.update'), ($this->smtp)(['_token' => 'csrf']))->assertSessionHasNoErrors();
+
+    // Re-checked before connecting: a saved host that now resolves privately is refused.
+    expect(fn () => app(FacilityMail::class)->register(($this->smtp)(['host' => 'rebind.example.net'])))->toThrow(RuntimeException::class);
+});
+
+it('keeps SMTP failure details out of the log', function () {
+    Log::spy();
+    $this->actingAs($this->org->owner);
+    $this->put(route('integrations.smtp.update'), ($this->smtp)(['host' => '127.0.0.1', 'port' => 2525]));
+    $this->post(route('integrations.smtp.test'));
+
+    Log::shouldHaveReceived('warning')->withArgs(fn ($message, $context) => $message === 'SMTP test failed'
+        && ! str_contains(json_encode($context), 'mailer@example.com'));
 });

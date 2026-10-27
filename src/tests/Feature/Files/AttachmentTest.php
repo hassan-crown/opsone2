@@ -134,6 +134,7 @@ describe('signed download', function () {
             ->assertHeader('Content-Type', 'application/pdf');
         expect($response->headers->get('Content-Disposition'))->toStartWith('attachment')
             ->and($response->headers->get('Cache-Control'))->toContain('no-store');
+        expect(AuditEvent::query()->where('action', 'attachment.downloaded')->where('actor_user_id', $this->manager->id)->exists())->toBeTrue();
     });
 
     it('refuses a link for a record outside the user scope', function () {

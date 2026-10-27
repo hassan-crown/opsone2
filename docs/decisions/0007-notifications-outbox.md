@@ -1,4 +1,4 @@
-# ADR-0006 — Notifications, outbound outbox and facility integrations (P3-B)
+# ADR-0007 — Notifications, outbound outbox and facility integrations (P3-B)
 
 Status: accepted (Q-22, Q-24, Q-26)
 

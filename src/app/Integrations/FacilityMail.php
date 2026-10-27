@@ -3,6 +3,7 @@
 namespace App\Integrations;
 
 use Illuminate\Support\Facades\Mail;
+use RuntimeException;
 
 /**
  * Chooses the mailer for outbound mail: the facility's own SMTP account when enabled (Q-22), otherwise the
@@ -12,7 +13,10 @@ final class FacilityMail
 {
     public const MAILER = 'facility';
 
-    public function __construct(private readonly IntegrationSettings $settings) {}
+    public function __construct(
+        private readonly IntegrationSettings $settings,
+        private readonly PublicHost $hosts,
+    ) {}
 
     public function mailer(): string
     {
@@ -44,6 +48,11 @@ final class FacilityMail
      */
     public function register(array $smtp): void
     {
+        // Re-checked at connect time: DNS may have changed since the settings were saved (SSRF, rebinding).
+        if (! $this->hosts->allows((string) ($smtp['host'] ?? ''))) {
+            throw new RuntimeException('SMTP host does not resolve to a public address.');
+        }
+
         config(['mail.mailers.'.self::MAILER => [
             'transport' => 'smtp',
             'scheme' => ($smtp['encryption'] ?? 'tls') === 'ssl' ? 'smtps' : 'smtp',

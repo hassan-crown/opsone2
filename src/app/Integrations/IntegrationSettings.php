@@ -2,8 +2,11 @@
 
 namespace App\Integrations;
 
+use App\Audit\Audit;
+use App\Audit\AuditAction;
 use App\Models\IntegrationSetting;
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Reads and writes the facility's integration accounts (SRS-SET-06). Secrets stay inside this class and the
@@ -89,6 +92,14 @@ final class IntegrationSettings
      */
     public function saveSmtp(User $actor, array $data): IntegrationSetting
     {
+        return DB::transaction(fn () => $this->writeSmtp($actor, $data));
+    }
+
+    /**
+     * @param  array<string, mixed>  $data
+     */
+    private function writeSmtp(User $actor, array $data): IntegrationSetting
+    {
         $row = $this->smtpRow() ?? new IntegrationSetting(['key' => IntegrationSetting::SMTP]);
         $old = is_array($row->config) ? $row->config : [];
 
@@ -118,12 +129,26 @@ final class IntegrationSettings
         $row->updated_by = $actor->id;
         $row->save();
 
+        // Never the password or username: only what changed in shape.
+        Audit::record(AuditAction::SmtpSettingsSaved, $row, $actor,
+            before: $old === [] ? [] : self::auditView($old),
+            after: [...self::auditView($new), 'credential_changed' => ($old['password'] ?? null) !== $new['password'], 'enabled' => (bool) $row->enabled],
+            label: 'SMTP',
+        );
+
         return $row;
     }
 
-    public function recordSmtpTest(bool $ok): void
+    public function recordSmtpTest(User $actor, bool $ok): void
     {
-        $this->smtpRow()?->forceFill(['tested_at' => now(), 'test_ok' => $ok])->save();
+        DB::transaction(function () use ($actor, $ok) {
+            $row = $this->smtpRow();
+            if ($row === null) {
+                return;
+            }
+            $row->forceFill(['tested_at' => now(), 'test_ok' => $ok])->save();
+            Audit::record(AuditAction::SmtpSettingsTested, $row, $actor, after: ['ok' => $ok], label: 'SMTP');
+        });
     }
 
     /**
@@ -138,8 +163,30 @@ final class IntegrationSettings
             return false;
         }
 
-        $row->forceFill(['enabled' => $enabled, 'updated_by' => $actor->id])->save();
+        DB::transaction(function () use ($row, $actor, $enabled) {
+            $was = (bool) $row->enabled;
+            $row->forceFill(['enabled' => $enabled, 'updated_by' => $actor->id])->save();
+            Audit::record($enabled ? AuditAction::SmtpEnabled : AuditAction::SmtpDisabled, $row, $actor,
+                before: ['enabled' => $was], after: ['enabled' => $enabled], label: 'SMTP');
+        });
 
         return true;
+    }
+
+    /**
+     * Connection facts safe for the audit trail: no credentials.
+     *
+     * @param  array<string, mixed>  $config
+     * @return array<string, mixed>
+     */
+    private static function auditView(array $config): array
+    {
+        return [
+            'host' => $config['host'] ?? null,
+            'port' => $config['port'] ?? null,
+            'encryption' => $config['encryption'] ?? null,
+            'from_address' => $config['from_address'] ?? null,
+            'has_username' => ! empty($config['username']),
+        ];
     }
 }

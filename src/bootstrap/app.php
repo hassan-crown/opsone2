@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\EnforceSupportAccess;
 use App\Http\Middleware\EnsureAccessIsCurrent;
 use App\Http\Middleware\HandleAppearance;
 use App\Http\Middleware\HandleInertiaRequests;
@@ -23,6 +24,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->web(append: [
             SetLocale::class,
             EnsureAccessIsCurrent::class,
+            EnforceSupportAccess::class,
             HandleAppearance::class,
             HandleInertiaRequests::class,
             ShareLicenseState::class,

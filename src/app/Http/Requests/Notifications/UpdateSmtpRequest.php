@@ -4,6 +4,7 @@ namespace App\Http\Requests\Notifications;
 
 use App\Access\Access;
 use App\Access\Permission;
+use App\Integrations\PublicHost;
 use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
@@ -56,6 +57,13 @@ class UpdateSmtpRequest extends FormRequest
         if (preg_match('/^(?=.{1,253}$)([a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,63}$/', $host) !== 1
             || (! app()->environment('local', 'testing') && (str_ends_with($host, '.local') || str_ends_with($host, '.internal')))) {
             $fail(__('integrations.smtp.host_invalid'));
+
+            return;
+        }
+
+        // The name must also resolve only to public addresses (a public name can point inside the network).
+        if (! app(PublicHost::class)->allows($host)) {
+            $fail(__('integrations.smtp.host_private'));
         }
     }
 }

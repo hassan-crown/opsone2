@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\MembershipStatus;
+use App\SupportAccess\SupportAccess;
 use Database\Factories\UserFactory;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -28,6 +29,7 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
  * @property string|null $locale
  * @property string|null $remember_token
  * @property int $access_version
+ * @property bool $is_support
  * @property-read Membership|null $membership
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
@@ -54,6 +56,11 @@ class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
      */
     public function canSignIn(): bool
     {
+        // An OpsOne support identity signs in only while one of its M-38 grants is live.
+        if ($this->is_support) {
+            return app(SupportAccess::class)->isLive($this);
+        }
+
         return ! Membership::query()
             ->where('user_id', $this->id)
             ->where('status', MembershipStatus::Disabled->value)
@@ -72,6 +79,7 @@ class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
             'password' => 'hashed',
             'two_factor_confirmed_at' => 'datetime',
             'access_version' => 'integer',
+            'is_support' => 'boolean',
         ];
     }
 }

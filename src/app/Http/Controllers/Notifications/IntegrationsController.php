@@ -13,6 +13,7 @@ use App\Models\User;
 use App\Notifications\Channels\SmsChannel;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -66,11 +67,12 @@ class IntegrationsController extends Controller
                     dir: $locale === 'ar' ? 'rtl' : 'ltr',
                 ))->from($draft['from_address'], $draft['from_name'] ?? null),
             );
-            $settings->recordSmtpTest(true);
+            $settings->recordSmtpTest($user, true);
             Inertia::flash('toast', ['type' => 'success', 'message' => __('integrations.smtp.test_ok', ['email' => $user->email])]);
         } catch (Throwable $e) {
-            $settings->recordSmtpTest(false);
-            report($e);
+            $settings->recordSmtpTest($user, false);
+            // Class only: SMTP errors echo the username and server replies, which must not reach the logs.
+            Log::warning('SMTP test failed', ['exception' => $e::class]);
             Inertia::flash('toast', ['type' => 'error', 'message' => __('integrations.smtp.test_failed')]);
         }
 

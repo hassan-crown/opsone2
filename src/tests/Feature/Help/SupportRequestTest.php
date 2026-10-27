@@ -1,9 +1,13 @@
 <?php
 
+use App\Jobs\DeliverOutboxMessage;
+use App\Models\AuditEvent;
+use App\Models\OutboxMessage;
 use App\Models\SupportRequest;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Queue;
 use Inertia\Testing\AssertableInertia as Assert;
 use Tests\Support\Org;
 
@@ -40,6 +44,23 @@ it('stores a request without sending any mail', function () {
         ->and($request->page_path)->toBe('/org/branches');
     Mail::assertNothingSent();
     Mail::assertNothingQueued();
+});
+
+it('sends the request to OpsOne support through the outbox and audits it', function () {
+    config(['opsone.support.email' => 'support@opsone.test']);
+    Queue::fake();
+    $sales = $this->org->member('sales', [$this->org->a]);
+
+    $this->actingAs($sales)->post(route('help.support.store'), $this->valid)->assertRedirect();
+
+    $request = SupportRequest::query()->sole();
+    $message = OutboxMessage::query()->sole();
+    expect($request->status)->toBe('queued')
+        ->and($message->recipient)->toBe('support@opsone.test')
+        ->and($message->idempotency_key)->toBe("support-request:{$request->id}:mail")
+        ->and($message->payload['title'])->toContain($request->reference())
+        ->and(AuditEvent::query()->where('action', 'support.request_submitted')->where('actor_user_id', $sales->id)->exists())->toBeTrue();
+    Queue::assertPushed(DeliverOutboxMessage::class, fn ($job) => $job->outboxId === $message->id);
 });
 
 it('validates the fields', function (array $override, string $field) {

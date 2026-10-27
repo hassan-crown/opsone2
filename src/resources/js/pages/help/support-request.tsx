@@ -12,6 +12,7 @@ import { Spinner } from '@/components/ui/spinner';
 import { useT } from '@/lib/i18n';
 import type { TranslationKey } from '@/lib/i18n';
 import { index as helpIndex } from '@/routes/help';
+import { index as supportAccess } from '@/routes/support-access';
 
 type Props = {
     categories: string[];
@@ -89,7 +90,13 @@ export default function SupportRequest({
                             <Alert variant="info">
                                 <AlertBody>
                                     <AlertDescription>
-                                        {t('help.support.access_note')}
+                                        {t('help.support.access_note')}{' '}
+                                        <Link
+                                            href={supportAccess()}
+                                            className="underline"
+                                        >
+                                            {t('help.support.access_link')}
+                                        </Link>
                                     </AlertDescription>
                                 </AlertBody>
                             </Alert>

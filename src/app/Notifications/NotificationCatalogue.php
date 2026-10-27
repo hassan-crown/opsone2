@@ -22,6 +22,13 @@ final class NotificationCatalogue
             'body' => 'notifications.type.ownership_transfer_requested.body',
             'route' => 'ownership.show',
         ],
+        'support.access_requested' => [
+            'mandatory' => true,
+            'permission' => Permission::P79,
+            'title' => 'notifications.type.support_access_requested.title',
+            'body' => 'notifications.type.support_access_requested.body',
+            'route' => 'support-access.index',
+        ],
         'work.assigned' => [
             'mandatory' => false,
             'permission' => null,

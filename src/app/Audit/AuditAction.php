@@ -37,6 +37,21 @@ enum AuditAction: string
     case LicenseInstalled = 'license.installed';
 
     case AttachmentUploaded = 'attachment.uploaded';
+    case AttachmentDownloaded = 'attachment.downloaded';
+
+    case SmtpSettingsSaved = 'integrations.smtp_saved';
+    case SmtpSettingsTested = 'integrations.smtp_tested';
+    case SmtpEnabled = 'integrations.smtp_enabled';
+    case SmtpDisabled = 'integrations.smtp_disabled';
+
+    case SupportRequestSubmitted = 'support.request_submitted';
+    case SupportAccessRequested = 'support_access.requested';
+    case SupportAccessGranted = 'support_access.granted';
+    case SupportAccessRejected = 'support_access.rejected';
+    case SupportAccessRevoked = 'support_access.revoked';
+    case SupportAccessExpired = 'support_access.expired';
+    case SupportSignedIn = 'support_access.signed_in';
+    case SupportViewed = 'support_access.viewed';
 
     public function area(): string
     {
@@ -50,7 +65,11 @@ enum AuditAction: string
             self::BranchCreated, self::BranchUpdated, self::BranchDisabled, self::BranchReactivated => 'branches',
             self::FacilityProfileUpdated, self::SetupStepSaved, self::SetupCompleted => 'settings',
             self::LicenseInstalled => 'license',
-            self::AttachmentUploaded => 'files',
+            self::AttachmentUploaded, self::AttachmentDownloaded => 'files',
+            self::SmtpSettingsSaved, self::SmtpSettingsTested, self::SmtpEnabled, self::SmtpDisabled => 'integrations',
+            self::SupportRequestSubmitted, self::SupportAccessRequested, self::SupportAccessGranted,
+            self::SupportAccessRejected, self::SupportAccessRevoked, self::SupportAccessExpired,
+            self::SupportSignedIn, self::SupportViewed => 'support',
         };
     }
 

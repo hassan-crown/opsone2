@@ -24,7 +24,7 @@
 
 - `app/Access` — central Gate (`Access::can($user, 'P-xx', $record)`), permission catalogue, scope resolver,
   session revocation — `docs/decisions/0005-access-model.md`. Domain records implement `Access\Contracts\ScopedRecord`.
-- `app/Notifications`, `app/Integrations` — in-app notifications + outbound outbox (`Outbox`, `Notifier`; send mail only through them) and facility SMTP/SMS settings — `docs/decisions/0006-notifications-outbox.md`.
+- `app/Notifications`, `app/Integrations` — in-app notifications + outbound outbox (`Outbox`, `Notifier`; send mail only through them) and facility SMTP/SMS settings — `docs/decisions/0007-notifications-outbox.md`.
 - `app/Actions/StateMachines/M{nn}*/T{nn}*` — one Action per transition; log via `TransitionRecorder` (`state_transitions`).
 - `app/Licensing` — signed-license verification (ADR-0004); use `CurrentLicense` (`allows()`, `limit()`, `status()`), never read the file.
   The Gate's license step and seat/branch limits (`Access\LicenseLimits`, inside the adding transaction) are in ADR-0005.
