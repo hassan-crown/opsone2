@@ -1,4 +1,5 @@
-import AppLayoutTemplate from '@/layouts/app/app-sidebar-layout';
+import type { ReactNode } from 'react';
+import { AppShell } from '@/components/opsone/app-shell';
 import type { BreadcrumbItem } from '@/types';
 
 export default function AppLayout({
@@ -6,11 +7,7 @@ export default function AppLayout({
     children,
 }: {
     breadcrumbs?: BreadcrumbItem[];
-    children: React.ReactNode;
+    children: ReactNode;
 }) {
-    return (
-        <AppLayoutTemplate breadcrumbs={breadcrumbs}>
-            {children}
-        </AppLayoutTemplate>
-    );
+    return <AppShell breadcrumbs={breadcrumbs}>{children}</AppShell>;
 }

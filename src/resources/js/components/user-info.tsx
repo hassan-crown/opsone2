@@ -5,24 +5,32 @@ import type { User } from '@/types';
 export function UserInfo({
     user,
     showEmail = false,
+    hideTextOnMobile = false,
 }: {
     user: User;
     showEmail?: boolean;
+    /** Avatar only below `md` (topbar). */
+    hideTextOnMobile?: boolean;
 }) {
     const getInitials = useInitials();
 
     return (
         <>
-            <Avatar className="h-8 w-8 overflow-hidden rounded-full">
-                <AvatarImage src={user.avatar} alt={user.name} />
-                <AvatarFallback className="rounded-lg bg-neutral-200 text-black dark:bg-neutral-700 dark:text-white">
-                    {getInitials(user.name)}
-                </AvatarFallback>
+            <Avatar className="size-10">
+                <AvatarImage src={user.avatar} alt="" />
+                <AvatarFallback>{getInitials(user.name)}</AvatarFallback>
             </Avatar>
-            <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-medium">{user.name}</span>
+            <div
+                className={`grid min-w-0 flex-1 text-start leading-tight ${hideTextOnMobile ? 'max-md:hidden' : ''}`}
+            >
+                <span className="truncate text-label text-strong">
+                    {user.name}
+                </span>
                 {showEmail && (
-                    <span className="truncate text-xs text-muted-foreground">
+                    <span
+                        dir="ltr"
+                        className="truncate text-start text-caption text-weak"
+                    >
                         {user.email}
                     </span>
                 )}

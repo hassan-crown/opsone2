@@ -80,6 +80,11 @@ return [
 
     'locale' => env('APP_LOCALE', 'en'),
 
+    /*
+    | Locales the UI is translated into (first-class: Arabic RTL and English LTR).
+    */
+    'available_locales' => ['ar', 'en'],
+
     'fallback_locale' => env('APP_FALLBACK_LOCALE', 'en'),
 
     'faker_locale' => env('APP_FAKER_LOCALE', 'en_US'),

@@ -5,7 +5,9 @@ import { KeyRound } from 'lucide-react';
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
+import { Icon } from '@/components/opsone/icon';
 import { Spinner } from '@/components/ui/spinner';
+import { useT } from '@/lib/i18n';
 
 type Props = {
     routes?: {
@@ -23,6 +25,7 @@ export default function PasskeyVerify({
     loadingLabel,
     separator,
 }: Props = {}) {
+    const t = useT();
     const { verify, isLoading, error, isSupported } = usePasskeyVerify({
         ...(routes && {
             routes: {
@@ -45,14 +48,14 @@ export default function PasskeyVerify({
                 <Button
                     type="button"
                     variant="outline"
-                    className="w-full"
+                    block
                     onClick={verify}
-                    disabled={isLoading}
+                    loading={isLoading}
                 >
-                    {isLoading ? <Spinner /> : <KeyRound className="h-4 w-4" />}
+                    {isLoading ? <Spinner /> : <Icon icon={KeyRound} />}
                     {isLoading
-                        ? (loadingLabel ?? 'Authenticating...')
-                        : (label ?? 'Sign in with a passkey')}
+                        ? (loadingLabel ?? t('auth.authenticating'))
+                        : (label ?? t('auth.passkey_sign_in'))}
                 </Button>
                 {error && (
                     <InputError message={error} className="text-center" />
@@ -63,9 +66,9 @@ export default function PasskeyVerify({
                 <div className="absolute inset-0 flex items-center">
                     <Separator className="w-full" />
                 </div>
-                <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-background px-2 text-muted-foreground">
-                        {separator ?? 'Or continue with email'}
+                <div className="relative flex justify-center text-caption">
+                    <span className="bg-background px-2 text-weak">
+                        {separator ?? t('auth.or_email')}
                     </span>
                 </div>
             </div>

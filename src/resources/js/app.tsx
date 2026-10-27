@@ -1,6 +1,5 @@
 import { createInertiaApp } from '@inertiajs/react';
-import { Toaster } from '@/components/ui/sonner';
-import { TooltipProvider } from '@/components/ui/tooltip';
+import { Providers } from '@/components/opsone/providers';
 import { initializeTheme } from '@/hooks/use-appearance';
 import AppLayout from '@/layouts/app-layout';
 import AuthLayout from '@/layouts/auth-layout';
@@ -13,26 +12,19 @@ void createInertiaApp({
     layout: (name) => {
         switch (true) {
             case name === 'welcome':
-                return null;
+            case name === 'design':
+                return Providers;
             case name.startsWith('auth/'):
-                return AuthLayout;
+                return [Providers, AuthLayout];
             case name.startsWith('settings/'):
-                return [AppLayout, SettingsLayout];
+                return [Providers, AppLayout, SettingsLayout];
             default:
-                return AppLayout;
+                return [Providers, AppLayout];
         }
     },
     strictMode: true,
-    withApp(app) {
-        return (
-            <TooltipProvider delayDuration={0}>
-                {app}
-                <Toaster />
-            </TooltipProvider>
-        );
-    },
     progress: {
-        color: '#4B5563',
+        color: '#0E7C72',
     },
 });
 

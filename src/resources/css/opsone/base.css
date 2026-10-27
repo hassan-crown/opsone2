@@ -1,0 +1,152 @@
+/* Type scales per surface. The staff panel is the default; data-surface="site" switches to the site scale. */
+:root {
+    --o1-fs-title: 24px;
+    --o1-lh-title: 36px;
+    --o1-fw-title: 600;
+    --o1-fs-section: 20px;
+    --o1-lh-section: 30px;
+    --o1-fs-subtitle: 16px;
+    --o1-lh-subtitle: 26px;
+    --o1-fs-body: 14px;
+    --o1-lh-body: 24px;
+    --o1-fs-control: 15px;
+    --o1-lh-control: 24px;
+    --o1-fs-label: 14px;
+    --o1-lh-label: 20px;
+    --o1-fs-caption: 13px;
+    --o1-lh-caption: 20px;
+}
+
+[data-surface='site'] {
+    --o1-fs-title: 32px;
+    --o1-lh-title: 44px;
+    --o1-fw-title: 700;
+    --o1-fs-section: 24px;
+    --o1-lh-section: 36px;
+    --o1-fs-subtitle: 20px;
+    --o1-lh-subtitle: 30px;
+    --o1-fs-body: 16px;
+    --o1-lh-body: 28px;
+    --o1-fs-control: 16px;
+    --o1-lh-control: 24px;
+    --o1-fs-label: 14px;
+    --o1-lh-label: 20px;
+    --o1-fs-caption: 14px;
+    --o1-lh-caption: 22px;
+}
+
+/* Form controls: border → brand border + halo on focus; invalid → danger. Shared by every field. */
+@utility field-control {
+    min-height: var(--control-height);
+    border: 1px solid var(--stroke-control);
+    border-radius: var(--radius-md);
+    background: var(--field);
+    color: var(--text-strong);
+    padding-inline: var(--space-3);
+    transition:
+        border-color 120ms var(--ease-o1),
+        box-shadow 120ms var(--ease-o1);
+
+    &::placeholder {
+        color: var(--text-placeholder);
+        opacity: 1;
+        font-weight: 400;
+    }
+    &:hover:not(:disabled):not(:focus) {
+        border-color: var(--text-weak);
+    }
+    &:focus {
+        outline: 2px solid transparent;
+        border-color: var(--brand);
+        box-shadow:
+            0 0 0 1px var(--brand),
+            0 0 0 4px var(--focus-halo);
+    }
+    &[aria-invalid='true'] {
+        border-color: var(--danger-text);
+        box-shadow: 0 0 0 1px var(--danger-text);
+    }
+    &[aria-invalid='true']:focus {
+        box-shadow:
+            0 0 0 1px var(--danger-text),
+            0 0 0 4px var(--danger-bg);
+    }
+    &:disabled {
+        background: var(--fill);
+        border-color: var(--stroke-weak);
+        color: var(--disabled-text);
+        cursor: not-allowed;
+        -webkit-text-fill-color: var(--disabled-text);
+    }
+    &[readonly] {
+        background: var(--fill);
+        border-color: var(--stroke-weak);
+    }
+}
+
+@layer base {
+    * {
+        @apply border-border;
+    }
+
+    body {
+        background: var(--background);
+        color: var(--text-strong);
+        font-family: var(--font-sans);
+        font-size: var(--o1-fs-body);
+        line-height: var(--o1-lh-body);
+        -webkit-font-smoothing: antialiased;
+        text-rendering: optimizeLegibility;
+    }
+
+    /* Latin-first stack for English; Arabic-first (which also covers Latin) otherwise. */
+    :root:lang(en) body,
+    body [lang|='en'] {
+        font-family: var(--font-latin);
+    }
+    body [lang|='ar'] {
+        font-family: var(--font-sans);
+    }
+
+    :focus-visible {
+        outline: 2px solid var(--focus);
+        outline-offset: 2px;
+    }
+
+    /* Letter-spacing breaks Arabic joining; italic and light weights are not part of the system. */
+    * {
+        letter-spacing: normal;
+    }
+    h1,
+    h2,
+    h3 {
+        text-wrap: balance;
+    }
+}
+
+[data-theme='contrast'] :focus-visible {
+    outline-width: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .animate-o1-pulse,
+    .animate-o1-indeterminate {
+        animation: none;
+    }
+    .animate-o1-spin {
+        animation-duration: 2400ms;
+    }
+}
+
+@media (forced-colors: active) {
+    button,
+    [role='alert'],
+    [role='status'] {
+        border-color: CanvasText;
+    }
+}
+
+/* LTR-only values (phone, email, refs) sit at the reading edge in RTL. */
+[dir='rtl'] input[dir='ltr'] {
+    text-align: right;
+}

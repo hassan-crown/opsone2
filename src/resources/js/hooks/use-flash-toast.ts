@@ -13,7 +13,10 @@ export function useFlashToast(): void {
                 return;
             }
 
-            toast[data.type](data.message);
+            // Errors stay until dismissed; everything else closes after 5s (design-system rule).
+            toast[data.type](data.message, {
+                duration: data.type === 'error' ? Infinity : 5000,
+            });
         });
     }, []);
 }

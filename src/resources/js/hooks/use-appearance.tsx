@@ -1,6 +1,6 @@
 import { useSyncExternalStore } from 'react';
 
-export type ResolvedAppearance = 'light' | 'dark';
+export type ResolvedAppearance = 'light' | 'dark' | 'contrast';
 export type Appearance = ResolvedAppearance | 'system';
 
 export type UseAppearanceReturn = {
@@ -20,6 +20,29 @@ const prefersDark = (): boolean => {
     return window.matchMedia('(prefers-color-scheme: dark)').matches;
 };
 
+const prefersMoreContrast = (): boolean => {
+    if (typeof window === 'undefined') {
+        return false;
+    }
+
+    return window.matchMedia('(prefers-contrast: more)').matches;
+};
+
+/** `system`: dark if the OS is dark, high contrast if requested (and not dark), else light. */
+export const resolveAppearance = (
+    appearance: Appearance,
+): ResolvedAppearance => {
+    if (appearance !== 'system') {
+        return appearance;
+    }
+
+    if (prefersDark()) {
+        return 'dark';
+    }
+
+    return prefersMoreContrast() ? 'contrast' : 'light';
+};
+
 const setCookie = (name: string, value: string, days = 365): void => {
     if (typeof document === 'undefined') {
         return;
@@ -37,19 +60,17 @@ const getStoredAppearance = (): Appearance => {
     return (localStorage.getItem('appearance') as Appearance) || 'system';
 };
 
-const isDarkMode = (appearance: Appearance): boolean => {
-    return appearance === 'dark' || (appearance === 'system' && prefersDark());
-};
-
 const applyTheme = (appearance: Appearance): void => {
     if (typeof document === 'undefined') {
         return;
     }
 
-    const isDark = isDarkMode(appearance);
+    const resolved = resolveAppearance(appearance);
+    const root = document.documentElement;
 
-    document.documentElement.classList.toggle('dark', isDark);
-    document.documentElement.style.colorScheme = isDark ? 'dark' : 'light';
+    // `.dark` keeps shadcn variants working; data-theme drives the design-system tokens.
+    root.classList.toggle('dark', resolved === 'dark');
+    root.setAttribute('data-theme', resolved);
 };
 
 const subscribe = (callback: () => void) => {
@@ -60,12 +81,15 @@ const subscribe = (callback: () => void) => {
 
 const notify = (): void => listeners.forEach((listener) => listener());
 
-const mediaQuery = (): MediaQueryList | null => {
+const mediaQueries = (): MediaQueryList[] => {
     if (typeof window === 'undefined') {
-        return null;
+        return [];
     }
 
-    return window.matchMedia('(prefers-color-scheme: dark)');
+    return [
+        window.matchMedia('(prefers-color-scheme: dark)'),
+        window.matchMedia('(prefers-contrast: more)'),
+    ];
 };
 
 const handleSystemThemeChange = (): void => applyTheme(currentAppearance);
@@ -84,7 +108,9 @@ export function initializeTheme(): void {
     applyTheme(currentAppearance);
 
     // Set up system theme change listener
-    mediaQuery()?.addEventListener('change', handleSystemThemeChange);
+    mediaQueries().forEach((query) =>
+        query.addEventListener('change', handleSystemThemeChange),
+    );
 }
 
 export function useAppearance(): UseAppearanceReturn {
@@ -94,9 +120,7 @@ export function useAppearance(): UseAppearanceReturn {
         () => 'system',
     );
 
-    const resolvedAppearance: ResolvedAppearance = isDarkMode(appearance)
-        ? 'dark'
-        : 'light';
+    const resolvedAppearance = resolveAppearance(appearance);
 
     const updateAppearance = (mode: Appearance): void => {
         currentAppearance = mode;

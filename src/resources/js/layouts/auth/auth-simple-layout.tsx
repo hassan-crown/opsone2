@@ -1,5 +1,8 @@
 import { Link } from '@inertiajs/react';
-import AppLogoIcon from '@/components/app-logo-icon';
+import { LanguageSwitch } from '@/components/opsone/language-switch';
+import { Logo } from '@/components/opsone/logo';
+import { ThemeSwitch } from '@/components/opsone/theme-switch';
+import { useT } from '@/lib/i18n';
 import { home } from '@/routes';
 import type { AuthLayoutProps } from '@/types';
 
@@ -8,31 +11,49 @@ export default function AuthSimpleLayout({
     title,
     description,
 }: AuthLayoutProps) {
-    return (
-        <div className="flex min-h-svh flex-col items-center justify-center gap-6 bg-background p-6 md:p-10">
-            <div className="w-full max-w-sm">
-                <div className="flex flex-col gap-8">
-                    <div className="flex flex-col items-center gap-4">
-                        <Link
-                            href={home()}
-                            className="flex flex-col items-center gap-2 font-medium"
-                        >
-                            <div className="mb-1 flex h-9 w-9 items-center justify-center rounded-md">
-                                <AppLogoIcon className="size-9 fill-current text-[var(--foreground)] dark:text-white" />
-                            </div>
-                            <span className="sr-only">{title}</span>
-                        </Link>
+    const t = useT();
 
-                        <div className="space-y-2 text-center">
-                            <h1 className="text-xl font-medium">{title}</h1>
-                            <p className="text-center text-sm text-muted-foreground">
-                                {description}
-                            </p>
+    return (
+        <div className="flex min-h-dvh flex-col bg-background">
+            <a
+                href="#o1-main"
+                className="absolute inset-s-4 -top-24 z-50 rounded-md bg-brand px-4 py-2 font-medium text-on-brand focus:top-2"
+            >
+                {t('ui.skip')}
+            </a>
+            <header className="flex items-center justify-end gap-1 p-2 md:px-6">
+                <LanguageSwitch />
+                <ThemeSwitch />
+            </header>
+            <main
+                id="o1-main"
+                tabIndex={-1}
+                className="flex flex-1 flex-col items-center justify-center gap-6 p-4 outline-none md:p-10"
+            >
+                <div className="w-full max-w-sm">
+                    <div className="flex flex-col gap-8">
+                        <div className="flex flex-col items-center gap-6">
+                            <Link
+                                href={home()}
+                                className="rounded-md"
+                                aria-label="OpsOne"
+                            >
+                                <Logo height={32} />
+                            </Link>
+
+                            <div className="space-y-1 text-center">
+                                <h1 className="text-title text-strong">
+                                    {title && t(title)}
+                                </h1>
+                                <p className="text-body text-weak">
+                                    {description && t(description)}
+                                </p>
+                            </div>
                         </div>
+                        {children}
                     </div>
-                    {children}
                 </div>
-            </div>
+            </main>
         </div>
     );
 }

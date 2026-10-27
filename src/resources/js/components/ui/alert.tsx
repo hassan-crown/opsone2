@@ -4,17 +4,20 @@ import * as React from "react"
 import { cn } from "@/lib/utils"
 
 const alertVariants = cva(
-  "relative w-full rounded-lg border px-4 py-3 text-sm grid has-[>svg]:grid-cols-[calc(var(--spacing)*4)_1fr] grid-cols-[0_1fr] has-[>svg]:gap-x-3 gap-y-0.5 items-start [&>svg]:size-4 [&>svg]:translate-y-0.5 [&>svg]:text-current",
+  "relative flex w-full items-start gap-3 rounded-md border border-transparent px-4 py-3 text-body text-strong contrast:border-stroke-control [&>svg]:mt-0.5 [&>svg]:size-5 [&>svg]:shrink-0",
   {
     variants: {
       variant: {
-        default: "bg-background text-foreground",
-        destructive:
-          "text-destructive-foreground [&>svg]:text-current *:data-[slot=alert-description]:text-destructive-foreground/80",
+        info: "bg-info-bg [&>svg]:text-info-text",
+        success: "bg-success-bg [&>svg]:text-success-text",
+        warning: "bg-warning-bg [&>svg]:text-warning-text",
+        danger: "bg-danger-bg [&>svg]:text-danger-text",
+        default: "bg-info-bg [&>svg]:text-info-text",
+        destructive: "bg-danger-bg [&>svg]:text-danger-text",
       },
     },
     defaultVariants: {
-      variant: "default",
+      variant: "info",
     },
   }
 )
@@ -22,26 +25,30 @@ const alertVariants = cva(
 function Alert({
   className,
   variant,
+  role,
   ...props
 }: React.ComponentProps<"div"> & VariantProps<typeof alertVariants>) {
+  const urgent = variant === "danger" || variant === "destructive"
+
   return (
     <div
       data-slot="alert"
-      role="alert"
+      role={role ?? (urgent ? "alert" : "status")}
       className={cn(alertVariants({ variant }), className)}
       {...props}
     />
   )
 }
 
+function AlertBody({ className, ...props }: React.ComponentProps<"div">) {
+  return <div className={cn("min-w-0 flex-1", className)} {...props} />
+}
+
 function AlertTitle({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="alert-title"
-      className={cn(
-        "col-start-2 line-clamp-1 min-h-4 font-medium tracking-tight",
-        className
-      )}
+      className={cn("font-semibold", className)}
       {...props}
     />
   )
@@ -54,13 +61,10 @@ function AlertDescription({
   return (
     <div
       data-slot="alert-description"
-      className={cn(
-        "text-muted-foreground col-start-2 grid justify-items-start gap-1 text-sm [&_p]:leading-relaxed",
-        className
-      )}
+      className={cn("text-body [&_p]:leading-relaxed", className)}
       {...props}
     />
   )
 }
 
-export { Alert, AlertTitle, AlertDescription }
+export { Alert, AlertBody, AlertTitle, AlertDescription }
