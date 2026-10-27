@@ -6,6 +6,7 @@ use App\Access\Access;
 use App\Access\Permission;
 use App\Actions\StateMachines\M02Setup\SetupSteps;
 use App\Enums\SetupStatus;
+use App\Home\HomeWidgets;
 use App\Models\Facility;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -13,7 +14,7 @@ use Inertia\Response;
 
 class DashboardController extends Controller
 {
-    public function __invoke(Request $request): Response
+    public function __invoke(Request $request, HomeWidgets $widgets): Response
     {
         $facility = Facility::current();
         $showSetup = $facility !== null
@@ -28,6 +29,8 @@ class DashboardController extends Controller
                 'total' => count(SetupSteps::ALL),
                 'next' => SetupSteps::next($facility),
             ] : null,
+            // Work-center frame (SHR-01): widgets this user may see, by section; domains fill them later.
+            'widgets' => $widgets->visibleFor($request->user()),
         ]);
     }
 }
