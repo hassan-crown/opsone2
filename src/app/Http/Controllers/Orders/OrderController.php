@@ -6,6 +6,7 @@ use App\Access\Access;
 use App\Access\Permission;
 use App\Actions\Orders\CreateOrders;
 use App\Actions\Orders\UpdateOrder;
+use App\Customers\CustomerAccess;
 use App\Customers\CustomerPresenter;
 use App\Enums\CustomOrderStatus;
 use App\Enums\OrderKind;
@@ -15,13 +16,17 @@ use App\Http\Requests\Orders\CreateOrderRequest;
 use App\Http\Requests\Orders\UpdateOrderRequest;
 use App\Models\Branch;
 use App\Models\Order;
+use App\Models\StateTransition;
 use App\Models\User;
 use App\Orders\OrderAccess;
+use App\Orders\OrderPicker;
 use App\Orders\OrderPresenter;
 use App\Organization\OrgPresenter;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use Inertia\Inertia;
+use Inertia\Response;
 
 /**
  * Orders backend for the P4 order screens (COM-08..11). JSON endpoints under the web session (CSRF, auth); the
@@ -32,7 +37,7 @@ class OrderController extends Controller
 {
     public const PER_PAGE = 20;
 
-    public function index(Request $request): JsonResponse
+    public function index(Request $request): JsonResponse|Response
     {
         $actor = $this->actor($request);
         abort_unless(Access::can($actor, Permission::P16), 403);
@@ -76,10 +81,72 @@ class OrderController extends Controller
 
         $page = $query->paginate(self::PER_PAGE)->withQueryString();
 
-        return response()->json([
-            'orders' => array_map(fn (Order $o) => OrderPresenter::row($o, $actor), $page->items()),
-            'meta' => CustomerPresenter::meta($page),
+        $rows = array_map(fn (Order $o) => OrderPresenter::row($o, $actor), $page->items());
+        $meta = CustomerPresenter::meta($page);
+
+        if ($this->wantsJson($request)) {
+            return response()->json(['orders' => $rows, 'meta' => $meta]);
+        }
+
+        return Inertia::render('orders/index', [
+            'orders' => $rows,
+            'meta' => $meta,
+            'filters' => [
+                'q' => $filters['q'] ?? '', 'kind' => $filters['kind'] ?? '', 'status' => $filters['status'] ?? '',
+                'branch' => isset($filters['branch']) ? (string) $filters['branch'] : '',
+                'assignee' => $filters['assignee'] ?? '',
+            ],
+            'members' => CustomerPresenter::memberOptions(),
+            'branches' => array_values(Branch::query()->orderBy('id')->get()->map(fn (Branch $b) => ['id' => $b->id, 'name' => OrgPresenter::name($b)])->all()),
+            'statuses' => array_values(array_unique($statuses)),
+            'canCreate' => Access::can($actor, Permission::P15),
         ]);
+    }
+
+    /**
+     * The create screen. Branch choices per kind and the ready section follow the Gate and the license.
+     */
+    public function create(Request $request): Response
+    {
+        $actor = $this->actor($request);
+        abort_unless(Access::can($actor, Permission::P15), 403);
+
+        $options = $this->optionsFor($actor);
+        abort_unless($options['branches']['custom'] !== [] || $options['branches']['ready'] !== [], 403);
+
+        return Inertia::render('orders/create', [
+            'options' => $options,
+            'preselectedCustomer' => $this->preselectedCustomer($request, $actor),
+        ]);
+    }
+
+    /**
+     * Customer search for the picker: only customers the actor may see.
+     */
+    public function customers(Request $request): JsonResponse
+    {
+        $actor = $this->actor($request);
+        abort_unless(Access::can($actor, Permission::P15), 403);
+
+        return response()->json(['customers' => OrderPicker::customers($actor, (string) $request->query('q', ''))]);
+    }
+
+    /**
+     * Selectable catalog items with the version a new line would freeze; money only with P-37 for the branch.
+     */
+    public function catalog(Request $request): JsonResponse
+    {
+        $actor = $this->actor($request);
+        abort_unless(Access::can($actor, Permission::P15), 403);
+        $data = $request->validate([
+            'kind' => ['required', Rule::in(OrderKind::values())],
+            'branch_id' => ['required', 'integer'],
+            'q' => ['nullable', 'string', 'max:100'],
+        ]);
+        $kind = OrderKind::from($data['kind']);
+        abort_unless(collect(OrderAccess::creatableBranches($actor, $kind))->contains('id', (int) $data['branch_id']), 403);
+
+        return response()->json(['items' => OrderPicker::catalog($actor, $kind, (int) $data['branch_id'], (string) ($data['q'] ?? ''))]);
     }
 
     /**
@@ -90,16 +157,40 @@ class OrderController extends Controller
         $actor = $this->actor($request);
         abort_unless(Access::can($actor, Permission::P15), 403);
 
+        return response()->json($this->optionsFor($actor));
+    }
+
+    /**
+     * @return array{branches: array{custom: list<array{id: int, name: string}>, ready: list<array{id: int, name: string}>}, members: list<array{id: int, name: string}>, invoice_types: list<string>}
+     */
+    private function optionsFor(User $actor): array
+    {
         $branches = fn (OrderKind $kind) => array_map(
             fn (Branch $b) => ['id' => $b->id, 'name' => OrgPresenter::name($b)],
             OrderAccess::creatableBranches($actor, $kind),
         );
 
-        return response()->json([
+        return [
             'branches' => ['custom' => $branches(OrderKind::Custom), 'ready' => $branches(OrderKind::Ready)],
             'members' => CustomerPresenter::memberOptions(),
             'invoice_types' => Order::INVOICE_TYPES,
-        ]);
+        ];
+    }
+
+    /**
+     * `?customer=` from the customer profile pre-fills the picker when the actor may see that customer.
+     *
+     * @return array<string, mixed>|null
+     */
+    private function preselectedCustomer(Request $request, User $actor): ?array
+    {
+        $id = (int) $request->query('customer', 0);
+        if ($id < 1) {
+            return null;
+        }
+        $found = CustomerAccess::visibleCustomers($actor)->with('branch')->whereKey($id)->first();
+
+        return $found === null ? null : OrderPicker::customerRow($found);
     }
 
     public function store(CreateOrderRequest $request, CreateOrders $create): JsonResponse
@@ -117,12 +208,64 @@ class OrderController extends Controller
         ], $replayed ? 200 : 201);
     }
 
-    public function show(Request $request, Order $order): JsonResponse
+    public function show(Request $request, Order $order): JsonResponse|Response
     {
         $actor = $this->actor($request);
         abort_unless(OrderAccess::canView($actor, $order), 403);
+        $detail = OrderPresenter::detail($order, $actor);
 
-        return response()->json(['order' => OrderPresenter::detail($order, $actor)]);
+        if ($this->wantsJson($request)) {
+            return response()->json(['order' => $detail]);
+        }
+
+        return Inertia::render('orders/show', [
+            'order' => $detail,
+            'history' => $this->history($order),
+            'members' => CustomerPresenter::memberOptions(),
+            'invoiceTypes' => Order::INVOICE_TYPES,
+            // Targets for the transfer dialog; the server still checks P-19 over both branches on preview and apply.
+            'transferBranches' => $detail['can']['transfer_branch']
+                ? array_values(Branch::query()->where('status', 'active')->whereKeyNot($order->branch_id)->orderBy('id')->get()
+                    ->map(fn (Branch $b) => ['id' => $b->id, 'name' => OrgPresenter::name($b)])->all())
+                : [],
+        ]);
+    }
+
+    /**
+     * State history of the order (M-04/M-05) from the append-only transition log, newest first.
+     *
+     * @return list<array<string, mixed>>
+     */
+    private function history(Order $order): array
+    {
+        $names = [];
+
+        return array_values(StateTransition::query()
+            ->where('subject_type', $order->getMorphClass())->where('subject_id', $order->id)
+            ->orderByDesc('occurred_at')->orderByDesc('id')->limit(100)->get()
+            ->map(function (StateTransition $t) use (&$names) {
+                if ($t->actor_user_id !== null && ! isset($names[$t->actor_user_id])) {
+                    $names[$t->actor_user_id] = (string) User::query()->whereKey($t->actor_user_id)->value('name');
+                }
+
+                return [
+                    'id' => $t->id,
+                    'transition' => $t->transition,
+                    'from' => $t->from_state,
+                    'to' => $t->to_state,
+                    'actor' => $t->actor_user_id === null ? null : $names[$t->actor_user_id],
+                    'reason' => $t->reason,
+                    'at' => $t->occurred_at->toIso8601String(),
+                ];
+            })->all());
+    }
+
+    /**
+     * Pages load through Inertia; scripts and tests ask for JSON (`Accept: application/json`) and get the contract.
+     */
+    private function wantsJson(Request $request): bool
+    {
+        return $request->expectsJson() && ! $request->header('X-Inertia');
     }
 
     public function update(UpdateOrderRequest $request, Order $order, UpdateOrder $update): JsonResponse

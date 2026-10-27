@@ -1,5 +1,6 @@
 import {
     GitBranch,
+    ClipboardList,
     Inbox,
     LayoutGrid,
     Package,
@@ -8,6 +9,7 @@ import {
 } from 'lucide-react';
 import CatalogHomeController from '@/actions/App/Http/Controllers/Catalog/CatalogHomeController';
 import CustomerController from '@/actions/App/Http/Controllers/Customers/CustomerController';
+import OrderController from '@/actions/App/Http/Controllers/Orders/OrderController';
 import InterestController from '@/actions/App/Http/Controllers/Customers/InterestController';
 import AuditLogController from '@/actions/App/Http/Controllers/Audit/AuditLogController';
 import BranchController from '@/actions/App/Http/Controllers/Org/BranchController';
@@ -19,12 +21,18 @@ import type { NavItem } from '@/types';
 export type LocalizedNavItem = Omit<NavItem, 'title'> & {
     label: TranslationKey;
     /** Shown only when the server's Gate allows it (`orgNav` shared prop); routes still enforce access. */
-    access?: 'team' | 'branches' | 'audit' | 'customers' | 'catalog';
+    access?: 'team' | 'branches' | 'audit' | 'customers' | 'catalog' | 'orders';
 };
 
 /** Primary navigation (5–7 items max; settings live in the footer / user menu). */
 export const mainNav: LocalizedNavItem[] = [
     { label: 'nav.dashboard', href: dashboard(), icon: LayoutGrid },
+    {
+        label: 'orders.nav',
+        href: OrderController.index(),
+        icon: ClipboardList,
+        access: 'orders',
+    },
     {
         label: 'customers.nav',
         href: CustomerController.index(),

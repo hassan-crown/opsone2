@@ -13,6 +13,9 @@ use Illuminate\Support\Facades\Route;
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('orders', [OrderController::class, 'index'])->name('orders.index');
     Route::get('orders/options', [OrderController::class, 'options'])->name('orders.options');
+    Route::get('orders/create', [OrderController::class, 'create'])->name('orders.create');
+    Route::get('orders/customers', [OrderController::class, 'customers'])->name('orders.customers');
+    Route::get('orders/catalog', [OrderController::class, 'catalog'])->name('orders.catalog');
     Route::post('orders', [OrderController::class, 'store'])->middleware('throttle:orders-create')->name('orders.store');
     Route::get('orders/{order}', [OrderController::class, 'show'])->whereNumber('order')->name('orders.show');
     Route::put('orders/{order}', [OrderController::class, 'update'])->whereNumber('order')->name('orders.update');

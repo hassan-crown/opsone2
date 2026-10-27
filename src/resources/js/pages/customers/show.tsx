@@ -4,6 +4,7 @@ import { useState } from 'react';
 import CustomerContactController from '@/actions/App/Http/Controllers/Customers/CustomerContactController';
 import CustomerController from '@/actions/App/Http/Controllers/Customers/CustomerController';
 import InterestController from '@/actions/App/Http/Controllers/Customers/InterestController';
+import OrderController from '@/actions/App/Http/Controllers/Orders/OrderController';
 import { ContactDialog } from '@/components/customers/contact-dialog';
 import type {
     Contact,
@@ -63,6 +64,7 @@ export default function CustomerShow({
     const t = useT();
     const { locale } = useLocale();
     const { errors } = usePage().props as { errors: Record<string, string> };
+    const { orgNav } = usePage().props;
     const [editing, setEditing] = useState<Contact | null>(null);
     const [formOpen, setFormOpen] = useState(false);
     const [removing, setRemoving] = useState<Contact | null>(null);
@@ -89,6 +91,21 @@ export default function CustomerShow({
                 }
                 actions={
                     <>
+                        {orgNav?.orders && (
+                            <Button
+                                asChild
+                                variant="secondary"
+                                data-test="new-order"
+                            >
+                                <Link
+                                    href={OrderController.create({
+                                        query: { customer: customer.id },
+                                    })}
+                                >
+                                    {t('orders.add')}
+                                </Link>
+                            </Button>
+                        )}
                         <Button asChild variant="secondary">
                             <Link
                                 href={InterestController.create({
