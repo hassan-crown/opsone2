@@ -12,6 +12,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 });
 
 require __DIR__.'/settings.php';
+require __DIR__.'/account.php';
 
 if (app()->isLocal()) {
     Route::inertia('_design', 'design')->name('design');

@@ -42,3 +42,22 @@ export function formatAmount(
         ? `${sign}${number} ${label}`
         : `${sign}${label} ${number}`;
 }
+
+/** Calendar dates in the UI language, Gregorian, Latin digits (design-system rule). */
+export function formatDate(
+    value: string,
+    locale: Locale,
+    options: Intl.DateTimeFormatOptions = { dateStyle: 'long' },
+): string {
+    return new Intl.DateTimeFormat(
+        `${locale}-u-nu-latn-ca-gregory`,
+        options,
+    ).format(new Date(value));
+}
+
+export function formatDateTime(value: string, locale: Locale): string {
+    return formatDate(value, locale, {
+        dateStyle: 'long',
+        timeStyle: 'short',
+    });
+}

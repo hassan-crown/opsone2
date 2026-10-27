@@ -29,7 +29,7 @@
   The Gate's license step and seat/branch limits (`Access\LicenseLimits`, inside the adding transaction) are in ADR-0005.
 - `app/Actions/Fortify` — Fortify actions; `app/Http/{Controllers,Requests,Middleware}`; `app/Concerns` — shared validation rules.
 - `resources/js/pages` — Inertia pages; `resources/js/components/ui` — shadcn/ui components.
-- `routes/web.php`, `routes/settings.php`. Use `Route::get($uri, fn () => redirect($to))`, not `Route::redirect()`.
+- `routes/web.php`, `routes/settings.php`, `routes/account.php` (facility settings, plan/usage, ownership transfer, my sessions). Use `Route::get($uri, fn () => redirect($to))`, not `Route::redirect()`.
 - `tests/Feature`, `tests/Unit` — Pest 5 (`tests/Pest.php`); kit tests are class-based PHPUnit and run under Pest.
 
 ## Commands (run from repo root, through Docker)
