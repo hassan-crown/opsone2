@@ -302,27 +302,11 @@ export default function PlanUsage(props: Props) {
                             used={branches.used}
                             limit={branches.limit}
                         />
-                        <div className="space-y-2">
-                            <span className="text-label text-strong">
-                                {t('account.plan.storage')}
-                            </span>
-                            <p className="text-body text-weak">
-                                {storage.limit === null
-                                    ? t('account.plan.limit_unproven')
-                                    : t('account.plan.storage_not_measured', {
-                                          limit: t(
-                                              'account.plan.storage_limit',
-                                              {
-                                                  size: formatNumber(
-                                                      Math.round(
-                                                          storage.limit / 1024,
-                                                      ),
-                                                  ),
-                                              },
-                                          ),
-                                      })}
-                            </p>
-                        </div>
+                        <UsageMeter
+                            label={t('files.plan_storage_mb')}
+                            used={storage.used_mb ?? 0}
+                            limit={storage.limit}
+                        />
                     </CardContent>
                 </Card>
             </div>

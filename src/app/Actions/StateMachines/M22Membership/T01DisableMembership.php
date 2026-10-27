@@ -7,6 +7,8 @@ use App\Access\Exceptions\InvalidTransition;
 use App\Access\Permission;
 use App\Access\SessionRevoker;
 use App\Access\TransitionRecorder;
+use App\Audit\Audit;
+use App\Audit\AuditAction;
 use App\Enums\MembershipStatus;
 use App\Enums\StateMachine;
 use App\Models\Facility;
@@ -54,6 +56,11 @@ final class T01DisableMembership
             $this->sessions->revoke($locked->user_id);
             $this->transitions->record(
                 StateMachine::M22, 'T01', $locked, MembershipStatus::Active, MembershipStatus::Disabled, $actor, $source, $reason,
+            );
+            Audit::record(
+                AuditAction::MembershipDisabled, $locked, $actor,
+                before: ['status' => MembershipStatus::Active], after: ['status' => MembershipStatus::Disabled],
+                reason: $reason, source: $source,
             );
 
             return $locked;

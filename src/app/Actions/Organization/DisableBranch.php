@@ -4,6 +4,8 @@ namespace App\Actions\Organization;
 
 use App\Access\Authorizer;
 use App\Access\Permission;
+use App\Audit\Audit;
+use App\Audit\AuditAction;
 use App\Enums\OrganizationUnitStatus;
 use App\Models\Branch;
 use App\Models\User;
@@ -22,7 +24,7 @@ final class DisableBranch
     {
         $this->access->authorize($actor, Permission::P03, $branch);
 
-        return DB::transaction(function () use ($branch) {
+        return DB::transaction(function () use ($actor, $branch) {
             $locked = Branch::query()->lockForUpdate()->findOrFail($branch->id);
 
             if ($locked->status !== OrganizationUnitStatus::Active) {
@@ -33,6 +35,8 @@ final class DisableBranch
             }
 
             $locked->forceFill(['status' => OrganizationUnitStatus::Disabled])->save();
+            Audit::record(AuditAction::BranchDisabled, $locked, $actor,
+                before: ['status' => OrganizationUnitStatus::Active], after: ['status' => OrganizationUnitStatus::Disabled]);
 
             return $locked;
         });

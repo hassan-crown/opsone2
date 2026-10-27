@@ -11,6 +11,7 @@ use App\Enums\MembershipStatus;
 use App\Models\Facility;
 use App\Models\Membership;
 use App\Models\User;
+use App\SupportAccess\SupportAccess;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Contracts\Auth\Authenticatable;
 
@@ -32,6 +33,7 @@ final class Authorizer
         private readonly LicenseCapabilities $license,
         private readonly GrantResolver $resolver,
         private readonly ScopeResolver $scopes,
+        private readonly SupportAccess $support,
     ) {}
 
     public function can(?Authenticatable $user, Permission|string $permission, ?object $record = null): bool
@@ -157,6 +159,14 @@ final class Authorizer
      */
     private function loadState(User $user): array
     {
+        // OpsOne support (M-38): only what live grants open; any membership row is ignored, and with no live
+        // grant the account is inactive. The memo key changes when a grant ends (SessionRevoker bumps the version).
+        if ($user->is_support) {
+            $grants = $this->support->grantsFor($user);
+
+            return ['active' => $grants !== [], 'member' => true, 'grants' => $grants];
+        }
+
         $membership = Membership::query()->where('user_id', $user->id)->first();
 
         // An account without a staff membership may only act on itself (P-64, P-84).

@@ -3,7 +3,10 @@ import {
     ChevronRight,
     CreditCard,
     KeyRound,
+    LifeBuoy,
     MonitorSmartphone,
+    Bell,
+    Mail,
     Palette,
     ShieldCheck,
     Store,
@@ -15,6 +18,8 @@ import { Icon } from '@/components/opsone/icon';
 import { PageHeader } from '@/components/opsone/page-header';
 import { Badge } from '@/components/ui/badge';
 import { useT } from '@/lib/i18n';
+import { edit as integrations } from '@/routes/integrations';
+import { preferences as notificationPrefs } from '@/routes/notifications';
 import { show as ownership } from '@/routes/ownership';
 import { show as plan } from '@/routes/plan';
 import { edit as appearance } from '@/routes/appearance';
@@ -22,6 +27,7 @@ import { edit as profile } from '@/routes/profile';
 import { edit as security } from '@/routes/security';
 import { basic, home } from '@/routes/settings';
 import { index as sessions } from '@/routes/sessions';
+import { index as supportAccess } from '@/routes/support-access';
 
 type Props = {
     facility: {
@@ -41,8 +47,10 @@ type Props = {
         editProfile: boolean;
         viewPlan: boolean;
         transferOwnership: boolean;
+        manageSupportAccess: boolean;
     };
     pendingTransferForMe: boolean;
+    pendingSupportRequests: number;
 };
 
 type Card = {
@@ -105,6 +113,7 @@ export default function SettingsHome({
     plan: planInfo,
     can,
     pendingTransferForMe,
+    pendingSupportRequests,
 }: Props) {
     const t = useT();
 
@@ -131,6 +140,15 @@ export default function SettingsHome({
             }),
         });
     }
+    if (can.editProfile) {
+        facilityCards.push({
+            key: 'integrations',
+            href: integrations(),
+            icon: Mail,
+            title: t('account.home.integrations.title'),
+            description: t('account.home.integrations.description'),
+        });
+    }
     if (can.transferOwnership || pendingTransferForMe) {
         facilityCards.push({
             key: 'ownership',
@@ -141,6 +159,23 @@ export default function SettingsHome({
                 ? t('account.home.ownership.pending')
                 : t('account.home.ownership.description'),
             badge: pendingTransferForMe ? '1' : undefined,
+        });
+    }
+
+    if (can.manageSupportAccess) {
+        facilityCards.push({
+            key: 'support-access',
+            href: supportAccess(),
+            icon: LifeBuoy,
+            title: t('account.home.support_access.title'),
+            description:
+                pendingSupportRequests > 0
+                    ? t('account.home.support_access.pending')
+                    : t('account.home.support_access.description'),
+            badge:
+                pendingSupportRequests > 0
+                    ? String(pendingSupportRequests)
+                    : undefined,
         });
     }
 
@@ -187,6 +222,13 @@ export default function SettingsHome({
             icon: MonitorSmartphone,
             title: t('account.home.sessions.title'),
             description: t('account.home.sessions.description'),
+        },
+        {
+            key: 'notifications',
+            href: notificationPrefs(),
+            icon: Bell,
+            title: t('account.home.notifications.title'),
+            description: t('account.home.notifications.description'),
         },
         {
             key: 'appearance',

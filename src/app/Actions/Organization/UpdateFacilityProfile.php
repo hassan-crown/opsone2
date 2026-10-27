@@ -4,6 +4,8 @@ namespace App\Actions\Organization;
 
 use App\Access\Authorizer;
 use App\Access\Permission;
+use App\Audit\Audit;
+use App\Audit\AuditAction;
 use App\Models\Facility;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
@@ -28,7 +30,7 @@ final class UpdateFacilityProfile
         $facility = Facility::currentOrFail();
         $this->access->authorize($actor, Permission::P02, $facility);
 
-        return DB::transaction(function () use ($facility, $data) {
+        return DB::transaction(function () use ($actor, $facility, $data) {
             $locked = Facility::query()->lockForUpdate()->findOrFail($facility->id);
             if (isset($data['version']) && $locked->updated_at?->toIso8601String() !== $data['version']) {
                 throw ValidationException::withMessages(['version' => __('account.profile.stale')]);
@@ -40,7 +42,13 @@ final class UpdateFacilityProfile
                 throw ValidationException::withMessages(['currency' => __('validation.prohibited', ['attribute' => 'currency'])]);
             }
 
-            $locked->fill($changes)->save();
+            $locked->fill($changes);
+            $changed = array_keys($locked->getDirty());
+            $before = array_intersect_key($locked->getOriginal(), array_flip($changed));
+            $locked->save();
+            if ($changed !== []) {
+                Audit::record(AuditAction::FacilityProfileUpdated, $locked, $actor, before: $before, after: $locked->only($changed));
+            }
 
             return $locked;
         });

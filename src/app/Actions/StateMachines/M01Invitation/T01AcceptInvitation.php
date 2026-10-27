@@ -7,6 +7,8 @@ use App\Access\Exceptions\InvalidTransition;
 use App\Access\GrantResolver;
 use App\Access\TransitionRecorder;
 use App\Actions\StateMachines\M22Membership\T00CreateMembership;
+use App\Audit\Audit;
+use App\Audit\AuditAction;
 use App\Enums\InvitationStatus;
 use App\Enums\MembershipStatus;
 use App\Enums\StateMachine;
@@ -81,6 +83,12 @@ final class T01AcceptInvitation
 
             $this->transitions->record(
                 StateMachine::M01, 'T01', $invitation, InvitationStatus::Pending, InvitationStatus::Accepted, $user, TransitionRecorder::SOURCE_WEB,
+            );
+            Audit::record(
+                AuditAction::InvitationAccepted, $invitation, $user,
+                before: ['status' => InvitationStatus::Pending],
+                after: ['status' => InvitationStatus::Accepted, 'membership_id' => $membership->id],
+                label: $invitation->auditLabel(),
             );
 
             return $membership;

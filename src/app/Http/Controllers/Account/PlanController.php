@@ -61,8 +61,8 @@ class PlanController extends Controller
                     'limit' => $payload?->limits['branches'] ?? null,
                 ],
                 'storage' => [
-                    'measured' => false,
-                    'used_mb' => null,
+                    'measured' => true,
+                    'used_mb' => (int) ceil($limits->usedStorageBytes() / 1048576),
                     'limit' => $payload?->limits['storage_mb'] ?? null,
                 ],
             ],

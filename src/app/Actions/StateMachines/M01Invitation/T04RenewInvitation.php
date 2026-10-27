@@ -6,6 +6,8 @@ use App\Access\Authorizer;
 use App\Access\Exceptions\InvalidTransition;
 use App\Access\Permission;
 use App\Access\TransitionRecorder;
+use App\Audit\Audit;
+use App\Audit\AuditAction;
 use App\Enums\InvitationStatus;
 use App\Enums\StateMachine;
 use App\Models\Invitation;
@@ -54,6 +56,12 @@ final class T04RenewInvitation
             $old->forceFill(['replaced_by_id' => $new->id])->save();
             $this->transitions->record(
                 StateMachine::M01, 'T04', $old, $from, InvitationStatus::Cancelled, $actor, $source, null, ['replaced_by' => $new->id],
+            );
+            Audit::record(
+                AuditAction::InvitationRenewed, $old, $actor,
+                before: ['status' => $from, 'expires_at' => $old->expires_at],
+                after: ['replaced_by' => $new->id, 'expires_at' => $new->expires_at],
+                source: $source, label: $old->auditLabel(),
             );
 
             return [$new, $token];
