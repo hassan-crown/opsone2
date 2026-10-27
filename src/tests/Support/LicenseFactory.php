@@ -12,7 +12,8 @@ use Carbon\CarbonImmutable;
  */
 final class LicenseFactory
 {
-    private static ?string $installed = null;
+    /** @var list<string> */
+    private static array $installed = [];
 
     /**
      * Point the app at a per-test license file and place a valid license (growth plan unless overridden).
@@ -22,9 +23,10 @@ final class LicenseFactory
      */
     public static function install(array $overrides = []): CurrentLicense
     {
-        self::$installed = storage_path('framework/testing/license-'.getmypid().'-'.bin2hex(random_bytes(4)).'.json');
-        @mkdir(dirname(self::$installed), 0755, true);
-        config(['license.path' => self::$installed]);
+        $path = storage_path('framework/testing/license-'.getmypid().'-'.bin2hex(random_bytes(4)).'.json');
+        @mkdir(dirname($path), 0755, true);
+        config(['license.path' => $path]);
+        self::$installed[] = $path;
         app()->forgetScopedInstances();
 
         return self::place($overrides);
@@ -32,10 +34,10 @@ final class LicenseFactory
 
     public static function cleanup(): void
     {
-        if (self::$installed !== null) {
-            @unlink(self::$installed);
-            self::$installed = null;
+        foreach (self::$installed as $path) {
+            @unlink($path);
         }
+        self::$installed = [];
     }
 
     /**
