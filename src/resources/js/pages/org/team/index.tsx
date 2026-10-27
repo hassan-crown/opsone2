@@ -135,7 +135,7 @@ function MemberFilters({ filters, roles }: Pick<Props, 'filters' | 'roles'>) {
                     ]}
                 />
                 <Button type="submit" variant="secondary">
-                    {t('org.team.search')}
+                    {t('org.team.search_button')}
                 </Button>
             </form>
             <div

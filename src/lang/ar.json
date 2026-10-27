@@ -332,6 +332,7 @@
     "org.team.seats_note": "تشمل المقاعد الأعضاء النشطين والدعوات المعلقة.",
     "org.team.seats_warn": "بلغت :percent% من المقاعد. الترقية أو مقاعد إضافية من حسابك على OpsOne.",
     "org.team.search": "بحث بالاسم أو البريد",
+    "org.team.search_button": "بحث",
     "org.team.filter_status": "الحالة",
     "org.team.filter_all": "الكل",
     "org.team.filter_role": "الدور",

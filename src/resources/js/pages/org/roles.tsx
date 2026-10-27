@@ -209,7 +209,7 @@ export default function Roles({ roles, role, catalogue, canEdit }: Props) {
                                         return (
                                             <li
                                                 key={item.code}
-                                                className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 py-1"
+                                                className="flex flex-col gap-1 py-1 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:gap-x-4"
                                             >
                                                 <div className="flex min-h-11 min-w-0 flex-1 items-center gap-3">
                                                     <input
@@ -267,7 +267,7 @@ export default function Roles({ roles, role, catalogue, canEdit }: Props) {
                                                                 }),
                                                             )
                                                         }
-                                                        className="field-control w-48 max-w-full cursor-pointer text-control"
+                                                        className="mb-2 field-control w-full cursor-pointer text-control sm:mb-0 sm:w-48"
                                                     >
                                                         {(role.is_owner
                                                             ? ['tenant']

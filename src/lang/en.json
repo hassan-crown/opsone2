@@ -332,6 +332,7 @@
     "org.team.seats_note": "Seats count active members and pending invitations.",
     "org.team.seats_warn": "You reached :percent% of your seats. Upgrade or add seats from your OpsOne account.",
     "org.team.search": "Search by name or email",
+    "org.team.search_button": "Search",
     "org.team.filter_status": "Status",
     "org.team.filter_all": "All",
     "org.team.filter_role": "Role",
