@@ -1,8 +1,8 @@
 # P4 orders backend — endpoint contract
 
 Backend for the order screens (`CreateOrder*`, `OrdersList*`, `OrderOverview`, `OrderBranch`, `OrderStates`).
-The screens are **not** built yet; the screens session wraps these endpoints in Inertia pages (or calls them with
-`fetch`/Inertia `router` + `Accept: application/json`). Decisions: [ADR-0011](decisions/0011-orders.md).
+The screens are built (`src/resources/js/pages/orders/*`); reads are Inertia pages and writes call these endpoints with
+`fetch` + `Accept: application/json` (`resources/js/lib/api.ts`). Decisions: [ADR-0011](decisions/0011-orders.md).
 
 - All routes live in `src/routes/orders.php`, behind `auth` + `verified`, under the web session (CSRF token required
   for writes). Wayfinder generates `@/actions/App/Http/Controllers/Orders/*` — use those, never hand-written URLs.
@@ -181,3 +181,28 @@ Only keys present change. Ready orders ignore the need fields. Editable states: 
 | Inventory | — | branches | — | — | — (money hidden) |
 
 ¹ Orders have no department until the workflow (P5); a department grant covers no order yet.
+
+## Screens (P4 screens session)
+
+Pages: `orders/index` (`OrdersList*`), `orders/create` (`CreateOrder*`), `orders/show` (`OrderOverview` with the
+`OrderStates` history tab and the `OrderBranch` / edit / add-line dialogs). Small additions the screens needed — the
+write endpoints above are unchanged:
+
+- `GET /orders`, `GET /orders/{order}`: return the **Inertia page** to browsers and the JSON contract above when the
+  request sends `Accept: application/json` (non-Inertia). Page props add `filters`, `members`, `branches`, `statuses`,
+  `canCreate` (list) and `history`, `members`, `invoiceTypes`, `transferBranches` (show). `history` is the order's rows
+  from `state_transitions`, newest first (`transition`, `from`, `to`, `actor`, `reason`, `at`). `transferBranches` is
+  empty without P-19; apply still re-checks P-19 over both branches.
+- `GET /orders/create` (`orders.create`, P-15) — page; `?customer=` pre-selects a customer the actor may see.
+- `GET /orders/customers?q=` (`orders.customers`, P-15) — `{customers: [{id, name, kind, mobile, branch_id, branch}]}`,
+  limited by the customer scope (`CustomerAccess::visibleCustomers`).
+- `GET /orders/catalog?kind=&branch_id=&q=` (`orders.catalog`, P-15 over that branch) — `{items}`: selectable products
+  (`custom_product`, with `option_groups`) or ready variants, each with the `version` a new line would freeze.
+  `price_minor` / `reference_price_minor` only appear with P-37 for the branch.
+- Shared prop `orgNav.orders` (P-15 or P-16) drives the «الطلبات» navigation entry.
+- A stale `lock_version` (409 `stale_version`) shows the bilingual conflict alert with a reload button; the transfer
+  dialog applies with the `lock_version` returned by its preview, so a change made in between surfaces the same way.
+- Create sends one client-generated `crypto.randomUUID()` per form instance, locks the submit button while in flight,
+  and renews the key only if the server rejects it (`idempotency_key` error).
+- Adding a line on the overview uses the catalog picker, which needs P-15 over the order's branch (a P-17-only editor
+  can still remove lines and edit fields, but the picker returns 403).

@@ -204,7 +204,7 @@ export default function OrderShow({
                 </Alert>
             )}
 
-            <Tabs defaultValue="overview">
+            <Tabs defaultValue="overview" className="min-w-0">
                 <TabsList>
                     <TabsTrigger value="overview">
                         {t('orders.tab.overview')}
@@ -214,9 +214,9 @@ export default function OrderShow({
                     </TabsTrigger>
                 </TabsList>
 
-                <TabsContent value="overview">
-                    <div className="grid gap-4 lg:grid-cols-[2fr_1fr]">
-                        <div className="grid content-start gap-4">
+                <TabsContent value="overview" className="min-w-0">
+                    <div className="grid grid-cols-1 gap-4 lg:grid-cols-[2fr_1fr]">
+                        <div className="grid min-w-0 content-start gap-4">
                             {order.kind === 'custom' && (
                                 <Card data-test="order-need">
                                     <h2 className="text-heading mb-2 text-strong">
@@ -310,7 +310,7 @@ export default function OrderShow({
                                                             )}
                                                         </Th>
                                                     )}
-                                                    <Th>
+                                                    <Th className="relative">
                                                         <span className="sr-only">
                                                             {t(
                                                                 'orders.lines.actions',
@@ -456,7 +456,7 @@ export default function OrderShow({
                             </Card>
                         </div>
 
-                        <div className="grid content-start gap-4">
+                        <div className="grid min-w-0 content-start gap-4">
                             <Card data-test="order-money">
                                 <h2 className="text-heading mb-2 text-strong">
                                     {t('orders.money.title')}
@@ -560,7 +560,7 @@ export default function OrderShow({
                     </div>
                 </TabsContent>
 
-                <TabsContent value="history">
+                <TabsContent value="history" className="min-w-0">
                     <Card data-test="order-history">
                         <h2 className="text-heading mb-1 text-strong">
                             {t('orders.history.title')}

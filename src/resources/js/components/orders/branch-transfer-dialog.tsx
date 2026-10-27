@@ -161,7 +161,9 @@ export function BranchTransferDialog({
                     </DialogDescription>
                 </DialogHeader>
                 <div className="grid gap-4" data-test="transfer-form">
-                    {stale && <ConflictAlert />}
+                    {stale && (
+                        <ConflictAlert onReload={() => onOpenChange(false)} />
+                    )}
                     {message && (
                         <Alert variant="danger" role="alert">
                             <AlertBody>{message}</AlertBody>
