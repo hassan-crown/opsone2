@@ -1,10 +1,9 @@
 import { Form, Head } from '@inertiajs/react';
-import InputError from '@/components/input-error';
 import PasswordInput from '@/components/password-input';
+import { Field, TextField } from '@/components/opsone/field';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
+import { useT } from '@/lib/i18n';
 import { update } from '@/routes/password';
 
 type Props = {
@@ -14,9 +13,11 @@ type Props = {
 };
 
 export default function ResetPassword({ token, email, passwordRules }: Props) {
+    const t = useT();
+
     return (
         <>
-            <Head title="Reset password" />
+            <Head title={t('auth.reset_title')} />
 
             <Form
                 {...update.form()}
@@ -25,63 +26,54 @@ export default function ResetPassword({ token, email, passwordRules }: Props) {
             >
                 {({ processing, errors }) => (
                     <div className="grid gap-6">
-                        <div className="grid gap-2">
-                            <Label htmlFor="email">Email</Label>
-                            <Input
-                                id="email"
-                                type="email"
-                                name="email"
-                                autoComplete="email"
-                                value={email}
-                                className="mt-1 block w-full"
-                                readOnly
-                            />
-                            <InputError
-                                message={errors.email}
-                                className="mt-2"
-                            />
-                        </div>
-
-                        <div className="grid gap-2">
-                            <Label htmlFor="password">Password</Label>
-                            <PasswordInput
-                                id="password"
-                                name="password"
-                                autoComplete="new-password"
-                                className="mt-1 block w-full"
-                                autoFocus
-                                placeholder="Password"
-                                passwordrules={passwordRules}
-                            />
-                            <InputError message={errors.password} />
-                        </div>
-
-                        <div className="grid gap-2">
-                            <Label htmlFor="password_confirmation">
-                                Confirm password
-                            </Label>
-                            <PasswordInput
-                                id="password_confirmation"
-                                name="password_confirmation"
-                                autoComplete="new-password"
-                                className="mt-1 block w-full"
-                                placeholder="Confirm password"
-                                passwordrules={passwordRules}
-                            />
-                            <InputError
-                                message={errors.password_confirmation}
-                                className="mt-2"
-                            />
-                        </div>
+                        <TextField
+                            label={t('auth.email')}
+                            type="email"
+                            name="email"
+                            dir="ltr"
+                            autoComplete="email"
+                            value={email}
+                            readOnly
+                            error={errors.email}
+                        />
+                        <Field
+                            label={t('auth.password')}
+                            error={errors.password}
+                            required
+                        >
+                            {(control) => (
+                                <PasswordInput
+                                    {...control}
+                                    name="password"
+                                    autoComplete="new-password"
+                                    autoFocus
+                                    passwordrules={passwordRules}
+                                />
+                            )}
+                        </Field>
+                        <Field
+                            label={t('auth.confirm_password')}
+                            error={errors.password_confirmation}
+                            required
+                        >
+                            {(control) => (
+                                <PasswordInput
+                                    {...control}
+                                    name="password_confirmation"
+                                    autoComplete="new-password"
+                                    passwordrules={passwordRules}
+                                />
+                            )}
+                        </Field>
 
                         <Button
                             type="submit"
-                            className="mt-4 w-full"
-                            disabled={processing}
+                            block
+                            loading={processing}
                             data-test="reset-password-button"
                         >
                             {processing && <Spinner />}
-                            Reset password
+                            {t('auth.reset_title')}
                         </Button>
                     </div>
                 )}
@@ -91,6 +83,6 @@ export default function ResetPassword({ token, email, passwordRules }: Props) {
 }
 
 ResetPassword.layout = {
-    title: 'Reset password',
-    description: 'Please enter your new password below',
+    title: 'auth.reset_title',
+    description: 'auth.reset_description',
 };

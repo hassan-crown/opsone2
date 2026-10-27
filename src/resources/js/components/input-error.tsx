@@ -1,17 +1,15 @@
 import type { HTMLAttributes } from 'react';
+import { FieldError } from '@/components/opsone/field';
 import { cn } from '@/lib/utils';
 
 export default function InputError({
     message,
     className = '',
     ...props
-}: HTMLAttributes<HTMLParagraphElement> & { message?: string }) {
+}: HTMLAttributes<HTMLDivElement> & { message?: string }) {
     return message ? (
-        <p
-            {...props}
-            className={cn('text-sm text-red-600 dark:text-red-400', className)}
-        >
-            {message}
-        </p>
+        <div className={cn(className)} {...props}>
+            <FieldError>{message}</FieldError>
+        </div>
     ) : null;
 }

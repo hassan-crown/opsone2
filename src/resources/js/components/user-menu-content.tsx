@@ -1,5 +1,6 @@
 import { Link, router } from '@inertiajs/react';
 import { LogOut, Settings } from 'lucide-react';
+import { Icon } from '@/components/opsone/icon';
 import {
     DropdownMenuGroup,
     DropdownMenuItem,
@@ -8,6 +9,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { UserInfo } from '@/components/user-info';
 import { useMobileNavigation } from '@/hooks/use-mobile-navigation';
+import { useT } from '@/lib/i18n';
 import { logout } from '@/routes';
 import { edit } from '@/routes/profile';
 import type { User } from '@/types';
@@ -17,6 +19,7 @@ type Props = {
 };
 
 export function UserMenuContent({ user }: Props) {
+    const t = useT();
     const cleanup = useMobileNavigation();
 
     const handleLogout = () => {
@@ -27,35 +30,30 @@ export function UserMenuContent({ user }: Props) {
     return (
         <>
             <DropdownMenuLabel className="p-0 font-normal">
-                <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
+                <div className="flex items-center gap-3 px-3 py-2 text-start">
                     <UserInfo user={user} showEmail={true} />
                 </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
                 <DropdownMenuItem asChild>
-                    <Link
-                        className="block w-full cursor-pointer"
-                        href={edit()}
-                        prefetch
-                        onClick={cleanup}
-                    >
-                        <Settings className="mr-2" />
-                        Settings
+                    <Link href={edit()} prefetch onClick={cleanup}>
+                        <Icon icon={Settings} />
+                        {t('nav.settings')}
                     </Link>
                 </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem asChild>
+            <DropdownMenuItem asChild variant="destructive">
                 <Link
-                    className="block w-full cursor-pointer"
                     href={logout()}
                     as="button"
                     onClick={handleLogout}
                     data-test="logout-button"
+                    className="w-full"
                 >
-                    <LogOut className="mr-2" />
-                    Log out
+                    <Icon icon={LogOut} />
+                    {t('nav.logout')}
                 </Link>
             </DropdownMenuItem>
         </>

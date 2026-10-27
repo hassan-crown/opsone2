@@ -1,36 +1,37 @@
-// Components
 import { Form, Head } from '@inertiajs/react';
 import TextLink from '@/components/text-link';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
+import { useT } from '@/lib/i18n';
 import { logout } from '@/routes';
 import { send } from '@/routes/verification';
 
 export default function VerifyEmail({ status }: { status?: string }) {
+    const t = useT();
+
     return (
         <>
-            <Head title="Email verification" />
+            <Head title={t('auth.verify_title')} />
 
             {status === 'verification-link-sent' && (
-                <div className="mb-4 text-center text-sm font-medium text-green-600">
-                    A new verification link has been sent to the email address
-                    you provided during registration.
+                <div className="mb-4 text-center text-label text-success-text">
+                    {t('auth.verification_sent')}
                 </div>
             )}
 
             <Form {...send.form()} className="space-y-6 text-center">
                 {({ processing }) => (
                     <>
-                        <Button disabled={processing} variant="secondary">
+                        <Button loading={processing} variant="secondary">
                             {processing && <Spinner />}
-                            Resend verification email
+                            {t('auth.resend_verification')}
                         </Button>
 
                         <TextLink
                             href={logout()}
-                            className="mx-auto block text-sm"
+                            className="mx-auto block text-label"
                         >
-                            Log out
+                            {t('nav.logout')}
                         </TextLink>
                     </>
                 )}
@@ -40,7 +41,6 @@ export default function VerifyEmail({ status }: { status?: string }) {
 }
 
 VerifyEmail.layout = {
-    title: 'Email verification',
-    description:
-        'Please verify your email address by clicking on the link we just emailed to you.',
+    title: 'auth.verify_title',
+    description: 'auth.verify_description',
 };

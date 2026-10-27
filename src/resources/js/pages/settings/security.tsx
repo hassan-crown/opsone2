@@ -2,10 +2,10 @@ import { Form, Head } from '@inertiajs/react';
 import { useRef } from 'react';
 import SecurityController from '@/actions/App/Http/Controllers/Settings/SecurityController';
 import Heading from '@/components/heading';
-import InputError from '@/components/input-error';
 import PasswordInput from '@/components/password-input';
 import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
+import { Field } from '@/components/opsone/field';
+import { useT } from '@/lib/i18n';
 import { edit } from '@/routes/security';
 import type { Props as ManagePasskeysProps } from '@/components/manage-passkeys';
 import ManagePasskeys from '@/components/manage-passkeys';
@@ -19,20 +19,21 @@ type Props = {
     ManageTwoFactorProps;
 
 export default function Security(props: Props) {
+    const t = useT();
     const passwordInput = useRef<HTMLInputElement>(null);
     const currentPasswordInput = useRef<HTMLInputElement>(null);
 
     return (
         <>
-            <Head title="Security settings" />
+            <Head title={t('settings.security_title')} />
 
-            <h1 className="sr-only">Security settings</h1>
+            <h1 className="sr-only">{t('settings.security_title')}</h1>
 
             <div className="space-y-6">
                 <Heading
                     variant="small"
-                    title="Update password"
-                    description="Ensure your account is using a long, random password to stay secure"
+                    title={t('settings.update_password')}
+                    description={t('settings.update_password_description')}
                 />
 
                 <Form
@@ -59,64 +60,55 @@ export default function Security(props: Props) {
                 >
                     {({ errors, processing }) => (
                         <>
-                            <div className="grid gap-2">
-                                <Label htmlFor="current_password">
-                                    Current password
-                                </Label>
+                            <Field
+                                label={t('settings.current_password')}
+                                error={errors.current_password}
+                            >
+                                {(control) => (
+                                    <PasswordInput
+                                        {...control}
+                                        ref={currentPasswordInput}
+                                        name="current_password"
+                                        autoComplete="current-password"
+                                    />
+                                )}
+                            </Field>
 
-                                <PasswordInput
-                                    id="current_password"
-                                    ref={currentPasswordInput}
-                                    name="current_password"
-                                    className="mt-1 block w-full"
-                                    autoComplete="current-password"
-                                    placeholder="Current password"
-                                />
+                            <Field
+                                label={t('settings.new_password')}
+                                error={errors.password}
+                            >
+                                {(control) => (
+                                    <PasswordInput
+                                        {...control}
+                                        ref={passwordInput}
+                                        name="password"
+                                        autoComplete="new-password"
+                                        passwordrules={props.passwordRules}
+                                    />
+                                )}
+                            </Field>
 
-                                <InputError message={errors.current_password} />
-                            </div>
-
-                            <div className="grid gap-2">
-                                <Label htmlFor="password">New password</Label>
-
-                                <PasswordInput
-                                    id="password"
-                                    ref={passwordInput}
-                                    name="password"
-                                    className="mt-1 block w-full"
-                                    autoComplete="new-password"
-                                    placeholder="New password"
-                                    passwordrules={props.passwordRules}
-                                />
-
-                                <InputError message={errors.password} />
-                            </div>
-
-                            <div className="grid gap-2">
-                                <Label htmlFor="password_confirmation">
-                                    Confirm password
-                                </Label>
-
-                                <PasswordInput
-                                    id="password_confirmation"
-                                    name="password_confirmation"
-                                    className="mt-1 block w-full"
-                                    autoComplete="new-password"
-                                    placeholder="Confirm password"
-                                    passwordrules={props.passwordRules}
-                                />
-
-                                <InputError
-                                    message={errors.password_confirmation}
-                                />
-                            </div>
+                            <Field
+                                label={t('auth.confirm_password')}
+                                error={errors.password_confirmation}
+                            >
+                                {(control) => (
+                                    <PasswordInput
+                                        {...control}
+                                        name="password_confirmation"
+                                        autoComplete="new-password"
+                                        passwordrules={props.passwordRules}
+                                    />
+                                )}
+                            </Field>
 
                             <div className="flex items-center gap-4">
                                 <Button
-                                    disabled={processing}
+                                    loading={processing}
                                     data-test="update-password-button"
                                 >
-                                    Save
+                                    {t('ui.save')}
                                 </Button>
                             </div>
                         </>
@@ -141,7 +133,7 @@ export default function Security(props: Props) {
 Security.layout = {
     breadcrumbs: [
         {
-            title: 'Security settings',
+            title: 'settings.security_title',
             href: edit(),
         },
     ],

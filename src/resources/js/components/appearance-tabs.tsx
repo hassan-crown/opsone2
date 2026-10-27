@@ -1,43 +1,52 @@
-import type { LucideIcon } from 'lucide-react';
 import { Monitor, Moon, Sun } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import type { HTMLAttributes } from 'react';
+import { Icon } from '@/components/opsone/icon';
 import type { Appearance } from '@/hooks/use-appearance';
 import { useAppearance } from '@/hooks/use-appearance';
+import { useT } from '@/lib/i18n';
+import type { TranslationKey } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
+
+const TABS: { value: Appearance; icon: LucideIcon; label: TranslationKey }[] = [
+    { value: 'light', icon: Sun, label: 'appearance.light' },
+    { value: 'dark', icon: Moon, label: 'appearance.dark' },
+    { value: 'system', icon: Monitor, label: 'appearance.system' },
+];
 
 export default function AppearanceToggleTab({
     className = '',
     ...props
 }: HTMLAttributes<HTMLDivElement>) {
+    const t = useT();
     const { appearance, updateAppearance } = useAppearance();
-
-    const tabs: { value: Appearance; icon: LucideIcon; label: string }[] = [
-        { value: 'light', icon: Sun, label: 'Light' },
-        { value: 'dark', icon: Moon, label: 'Dark' },
-        { value: 'system', icon: Monitor, label: 'System' },
-    ];
 
     return (
         <div
+            role="radiogroup"
+            aria-label={t('appearance.title')}
             className={cn(
-                'inline-flex gap-1 rounded-lg bg-neutral-100 p-1 dark:bg-neutral-800',
+                'inline-flex gap-1 rounded-md border border-stroke-weak bg-fill p-1',
                 className,
             )}
             {...props}
         >
-            {tabs.map(({ value, icon: Icon, label }) => (
+            {TABS.map(({ value, icon, label }) => (
                 <button
                     key={value}
+                    type="button"
+                    role="radio"
+                    aria-checked={appearance === value}
                     onClick={() => updateAppearance(value)}
                     className={cn(
-                        'flex items-center rounded-md px-3.5 py-1.5 transition-colors',
+                        'flex min-h-9 items-center gap-2 rounded-sm px-3 text-label transition-colors',
                         appearance === value
-                            ? 'bg-white shadow-xs dark:bg-neutral-700 dark:text-neutral-100'
-                            : 'text-neutral-500 hover:bg-neutral-200/60 hover:text-black dark:text-neutral-400 dark:hover:bg-neutral-700/60',
+                            ? 'bg-surface font-semibold text-strong shadow-[inset_0_0_0_1px_var(--stroke-control)]'
+                            : 'text-weak hover:bg-hover hover:text-strong',
                     )}
                 >
-                    <Icon className="-ml-1 h-4 w-4" />
-                    <span className="ml-1.5 text-sm">{label}</span>
+                    <Icon icon={icon} size="sm" />
+                    {t(label)}
                 </button>
             ))}
         </div>

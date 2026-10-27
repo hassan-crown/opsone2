@@ -3,7 +3,9 @@ import { REGEXP_ONLY_DIGITS } from 'input-otp';
 import { useMemo, useState } from 'react';
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { TextField } from '@/components/opsone/field';
+import { useT } from '@/lib/i18n';
+import type { TranslationKey } from '@/lib/i18n';
 import {
     InputOTP,
     InputOTPGroup,
@@ -13,28 +15,27 @@ import { OTP_MAX_LENGTH } from '@/hooks/use-two-factor-auth';
 import { store } from '@/routes/two-factor/login';
 
 export default function TwoFactorChallenge() {
+    const t = useT();
     const [showRecoveryInput, setShowRecoveryInput] = useState<boolean>(false);
     const [code, setCode] = useState<string>('');
 
     const authConfigContent = useMemo<{
-        title: string;
-        description: string;
-        toggleText: string;
+        title: TranslationKey;
+        description: TranslationKey;
+        toggleText: TranslationKey;
     }>(() => {
         if (showRecoveryInput) {
             return {
-                title: 'Recovery code',
-                description:
-                    'Please confirm access to your account by entering one of your emergency recovery codes.',
-                toggleText: 'login using an authentication code',
+                title: 'tf.recovery_title',
+                description: 'tf.recovery_description',
+                toggleText: 'tf.use_code',
             };
         }
 
         return {
-            title: 'Authentication code',
-            description:
-                'Enter the authentication code provided by your authenticator application.',
-            toggleText: 'login using a recovery code',
+            title: 'tf.code_title',
+            description: 'tf.code_description',
+            toggleText: 'tf.use_recovery',
         };
     }, [showRecoveryInput]);
 
@@ -51,7 +52,7 @@ export default function TwoFactorChallenge() {
 
     return (
         <>
-            <Head title="Two-factor authentication" />
+            <Head title={t('tf.page_title')} />
 
             <div className="space-y-6">
                 <Form
@@ -64,19 +65,22 @@ export default function TwoFactorChallenge() {
                         <>
                             {showRecoveryInput ? (
                                 <>
-                                    <Input
+                                    <TextField
+                                        label={t('tf.recovery_title')}
                                         name="recovery_code"
                                         type="text"
-                                        placeholder="Enter recovery code"
+                                        dir="ltr"
+                                        placeholder={t('tf.enter_recovery')}
                                         autoFocus={showRecoveryInput}
                                         required
-                                    />
-                                    <InputError
-                                        message={errors.recovery_code}
+                                        error={errors.recovery_code}
                                     />
                                 </>
                             ) : (
-                                <div className="flex flex-col items-center justify-center space-y-3 text-center">
+                                <div
+                                    dir="ltr"
+                                    className="flex flex-col items-center justify-center space-y-3 text-center"
+                                >
                                     <div className="flex w-full items-center justify-center">
                                         <InputOTP
                                             name="code"
@@ -104,24 +108,20 @@ export default function TwoFactorChallenge() {
                                 </div>
                             )}
 
-                            <Button
-                                type="submit"
-                                className="w-full"
-                                disabled={processing}
-                            >
-                                Continue
+                            <Button type="submit" block loading={processing}>
+                                {t('ui.continue')}
                             </Button>
 
-                            <div className="text-center text-sm text-muted-foreground">
-                                <span>or you can </span>
+                            <div className="text-center text-body text-weak">
+                                <span>{t('tf.or_you_can')} </span>
                                 <button
                                     type="button"
-                                    className="cursor-pointer text-foreground underline decoration-neutral-300 underline-offset-4 transition-colors duration-300 ease-out hover:decoration-current! dark:decoration-neutral-500"
+                                    className="cursor-pointer rounded-xs text-link underline underline-offset-4 hover:text-brand-hover"
                                     onClick={() =>
                                         toggleRecoveryMode(clearErrors)
                                     }
                                 >
-                                    {authConfigContent.toggleText}
+                                    {t(authConfigContent.toggleText)}
                                 </button>
                             </div>
                         </>
