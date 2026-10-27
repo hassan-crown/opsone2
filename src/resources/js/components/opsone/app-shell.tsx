@@ -103,7 +103,7 @@ function UserMenu() {
                     aria-label={t('ui.user_menu')}
                     className="flex min-h-11 items-center gap-2 rounded-md px-1 text-start hover:bg-hover"
                 >
-                    <UserInfo user={auth.user} />
+                    <UserInfo user={auth.user} hideTextOnMobile />
                     <Icon
                         icon={ChevronsUpDown}
                         size="sm"

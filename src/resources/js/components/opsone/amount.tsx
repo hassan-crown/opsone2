@@ -1,4 +1,4 @@
-import { formatAmount } from '@/lib/format';
+import { amountParts } from '@/lib/format';
 import { useLocale } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 
@@ -17,10 +17,16 @@ export function Amount({
     className,
 }: AmountProps) {
     const { locale } = useLocale();
+    const { sign, number, label } = amountParts(value, locale, currency);
+    const figure = (
+        <bdi dir="ltr">
+            {sign}
+            {number}
+        </bdi>
+    );
 
     return (
-        <bdi
-            dir={locale === 'ar' ? 'rtl' : 'ltr'}
+        <span
             className={cn(
                 'whitespace-nowrap lining-nums tabular-nums',
                 strong && 'font-semibold',
@@ -28,7 +34,15 @@ export function Amount({
                 className,
             )}
         >
-            {formatAmount(value, locale, currency)}
-        </bdi>
+            {locale === 'ar' ? (
+                <>
+                    {figure} {label}
+                </>
+            ) : (
+                <>
+                    {label} {figure}
+                </>
+            )}
+        </span>
     );
 }
