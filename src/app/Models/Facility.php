@@ -16,6 +16,9 @@ use RuntimeException;
  * @property int $id
  * @property string $name_ar
  * @property string|null $name_en
+ * @property string|null $contact_email
+ * @property string|null $contact_phone
+ * @property string|null $address
  * @property string $default_locale
  * @property string $currency
  * @property Carbon|null $currency_locked_at
@@ -27,7 +30,7 @@ use RuntimeException;
  * @property-read Membership|null $owner
  */
 #[Table('facility')]
-#[Fillable(['name_ar', 'name_en', 'default_locale', 'currency', 'timezone', 'setup_steps'])]
+#[Fillable(['name_ar', 'name_en', 'contact_email', 'contact_phone', 'address', 'default_locale', 'currency', 'timezone', 'setup_steps'])]
 class Facility extends Model
 {
     /**

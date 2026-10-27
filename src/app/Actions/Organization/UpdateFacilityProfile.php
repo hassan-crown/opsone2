@@ -11,11 +11,12 @@ use Illuminate\Validation\ValidationException;
 
 /**
  * P-02: edit the facility profile. The currency is locked after the first financial movement (currency_locked_at).
- * Input is expected to be validated by a Form Request; only the listed fields are accepted.
+ * Input is expected to be validated by a Form Request; only the listed fields are accepted. When `version` (the
+ * `updated_at` the form was loaded with) is given, a newer save is refused instead of overwritten (SRS-SET-05).
  */
 final class UpdateFacilityProfile
 {
-    private const FIELDS = ['name_ar', 'name_en', 'default_locale', 'currency', 'timezone'];
+    private const FIELDS = ['name_ar', 'name_en', 'contact_email', 'contact_phone', 'address', 'default_locale', 'currency', 'timezone'];
 
     public function __construct(private readonly Authorizer $access) {}
 
@@ -29,6 +30,10 @@ final class UpdateFacilityProfile
 
         return DB::transaction(function () use ($facility, $data) {
             $locked = Facility::query()->lockForUpdate()->findOrFail($facility->id);
+            if (isset($data['version']) && $locked->updated_at?->toIso8601String() !== $data['version']) {
+                throw ValidationException::withMessages(['version' => __('account.profile.stale')]);
+            }
+
             $changes = array_intersect_key($data, array_flip(self::FIELDS));
 
             if (isset($changes['currency']) && $changes['currency'] !== $locked->currency && $locked->currency_locked_at !== null) {

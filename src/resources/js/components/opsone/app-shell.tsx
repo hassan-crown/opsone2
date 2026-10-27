@@ -26,7 +26,7 @@ import { useCurrentUrl } from '@/hooks/use-current-url';
 import { useT } from '@/lib/i18n';
 import { mainNav } from '@/lib/navigation';
 import { cn, toUrl } from '@/lib/utils';
-import { edit } from '@/routes/profile';
+import { home as settingsHome } from '@/routes/settings';
 import type { BreadcrumbItem } from '@/types';
 
 function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
@@ -80,7 +80,12 @@ function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
             </nav>
             <div className="mt-auto border-t border-stroke-weak pt-4">
                 <ul className="m-0 flex list-none flex-col gap-1 p-0">
-                    {item('settings', edit(), t('nav.settings'), Settings)}
+                    {item(
+                        'settings',
+                        settingsHome(),
+                        t('nav.settings'),
+                        Settings,
+                    )}
                 </ul>
             </div>
         </>
