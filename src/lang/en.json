@@ -219,7 +219,7 @@
     "org.accept.code_sent": "The verification code was emailed to you.",
     "org.accept.code_wait": "Wait :seconds seconds before asking for a new code.",
     "org.accept.code_none": "There is no valid code. Request a new one.",
-    "org.accept.code_locked": "Too many attempts. Request a new code.",
+    "org.accept.code_locked": "Too many attempts. Ask the person who invited you to send a new invitation.",
     "org.accept.code_wrong": "The code is not correct.",
     "org.accept.account_exists": "An account with this email already exists.",
     "org.accept.name": "Full name",

@@ -3,15 +3,18 @@
 namespace App\Providers;
 
 use App\Actions\Fortify\ResetUserPassword;
+use App\Http\Responses\UniformPasswordResetLinkResponse;
 use App\Models\User;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Password;
 use Inertia\Inertia;
+use Laravel\Fortify\Contracts\FailedPasswordResetLinkRequestResponse;
 use Laravel\Fortify\Features;
 use Laravel\Fortify\Fortify;
 
@@ -22,7 +25,7 @@ class FortifyServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->bind(FailedPasswordResetLinkRequestResponse::class, UniformPasswordResetLinkResponse::class);
     }
 
     /**
@@ -96,6 +99,21 @@ class FortifyServiceProvider extends ServiceProvider
             $throttleKey = Str::transliterate(Str::lower($request->input(Fortify::username())).'|'.$request->ip());
 
             return Limit::perMinute(5)->by($throttleKey);
+        });
+
+        RateLimiter::for('password-reset', function (Request $request) {
+            return [
+                Limit::perMinute(5)->by('ip|'.$request->ip()),
+                Limit::perMinute(3)->by('email|'.Str::lower((string) $request->input('email'))),
+            ];
+        });
+
+        // Fortify registers the forgot/reset password routes without a limiter.
+        $this->app->booted(function () {
+            Route::getRoutes()->refreshNameLookups();
+            foreach (['password.email', 'password.update'] as $name) {
+                Route::getRoutes()->getByName($name)?->middleware('throttle:password-reset');
+            }
         });
 
         RateLimiter::for('passkeys', function (Request $request) {

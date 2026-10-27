@@ -13,7 +13,9 @@ class LicensingServiceProvider extends ServiceProvider
         $this->app->bind(LicenseKeyring::class, fn ($app) => LicenseKeyring::make(
             keyId: $this->config('license.key_id'),
             publicKey: $this->config('license.public_key'),
-            trustDevelopmentKey: $app->environment(['local', 'testing']),
+            // The published development key is trusted only on a local/testing install with no production key,
+            // so a production deployment left on APP_ENV=local still refuses self-signed licenses.
+            trustDevelopmentKey: $app->environment(['local', 'testing']) && (string) $this->config('license.public_key') === '',
         ));
 
         $this->app->bind(LicenseVerifier::class, fn ($app) => new LicenseVerifier(

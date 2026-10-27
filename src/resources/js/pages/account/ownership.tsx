@@ -101,6 +101,7 @@ function DecisionDialog({
                 <Form
                     {...form}
                     options={{ preserveScroll: true }}
+                    resetOnError={['current_password']}
                     className="grid gap-4"
                 >
                     {({ processing, errors }) => (
@@ -113,6 +114,22 @@ function DecisionDialog({
                                     {t(`account.ownership.${kind}_text`)}
                                 </DialogDescription>
                             </DialogHeader>
+                            {kind === 'accept' && (
+                                <Field
+                                    label={t('account.ownership.password')}
+                                    hint={t('account.ownership.password_hint')}
+                                    required
+                                    error={errors.current_password}
+                                >
+                                    {(control) => (
+                                        <PasswordInput
+                                            {...control}
+                                            name="current_password"
+                                            autoComplete="current-password"
+                                        />
+                                    )}
+                                </Field>
+                            )}
                             {kind === 'reject' && (
                                 <TextareaField
                                     label={t('account.ownership.reason')}

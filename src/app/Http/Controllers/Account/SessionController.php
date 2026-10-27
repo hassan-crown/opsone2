@@ -31,7 +31,7 @@ class SessionController extends Controller
     {
         abort_unless(Access::can($request->user(), Permission::P84), 403);
 
-        $count = $sessions->endOthers($request->user(), $request->session()->getId());
+        $count = $sessions->endOthers($request->user(), $request->session());
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('account.sessions.signed_out_others', ['count' => $count])]);
 

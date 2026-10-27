@@ -3,6 +3,7 @@
 namespace App\Access;
 
 use App\Models\User;
+use Illuminate\Contracts\Session\Session;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
@@ -28,5 +29,28 @@ final class SessionRevoker
                 ->where('user_id', $userId)
                 ->delete();
         }
+    }
+
+    /**
+     * Revokes every other session of the user (any session driver) and keeps the current one signed in by
+     * re-stamping it with the new access version. Returns how many stored sessions were deleted.
+     */
+    public function revokeOthers(User $user, Session $current): int
+    {
+        User::query()->whereKey($user->id)->update([
+            'access_version' => DB::raw('access_version + 1'),
+            'remember_token' => Str::random(60),
+        ]);
+        $current->put('access_version', (int) User::query()->whereKey($user->id)->value('access_version'));
+
+        if (config('session.driver') !== 'database') {
+            return 0;
+        }
+
+        return DB::connection(config('session.connection'))
+            ->table(config('session.table', 'sessions'))
+            ->where('user_id', $user->id)
+            ->where('id', '!=', $current->getId())
+            ->delete();
     }
 }

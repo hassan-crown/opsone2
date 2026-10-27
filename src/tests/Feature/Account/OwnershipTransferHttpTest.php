@@ -86,7 +86,7 @@ it('lets the recipient see and accept the request, moving ownership and ending b
         ->assertOk()
         ->assertInertia(fn (Assert $page) => $page->where('open.role', 'recipient')->where('isOwner', false));
 
-    $this->actingAs($this->manager)->post(route('ownership.accept', $transfer))->assertRedirect(route('ownership.show'));
+    $this->actingAs($this->manager)->post(route('ownership.accept', $transfer), ['current_password' => 'password'])->assertRedirect(route('ownership.show'));
 
     expect(Facility::currentOrFail()->owner_membership_id)->toBe($this->managerMembership->id)
         ->and($transfer->refresh()->status)->toBe(OwnershipTransferStatus::Accepted)
@@ -123,10 +123,10 @@ it('forbids the wrong party from deciding', function () {
     $transfer = OwnershipTransfer::query()->sole();
     $bystander = $this->org->member('manager', [$this->org->b]);
 
-    $this->actingAs($this->org->owner)->post(route('ownership.accept', $transfer))->assertForbidden();
+    $this->actingAs($this->org->owner)->post(route('ownership.accept', $transfer), ['current_password' => 'password'])->assertForbidden();
     $this->actingAs($this->org->owner)->post(route('ownership.reject', $transfer))->assertForbidden();
     $this->actingAs($this->manager)->delete(route('ownership.cancel', $transfer))->assertForbidden();
-    $this->actingAs($bystander)->post(route('ownership.accept', $transfer))->assertForbidden();
+    $this->actingAs($bystander)->post(route('ownership.accept', $transfer), ['current_password' => 'password'])->assertForbidden();
     $this->actingAs($bystander)->get(route('ownership.show'))->assertForbidden();
 
     expect($transfer->refresh()->status)->toBe(OwnershipTransferStatus::Requested);
@@ -137,7 +137,7 @@ it('refuses decisions on a request that was already decided', function () {
     $transfer = OwnershipTransfer::query()->sole();
     $this->actingAs($this->org->owner)->delete(route('ownership.cancel', $transfer));
 
-    $this->actingAs($this->manager)->post(route('ownership.accept', $transfer))
+    $this->actingAs($this->manager)->post(route('ownership.accept', $transfer), ['current_password' => 'password'])
         ->assertRedirect(route('ownership.show'))
         ->assertSessionHasErrors('transfer');
     $this->actingAs($this->org->owner)->delete(route('ownership.cancel', $transfer))->assertSessionHasErrors('transfer');
@@ -152,7 +152,7 @@ it('refuses acceptance once the request expired, and the sweep marks it expired'
 
     $this->travel(8)->days();
 
-    $this->actingAs($this->manager)->post(route('ownership.accept', $transfer))->assertSessionHasErrors('transfer');
+    $this->actingAs($this->manager)->post(route('ownership.accept', $transfer), ['current_password' => 'password'])->assertSessionHasErrors('transfer');
     expect($transfer->refresh()->status)->toBe(OwnershipTransferStatus::Requested);
 
     $this->actingAs($this->org->owner)->get(route('ownership.show'))
@@ -168,7 +168,7 @@ it('does not let a recipient disabled meanwhile accept', function () {
     $this->managerMembership->forceFill(['status' => 'disabled'])->save();
 
     // The disabled account is signed out by the access middleware before it can decide.
-    $this->actingAs($this->manager)->post(route('ownership.accept', $transfer))->assertRedirect(route('login'));
+    $this->actingAs($this->manager)->post(route('ownership.accept', $transfer), ['current_password' => 'password'])->assertRedirect(route('login'));
 
     expect($transfer->refresh()->status)->toBe(OwnershipTransferStatus::Requested);
 });

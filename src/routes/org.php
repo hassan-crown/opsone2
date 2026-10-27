@@ -32,8 +32,8 @@ Route::middleware(['auth', 'verified'])->prefix('org')->name('org.')->group(func
     Route::get('team', [TeamController::class, 'index'])->name('team.index');
     Route::get('team/invitations', [TeamController::class, 'invitations'])->name('team.invitations');
     Route::get('team/invite', [TeamController::class, 'create'])->name('team.create');
-    Route::post('team/invite', [TeamController::class, 'store'])->name('team.store');
-    Route::post('team/invitations/{invitation}/renew', [TeamController::class, 'renew'])->name('team.renew');
+    Route::post('team/invite', [TeamController::class, 'store'])->middleware('throttle:20,1')->name('team.store');
+    Route::post('team/invitations/{invitation}/renew', [TeamController::class, 'renew'])->middleware('throttle:20,1')->name('team.renew');
     Route::post('team/invitations/{invitation}/cancel', [TeamController::class, 'cancel'])->name('team.cancel');
 
     Route::get('team/members/{membership}', [MemberController::class, 'show'])->name('team.member');

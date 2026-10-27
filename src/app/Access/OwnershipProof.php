@@ -12,14 +12,15 @@ use Illuminate\Validation\ValidationException;
 
 /**
  * Ownership-proof code for invitation acceptance (Q-17, default channel: the invited email).
- * A six-digit code, stored only as a keyed hash, single use, valid 15 minutes, five wrong attempts lock it,
- * and a new one cannot be requested within 45 seconds.
+ * A six-digit code, stored only as a keyed hash, single use, valid 15 minutes, and a new one cannot be requested
+ * within 45 seconds. Wrong attempts are counted per invitation and never reset by a resend, so requesting new codes
+ * cannot extend guessing; after ten the invitation must be renewed (a new invitation starts a fresh count).
  */
 final class OwnershipProof
 {
     public const VALID_MINUTES = 15;
 
-    public const MAX_ATTEMPTS = 5;
+    public const MAX_ATTEMPTS = 10;
 
     public const RESEND_SECONDS = 45;
 
@@ -28,6 +29,9 @@ final class OwnershipProof
         $code = DB::transaction(function () use ($subject): ?string {
             $locked = $this->lock($subject);
 
+            if ($locked->code_attempts >= self::MAX_ATTEMPTS) {
+                throw ValidationException::withMessages(['code' => __('org.accept.code_locked')]);
+            }
             if ($locked->code_sent_at !== null && $locked->code_sent_at->addSeconds(self::RESEND_SECONDS)->isFuture()) {
                 return null;
             }
@@ -37,7 +41,6 @@ final class OwnershipProof
                 'code_hash' => $this->hash($code),
                 'code_sent_at' => now(),
                 'code_expires_at' => now()->addMinutes(self::VALID_MINUTES),
-                'code_attempts' => 0,
             ])->save();
 
             return $code;
@@ -67,11 +70,11 @@ final class OwnershipProof
         $outcome = DB::transaction(function () use ($subject, $code): string {
             $locked = $this->lock($subject);
 
-            if ($locked->code_hash === null || $locked->code_expires_at === null || $locked->code_expires_at->isPast()) {
-                return 'none';
-            }
             if ($locked->code_attempts >= self::MAX_ATTEMPTS) {
                 return 'locked';
+            }
+            if ($locked->code_hash === null || $locked->code_expires_at === null || $locked->code_expires_at->isPast()) {
+                return 'none';
             }
             if (! hash_equals($locked->code_hash, $this->hash(trim($code)))) {
                 $locked->forceFill(['code_attempts' => $locked->code_attempts + 1])->save();
@@ -79,7 +82,7 @@ final class OwnershipProof
                 return 'wrong';
             }
 
-            $locked->forceFill(['code_hash' => null, 'code_expires_at' => null, 'code_attempts' => 0])->save();
+            $locked->forceFill(['code_hash' => null, 'code_expires_at' => null])->save();
 
             return 'ok';
         });

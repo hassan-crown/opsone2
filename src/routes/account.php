@@ -24,7 +24,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('settings/ownership', [OwnershipTransferController::class, 'store'])
         ->middleware('throttle:6,1')
         ->name('ownership.store');
-    Route::post('settings/ownership/{transfer}/accept', [OwnershipTransferController::class, 'accept'])->name('ownership.accept');
+    Route::post('settings/ownership/{transfer}/accept', [OwnershipTransferController::class, 'accept'])
+        ->middleware('throttle:6,1')
+        ->name('ownership.accept');
     Route::post('settings/ownership/{transfer}/reject', [OwnershipTransferController::class, 'reject'])->name('ownership.reject');
     Route::delete('settings/ownership/{transfer}', [OwnershipTransferController::class, 'cancel'])->name('ownership.cancel');
 

@@ -12,6 +12,7 @@ use App\Actions\StateMachines\M37OwnershipTransfer\T03CancelOwnershipTransfer;
 use App\Enums\MembershipStatus;
 use App\Enums\OwnershipTransferStatus;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Account\AcceptOwnershipTransferRequest;
 use App\Http\Requests\Account\DecideOwnershipTransferRequest;
 use App\Http\Requests\Account\RequestOwnershipTransferRequest;
 use App\Models\Facility;
@@ -108,7 +109,7 @@ class OwnershipTransferController extends Controller
         );
     }
 
-    public function accept(Request $request, OwnershipTransfer $transfer, T01AcceptOwnershipTransfer $action): RedirectResponse
+    public function accept(AcceptOwnershipTransferRequest $request, OwnershipTransfer $transfer, T01AcceptOwnershipTransfer $action): RedirectResponse
     {
         return $this->decide(fn () => $action->handle($request->user(), $transfer), 'account.ownership.accepted');
     }

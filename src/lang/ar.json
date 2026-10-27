@@ -219,7 +219,7 @@
     "org.accept.code_sent": "أُرسل رمز التحقق إلى بريدك.",
     "org.accept.code_wait": "انتظر :seconds ثانية قبل طلب رمز جديد.",
     "org.accept.code_none": "لا يوجد رمز صالح. اطلب رمزًا جديدًا.",
-    "org.accept.code_locked": "تجاوزت عدد المحاولات. اطلب رمزًا جديدًا.",
+    "org.accept.code_locked": "تجاوزت عدد المحاولات. اطلب من صاحب الدعوة إرسال دعوة جديدة.",
     "org.accept.code_wrong": "الرمز غير صحيح.",
     "org.accept.account_exists": "يوجد حساب بهذا البريد بالفعل.",
     "org.accept.name": "الاسم الكامل",

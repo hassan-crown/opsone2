@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\DB;
 
 /**
  * M-22-T01: disable a member (P-06). Access stops at once: sessions are revoked in the same transaction.
- * The owner can never be disabled (the facility is never left without an owner).
+ * The owner can never be disabled (the facility is never left without an owner), and no one disables themselves.
  *
  * TODO(P5): hand open work over to an eligible member or a follow-up inbox (ORG-08) once tasks exist.
  */
@@ -40,6 +40,9 @@ final class T01DisableMembership
             }
             if (Facility::current()?->owner_membership_id === $locked->id) {
                 throw new InvalidTransition(StateMachine::M22, 'T01', 'owner');
+            }
+            if ($locked->user_id === $actor->id) {
+                throw new InvalidTransition(StateMachine::M22, 'T01', 'self');
             }
 
             $locked->forceFill([

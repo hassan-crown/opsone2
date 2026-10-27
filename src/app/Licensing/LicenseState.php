@@ -3,6 +3,7 @@
 namespace App\Licensing;
 
 use Carbon\CarbonImmutable;
+use Carbon\Exceptions\InvalidFormatException;
 
 /**
  * Persisted license state: the last trusted envelope and the monotonic last-seen clock.
@@ -45,12 +46,17 @@ final readonly class LicenseState
 
         $verifiedAt = $data['verified_at'] ?? null;
 
-        return new self(
-            envelope: is_string($data['envelope'] ?? null) ? $data['envelope'] : null,
-            status: $status,
-            problem: is_string($data['problem'] ?? null) ? LicenseProblem::tryFrom($data['problem']) : null,
-            verifiedAt: is_string($verifiedAt) ? CarbonImmutable::parse($verifiedAt)->utc() : null,
-            lastSeenAt: CarbonImmutable::parse($lastSeen)->utc(),
-        );
+        // A malformed date means a damaged row: treat it as no stored state instead of failing every request.
+        try {
+            return new self(
+                envelope: is_string($data['envelope'] ?? null) ? $data['envelope'] : null,
+                status: $status,
+                problem: is_string($data['problem'] ?? null) ? LicenseProblem::tryFrom($data['problem']) : null,
+                verifiedAt: is_string($verifiedAt) ? CarbonImmutable::parse($verifiedAt)->utc() : null,
+                lastSeenAt: CarbonImmutable::parse($lastSeen)->utc(),
+            );
+        } catch (InvalidFormatException) {
+            return null;
+        }
     }
 }

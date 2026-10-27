@@ -2,10 +2,11 @@
 
 namespace App\Account;
 
+use App\Access\SessionRevoker;
 use App\Models\User;
+use Illuminate\Contracts\Session\Session;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 
 /**
  * The signed-in user's own sessions (P-84): list devices and sign out the others.
@@ -48,16 +49,11 @@ final class UserSessions
 
     /**
      * End every other session of the user and rotate the remember-me token; the current one stays.
+     * Uses the access-version stamp too, so other sessions end even without the database session driver.
      */
-    public function endOthers(User $user, string $currentId): int
+    public function endOthers(User $user, Session $current): int
     {
-        $user->forceFill(['remember_token' => Str::random(60)])->save();
-
-        if (! $this->supported()) {
-            return 0;
-        }
-
-        return $this->table()->where('user_id', $user->id)->where('id', '!=', $currentId)->delete();
+        return app(SessionRevoker::class)->revokeOthers($user, $current);
     }
 
     /**
