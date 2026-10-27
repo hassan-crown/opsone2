@@ -6,6 +6,8 @@ use App\Access\Authorizer;
 use App\Access\Exceptions\InvalidTransition;
 use App\Access\Permission;
 use App\Access\TransitionRecorder;
+use App\Audit\Audit;
+use App\Audit\AuditAction;
 use App\Enums\MembershipStatus;
 use App\Enums\OwnershipTransferStatus;
 use App\Enums\StateMachine;
@@ -59,6 +61,10 @@ final class T00RequestOwnershipTransfer
             ]);
 
             $this->transitions->record(StateMachine::M37, 'T00', $transfer, null, OwnershipTransferStatus::Requested, $actor, $source, $reason);
+            Audit::record(AuditAction::OwnershipTransferRequested, $transfer, $actor,
+                after: ['from_membership_id' => $owner->id, 'to_membership_id' => $recipient->id, 'expires_at' => $transfer->expires_at],
+                reason: $reason, source: $source,
+            );
 
             return $transfer;
         });

@@ -5,6 +5,8 @@ namespace App\Actions\Organization;
 use App\Access\Authorizer;
 use App\Access\LicenseLimits;
 use App\Access\Permission;
+use App\Audit\Audit;
+use App\Audit\AuditAction;
 use App\Enums\OrganizationUnitStatus;
 use App\Models\Branch;
 use App\Models\User;
@@ -36,9 +38,10 @@ final class CreateBranch
 
         $this->access->authorize($actor, Permission::P03, $branch);
 
-        return DB::transaction(function () use ($branch) {
+        return DB::transaction(function () use ($actor, $branch) {
             $this->limits->reserveBranch();
             $branch->save();
+            Audit::record(AuditAction::BranchCreated, $branch, $actor, after: $branch->only(['name_ar', 'name_en', 'code', 'region_id', 'status']));
 
             return $branch;
         });

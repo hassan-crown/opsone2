@@ -4,6 +4,8 @@ namespace App\Actions\StateMachines\M37OwnershipTransfer;
 
 use App\Access\Exceptions\InvalidTransition;
 use App\Access\TransitionRecorder;
+use App\Audit\Audit;
+use App\Audit\AuditAction;
 use App\Enums\OwnershipTransferStatus;
 use App\Enums\StateMachine;
 use App\Models\Membership;
@@ -49,6 +51,19 @@ abstract class OwnershipTransferTransition
 
             $locked->forceFill(['status' => $to, 'decided_at' => now()])->save();
             $this->transitions->record(StateMachine::M37, $code, $locked, OwnershipTransferStatus::Requested, $to, $actor, $source, $reason);
+            $action = match ($to) {
+                OwnershipTransferStatus::Accepted => AuditAction::OwnershipTransferAccepted,
+                OwnershipTransferStatus::Rejected => AuditAction::OwnershipTransferRejected,
+                OwnershipTransferStatus::Cancelled => AuditAction::OwnershipTransferCancelled,
+                default => null,
+            };
+            if ($action !== null) {
+                Audit::record($action, $locked, $actor,
+                    before: ['status' => OwnershipTransferStatus::Requested, 'owner_membership_id' => $locked->from_membership_id],
+                    after: ['status' => $to, 'owner_membership_id' => $to === OwnershipTransferStatus::Accepted ? $locked->to_membership_id : $locked->from_membership_id],
+                    reason: $reason, source: $source,
+                );
+            }
 
             return $locked;
         });

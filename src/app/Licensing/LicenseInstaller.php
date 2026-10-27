@@ -2,10 +2,16 @@
 
 namespace App\Licensing;
 
+use App\Access\TransitionRecorder;
+use App\Audit\Audit;
+use App\Audit\AuditAction;
+use App\Models\User;
+use Illuminate\Support\Facades\DB;
 use RuntimeException;
 
 /**
  * Installs a license file only after it verifies (M-19-T04 / T06). Never writes an invalid file.
+ * Every installation is audited (the file is not in the database, so the audit row follows the atomic rename).
  */
 final readonly class LicenseInstaller
 {
@@ -17,7 +23,7 @@ final readonly class LicenseInstaller
     /**
      * @throws LicenseVerificationException
      */
-    public function install(string $contents): LicenseSnapshot
+    public function install(string $contents, ?User $actor = null, string $source = TransitionRecorder::SOURCE_SYSTEM): LicenseSnapshot
     {
         $payload = $this->verifier->verify($contents);
         $trusted = $this->license->trusted();
@@ -27,8 +33,33 @@ final readonly class LicenseInstaller
         }
 
         $this->write($this->license->path(), $contents);
+        $snapshot = $this->license->refresh();
 
-        return $this->license->refresh();
+        DB::transaction(fn () => Audit::record(
+            AuditAction::LicenseInstalled, null, $actor,
+            before: $trusted === null ? [] : self::facts($trusted),
+            after: self::facts($payload),
+            source: $source,
+            label: $payload->plan,
+        ));
+
+        return $snapshot;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private static function facts(LicensePayload $payload): array
+    {
+        return [
+            'license_id' => $payload->licenseId,
+            'plan' => $payload->plan,
+            'capabilities' => $payload->capabilities,
+            'limits' => $payload->limits,
+            'starts_at' => $payload->startsAt,
+            'ends_at' => $payload->endsAt,
+            'issued_at' => $payload->issuedAt,
+        ];
     }
 
     private function write(string $path, string $contents): void

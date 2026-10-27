@@ -49,6 +49,35 @@ class Invitation extends Model implements ScopedRecord
     }
 
     /**
+     * `s***@example.com`: enough to recognize an invitee in the audit log without storing the full address.
+     */
+    public static function maskEmail(string $email): string
+    {
+        [$local, $domain] = array_pad(explode('@', $email, 2), 2, '');
+
+        return mb_substr($local, 0, 1).'***@'.$domain;
+    }
+
+    public function auditLabel(): string
+    {
+        return $this->name !== null && $this->name !== '' ? $this->name : self::maskEmail($this->email);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function auditFacts(): array
+    {
+        return [
+            'invitee' => self::maskEmail($this->email),
+            'department_id' => $this->department_id,
+            'branch_ids' => $this->accessBranchIds(),
+            'roles' => $this->roles,
+            'expires_at' => $this->expires_at,
+        ];
+    }
+
+    /**
      * @return BelongsTo<Membership, $this>
      */
     public function invitedBy(): BelongsTo

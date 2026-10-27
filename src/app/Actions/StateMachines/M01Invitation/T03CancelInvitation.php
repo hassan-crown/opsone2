@@ -6,6 +6,8 @@ use App\Access\Authorizer;
 use App\Access\Exceptions\InvalidTransition;
 use App\Access\Permission;
 use App\Access\TransitionRecorder;
+use App\Audit\Audit;
+use App\Audit\AuditAction;
 use App\Enums\InvitationStatus;
 use App\Enums\StateMachine;
 use App\Models\Invitation;
@@ -36,6 +38,11 @@ final class T03CancelInvitation
             $locked->forceFill(['status' => InvitationStatus::Cancelled])->save();
             $this->transitions->record(
                 StateMachine::M01, 'T03', $locked, InvitationStatus::Pending, InvitationStatus::Cancelled, $actor, $source, $reason,
+            );
+            Audit::record(
+                AuditAction::InvitationCancelled, $locked, $actor,
+                before: ['status' => InvitationStatus::Pending], after: ['status' => InvitationStatus::Cancelled],
+                reason: $reason, source: $source, label: $locked->auditLabel(),
             );
 
             return $locked;
