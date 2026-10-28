@@ -40,6 +40,7 @@ use App\Models\Task;
 use App\Models\User;
 use App\Money\Money;
 use App\Money\Rounding;
+use App\Settlement\SettlementFollowUps;
 use Illuminate\Support\Collection;
 use Illuminate\Validation\ValidationException;
 
@@ -314,8 +315,13 @@ final class CancellationImpact
      */
     private static function money(Order $order, CancellationInput $input, ?Agreement $agreement, ?array $content, array $rows, array $cut): array
     {
-        $collected = $order->isReady() ? 0 : MoneyLedger::collected($order->id)->minor;
-        $pending = (int) Refund::query()->where('order_id', $order->id)
+        // Refunds asked by returns pay back delivered goods, which the value kept below still counts: they are left out
+        // of both the collected money (added back once executed) and the pending refunds, so the return and the
+        // cancellation never claim the same halala (P7 merge: returns + cancellation on one follow-up).
+        $returnRefunds = SettlementFollowUps::returnRefundIds($order->id);
+        $returned = $returnRefunds === [] ? 0 : (int) Refund::query()->whereIn('id', $returnRefunds)->where('status', RefundStatus::Executed->value)->sum('amount_minor');
+        $collected = MoneyLedger::collected($order->id)->minor + $returned;
+        $pending = (int) Refund::query()->where('order_id', $order->id)->whereNotIn('id', $returnRefunds)
             ->whereIn('status', array_map(fn (RefundStatus $s) => $s->value, array_values(array_filter(RefundStatus::cases(), fn (RefundStatus $s) => $s->reserves()))))
             ->sum('amount_minor');
 

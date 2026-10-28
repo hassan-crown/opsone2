@@ -58,8 +58,12 @@
   no-op while ready orders carry no sale) and `ReturnSettlementHolds` decorates `SettlementHolds`: an order with a return
   undecided / expected / under inspection, or inspected with a settlement and no refund asked, is held (`settlement`).
 - **Settlement follow-up**: consumed through `Returns\Contracts\SettlementFollowUp` (`open` on acceptance with money and
-  on inspection, `close` on refund request or cancellation). Bound to `NoSettlementFollowUp` with
-  `TODO(p7-merge)`: the cancellation session's per-order follow-up replaces it at merge.
+  on inspection, `close` = re-read after a refund request, a partial release or a withdrawal). Bound at the P7 merge to
+  `Settlement\ReturnSettlementFollowUp`: one `return` item per return (source `return:{id}`, target = settlement) on the
+  order's single follow-up (ADR-0020), followed from the return — done when its M-12 refund is executed, dropped when
+  the return ends without money, target lowered on a partial release; resolved otherwise by P-42. Refunds a return asks
+  never cover a cancellation's `refund` item, and the cancellation review leaves them out of collected and pending
+  money (they pay back delivered goods the cancellation keeps counting), so the two never claim the same halala.
 - **Concurrency and idempotency**: every write takes an idempotency key (replay = first result, other payload = 422),
   locks the order row then the return row, checks `lock_version` (409 `stale_version`) and the source state (409
   `not_from_{status}`); refusals leave no row, movement, number, transition, audit, notification or key.

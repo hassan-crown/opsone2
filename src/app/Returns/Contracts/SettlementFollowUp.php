@@ -7,9 +7,7 @@ use App\Models\User;
 
 /**
  * «متابعة تسوية واحدة لكل طلب» (P7 plan): the order's single settlement follow-up that cancellations and returns
- * feed. Built by the cancellation session (CancelReview); returns only consume it through this seam.
- *
- * TODO(p7-merge): bind the cancellation session's follow-up here and delete `NoSettlementFollowUp`.
+ * feed. Bound to App\Settlement\ReturnSettlementFollowUp; returns only consume it through this seam.
  */
 interface SettlementFollowUp
 {
@@ -19,7 +17,8 @@ interface SettlementFollowUp
     public function open(Order $order, string $sourceType, int $sourceId, ?User $actor): void;
 
     /**
-     * The source no longer needs settlement (refund requested, return closed without money).
+     * The source changed (refund requested, part released, return closed without money): the follow-up re-reads it and
+     * settles the item once nothing is left to do.
      */
     public function close(Order $order, string $sourceType, int $sourceId, ?User $actor): void;
 }

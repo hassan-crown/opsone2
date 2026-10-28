@@ -67,9 +67,8 @@ final class T03WithdrawReturn
 
             $this->transitions->record(StateMachine::M15, 'T03', $locked, $from, $to, $actor, $source, $reason, ['number' => $locked->number, 'released_milli' => $released]);
             Audit::record(AuditAction::ReturnWithdrawn, $locked, $actor, after: ['number' => $locked->number, 'status' => $to->value, 'released_milli' => $released], reason: $reason, source: $source, branchIds: [$locked->order->branch_id], label: $locked->number);
-            if ($to === ReturnStatus::Cancelled) {
-                $this->followUp->close($locked->order, 'order_return', $locked->id, $actor);
-            }
+            // Cancelled: the return item is dropped; a partial release lowers its settlement target.
+            $this->followUp->close($locked->order, 'order_return', $locked->id, $actor);
 
             return ['return_id' => $locked->id];
         });

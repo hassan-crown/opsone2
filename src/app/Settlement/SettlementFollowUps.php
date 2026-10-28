@@ -13,6 +13,7 @@ use App\Enums\StateMachine;
 use App\Models\Finance\Refund;
 use App\Models\Order;
 use App\Models\Procurement\PurchaseOrder;
+use App\Models\Returns\OrderReturn;
 use App\Models\Settlement\SettlementFollowUp;
 use App\Models\Settlement\SettlementItem;
 use App\Models\User;
@@ -106,6 +107,11 @@ final class SettlementFollowUps
             }
         }
 
+        foreach ($items->where('kind', SettlementItem::RETURN)->filter(fn (SettlementItem $i) => $i->isOpen()) as $item) {
+            /** @var SettlementItem $item */
+            $changed = $this->syncReturn($item) || $changed;
+        }
+
         $closed = $this->closeIfDone($followUp, $actor);
 
         return $changed || $closed ? $followUp->refresh() : $followUp;
@@ -149,6 +155,7 @@ final class SettlementFollowUps
         return match ($kind) {
             SettlementItem::REFUND => Permission::P43,
             SettlementItem::SUPPLIER => Permission::P46,
+            SettlementItem::RETURN => Permission::P42,
             default => Permission::P18,
         };
     }
@@ -177,6 +184,7 @@ final class SettlementFollowUps
         }
         $since = min(array_map(fn (SettlementItem $i) => $i->created_at, $refundItems));
         $pool = (int) Refund::query()->where('order_id', $order->id)->where('status', RefundStatus::Executed->value)
+            ->whereNotIn('id', self::returnRefundIds($order->id))
             ->where('executed_at', '>=', $since)->sum('amount_minor');
         $covered = [];
         foreach ($refundItems as $item) {
@@ -186,6 +194,45 @@ final class SettlementFollowUps
         }
 
         return $covered;
+    }
+
+    /**
+     * Refunds a return asked for (M-15 → M-12). They settle that return's own item, never a cancellation's refund item,
+     * and the cancellation's review leaves them out of its money (they pay back delivered goods, not cancelled ones).
+     *
+     * @return list<int>
+     */
+    public static function returnRefundIds(int $orderId): array
+    {
+        return OrderReturn::query()->where('order_id', $orderId)->whereNotNull('refund_id')->pluck('refund_id')->map(fn ($id) => (int) $id)->values()->all();
+    }
+
+    /**
+     * A return item (`return:{id}`) follows its return: its target is the return's settlement, it is done once the
+     * return's refund was executed and dropped when the return ends without money (withdrawn, nothing to settle).
+     */
+    private function syncReturn(SettlementItem $item): bool
+    {
+        $return = $item->ref_type === 'order_return' ? OrderReturn::query()->find($item->ref_id) : null;
+        $settlement = (int) ($return?->settlement_minor ?? 0);
+        if ($return === null || ! $return->status->holdsEligibility() || $settlement <= 0) {
+            $this->markDone($item, 'auto', null, null, SettlementItem::DROPPED);
+
+            return true;
+        }
+        $refund = $return->refund_id === null ? null : Refund::query()->find($return->refund_id);
+        if ($refund !== null && $refund->status === RefundStatus::Executed) {
+            $this->markDone($item, 'auto', null, null);
+
+            return true;
+        }
+        if ((int) $item->target_minor !== $settlement) {
+            $item->forceFill(['target_minor' => $settlement, 'lock_version' => $item->lock_version + 1])->save();
+
+            return true;
+        }
+
+        return false;
     }
 
     private function markDone(SettlementItem $item, string $resolution, ?User $actor, ?string $note, string $status = SettlementItem::DONE): void

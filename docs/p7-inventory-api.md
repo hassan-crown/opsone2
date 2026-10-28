@@ -146,7 +146,7 @@ PHP seams:
 | `Cancellation\CancellationImpact::compute($order, CancellationInput, ?$pending)` | the review (`hash`) |
 | `Cancellation\CancellableLines::for($order)` / `::cancelledByLine($orderId)` | what may be cancelled; quantities taken off custom lines |
 | `Settlement\SettlementFollowUps` | **one follow-up per order** — `open($order)`, `add($order, $kind, $source, $details, $targetMinor, $refType, $refId, $done)` (idempotent per `source:kind:ref`), `sync($order)` (items from their sources, close when none open), `resolve($actor, $item, done\|dropped, $note, $lockVersion)`, `forOrder($order)`; all under the order lock |
-| `Models\Settlement\SettlementItem::{REFUND, STOCK_RELEASE, SUPPLIER, COMMISSION, RETURN}` | item kinds; a return (P-53) adds `return` / `refund` items with source `return:{id}` |
+| `Models\Settlement\SettlementItem::{REFUND, STOCK_RELEASE, SUPPLIER, COMMISSION, RETURN}` | item kinds; a return adds one `return` item with source `return:{id}` (P-42 to resolve otherwise), done by its executed refund |
 
 Numbers: `CN-YYYY-000123` (cancellation request). Events reused: `Finance\Settlement\RefundExecuted` → follow-up sync.
 Commission holds: `cancellation` while a refund item is open.
@@ -173,6 +173,6 @@ above (403 Gate, 409 `{condition}` / `{code: stale_version}`, 422).
 
 PHP seams: `Returns\ReturnEligibility::lines($order)` (delivered / held / eligible per line), `ReturnStatus::isOpen()`,
 `ReturnSettlementHolds::open($orderId)`; contracts `Returns\Contracts\ReturnRefunds` (bound to M-12) and
-`Returns\Contracts\SettlementFollowUp` (TODO p7-merge: the cancellation session's follow-up). Stock: `return_in` (good),
+`Returns\Contracts\SettlementFollowUp` (bound to `Settlement\ReturnSettlementFollowUp`, the order's one follow-up). Stock: `return_in` (good),
 `return_damaged` (custody, no balance effect), `return_reclass` (correction out); `source_type = order_return_part`,
 document number = RT.
