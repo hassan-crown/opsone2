@@ -21,6 +21,13 @@ use LogicException;
 final class FinanceLock
 {
     /**
+     * A ready order has no agreement or dues; it takes money only as recorded payments (M-11, credit on the order) and
+     * gives it back through refunds (M-12) — the money side of a ready-goods return (ADR-0019). Every other money
+     * write stays for made-to-order orders. TODO(P8): the store checkout replaces counter payments for ready orders.
+     */
+    private const READY_MACHINES = [StateMachine::M11, StateMachine::M12];
+
+    /**
      * @param  list<int>  $orderIds
      * @return array<int, Order> keyed by id
      */
@@ -35,7 +42,7 @@ final class FinanceLock
         $orders = [];
         foreach ($ids as $id) {
             $order = Order::query()->lockForUpdate()->find($id) ?? throw new LogicException('The order disappeared.');
-            if ($order->kind !== OrderKind::Custom) {
+            if ($order->kind !== OrderKind::Custom && ! in_array($machine, self::READY_MACHINES, true)) {
                 throw new InvalidTransition($machine, $code, 'ready_order');
             }
             $orders[$id] = $order;
