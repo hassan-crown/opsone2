@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Finance;
 
-use App\Support\PropRows;
 use App\Access\Access;
 use App\Access\Permission;
 use App\Finance\CollectionReminders;
@@ -10,6 +9,7 @@ use App\Finance\FinanceWorkList;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Finance\ReminderRequest;
 use App\Models\User;
+use App\Support\PropRows;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;

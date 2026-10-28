@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Access\Authorizer;
 use App\Agreements\CollectedAmounts;
 use App\Agreements\NoCollections;
 use App\Models\Facility;
@@ -10,6 +11,7 @@ use App\Models\User;
 use App\Support\RequestCache;
 use Carbon\CarbonImmutable;
 use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Http\Events\RequestHandled;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Date;
@@ -45,7 +47,13 @@ class AppServiceProvider extends ServiceProvider
                 $this->app->make(RequestCache::class)->flush();
             }
         };
-        Event::listen(RequestHandled::class, $flush);
+        Event::listen(RequestHandled::class, function () use ($flush) {
+            $flush();
+            // The Gate's access-version cache never carries over to the next request either.
+            if ($this->app->resolved(Authorizer::class)) {
+                $this->app->make(Authorizer::class)->flush();
+            }
+        });
         foreach ([Facility::class, Membership::class, User::class] as $model) {
             $model::saved($flush);
             $model::deleted($flush);
@@ -64,6 +72,9 @@ class AppServiceProvider extends ServiceProvider
     protected function configureDefaults(): void
     {
         Date::use(CarbonImmutable::class);
+
+        // A relation read in a loop without eager loading is an N+1 (ADR-0027): refused outside production.
+        Model::preventLazyLoading(! app()->isProduction());
 
         DB::prohibitDestructiveCommands(
             app()->isProduction(),

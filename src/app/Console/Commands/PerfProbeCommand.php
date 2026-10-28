@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Http\Middleware\HandleInertiaRequests;
 use App\Models\Customer;
 use App\Models\Order;
 use App\Models\User;
@@ -13,7 +14,6 @@ use Illuminate\Database\Events\QueryExecuted;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Inertia\Inertia;
 use RuntimeException;
 
 /**
@@ -132,6 +132,7 @@ class PerfProbeCommand extends Command
             }
             sort($times);
             if ((int) $this->option('top') > 0) {
+                /** @var array<string, int> $statements filled by the listener */
                 arsort($statements);
                 $this->line("<info>{$key}</info>");
                 foreach (array_slice($statements, 0, (int) $this->option('top'), true) as $sql => $n) {
@@ -188,7 +189,7 @@ class PerfProbeCommand extends Command
         if (! str_starts_with($uri, '/ar/') && ! str_starts_with($uri, '/en/')) {
             // Inertia visit: JSON page object only (what a navigation inside the app costs).
             $request->headers->set('X-Inertia', 'true');
-            $request->headers->set('X-Inertia-Version', (string) Inertia::getVersion());
+            $request->headers->set('X-Inertia-Version', (string) app(HandleInertiaRequests::class)->version($request));
         }
 
         return $request;

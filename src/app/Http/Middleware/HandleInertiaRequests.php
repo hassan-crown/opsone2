@@ -8,6 +8,7 @@ use App\Delivery\DeliveryAccess;
 use App\Inventory\StockAccess;
 use App\Notifications\NotificationFeed;
 use App\Returns\ReturnAccess;
+use App\Support\TranslationsVersion;
 use App\Tickets\TicketAccess;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -50,7 +51,7 @@ class HandleInertiaRequests extends Middleware
             'dir' => SetLocale::direction(app()->getLocale()),
             'locales' => config('app.available_locales'),
             // ~330 KB of strings: sent once per locale and version, then the client keeps them (ADR-0027).
-            'translations' => Inertia::once(fn () => $this->translations())->as($this->translationsKey()),
+            'translations' => Inertia::once(fn () => $this->translations())->as(TranslationsVersion::key('translations')),
             'auth' => [
                 'user' => $request->user(),
             ],
@@ -59,20 +60,6 @@ class HandleInertiaRequests extends Middleware
             // Bell data (SHR-05); the client polls it with a partial reload instead of a socket (Q-26).
             'notifications' => fn () => app(NotificationFeed::class)->for($request->user()),
         ];
-    }
-
-    /**
-     * Changes with the locale and with any edit of the language files, so a deploy or a switch of language resends.
-     */
-    private function translationsKey(): string
-    {
-        $stamp = '';
-        foreach (array_unique([config('app.fallback_locale'), app()->getLocale()]) as $locale) {
-            $path = lang_path($locale.'.json');
-            $stamp .= is_file($path) ? $locale.filemtime($path).'-'.filesize($path) : $locale;
-        }
-
-        return 'translations.'.app()->getLocale().'.'.hash('xxh3', $stamp);
     }
 
     /**

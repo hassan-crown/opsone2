@@ -54,9 +54,9 @@ final class T09ReleaseDisabledMemberTasks
         }
 
         // Unassigned work and stages they followed get a known follower again.
-        Task::query()->where('follow_up_user_id', $disabled->id)->whereIn('status', TaskStatus::open())->get()
+        Task::query()->with('order')->where('follow_up_user_id', $disabled->id)->whereIn('status', TaskStatus::open())->get()
             ->each(fn (Task $t) => $t->forceFill(['follow_up_user_id' => TaskEligibility::followerOf($t->order)])->save());
-        OrderStage::query()->where('follow_up_user_id', $disabled->id)->whereIn('status', ['not_started', 'in_progress', 'waiting'])->get()
+        OrderStage::query()->with('order')->where('follow_up_user_id', $disabled->id)->whereIn('status', ['not_started', 'in_progress', 'waiting'])->get()
             ->each(fn (OrderStage $s) => $s->forceFill(['follow_up_user_id' => TaskEligibility::followerOf($s->order)])->save());
 
         return $released;

@@ -5,6 +5,7 @@ namespace App\Http\Middleware\Portal;
 use App\Http\Middleware\SetLocale;
 use App\Models\Facility;
 use App\Portal\PortalSession;
+use App\Support\TranslationsVersion;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -51,7 +52,8 @@ final class HandlePortalInertiaRequests extends Middleware
             'locale' => $locale,
             'dir' => SetLocale::direction($locale),
             'locales' => config('app.available_locales'),
-            'translations' => self::translations(),
+            // Sent once per locale and version; the customer keeps them across visits (ADR-0027).
+            'translations' => Inertia::once(fn () => self::translations())->as(TranslationsVersion::key('portal-translations')),
             'auth' => ['user' => null],
             'portal' => [
                 'facility' => $facility === null ? null : ($locale === 'en' && $facility->name_en !== null ? $facility->name_en : $facility->name_ar),

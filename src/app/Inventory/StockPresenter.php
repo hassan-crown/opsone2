@@ -2,7 +2,6 @@
 
 namespace App\Inventory;
 
-use App\Support\PropRows;
 use App\Access\Access;
 use App\Access\Permission;
 use App\Models\Catalog\CatalogMaterial;
@@ -19,6 +18,7 @@ use App\Models\Inventory\StockTransfer;
 use App\Models\Inventory\StockTransferLine;
 use App\Models\User;
 use App\Organization\OrgPresenter;
+use App\Support\PropRows;
 use Illuminate\Support\Facades\DB;
 
 /**

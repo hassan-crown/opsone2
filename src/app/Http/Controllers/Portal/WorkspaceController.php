@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Portal;
 
-use App\Models\Order;
 use App\Portal\PortalAccess;
 use App\Portal\PortalPresenter;
 use Inertia\Inertia;
@@ -20,7 +19,7 @@ final class WorkspaceController extends PortalController
 
         return Inertia::render('portal/home', [
             'required' => PortalPresenter::requiredActions($customer),
-            'orders' => array_values($orders->filter(fn (Order $o) => PortalPresenter::order($o)['open'])->map(fn (Order $o) => PortalPresenter::order($o))->all()),
+            'orders' => array_values(array_filter(PortalPresenter::orders($orders), fn (array $row) => $row['open'])),
             'updates' => PortalPresenter::feed($customer, 5),
         ]);
     }
@@ -31,7 +30,7 @@ final class WorkspaceController extends PortalController
         $orders = PortalAccess::orders($customer)->latest('id')->limit(200)->get();
 
         return Inertia::render('portal/orders', [
-            'orders' => array_values($orders->map(fn (Order $o) => PortalPresenter::order($o))->all()),
+            'orders' => PortalPresenter::orders($orders),
         ]);
     }
 

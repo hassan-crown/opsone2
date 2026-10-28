@@ -34,14 +34,16 @@ final class DueCalendar
     /**
      * The same dates for many orders with one query per kind of event, not per order (lists, ADR-0027).
      *
-     * @param  Collection<int, Order>  $orders  keyed by id
-     * @param  Collection<int, Collection<int, OrderDue>>  $dues  keyed by order id
+     * @template TDues of Collection<int, OrderDue>
+     *
+     * @param  Collection<array-key, Order>  $orders  keyed by id
+     * @param  Collection<array-key, TDues>  $dues  keyed by order id
      * @return array<int, string|null> due id → `Y-m-d`
      */
     public static function datesFor(Collection $orders, Collection $dues): array
     {
         $timezone = AppointmentBooking::timezone();
-        $needs = static fn (DueEvent $event): array => $dues->filter(fn (Collection $d) => $d->contains(fn (OrderDue $due) => $due->due_event === $event))->keys()->all();
+        $needs = static fn (DueEvent $event): array => array_values(array_map(intval(...), $dues->filter(fn (Collection $d) => $d->contains(fn (OrderDue $due) => $due->due_event === $event))->keys()->all()));
 
         $agreed = self::firstAgreementDates($needs(DueEvent::Agreement), $timezone);
         $delivered = self::firstDeliveryDates($needs(DueEvent::Delivery));

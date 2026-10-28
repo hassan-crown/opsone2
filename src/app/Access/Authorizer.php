@@ -21,9 +21,9 @@ use Illuminate\Contracts\Auth\Authenticatable;
  * license (capability — of the permission, then of the record — then phase) → active account → scoped grant → record state.
  *
  * Effective grants are memoized per request and keyed by the user's `access_version`. The version is re-read at
- * most every VERSION_TTL seconds (ADR-0027: a list of 200 rows made 200 identical lookups); SessionRevoker flushes
- * it, so a grant change or disable made in this process takes effect at the next check, and one made elsewhere
- * within VERSION_TTL — the same bound a long request or a scheduler command had before the check that follows.
+ * most every VERSION_TTL seconds within one request (ADR-0027: a list of 200 rows made 200 identical lookups); it is
+ * flushed after every handled request and by SessionRevoker, so a grant change or disable made in this process takes
+ * effect at the next check, and one made elsewhere at the next request (or within VERSION_TTL in a long command).
  */
 final class Authorizer
 {

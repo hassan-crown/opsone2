@@ -9,6 +9,7 @@ use App\Enums\SetupStatus;
 use App\Home\HomeWidgets;
 use App\Models\Facility;
 use App\Tasks\TaskViews;
+use App\Workflow\TaskQueries;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -21,6 +22,12 @@ class DashboardController extends Controller
         $showSetup = $facility !== null
             && $facility->setup_status === SetupStatus::Incomplete
             && Access::can($request->user(), Permission::P02, $facility);
+
+        // Both task blocks read the same two sets: once per request.
+        $sets = null;
+        $loaded = function () use (&$sets, $request): array {
+            return $sets ??= ['mine' => TaskQueries::mine($request->user()), 'inbox' => TaskQueries::inbox($request->user())];
+        };
 
         return Inertia::render('dashboard', [
             // HomeSetup checklist: shown to whoever may run the wizard until it is completed.
@@ -35,8 +42,8 @@ class DashboardController extends Controller
             // Counts and next rows of the task cards, scoped by the same Gate checks as the lists (P5).
             // A pure executor's home is the mobile-first day view (ExecHomeMobile).
             'isExecutor' => fn () => $this->isExecutor($request),
-            'exec' => fn () => $this->isExecutor($request) ? TaskViews::execHome($request->user()) : null,
-            'taskCards' => fn () => TaskViews::homeCards($request->user()),
+            'exec' => fn () => $this->isExecutor($request) ? TaskViews::execHome($request->user(), $loaded()) : null,
+            'taskCards' => fn () => TaskViews::homeCards($request->user(), $loaded()),
         ]);
     }
 

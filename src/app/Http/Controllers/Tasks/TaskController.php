@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Tasks;
 
-use App\Support\PropRows;
 use App\Access\Access;
 use App\Access\Permission;
 use App\Enums\OrganizationUnitStatus;
@@ -12,6 +11,7 @@ use App\Models\Department;
 use App\Models\Task;
 use App\Models\User;
 use App\Organization\OrgPresenter;
+use App\Support\PropRows;
 use App\Tasks\TaskPresenter;
 use App\Tasks\TaskViews;
 use App\Workflow\TaskQueries;

@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Calendar;
 
-use App\Support\PropRows;
 use App\Access\Access;
 use App\Access\Permission;
 use App\Calendar\CalendarPresenter;
@@ -14,6 +13,7 @@ use App\Models\Order;
 use App\Models\WorkSettings;
 use App\Orders\OrderAccess;
 use App\Organization\OrgPresenter;
+use App\Support\PropRows;
 use App\Workflow\AppointmentBooking;
 use App\Workflow\AppointmentQueries;
 use Carbon\CarbonImmutable;

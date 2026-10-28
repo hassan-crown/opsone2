@@ -10,8 +10,6 @@ use App\Audit\AuditAction;
 use App\Catalog\CatalogStatus;
 use App\Catalog\CatalogWriter;
 use App\Enums\ActionStatus;
-use App\Enums\CustomOrderStatus;
-use App\Enums\ReadyOrderStatus;
 use App\Enums\StageStatus;
 use App\Enums\TaskStatus;
 use App\Inventory\MovementKind;
@@ -25,8 +23,6 @@ use App\Models\Facility;
 use App\Models\Finance\Payment;
 use App\Models\Inventory\StockItem;
 use App\Models\Order;
-use App\Models\OrderAction;
-use App\Models\OrderStage;
 use App\Models\Region;
 use App\Models\RoleTemplate;
 use App\Models\Task;
@@ -62,19 +58,19 @@ class PerformanceSeeder extends Seeder
 
     private User $owner;
 
-    /** @var list<int> */
+    /** @var array<int, int> */
     private array $branches = [];
 
     /** @var array<int, int> branch id → weight */
     private array $branchWeights = [];
 
-    /** @var array<int, list<int>> branch id → sales/manager user ids */
+    /** @var array<int, array<int, int>> branch id → sales user ids */
     private array $sellers = [];
 
-    /** @var list<int> */
+    /** @var array<int, int> */
     private array $executors = [];
 
-    /** @var list<int> */
+    /** @var array<int, int> */
     private array $departments = [];
 
     /** @var list<array{id: int, price: int, version_id: int, snapshot: string}> */
@@ -101,7 +97,7 @@ class PerformanceSeeder extends Seeder
         }
 
         mt_srand(self::SEED);
-        $anchor = env('PERF_SEED_ANCHOR');
+        $anchor = getenv('PERF_SEED_ANCHOR');
         $this->anchor = (is_string($anchor) && $anchor !== '' ? CarbonImmutable::parse($anchor) : CarbonImmutable::today())->startOfDay();
         $this->owner = User::query()->where('email', 'owner@demo.test')->first()
             ?? throw new RuntimeException('Run DemoSeeder first (local db:seed).');
@@ -126,6 +122,9 @@ class PerformanceSeeder extends Seeder
         return max(1, (int) round($q55 * $this->scale));
     }
 
+    /**
+     * @param  array<int, mixed>  $list
+     */
     private function pick(array $list): mixed
     {
         return $list[mt_rand(0, count($list) - 1)];
@@ -238,7 +237,7 @@ class PerformanceSeeder extends Seeder
      * One real custom order through M-04-T00 (flow pinned, first stage started, its tasks created): its stage and
      * action rows are the shape every bulk custom order copies.
      *
-     * @return array{order: Order, version_id: int, stages: list<array<string, mixed>>, actions: list<array<string, mixed>>}
+     * @return array{order: Order, version_id: int, stages: array<int, array<string, mixed>>, actions: array<int, array<string, mixed>>}
      */
     private function templateOrder(): array
     {
@@ -300,7 +299,7 @@ class PerformanceSeeder extends Seeder
     private function flush(array &$buffer, bool $force = false): void
     {
         // Parents come first in the buffer, so once any table is full everything goes, in order (foreign keys).
-        if (! $force && max(array_map('count', $buffer)) < self::CHUNK) {
+        if (! $force && max([0, ...array_map('count', $buffer)]) < self::CHUNK) {
             return;
         }
         foreach ($buffer as $table => $rows) {
@@ -372,7 +371,7 @@ class PerformanceSeeder extends Seeder
 
     /**
      * @param  list<array{id: int, branch_id: int, kind: string, contact_id: int|null}>  $customers
-     * @param  array{order: Order, version_id: int, stages: list<array<string, mixed>>, actions: list<array<string, mixed>>}  $template
+     * @param  array{order: Order, version_id: int, stages: array<int, array<string, mixed>>, actions: array<int, array<string, mixed>>}  $template
      */
     private function orders(array $customers, array $template): void
     {
@@ -471,8 +470,8 @@ class PerformanceSeeder extends Seeder
      * with its task-creating actions ready and their tasks open, the rest not started. Closed orders are fully done.
      *
      * @param  array<string, list<array<string, mixed>>>  $buffer
-     * @param  array{order: Order, version_id: int, stages: list<array<string, mixed>>, actions: list<array<string, mixed>>}  $template
-     * @param  list<string>  $taskTypes
+     * @param  array{order: Order, version_id: int, stages: array<int, array<string, mixed>>, actions: array<int, array<string, mixed>>}  $template
+     * @param  array<int, mixed>  $taskTypes
      */
     private function workflow(array &$buffer, array $template, int $orderId, int $branch, int $assignee, string $status, string $created, int $daysAgo, int $stageCount, array $taskTypes): void
     {
@@ -606,8 +605,8 @@ class PerformanceSeeder extends Seeder
         $toPay = intdiv($amount * $paidShare, 100);
         $credit = mt_rand(1, 100) <= 3 && $toPay > 0 ? mt_rand(1, 50) * 100 : 0;
         $payments = $toPay === 0 ? [] : ($toPay === $amount && mt_rand(0, 1) ? [$first, $amount - $first] : [$toPay]);
-        if ($credit > 0) {
-            $payments[count($payments) - 1] += $credit;
+        if ($credit > 0 && $payments !== []) {
+            $payments[array_key_last($payments)] += $credit;
         }
 
         $dueLeft = array_column($dues, 'amount', 'id');
@@ -709,8 +708,7 @@ class PerformanceSeeder extends Seeder
                 $day = max(0, $day - mt_rand(0, (int) ceil(1500 / $perPair)));
                 [$kind, $handDelta, $reservedDelta] = match (true) {
                     $m === 0 || $onHand < 3000 => [MovementKind::Receipt, mt_rand(10, 40) * 1000, 0],
-                    $reserved >= 1000 && mt_rand(1, 100) <= 50 => ($q = min($reserved, mt_rand(1, 3) * 1000)) && mt_rand(0, 3) > 0
-                        ? [MovementKind::IssueReserved, -$q, -$q] : [MovementKind::Release, 0, -$q],
+                    $reserved >= 1000 && mt_rand(1, 100) <= 50 => $this->settleReserved($reserved),
                     default => (function () use ($onHand, $reserved) {
                         $free = $onHand - $reserved;
                         $roll = mt_rand(1, 100);
@@ -750,6 +748,18 @@ class PerformanceSeeder extends Seeder
     private function lastNumber(string $name, int $period): int
     {
         return (int) DB::table('sequence_counters')->where('name', $name)->where('period', $period)->value('last_value');
+    }
+
+    /**
+     * Part of what is reserved leaves: mostly issued against the reservation, sometimes released.
+     *
+     * @return array{0: MovementKind, 1: int, 2: int}
+     */
+    private function settleReserved(int $reserved): array
+    {
+        $q = min($reserved, mt_rand(1, 3) * 1000);
+
+        return mt_rand(0, 3) > 0 ? [MovementKind::IssueReserved, -$q, -$q] : [MovementKind::Release, 0, -$q];
     }
 
     private function counter(string $name, int $period, int $last): void
