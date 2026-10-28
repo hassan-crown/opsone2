@@ -1,5 +1,6 @@
 import { Head, Link } from '@inertiajs/react';
 import {
+    CalendarClock,
     ChevronRight,
     CreditCard,
     KeyRound,
@@ -25,7 +26,7 @@ import { show as plan } from '@/routes/plan';
 import { edit as appearance } from '@/routes/appearance';
 import { edit as profile } from '@/routes/profile';
 import { edit as security } from '@/routes/security';
-import { basic, home } from '@/routes/settings';
+import { basic, home, work } from '@/routes/settings';
 import { index as sessions } from '@/routes/sessions';
 import { index as supportAccess } from '@/routes/support-access';
 
@@ -138,6 +139,15 @@ export default function SettingsHome({
                     `account.profile.locale.${facility.default_locale}`,
                 ),
             }),
+        });
+    }
+    if (can.editProfile || can.viewPlan) {
+        facilityCards.push({
+            key: 'work',
+            href: work(),
+            icon: CalendarClock,
+            title: t('appointments.work.title'),
+            description: t('appointments.work.card'),
         });
     }
     if (can.editProfile) {

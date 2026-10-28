@@ -22,6 +22,7 @@ require __DIR__.'/support-access.php';
 require __DIR__.'/customers.php';
 require __DIR__.'/catalog.php';
 require __DIR__.'/orders.php';
+require __DIR__.'/calendar.php';
 
 if (app()->isLocal()) {
     Route::inertia('_design', 'design')->name('design');

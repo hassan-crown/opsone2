@@ -1,12 +1,14 @@
 import {
     GitBranch,
     ClipboardList,
+    CalendarDays,
     Inbox,
     LayoutGrid,
     Package,
     ScrollText,
     Users,
 } from 'lucide-react';
+import CalendarController from '@/actions/App/Http/Controllers/Calendar/CalendarController';
 import CatalogHomeController from '@/actions/App/Http/Controllers/Catalog/CatalogHomeController';
 import CustomerController from '@/actions/App/Http/Controllers/Customers/CustomerController';
 import OrderController from '@/actions/App/Http/Controllers/Orders/OrderController';
@@ -21,7 +23,14 @@ import type { NavItem } from '@/types';
 export type LocalizedNavItem = Omit<NavItem, 'title'> & {
     label: TranslationKey;
     /** Shown only when the server's Gate allows it (`orgNav` shared prop); routes still enforce access. */
-    access?: 'team' | 'branches' | 'audit' | 'customers' | 'catalog' | 'orders';
+    access?:
+        | 'team'
+        | 'branches'
+        | 'audit'
+        | 'customers'
+        | 'catalog'
+        | 'orders'
+        | 'calendar';
 };
 
 /** Primary navigation (5–7 items max; settings live in the footer / user menu). */
@@ -32,6 +41,12 @@ export const mainNav: LocalizedNavItem[] = [
         href: OrderController.index(),
         icon: ClipboardList,
         access: 'orders',
+    },
+    {
+        label: 'calendar.nav',
+        href: CalendarController.index(),
+        icon: CalendarDays,
+        access: 'calendar',
     },
     {
         label: 'customers.nav',
