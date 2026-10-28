@@ -2,8 +2,9 @@
 
 namespace App\Models;
 
-use App\Access\Contracts\ScopedRecord;
+use App\Access\Permission;
 use App\Enums\TaskStatus;
+use App\Files\Contracts\AttachmentOwner;
 use App\Support\Translatable\TranslatableString;
 use App\Support\Translatable\Translated;
 use Carbon\CarbonInterface;
@@ -40,7 +41,7 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
  * @property-read OrderAction|null $action
  * @property-read OrderStage $stage
  */
-class Task extends Model implements ScopedRecord
+class Task extends Model implements AttachmentOwner
 {
     public const KIND_ACTION = 'action';
 
@@ -93,6 +94,16 @@ class Task extends Model implements ScopedRecord
         $copy->setRelation('order', $this->order);
 
         return $copy;
+    }
+
+    public function attachmentViewPermission(): Permission
+    {
+        return Permission::P24;
+    }
+
+    public function attachmentUploadPermission(): Permission
+    {
+        return Permission::P24;
     }
 
     public function accessBranchIds(): array
