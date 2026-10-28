@@ -1,6 +1,14 @@
 import { Head, Link, router } from '@inertiajs/react';
-import { EyeOff, GitBranch, Pencil, Plus, Trash2 } from 'lucide-react';
+import {
+    EyeOff,
+    FileSignature,
+    GitBranch,
+    Pencil,
+    Plus,
+    Trash2,
+} from 'lucide-react';
 import { lazy, Suspense, useState } from 'react';
+import AgreementController from '@/actions/App/Http/Controllers/Agreements/AgreementController';
 import OrderController from '@/actions/App/Http/Controllers/Orders/OrderController';
 import OrderLineController from '@/actions/App/Http/Controllers/Orders/OrderLineController';
 import CustomerController from '@/actions/App/Http/Controllers/Customers/CustomerController';
@@ -150,6 +158,19 @@ export default function OrderShow({
                 description={`${order.customer.name} · ${formatDate(order.created_at, locale)}`}
                 actions={
                     <>
+                        {order.kind === 'custom' && (
+                            <Button asChild variant="secondary">
+                                <Link
+                                    href={AgreementController.show.url(
+                                        order.id,
+                                    )}
+                                    data-test="open-agreement"
+                                >
+                                    <Icon icon={FileSignature} />
+                                    {t('agreements.title')}
+                                </Link>
+                            </Button>
+                        )}
                         {order.can.transfer_branch &&
                             transferBranches.length > 0 && (
                                 <Button

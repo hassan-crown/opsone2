@@ -20,7 +20,8 @@ function xsrfToken(): string {
 
 /**
  * JSON call to a Laravel endpoint under the web session (CSRF via the XSRF cookie). Used where the endpoint's
- * contract is JSON (orders: docs/p4-orders-api.md) rather than an Inertia redirect.
+ * contract is JSON (orders: docs/p4-orders-api.md) rather than an Inertia redirect. A `FormData` body is sent as
+ * multipart (file uploads); the response is still JSON.
  */
 export async function api<T = unknown>(
     method: 'GET' | 'POST' | 'PUT' | 'DELETE',
@@ -32,13 +33,17 @@ export async function api<T = unknown>(
         credentials: 'same-origin',
         headers: {
             Accept: 'application/json',
-            'Content-Type': 'application/json',
+            ...(body instanceof FormData
+                ? {}
+                : { 'Content-Type': 'application/json' }),
             'X-Requested-With': 'XMLHttpRequest',
             'X-XSRF-TOKEN': xsrfToken(),
         },
         ...(method === 'GET' || body === undefined
             ? {}
-            : { body: JSON.stringify(body) }),
+            : {
+                  body: body instanceof FormData ? body : JSON.stringify(body),
+              }),
     }).catch(() => null);
 
     if (response === null) {

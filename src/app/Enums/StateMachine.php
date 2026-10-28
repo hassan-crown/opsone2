@@ -14,9 +14,12 @@ enum StateMachine: string
     case M05 = 'M-05';
     case M06 = 'M-06';
     case M07 = 'M-07';
+    case M08 = 'M-08';
+    case M09 = 'M-09';
     case M16 = 'M-16';
     case M22 = 'M-22';
     case M23 = 'M-23';
+    case M26 = 'M-26';
     case M27 = 'M-27';
     case M37 = 'M-37';
     case M38 = 'M-38';

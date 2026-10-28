@@ -120,6 +120,28 @@ enum AuditAction: string
     case AppointmentCompleted = 'appointment.completed';
     case AppointmentCancelled = 'appointment.cancelled';
     case WorkSettingsUpdated = 'work_settings.updated';
+    case FinanceSettingsUpdated = 'finance_settings.updated';
+    case DiscountLimitsUpdated = 'discount_limits.updated';
+    case DocumentCreated = 'agreement_document.created';
+    case DocumentDraftUpdated = 'agreement_document.draft_updated';
+    case DocumentSent = 'agreement_document.sent';
+    case DocumentApproved = 'agreement_document.approved';
+    case DocumentChangesRequested = 'agreement_document.changes_requested';
+    case DocumentReplaced = 'agreement_document.replaced';
+    case DocumentExpired = 'agreement_document.expired';
+    case DocumentExtended = 'agreement_document.extended';
+    case DocumentCancelled = 'agreement_document.cancelled';
+    case AgreementActivated = 'agreement.activated';
+    case ChangeCreated = 'agreement_change.created';
+    case ChangeDraftUpdated = 'agreement_change.draft_updated';
+    case ChangePresented = 'agreement_change.presented';
+    case ChangeRevisionRequested = 'agreement_change.revision_requested';
+    case ChangeApplied = 'agreement_change.applied';
+    case ChangeWithdrawn = 'agreement_change.withdrawn';
+    case DiscountRequested = 'discount_decision.requested';
+    case DiscountApproved = 'discount_decision.approved';
+    case DiscountRejected = 'discount_decision.rejected';
+    case DiscountCancelled = 'discount_decision.cancelled';
 
     public function area(): string
     {
@@ -151,7 +173,11 @@ enum AuditAction: string
             self::FlowTemplateChosen, self::FlowDraftSaved, self::FlowPublished, self::FlowDraftDiscarded, self::OrderPaused, self::OrderResumed, self::OrderExecutionFinished, self::OrderReopenedForCorrection, self::StageCompleted, self::ActionAllowed, self::ActionReworked, self::ActionNeedChanged, self::UpcomingWorkEdited, self::MeasurementRecorded, self::MeasurementCorrected => 'workflow',
             self::TaskAssigned, self::TaskRouted, self::TaskReassigned, self::TaskClaimed, self::TaskCompleted, self::TaskCancelled, self::TaskReleased => 'tasks',
             self::AppointmentProposed, self::AppointmentSent, self::AppointmentConfirmed, self::AppointmentChangeRequested, self::AppointmentChangeDiscarded, self::AppointmentChanged, self::AppointmentCompleted, self::AppointmentCancelled => 'appointments',
-            self::WorkSettingsUpdated => 'settings',
+            self::WorkSettingsUpdated, self::FinanceSettingsUpdated, self::DiscountLimitsUpdated => 'settings',
+            self::DocumentCreated, self::DocumentDraftUpdated, self::DocumentSent, self::DocumentApproved, self::DocumentChangesRequested,
+            self::DocumentReplaced, self::DocumentExpired, self::DocumentExtended, self::DocumentCancelled, self::AgreementActivated,
+            self::ChangeCreated, self::ChangeDraftUpdated, self::ChangePresented, self::ChangeRevisionRequested, self::ChangeApplied,
+            self::ChangeWithdrawn, self::DiscountRequested, self::DiscountApproved, self::DiscountRejected, self::DiscountCancelled => 'agreement',
         };
     }
 
