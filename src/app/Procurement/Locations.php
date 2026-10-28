@@ -2,10 +2,14 @@
 
 namespace App\Procurement;
 
+use App\Access\Permission;
+use App\Inventory\StockAccess;
+use App\Models\Inventory\StockLocation;
+use Illuminate\Support\Facades\Auth;
+
 /**
- * Stock locations offered when choosing where a purchase lands. The stock domain owns locations; procurement
- * references them by id only. Until the stock side supplies a directory this returns none, and the screens fall back to
- * a plain location id field.
+ * Stock locations offered when choosing where a purchase lands: the active locations the signed-in user may receive
+ * into (P-47, scoped by branch). The stock domain owns locations; procurement references them by id only.
  */
 final class Locations
 {
@@ -14,6 +18,17 @@ final class Locations
      */
     public static function options(): array
     {
-        return [];
+        $user = Auth::user();
+        if ($user === null) {
+            return [];
+        }
+
+        return StockAccess::locations($user, Permission::P47)
+            ->where('status', 'active')
+            ->orderBy('code')
+            ->get()
+            ->map(fn (StockLocation $l): array => ['id' => $l->id, 'name' => $l->code.' — '.($l->name->get() ?? $l->code)])
+            ->values()
+            ->all();
     }
 }
