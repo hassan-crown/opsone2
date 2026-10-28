@@ -150,3 +150,29 @@ PHP seams:
 
 Numbers: `CN-YYYY-000123` (cancellation request). Events reused: `Finance\Settlement\RefundExecuted` → follow-up sync.
 Commission holds: `cancellation` while a refund item is open.
+## Returns (P7d, ADR-0019) — M-15
+
+Ready orders only. Quantities are decimal text in JSON, thousandths in PHP; amounts in halalas and present only with
+P-37. Every write takes `idempotency_key` (field or `Idempotency-Key` header) and the return's `lock_version`; errors as
+above (403 Gate, 409 `{condition}` / `{code: stale_version}`, 422).
+
+| Method | URL | Body | Permission |
+|---|---|---|---|
+| GET | `/returns` (`?status&q`) | — | P-53 / P-102 / P-42 → `{eligible: [{id, number, status, customer, lines}], returns: Page<row>, settings{window_days, can_edit}}` |
+| GET | `/orders/{order}/returns/create` | — | P-53 or P-42 on the order → `{order, lines: [{order_line_id, name, unit, delivered, held, eligible, delivered_on, overdue}], window_days}` |
+| POST | `/orders/{order}/returns` | `reason, lines[{order_line_id, quantity}]` | P-53 or P-42 → 201 `{return}` (`RT-YYYY-000123`) |
+| GET | `/returns/{return}` | — | any of P-53 / P-102 / P-42 on the order → `{return: {…, lines[], parts[], settlement?, refund?, payments[], locations[], can{accept, reject, withdraw, receive, inspect, refund}}}` |
+| POST | `/returns/{return}/accept` | `reason, settlement?, lines?[{order_line_id, quantity}]` | P-102 (T05; 409 `over_delivered`) |
+| POST | `/returns/{return}/reject` | `reason` | P-102 (T06) |
+| POST | `/returns/{return}/withdraw` | `reason` | P-102, or the requester before the decision (T03; 409 `nothing_to_release`) |
+| POST | `/returns/{return}/receive` | `location_id, inspect?, note?, lines[{order_line_id, quantity, good?, damaged?, rejected?}]` | P-53 on the order and location (T01/T07 [+T02]; 409 `nothing_expected`) |
+| POST | `/returns/{return}/inspect` | `note?, results[{part_id, good, damaged, rejected}]` | P-53 (T02; 409 `already_inspected`) |
+| POST | `/returns/{return}/correct` | `part_id, good, reason` | P-53 + P-49 on the location (T04; 409 `not_inspected`, `nothing_changed`) |
+| POST | `/returns/{return}/refund` | `payment_id, amount, method, reason` | P-42 (M-12-T00; 409 `no_settlement`, `refund_exists`, `above_settlement`, `not_refundable`) |
+| PUT | `/returns/settings` | `window_days` (0–365) | P-02 |
+
+PHP seams: `Returns\ReturnEligibility::lines($order)` (delivered / held / eligible per line), `ReturnStatus::isOpen()`,
+`ReturnSettlementHolds::open($orderId)`; contracts `Returns\Contracts\ReturnRefunds` (bound to M-12) and
+`Returns\Contracts\SettlementFollowUp` (TODO p7-merge: the cancellation session's follow-up). Stock: `return_in` (good),
+`return_damaged` (custody, no balance effect), `return_reclass` (correction out); `source_type = order_return_part`,
+document number = RT.

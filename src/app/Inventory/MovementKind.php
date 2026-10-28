@@ -17,6 +17,11 @@ enum MovementKind: string
     case TransferIn = 'transfer_in';
     case AdjustmentIn = 'adjustment_in';
     case AdjustmentOut = 'adjustment_out';
+    // P7 returns (ADR-0019): inspected good goods back to stock; damaged goods recorded in custody (no balance effect,
+    // never available); a correction of good into damaged takes it out of the free quantity again.
+    case ReturnIn = 'return_in';
+    case ReturnDamaged = 'return_damaged';
+    case ReturnReclass = 'return_reclass';
 
     /**
      * @return array{0: int, 1: int} signs of (on hand, reserved)
@@ -24,11 +29,12 @@ enum MovementKind: string
     public function signs(): array
     {
         return match ($this) {
-            self::Receipt, self::TransferIn, self::AdjustmentIn => [1, 0],
-            self::Issue, self::TransferOut, self::AdjustmentOut => [-1, 0],
+            self::Receipt, self::TransferIn, self::AdjustmentIn, self::ReturnIn => [1, 0],
+            self::Issue, self::TransferOut, self::AdjustmentOut, self::ReturnReclass => [-1, 0],
             self::Reserve => [0, 1],
             self::Release => [0, -1],
             self::IssueReserved => [-1, -1],
+            self::ReturnDamaged => [0, 0],
         };
     }
 
@@ -37,6 +43,6 @@ enum MovementKind: string
      */
     public function takesAvailable(): bool
     {
-        return in_array($this, [self::Issue, self::TransferOut, self::AdjustmentOut, self::Reserve], true);
+        return in_array($this, [self::Issue, self::TransferOut, self::AdjustmentOut, self::Reserve, self::ReturnReclass], true);
     }
 }

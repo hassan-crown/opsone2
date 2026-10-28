@@ -22,6 +22,8 @@ enum StateMachine: string
     case M13 = 'M-13';
     // P7 delivery (ADR-0018): delivery note.
     case M14 = 'M-14';
+    // P7 returns (ADR-0019): ready-goods return.
+    case M15 = 'M-15';
     case M16 = 'M-16';
     case M22 = 'M-22';
     case M23 = 'M-23';
