@@ -18,7 +18,10 @@ use Inertia\Middleware;
 final class HandlePortalInertiaRequests extends Middleware
 {
     /** Only the strings the workspace uses travel to the customer (no staff vocabulary). */
-    private const PREFIXES = ['portal.', 'ui.', 'orders.kind.'];
+    private const PREFIXES = ['portal.', 'ui.', 'orders.kind.', 'tickets.'];
+
+    /** Ticket strings of the staff screens stay out of the customer payload. */
+    private const EXCLUDED = ['tickets.staff.', 'tickets.notify.'];
 
     protected $rootView = 'app';
 
@@ -66,7 +69,7 @@ final class HandlePortalInertiaRequests extends Middleware
             $path = lang_path($locale.'.json');
             $all = is_file($path) ? (array) json_decode((string) file_get_contents($path), true) : [];
 
-            return array_filter($all, fn ($key) => Str::startsWith((string) $key, self::PREFIXES), ARRAY_FILTER_USE_KEY);
+            return array_filter($all, fn ($key) => Str::startsWith((string) $key, self::PREFIXES) && ! Str::startsWith((string) $key, self::EXCLUDED), ARRAY_FILTER_USE_KEY);
         };
 
         return array_merge($load(config('app.fallback_locale')), $load(app()->getLocale()));

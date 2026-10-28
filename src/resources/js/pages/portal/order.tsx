@@ -22,6 +22,7 @@ import { withdraw as withdrawCancellation } from '@/routes/customer/cancellation
 import { show as showDocument } from '@/routes/customer/documents';
 import { cancel, index as ordersIndex, pay } from '@/routes/customer/orders';
 import { withdraw as withdrawProof } from '@/routes/customer/proofs';
+import { create as newTicket } from '@/routes/customer/tickets';
 import type { PortalAppointment, PortalOrderDetail } from '@/types/portal';
 
 /** CustOrder (WEB-09/10/11/13): journey, money, documents, appointments, receipts and the cancellation request. */
@@ -352,6 +353,15 @@ export default function PortalOrder({ order }: { order: PortalOrderDetail }) {
                     </ul>
                 </Section>
             )}
+
+            <Section title={t('tickets.nav')}>
+                <Link
+                    href={newTicket({ query: { order: order.id } }).url}
+                    className={buttonVariants({ variant: 'outline' })}
+                >
+                    {t('tickets.report_issue')}
+                </Link>
+            </Section>
 
             <Section title={t('portal.order.cancellation')}>
                 {order.cancellation &&

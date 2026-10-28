@@ -233,6 +233,12 @@ enum AuditAction: string
     case PortalSignInLocked = 'portal.sign_in_locked';
     case CancellationWithdrawn = 'cancellation.withdrawn';
     case AppointmentCustomerChangeRequested = 'appointment.customer_change_requested';
+    // P8 tickets (domain 09, SHR-08, M-21).
+    case TicketOpened = 'ticket.opened';
+    case TicketAssigned = 'ticket.assigned';
+    case TicketReplied = 'ticket.replied';
+    case TicketNoted = 'ticket.noted';
+    case TicketStatusChanged = 'ticket.status_changed';
 
     // P8 public site, theme and domain (domain 07, M-17 / M-35).
     case SitePageCreated = 'site_page.created';
@@ -318,6 +324,7 @@ enum AuditAction: string
             self::SettlementItemResolved, self::SettlementClosed => 'cancellation',
             self::ReturnRequested, self::ReturnAccepted, self::ReturnRejected, self::ReturnReceived, self::ReturnInspected,
             self::ReturnWithdrawn, self::ReturnCorrected, self::ReturnRefundRequested, self::ReturnSettingsUpdated => 'returns',
+            self::TicketOpened, self::TicketAssigned, self::TicketReplied, self::TicketNoted, self::TicketStatusChanged => 'tickets',
             self::PortalInvited, self::PortalSignedIn, self::PortalSignedOut, self::PortalSessionsEnded, self::PortalSignInLocked => 'portal',
             self::RefundRequested, self::RefundStarted, self::RefundExecuted, self::RefundFailed, self::RefundCancelled, self::RefundRetried, self::PaymentCorrected, self::DisputeOpened, self::DisputeAwaiting, self::DisputeResumed, self::DisputeResolved, self::ExternalDocumentRequested, self::ExternalDocumentAttached, self::ExternalDocumentAccepted, self::ExternalDocumentCorrectionRequested => 'finance',
         };

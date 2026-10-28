@@ -27,6 +27,8 @@ enum StateMachine: string
     case M16 = 'M-16';
     // P8 public site (ADR-0021): site page and theme setting.
     case M17 = 'M-17';
+    // P8 tickets (ADR-0024): customer support ticket.
+    case M21 = 'M-21';
     case M22 = 'M-22';
     case M23 = 'M-23';
     // P7a inventory (ADR-0017): stock reservation and stock transfer.

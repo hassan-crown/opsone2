@@ -34,6 +34,7 @@ require __DIR__.'/inventory.php';
 require __DIR__.'/procurement.php';
 require __DIR__.'/cancellation.php';
 require __DIR__.'/site-admin.php';
+require __DIR__.'/tickets.php';
 
 if (app()->isLocal()) {
     Route::inertia('_design', 'design')->name('design');

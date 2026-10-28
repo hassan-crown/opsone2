@@ -10,6 +10,7 @@ use App\Audit\AuditAction;
 use App\Enums\OrganizationUnitStatus;
 use App\Models\Branch;
 use App\Models\Order;
+use App\Models\Tickets\Ticket;
 use App\Models\User;
 use App\Orders\BranchTransferImpact;
 use App\Orders\OrderAccess;
@@ -54,6 +55,8 @@ final class TransferOrderBranch
                 'assignee_id' => $newAssignee,
                 'lock_version' => $locked->lock_version + 1,
             ])->save();
+            // Tickets linked to the order follow it, so their staff scope matches the order's branch.
+            Ticket::query()->where('order_id', $locked->id)->update(['branch_id' => $target->id]);
 
             Audit::record(
                 AuditAction::OrderBranchTransferred, $locked, $actor,

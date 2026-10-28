@@ -3,6 +3,7 @@ import {
     Bell,
     FileText,
     House,
+    LifeBuoy,
     Languages,
     LogOut,
     Package,
@@ -25,6 +26,7 @@ import {
 } from '@/routes/customer';
 import { index as documentsIndex } from '@/routes/customer/documents';
 import { index as ordersIndex } from '@/routes/customer/orders';
+import { index as ticketsIndex } from '@/routes/customer/tickets';
 import type { PortalShared } from '@/types/portal';
 
 const NAMES: Record<Locale, string> = { ar: 'العربية', en: 'English' };
@@ -55,6 +57,11 @@ export default function PortalLayout({ children }: { children: ReactNode }) {
             label: 'portal.nav.documents',
             href: documentsIndex().url,
             icon: FileText,
+        },
+        {
+            label: 'tickets.nav',
+            href: ticketsIndex().url,
+            icon: LifeBuoy,
         },
         { label: 'portal.nav.updates', href: notifications().url, icon: Bell },
         { label: 'portal.nav.settings', href: settings().url, icon: Settings },
@@ -162,7 +169,7 @@ export default function PortalLayout({ children }: { children: ReactNode }) {
             {customer && (
                 <nav
                     aria-label={t('ui.main_nav')}
-                    className="fixed inset-x-0 bottom-0 z-20 grid grid-cols-5 border-t border-stroke-weak bg-surface pb-[env(safe-area-inset-bottom)] md:hidden"
+                    className="fixed inset-x-0 bottom-0 z-20 grid grid-cols-6 border-t border-stroke-weak bg-surface pb-[env(safe-area-inset-bottom)] md:hidden"
                 >
                     {nav.map((item) => (
                         <Link
@@ -172,7 +179,7 @@ export default function PortalLayout({ children }: { children: ReactNode }) {
                                 active(item.href) ? 'page' : undefined
                             }
                             className={cn(
-                                'flex min-h-14 flex-col items-center justify-center gap-1 px-1 text-caption',
+                                'flex min-h-14 flex-col items-center justify-center gap-1 px-0.5 text-[0.6875rem] leading-tight',
                                 active(item.href)
                                     ? 'text-brand'
                                     : 'text-weak hover:text-strong',

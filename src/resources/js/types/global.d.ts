@@ -38,6 +38,7 @@ declare module '@inertiajs/core' {
                 returns: boolean;
                 site: boolean;
                 store: boolean;
+                tickets: boolean;
             } | null;
             [key: string]: unknown;
         };
