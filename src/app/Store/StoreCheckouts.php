@@ -77,7 +77,7 @@ final class StoreCheckouts
             return ['checkout' => $existing, 'url' => $this->resumeUrl($existing, str_replace('__REF__', $existing->reference, $returnUrl))];
         }
         $gateway = $this->gateway();
-        if ($lines === []) {
+        if ($lines === [] && $link === null) {
             throw ValidationException::withMessages(['lines' => __('checkout.validation.empty')]);
         }
 

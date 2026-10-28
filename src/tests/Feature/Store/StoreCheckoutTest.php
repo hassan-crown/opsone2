@@ -7,8 +7,10 @@
  */
 
 use App\Access\Exceptions\InvalidTransition;
+use App\Agreements\CustomerActor;
 use App\Enums\PaymentStatus;
 use App\Enums\ReadyOrderStatus;
+use App\Finance\Gateway\GatewayPayments;
 use App\Models\Finance\Payment;
 use App\Models\Finance\Receipt;
 use App\Models\Inventory\StockReservation;
@@ -16,8 +18,10 @@ use App\Models\Order;
 use App\Models\Settlement\SettlementItem;
 use App\Models\StateTransition;
 use App\Models\Store\StoreCheckout;
+use App\Money\Money;
 use App\Store\CheckoutStatus;
 use App\Store\StoreCheckouts;
+use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Validation\ValidationException;
@@ -285,9 +289,15 @@ it('a declined card while the invoice can still be paid is not a final failure',
 
 it('FinanceLock: a ready order takes online money only through the store checkout (the portal begin refuses it)', function () {
     ['checkout' => $checkout] = storeStart($this->buyer, [$this->variant->id => 1]);
-    $actor = new App\Agreements\CustomerActor($this->buyer->id, $this->buyer->mobile);
+    $actor = new CustomerActor($this->buyer->id, $this->buyer->mobile);
 
-    expect(fn () => app(App\Finance\Gateway\GatewayPayments::class)->begin($actor, $checkout->order, App\Money\Money::of(100), 'moyasar', 'https://x.test'))
+    expect(fn () => app(GatewayPayments::class)->begin($actor, $checkout->order, Money::of(100), 'moyasar', 'https://x.test'))
         ->toThrow(InvalidTransition::class);
     expect(app(StoreCheckouts::class)->gateway()->key())->toBe('moyasar');
+});
+
+it('the webhook route lifts the web group\'s request-forgery check (Laravel skips it under tests, so the route is inspected)', function () {
+    $route = app('router')->getRoutes()->getByName('webhooks.payments');
+
+    expect($route->excludedMiddleware())->toContain(PreventRequestForgery::class);
 });

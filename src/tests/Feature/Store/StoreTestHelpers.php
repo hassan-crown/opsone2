@@ -4,7 +4,9 @@ use App\Inventory\Quantity;
 use App\Models\Customer;
 use App\Models\Finance\GatewaySession;
 use App\Models\Inventory\StockLocation;
+use App\Models\OutboxMessage;
 use App\Models\Store\StoreCheckout;
+use App\Models\Store\StoreLink;
 use App\Models\Store\StoreSettings;
 use App\Portal\PortalSession;
 use App\Store\StoreCheckouts;
@@ -136,7 +138,7 @@ function storeBuyer(?string $mobile = null): Customer
  * @param  array<int, int>  $lines
  * @return array{checkout: StoreCheckout, url: string}
  */
-function storeStart(Customer $customer, array $lines, ?string $coupon = null, ?App\Models\Store\StoreLink $link = null, ?string $key = null): array
+function storeStart(Customer $customer, array $lines, ?string $coupon = null, ?StoreLink $link = null, ?string $key = null): array
 {
     return app(StoreCheckouts::class)->start($customer, $lines, $link, $coupon, $key ?? (string) Str::uuid(), 'https://shop.test/ar/store/checkout/__REF__');
 }
@@ -174,9 +176,9 @@ function actingAsBuyer(Customer $customer): void
  */
 function storeOtpCode(): string
 {
-    $message = App\Models\OutboxMessage::query()->where('idempotency_key', 'like', 'store-otp:%')->latest('id')->firstOrFail();
+    $message = OutboxMessage::query()->where('idempotency_key', 'like', 'store-otp:%')->latest('id')->firstOrFail();
     $text = (string) ($message->payload['text'] ?? implode(' ', $message->payload['lines'] ?? []));
-    preg_match('/\b(\d{6})\b/', $text, $m);
+    preg_match('/\b(\d{6})\b/', $text, $m) || throw new RuntimeException('no code in: '.$message->idempotency_key.' '.mb_strlen($text));
 
     return $m[1];
 }

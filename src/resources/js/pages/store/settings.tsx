@@ -1,5 +1,9 @@
 import { Head, useForm } from '@inertiajs/react';
-import { CheckboxField, SelectField, TextField } from '@/components/opsone/field';
+import {
+    CheckboxField,
+    SelectField,
+    TextField,
+} from '@/components/opsone/field';
 import { PageHeader } from '@/components/opsone/page-header';
 import { StoreNav } from '@/components/store/store-nav';
 import { Badge } from '@/components/ui/badge';
@@ -33,12 +37,21 @@ type Props = {
 };
 
 /** StoreSettings (P-02): the store, its reservation window and basket-link validity, and the Moyasar test account. */
-export default function StoreSettings({ settings, branches, members, licensed, open, payments }: Props) {
+export default function StoreSettings({
+    settings,
+    branches,
+    members,
+    licensed,
+    open,
+    payments,
+}: Props) {
     const t = useT();
     const form = useForm({
         enabled: settings.enabled,
-        branch_id: settings.branch_id === null ? '' : String(settings.branch_id),
-        assignee_id: settings.assignee_id === null ? '' : String(settings.assignee_id),
+        branch_id:
+            settings.branch_id === null ? '' : String(settings.branch_id),
+        assignee_id:
+            settings.assignee_id === null ? '' : String(settings.assignee_id),
         reservation_minutes: String(settings.reservation_minutes),
         link_hours_default: String(settings.link_hours_default),
         link_days_max: String(settings.link_days_max),
@@ -59,13 +72,18 @@ export default function StoreSettings({ settings, branches, members, licensed, o
                 description={t('store.settings.description')}
                 actions={
                     <Badge variant={open ? 'success' : 'neutral'}>
-                        {open ? t('store.settings.open') : t('store.settings.closed')}
+                        {open
+                            ? t('store.settings.open')
+                            : t('store.settings.closed')}
                     </Badge>
                 }
             />
             <StoreNav active="settings" />
             {!licensed && (
-                <p role="alert" className="mb-6 rounded-md bg-warning-bg px-4 py-3 text-warning-text">
+                <p
+                    role="alert"
+                    className="mb-6 rounded-md bg-warning-bg px-4 py-3 text-warning-text"
+                >
                     {t('store.settings.unlicensed')}
                 </p>
             )}
@@ -89,7 +107,10 @@ export default function StoreSettings({ settings, branches, members, licensed, o
                     hint={t('store.settings.branch_hint')}
                     value={form.data.branch_id}
                     placeholder={t('store.settings.choose')}
-                    options={branches.map((b) => ({ value: String(b.id), label: b.name }))}
+                    options={branches.map((b) => ({
+                        value: String(b.id),
+                        label: b.name,
+                    }))}
                     onChange={(e) => form.setData('branch_id', e.target.value)}
                     error={form.errors.branch_id}
                 />
@@ -98,8 +119,13 @@ export default function StoreSettings({ settings, branches, members, licensed, o
                     hint={t('store.settings.assignee_hint')}
                     value={form.data.assignee_id}
                     placeholder={t('store.settings.choose')}
-                    options={members.map((m) => ({ value: String(m.id), label: m.name }))}
-                    onChange={(e) => form.setData('assignee_id', e.target.value)}
+                    options={members.map((m) => ({
+                        value: String(m.id),
+                        label: m.name,
+                    }))}
+                    onChange={(e) =>
+                        form.setData('assignee_id', e.target.value)
+                    }
                     error={form.errors.assignee_id}
                 />
                 <div className="grid gap-4 sm:grid-cols-3">
@@ -109,7 +135,9 @@ export default function StoreSettings({ settings, branches, members, licensed, o
                         min={5}
                         max={120}
                         value={form.data.reservation_minutes}
-                        onChange={(e) => form.setData('reservation_minutes', e.target.value)}
+                        onChange={(e) =>
+                            form.setData('reservation_minutes', e.target.value)
+                        }
                         error={form.errors.reservation_minutes}
                     />
                     <TextField
@@ -118,7 +146,9 @@ export default function StoreSettings({ settings, branches, members, licensed, o
                         min={1}
                         max={168}
                         value={form.data.link_hours_default}
-                        onChange={(e) => form.setData('link_hours_default', e.target.value)}
+                        onChange={(e) =>
+                            form.setData('link_hours_default', e.target.value)
+                        }
                         error={form.errors.link_hours_default}
                     />
                     <TextField
@@ -127,7 +157,9 @@ export default function StoreSettings({ settings, branches, members, licensed, o
                         min={1}
                         max={7}
                         value={form.data.link_days_max}
-                        onChange={(e) => form.setData('link_days_max', e.target.value)}
+                        onChange={(e) =>
+                            form.setData('link_days_max', e.target.value)
+                        }
                         error={form.errors.link_days_max}
                     />
                 </div>
@@ -144,30 +176,45 @@ export default function StoreSettings({ settings, branches, members, licensed, o
                     e.preventDefault();
                     pay.put('/store-admin/settings/payments', {
                         preserveScroll: true,
-                        onSuccess: () => pay.reset('secret_key', 'webhook_secret'),
+                        onSuccess: () =>
+                            pay.reset('secret_key', 'webhook_secret'),
                     });
                 }}
             >
                 <div className="flex flex-wrap items-center justify-between gap-2">
-                    <h2 className="text-subtitle">{t('store.payments.title')}</h2>
-                    <Badge variant="warning">{t('store.payments.test_mode')}</Badge>
+                    <h2 className="text-subtitle">
+                        {t('store.payments.title')}
+                    </h2>
+                    <Badge variant="warning">
+                        {t('store.payments.test_mode')}
+                    </Badge>
                 </div>
-                <p className="text-caption text-weak">{t('store.payments.description')}</p>
+                <p className="text-caption text-weak">
+                    {t('store.payments.description')}
+                </p>
                 {payments.from_environment && (
-                    <p className="text-caption text-weak">{t('store.payments.from_environment')}</p>
+                    <p className="text-caption text-weak">
+                        {t('store.payments.from_environment')}
+                    </p>
                 )}
                 <TextField
                     label={t('store.payments.publishable_key')}
                     dir="ltr"
                     autoComplete="off"
                     value={pay.data.publishable_key}
-                    onChange={(e) => pay.setData('publishable_key', e.target.value)}
+                    onChange={(e) =>
+                        pay.setData('publishable_key', e.target.value)
+                    }
                     error={pay.errors.publishable_key}
                     required
                 />
                 <TextField
                     label={t('store.payments.secret_key')}
-                    hint={payments.has_secret_key ? t('store.payments.keep_saved') : undefined}
+                    hint={
+                        payments.has_secret_key
+                            ? t('store.payments.keep_saved')
+                            : undefined
+                    }
                     type="password"
                     dir="ltr"
                     autoComplete="new-password"
@@ -177,17 +224,28 @@ export default function StoreSettings({ settings, branches, members, licensed, o
                 />
                 <TextField
                     label={t('store.payments.webhook_secret')}
-                    hint={payments.has_webhook_secret ? t('store.payments.keep_saved') : t('store.payments.webhook_secret_hint')}
+                    hint={
+                        payments.has_webhook_secret
+                            ? t('store.payments.keep_saved')
+                            : t('store.payments.webhook_secret_hint')
+                    }
                     type="password"
                     dir="ltr"
                     autoComplete="new-password"
                     value={pay.data.webhook_secret}
-                    onChange={(e) => pay.setData('webhook_secret', e.target.value)}
+                    onChange={(e) =>
+                        pay.setData('webhook_secret', e.target.value)
+                    }
                     error={pay.errors.webhook_secret}
                 />
                 <div className="grid gap-1">
-                    <span className="text-label font-medium">{t('store.payments.webhook_url')}</span>
-                    <code dir="ltr" className="rounded-md bg-fill px-3 py-2 text-start text-caption break-all">
+                    <span className="text-label font-medium">
+                        {t('store.payments.webhook_url')}
+                    </span>
+                    <code
+                        dir="ltr"
+                        className="rounded-md bg-fill px-3 py-2 text-start text-caption break-all"
+                    >
                         {payments.webhook_url}
                     </code>
                 </div>

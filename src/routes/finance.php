@@ -6,6 +6,7 @@ use App\Http\Controllers\Finance\GatewayWebhookController;
 use App\Http\Controllers\Finance\OrderFinanceController;
 use App\Http\Controllers\Finance\PaymentController;
 use App\Http\Controllers\Finance\ProofController;
+use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
 use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
 use Illuminate\Support\Facades\Route;
 
@@ -38,6 +39,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 // Online payment notifications (FIN-07, P8): no session, no CSRF — the gateway verifies the provider's signature.
 Route::post('webhooks/payments/{gateway}', GatewayWebhookController::class)
     ->where('gateway', '[a-z0-9_]{1,30}')
-    ->withoutMiddleware([ValidateCsrfToken::class])
+    // The web group's forgery check is PreventRequestForgery (Laravel 13); both are lifted for the provider.
+    ->withoutMiddleware([ValidateCsrfToken::class, PreventRequestForgery::class])
     ->middleware('throttle:60,1')
     ->name('webhooks.payments');

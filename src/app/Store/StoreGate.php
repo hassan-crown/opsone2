@@ -18,11 +18,12 @@ use App\Models\Store\StoreSettings;
  */
 final class StoreGate
 {
-    public function __construct(private readonly LicenseCapabilities $license) {}
-
     public function licensed(): bool
     {
-        return $this->license->allows('ready_goods') && $this->license->mode() === LicenseMode::Full;
+        // Resolved per call (scoped per request): a controller instance may outlive the license it first saw.
+        $license = app(LicenseCapabilities::class);
+
+        return $license->allows('ready_goods') && $license->mode() === LicenseMode::Full;
     }
 
     public function open(): bool
