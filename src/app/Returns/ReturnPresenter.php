@@ -8,6 +8,7 @@ use App\Enums\PaymentStatus;
 use App\Enums\RefundStatus;
 use App\Enums\ReturnStatus;
 use App\Finance\Settlement\RefundLimits;
+use App\Inventory\OrderStock;
 use App\Inventory\Quantity;
 use App\Models\Finance\Payment;
 use App\Models\Finance\Refund;
@@ -19,7 +20,6 @@ use App\Models\Returns\OrderReturnLine;
 use App\Models\Returns\OrderReturnPart;
 use App\Models\Returns\ReturnSettings;
 use App\Models\User;
-use App\Inventory\OrderStock;
 
 /**
  * Returns shaped for the Return* screens. Quantities are decimal text; every amount (`*_minor`) is present only with

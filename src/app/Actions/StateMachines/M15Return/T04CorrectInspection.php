@@ -10,6 +10,7 @@ use App\Audit\Audit;
 use App\Audit\AuditAction;
 use App\Enums\StateMachine;
 use App\Inventory\MovementKind;
+use App\Inventory\Quantity;
 use App\Models\Returns\OrderReturn;
 use App\Models\Returns\OrderReturnPart;
 use App\Models\User;
@@ -49,7 +50,7 @@ final class T04CorrectInspection
             $reason = T00RequestReturn::reason($reason, 'reason');
             $kept = (int) $part->good_milli + (int) $part->damaged_milli;
             if ($goodMilli < 0 || $goodMilli > $kept) {
-                throw ValidationException::withMessages(['good' => __('returns.error.inspection_sum', ['received' => \App\Inventory\Quantity::format($kept)])]);
+                throw ValidationException::withMessages(['good' => __('returns.error.inspection_sum', ['received' => Quantity::format($kept)])]);
             }
             $delta = $goodMilli - (int) $part->good_milli;
             if ($delta === 0) {

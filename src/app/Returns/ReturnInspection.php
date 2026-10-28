@@ -36,7 +36,7 @@ final class ReturnInspection
                 throw ValidationException::withMessages([$field => __('returns.error.quantity')]);
             }
         }
-        if ($result['good_milli'] + $result['damaged_milli'] + $result['rejected_milli'] !== $part->quantity_milli) {
+        if ($part->quantity_milli !== $result['good_milli'] + $result['damaged_milli'] + $result['rejected_milli']) {
             throw ValidationException::withMessages([$field => __('returns.error.inspection_sum', ['received' => Quantity::format($part->quantity_milli)])]);
         }
 

@@ -6,11 +6,11 @@ use App\Inventory\MovementKind;
 use App\Inventory\StockItems;
 use App\Inventory\StockLedger;
 use App\Models\Inventory\StockItem;
+use App\Models\Inventory\StockMovement;
 use App\Models\OrderLine;
 use App\Models\Returns\OrderReturn;
 use App\Models\Returns\OrderReturnPart;
 use App\Models\User;
-use App\Models\Inventory\StockMovement;
 
 /**
  * Stock side of an inspection (FUL-06/FUL-11, INT-02): only the good quantity is posted back to the receiving

@@ -8,6 +8,7 @@
 use App\Access\Exceptions\InvalidTransition;
 use App\Actions\StateMachines\M15Return\T03WithdrawReturn;
 use App\Actions\StateMachines\M15Return\T04CorrectInspection;
+use App\Actions\StateMachines\M15Return\T05AcceptReturn;
 use App\Actions\StateMachines\M15Return\T06RejectReturn;
 use App\Enums\ReturnStatus;
 use App\Inventory\Quantity;
@@ -63,7 +64,7 @@ it('T05 accept and T06 reject: P-102 from requested only', function () {
     rtRefused(fn () => rtAccept($f->keeper, $a), AuthorizationException::class);
     rtRefused(fn () => rtAccept($f->manager, $a, '3'), ValidationException::class);
     rtRefused(fn () => rtAccept($f->manager, $a, null, 99_999_999), ValidationException::class);
-    rtRefused(fn () => app(\App\Actions\StateMachines\M15Return\T05AcceptReturn::class)->handle($f->manager, $a->refresh(), null, 'ok ok', null, $a->lock_version + 1, rtKey()), StaleRecord::class);
+    rtRefused(fn () => app(T05AcceptReturn::class)->handle($f->manager, $a->refresh(), null, 'ok ok', null, $a->lock_version + 1, rtKey()), StaleRecord::class);
 
     expect(rtAccept($f->manager, $a)->status)->toBe(ReturnStatus::Accepted);
     rtRefused(fn () => rtAccept($f->manager, $a), InvalidTransition::class, 'not_from_accepted');

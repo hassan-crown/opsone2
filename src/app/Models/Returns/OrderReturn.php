@@ -2,11 +2,11 @@
 
 namespace App\Models\Returns;
 
+use App\Access\Contracts\ScopedRecord;
 use App\Enums\ReturnStatus;
 use App\Models\Finance\Refund;
 use App\Models\Order;
 use App\Models\User;
-use App\Access\Contracts\ScopedRecord;
 use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
