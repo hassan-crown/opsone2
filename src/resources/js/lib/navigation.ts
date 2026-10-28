@@ -2,6 +2,7 @@ import {
     GitBranch,
     ClipboardList,
     ListChecks,
+    Receipt,
     CalendarDays,
     Inbox,
     LayoutGrid,
@@ -13,6 +14,7 @@ import {
 import CalendarController from '@/actions/App/Http/Controllers/Calendar/CalendarController';
 import CatalogHomeController from '@/actions/App/Http/Controllers/Catalog/CatalogHomeController';
 import CustomerController from '@/actions/App/Http/Controllers/Customers/CustomerController';
+import FinanceHomeController from '@/actions/App/Http/Controllers/Finance/FinanceHomeController';
 import FlowController from '@/actions/App/Http/Controllers/Flow/FlowController';
 import TaskController from '@/actions/App/Http/Controllers/Tasks/TaskController';
 import OrderController from '@/actions/App/Http/Controllers/Orders/OrderController';
@@ -36,7 +38,8 @@ export type LocalizedNavItem = Omit<NavItem, 'title'> & {
         | 'orders'
         | 'flow'
         | 'tasks'
-        | 'calendar';
+        | 'calendar'
+        | 'finance';
 };
 
 /** Primary navigation (5–7 items max; settings live in the footer / user menu). */
@@ -59,6 +62,12 @@ export const mainNav: LocalizedNavItem[] = [
         href: CalendarController.index(),
         icon: CalendarDays,
         access: 'calendar',
+    },
+    {
+        label: 'finance.nav',
+        href: FinanceHomeController.index(),
+        icon: Receipt,
+        access: 'finance',
     },
     {
         label: 'customers.nav',

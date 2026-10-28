@@ -72,7 +72,7 @@ class HandleInertiaRequests extends Middleware
     }
 
     /**
-     * @return array{team: bool, branches: bool, audit: bool, customers: bool, catalog: bool, orders: bool, flow: bool, tasks: bool, calendar: bool}|null
+     * @return array{team: bool, branches: bool, audit: bool, customers: bool, catalog: bool, orders: bool, flow: bool, tasks: bool, calendar: bool, finance: bool}|null
      */
     private function orgNav(Request $request): ?array
     {
@@ -92,6 +92,7 @@ class HandleInertiaRequests extends Middleware
             'flow' => Access::can($user, Permission::P20),
             'tasks' => Access::can($user, Permission::P24) || Access::can($user, Permission::P22),
             'calendar' => Access::can($user, Permission::P54) || Access::can($user, Permission::P24),
+            'finance' => Access::can($user, Permission::P37),
         ];
     }
 }

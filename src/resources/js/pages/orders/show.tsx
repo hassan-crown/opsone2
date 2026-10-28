@@ -5,9 +5,11 @@ import {
     GitBranch,
     Pencil,
     Plus,
+    Receipt,
     Trash2,
 } from 'lucide-react';
 import { lazy, Suspense, useState } from 'react';
+import OrderFinanceController from '@/actions/App/Http/Controllers/Finance/OrderFinanceController';
 import AgreementController from '@/actions/App/Http/Controllers/Agreements/AgreementController';
 import OrderController from '@/actions/App/Http/Controllers/Orders/OrderController';
 import OrderLineController from '@/actions/App/Http/Controllers/Orders/OrderLineController';
@@ -168,6 +170,19 @@ export default function OrderShow({
                                 >
                                     <Icon icon={FileSignature} />
                                     {t('agreements.title')}
+                                </Link>
+                            </Button>
+                        )}
+                        {order.kind === 'custom' && (
+                            <Button asChild variant="secondary">
+                                <Link
+                                    href={OrderFinanceController.show.url(
+                                        order.id,
+                                    )}
+                                    data-test="open-finance"
+                                >
+                                    <Icon icon={Receipt} />
+                                    {t('finance.order.title')}
                                 </Link>
                             </Button>
                         )}
