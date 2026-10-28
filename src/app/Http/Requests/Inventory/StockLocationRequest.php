@@ -9,6 +9,16 @@ use Illuminate\Validation\Rule;
 class StockLocationRequest extends FormRequest
 {
     /**
+     * Codes are stored upper-case, so uniqueness is checked on the stored form (`x1` and `X1` are one code).
+     */
+    protected function prepareForValidation(): void
+    {
+        if (is_string($this->input('code'))) {
+            $this->merge(['code' => mb_strtoupper(trim($this->input('code')))]);
+        }
+    }
+
+    /**
      * @return array<string, mixed>
      */
     public function rules(): array

@@ -54,8 +54,9 @@ class OrderStockController extends Controller
     public function materials(Request $request, Order $order): Response|JsonResponse
     {
         $actor = $this->actor($request);
-        abort_unless($order->kind === OrderKind::Custom && OrderAccess::canView($actor, $order), 404);
-        abort_unless(Access::can($actor, Permission::P51, $order) || Access::can($actor, Permission::P48), 403);
+        $manage = Access::can($actor, Permission::P51, $order);
+        abort_unless($order->kind === OrderKind::Custom && ($manage || OrderAccess::canView($actor, $order)), 404);
+        abort_unless($manage || Access::can($actor, Permission::P48), 403);
         $locations = StockLocation::query()->where('status', 'active')->with('branch')->orderByDesc('is_default')->orderBy('code')->get()
             ->filter(fn (StockLocation $l) => Access::can($actor, Permission::P51, $l))->values();
         $materials = CatalogMaterial::query()->where('track_quantity', true)->whereNull('disabled_at')->orderBy('id')->get();
@@ -79,7 +80,7 @@ class OrderStockController extends Controller
                 'id' => $m->id, 'name' => (string) $m->name->get(app()->getLocale()), 'unit' => StockItems::unitFor(StockItem::MATERIAL, $m->id),
                 'available' => $availability[$m->id] ?? [],
             ])->all(),
-            'can' => ['manage' => Access::can($actor, Permission::P51, $order)],
+            'can' => ['manage' => $manage],
         ]);
     }
 

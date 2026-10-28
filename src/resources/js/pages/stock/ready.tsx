@@ -10,7 +10,9 @@ import { Card } from '@/components/ui/card';
 import { useT } from '@/lib/i18n';
 
 type Props = {
-    reservations: (Reservation & { order: { id: number; number: string; status: string } | null })[];
+    reservations: (Reservation & {
+        order: { id: number; number: string; status: string } | null;
+    })[];
 };
 
 /**
@@ -23,44 +25,77 @@ export default function ReadyStock({ reservations }: Props) {
     return (
         <>
             <Head title={t('stock.ready.title')} />
-            <PageHeader title={t('stock.ready.title')} description={t('stock.ready.description')} />
+            <PageHeader
+                title={t('stock.ready.title')}
+                description={t('stock.ready.description')}
+            />
             <StockTabs active="ready" />
             <Card className="p-0 md:p-0">
                 {reservations.length === 0 ? (
-                    <EmptyState icon={PackageCheck} title={t('stock.ready.empty')} />
+                    <EmptyState
+                        icon={PackageCheck}
+                        title={t('stock.ready.empty')}
+                    />
                 ) : (
                     <TableWrap>
-                        <Table caption={t('stock.ready.title')} data-test="ready-reservations">
+                        <Table
+                            caption={t('stock.ready.title')}
+                            data-test="ready-reservations"
+                        >
                             <thead>
                                 <tr>
                                     <Th>{t('stock.col.reservation')}</Th>
                                     <Th>{t('stock.col.order')}</Th>
                                     <Th>{t('stock.col.item')}</Th>
                                     <Th>{t('stock.col.location')}</Th>
-                                    <Th className="text-end">{t('stock.col.reserved')}</Th>
-                                    <Th className="text-end">{t('stock.col.issued')}</Th>
-                                    <Th className="text-end">{t('stock.col.remaining')}</Th>
+                                    <Th className="text-end">
+                                        {t('stock.col.reserved')}
+                                    </Th>
+                                    <Th className="text-end">
+                                        {t('stock.col.issued')}
+                                    </Th>
+                                    <Th className="text-end">
+                                        {t('stock.col.remaining')}
+                                    </Th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {reservations.map((r) => (
                                     <tr key={r.id}>
                                         <Td>
-                                            <bdi dir="ltr" className="me-2">{r.number}</bdi>
+                                            <bdi dir="ltr" className="me-2">
+                                                {r.number}
+                                            </bdi>
                                             <StockStatus status={r.status} />
                                         </Td>
                                         <Td>
                                             {r.order && (
-                                                <Link href={OrderController.show.url(r.order.id)} className="text-link hover:underline">
-                                                    <bdi dir="ltr">{r.order.number}</bdi>
+                                                <Link
+                                                    href={OrderController.show.url(
+                                                        r.order.id,
+                                                    )}
+                                                    className="text-link hover:underline"
+                                                >
+                                                    <bdi dir="ltr">
+                                                        {r.order.number}
+                                                    </bdi>
                                                 </Link>
                                             )}
                                         </Td>
                                         <Td>{r.item.name}</Td>
                                         <Td>{r.location.code}</Td>
-                                        <Td className="text-end"><Qty value={r.quantity} unit={r.item.unit} /></Td>
-                                        <Td className="text-end"><Qty value={r.issued} /></Td>
-                                        <Td className="text-end"><Qty value={r.remaining} strong /></Td>
+                                        <Td className="text-end">
+                                            <Qty
+                                                value={r.quantity}
+                                                unit={r.item.unit}
+                                            />
+                                        </Td>
+                                        <Td className="text-end">
+                                            <Qty value={r.issued} />
+                                        </Td>
+                                        <Td className="text-end">
+                                            <Qty value={r.remaining} strong />
+                                        </Td>
                                     </tr>
                                 ))}
                             </tbody>

@@ -70,6 +70,12 @@ final class StockPresenter
             $totals[$b->stock_item_id] = ($totals[$b->stock_item_id] ?? 0) + $b->availableMilli();
         }
         $byLocation = $locations->keyBy('id');
+        // P-48 matrix note: a sales / supervisor grant shows the available quantity only; on hand, reserved and in
+        // transit need a stock-operating grant on the location as well (StockSales).
+        $full = [];
+        foreach ($locations as $l) {
+            $full[$l->id] = StockAccess::canSeeHistory($viewer, $l);
+        }
         $rows = [];
         foreach ($balances as $b) {
             $item = StockItems::describe($b->item);
@@ -85,10 +91,10 @@ final class StockPresenter
                 'id' => $b->id,
                 'location' => ['id' => $b->location_id, 'code' => $location?->code, 'name' => $location === null ? '' : (string) $location->name->get(app()->getLocale())],
                 'item' => $item,
-                'on_hand' => Quantity::format($b->on_hand_milli),
-                'reserved' => Quantity::format($b->reserved_milli),
-                'available' => Quantity::format($b->availableMilli()),
-                'incoming' => Quantity::format($incoming[$b->location_id.':'.$b->stock_item_id] ?? 0),
+                'on_hand' => ($full[$b->location_id] ?? false) ? Quantity::format($b->on_hand_milli) : null,
+                'reserved' => ($full[$b->location_id] ?? false) ? Quantity::format($b->reserved_milli) : null,
+                'available' => Quantity::format(max(0, $b->availableMilli())),
+                'incoming' => ($full[$b->location_id] ?? false) ? Quantity::format($incoming[$b->location_id.':'.$b->stock_item_id] ?? 0) : null,
                 'low' => $low,
             ];
         }
@@ -99,6 +105,7 @@ final class StockPresenter
             'filters' => ['location_id' => $locationId, 'q' => $search, 'low' => $lowOnly],
             'units' => StockUnit::values(),
             'enabled_units' => InventorySettings::current()->enabled_units,
+            'available_only' => ! in_array(true, $full, true),
             'can' => [
                 'adjust' => Access::can($viewer, Permission::P49),
                 'transfer' => Access::can($viewer, Permission::P50),

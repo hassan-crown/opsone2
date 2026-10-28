@@ -31,7 +31,12 @@ export function StockTabs({
     const tabs: { key: StockTab; href: string }[] = [
         { key: 'balances', href: StockController.index.url() },
         ...(history
-            ? [{ key: 'movements' as const, href: StockController.movements.url() }]
+            ? [
+                  {
+                      key: 'movements' as const,
+                      href: StockController.movements.url(),
+                  },
+              ]
             : []),
         { key: 'transfers', href: StockTransferController.index.url() },
         { key: 'counts', href: StockCountController.index.url() },
@@ -116,7 +121,10 @@ export function StockStatus({ status }: { status: string }) {
 }
 
 /** A server refusal in the user's language. */
-export function explainStock(result: ApiResult<unknown>, t: TranslateFn): string {
+export function explainStock(
+    result: ApiResult<unknown>,
+    t: TranslateFn,
+): string {
     if (result.stale) {
         return t('stock.error.stale');
     }

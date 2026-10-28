@@ -27,24 +27,35 @@ export type StockLocation = LocationRef & {
     is_default: boolean;
     manager: { id: number; name: string } | null;
     lock_version: number;
-    can?: { edit: boolean; history: boolean; adjust: boolean; transfer: boolean };
+    can?: {
+        edit: boolean;
+        history: boolean;
+        adjust: boolean;
+        transfer: boolean;
+    };
 };
 
 export type BalanceRow = {
     id: number;
     location: { id: number; code: string | null; name: string };
     item: StockItemRef;
-    on_hand: string;
-    reserved: string;
+    /** Null for a viewer who may see the available quantity only (P-48 sales/supervisor grant). */
+    on_hand: string | null;
+    reserved: string | null;
     available: string;
-    incoming: string;
+    incoming: string | null;
     low: boolean;
 };
 
 export type Reservation = {
     id: number;
     number: string;
-    status: 'active' | 'partially_issued' | 'issued' | 'released' | 'settled_mixed';
+    status:
+        | 'active'
+        | 'partially_issued'
+        | 'issued'
+        | 'released'
+        | 'settled_mixed';
     location: LocationRef & { branch_id: number | null };
     item: StockItemRef;
     quantity: string;

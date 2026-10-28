@@ -45,7 +45,9 @@ export function OrderStockCard({
                 </p>
                 {stock.can.materials && (
                     <Button asChild variant="secondary" size="sm">
-                        <Link href={OrderStockController.materials.url(orderId)}>
+                        <Link
+                            href={OrderStockController.materials.url(orderId)}
+                        >
                             {t('stock.order.open_materials')}
                         </Link>
                     </Button>
@@ -182,10 +184,13 @@ function ConfirmDialog({
         const done = await call.run(
             'POST',
             OrderStockController.confirm.url(orderId),
-            { location_id: location ? Number(location) : null, lock_version: lockVersion },
+            {
+                location_id: location ? Number(location) : null,
+                lock_version: lockVersion,
+            },
         );
         if (done) {
-            notify(t('stock.order.confirmed'), 'success');
+            notify('success', { title: t('stock.order.confirmed') });
             onClose();
             router.reload();
         }
@@ -199,7 +204,10 @@ function ConfirmDialog({
             onClose={onClose}
             test="confirm-ready-dialog"
             footer={
-                <Button disabled={call.busy || location === ''} onClick={() => void submit()}>
+                <Button
+                    disabled={call.busy || location === ''}
+                    onClick={() => void submit()}
+                >
                     {t('stock.order.confirm')}
                 </Button>
             }
@@ -249,7 +257,7 @@ function CancelDialog({
             { reason, lock_version: lockVersion },
         );
         if (done) {
-            notify(t('stock.order.cancelled'), 'success');
+            notify('success', { title: t('stock.order.cancelled') });
             onClose();
             router.reload();
         }

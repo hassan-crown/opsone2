@@ -33,6 +33,7 @@ type Props = {
     locations: StockLocation[];
     items: Trackable[];
     filters: { location_id: number | null; q: string; low: boolean };
+    available_only: boolean;
     units: string[];
     settings: { units: string[]; low_stock_alerts: boolean };
     can: {
@@ -52,6 +53,7 @@ export default function StockIndex({
     locations,
     items,
     filters,
+    available_only: availableOnly,
     units,
     settings,
     can,
@@ -68,7 +70,7 @@ export default function StockIndex({
         router.get(
             StockController.index.url(),
             {
-                ...(next.location_id ?? filters.location_id
+                ...((next.location_id ?? filters.location_id)
                     ? { location_id: next.location_id ?? filters.location_id }
                     : {}),
                 ...((next.q ?? filters.q) ? { q: next.q ?? filters.q } : {}),
@@ -129,7 +131,9 @@ export default function StockIndex({
             >
                 <SelectField
                     label={t('stock.field.location')}
-                    value={filters.location_id ? String(filters.location_id) : ''}
+                    value={
+                        filters.location_id ? String(filters.location_id) : ''
+                    }
                     options={[
                         { value: '', label: t('stock.all_locations') },
                         ...locations.map((l) => ({
@@ -177,18 +181,24 @@ export default function StockIndex({
                                 <tr>
                                     <Th>{t('stock.col.item')}</Th>
                                     <Th>{t('stock.col.location')}</Th>
-                                    <Th className="text-end">
-                                        {t('stock.col.on_hand')}
-                                    </Th>
-                                    <Th className="text-end">
-                                        {t('stock.col.reserved')}
-                                    </Th>
+                                    {!availableOnly && (
+                                        <>
+                                            <Th className="text-end">
+                                                {t('stock.col.on_hand')}
+                                            </Th>
+                                            <Th className="text-end">
+                                                {t('stock.col.reserved')}
+                                            </Th>
+                                        </>
+                                    )}
                                     <Th className="text-end">
                                         {t('stock.col.available')}
                                     </Th>
-                                    <Th className="text-end">
-                                        {t('stock.col.incoming')}
-                                    </Th>
+                                    {!availableOnly && (
+                                        <Th className="text-end">
+                                            {t('stock.col.incoming')}
+                                        </Th>
+                                    )}
                                     <Th />
                                 </tr>
                             </thead>
@@ -217,18 +227,30 @@ export default function StockIndex({
                                             )}
                                         </Td>
                                         <Td>{b.location.code}</Td>
+                                        {!availableOnly && (
+                                            <>
+                                                <Td className="text-end">
+                                                    <Hidden value={b.on_hand} />
+                                                </Td>
+                                                <Td className="text-end">
+                                                    <Hidden
+                                                        value={b.reserved}
+                                                    />
+                                                </Td>
+                                            </>
+                                        )}
                                         <Td className="text-end">
-                                            <Qty value={b.on_hand} unit={b.item.unit} />
+                                            <Qty
+                                                value={b.available}
+                                                unit={b.item.unit}
+                                                strong
+                                            />
                                         </Td>
-                                        <Td className="text-end">
-                                            <Qty value={b.reserved} />
-                                        </Td>
-                                        <Td className="text-end">
-                                            <Qty value={b.available} strong />
-                                        </Td>
-                                        <Td className="text-end">
-                                            <Qty value={b.incoming} />
-                                        </Td>
+                                        {!availableOnly && (
+                                            <Td className="text-end">
+                                                <Hidden value={b.incoming} />
+                                            </Td>
+                                        )}
                                         <Td className="text-end">
                                             {can.adjust && (
                                                 <Button
@@ -280,6 +302,15 @@ export default function StockIndex({
     );
 }
 
+/** A quantity this viewer may not see for this location (available only) shows as a dash, never as 0. */
+function Hidden({ value }: { value: string | null }) {
+    return value === null ? (
+        <span className="text-weak">—</span>
+    ) : (
+        <Qty value={value} />
+    );
+}
+
 function AdjustDialog({
     row,
     items,
@@ -294,7 +325,11 @@ function AdjustDialog({
     const t = useT();
     const call = useStockCall<{ movement: { document_number: string } }>();
     const [form, setForm] = useState({
-        location: row ? String(row.location.id) : locations[0] ? String(locations[0].id) : '',
+        location: row
+            ? String(row.location.id)
+            : locations[0]
+              ? String(locations[0].id)
+              : '',
         item: row ? itemKey(row.item) : '',
         direction: 'out',
         quantity: '',
@@ -309,7 +344,11 @@ function AdjustDialog({
             reason: form.reason,
         });
         if (done) {
-            notify(t('stock.adjust.done', { number: done.movement.document_number }), 'success');
+            notify('success', {
+                title: t('stock.adjust.done', {
+                    number: done.movement.document_number,
+                }),
+            });
             onClose();
             router.reload();
         }
@@ -332,7 +371,10 @@ function AdjustDialog({
                 label={t('stock.field.location')}
                 value={form.location}
                 required
-                options={locations.map((l) => ({ value: String(l.id), label: `${l.code} — ${l.name}` }))}
+                options={locations.map((l) => ({
+                    value: String(l.id),
+                    label: `${l.code} — ${l.name}`,
+                }))}
                 error={call.fieldError('location_id')}
                 onChange={(e) => setForm({ ...form, location: e.target.value })}
             />
@@ -341,7 +383,10 @@ function AdjustDialog({
                 value={form.item}
                 required
                 placeholder={t('stock.choose_item')}
-                options={items.map((i) => ({ value: itemKey(i), label: i.code ? `${i.name} (${i.code})` : i.name }))}
+                options={items.map((i) => ({
+                    value: itemKey(i),
+                    label: i.code ? `${i.name} (${i.code})` : i.name,
+                }))}
                 error={call.fieldError('item_id') ?? call.fieldError('unit')}
                 onChange={(e) => setForm({ ...form, item: e.target.value })}
             />
@@ -350,8 +395,13 @@ function AdjustDialog({
                     label={t('stock.field.direction')}
                     value={form.direction}
                     required
-                    options={['in', 'out'].map((d) => ({ value: d, label: t(`stock.direction.${d}` as TranslationKey) }))}
-                    onChange={(e) => setForm({ ...form, direction: e.target.value })}
+                    options={['in', 'out'].map((d) => ({
+                        value: d,
+                        label: t(`stock.direction.${d}` as TranslationKey),
+                    }))}
+                    onChange={(e) =>
+                        setForm({ ...form, direction: e.target.value })
+                    }
                 />
                 <TextField
                     label={t('stock.field.quantity')}
@@ -360,7 +410,9 @@ function AdjustDialog({
                     required
                     value={form.quantity}
                     error={call.fieldError('quantity')}
-                    onChange={(e) => setForm({ ...form, quantity: e.target.value })}
+                    onChange={(e) =>
+                        setForm({ ...form, quantity: e.target.value })
+                    }
                 />
             </div>
             <TextareaField
@@ -394,7 +446,7 @@ function ItemDialog({
             reorder_level: form.level || null,
         });
         if (done) {
-            notify(t('stock.item.saved'), 'success');
+            notify('success', { title: t('stock.item.saved') });
             onClose();
             router.reload();
         }
@@ -408,7 +460,10 @@ function ItemDialog({
             onClose={onClose}
             test="item-dialog"
             footer={
-                <Button disabled={call.busy || form.item === ''} onClick={() => void submit()}>
+                <Button
+                    disabled={call.busy || form.item === ''}
+                    onClick={() => void submit()}
+                >
                     {t('stock.save')}
                 </Button>
             }
@@ -418,15 +473,32 @@ function ItemDialog({
                 value={form.item}
                 required
                 placeholder={t('stock.choose_item')}
-                options={items.map((i) => ({ value: itemKey(i), label: i.name }))}
-                onChange={(e) => setForm({ ...form, item: e.target.value, unit: items.find((i) => itemKey(i) === e.target.value)?.unit ?? '' })}
+                options={items.map((i) => ({
+                    value: itemKey(i),
+                    label: i.name,
+                }))}
+                onChange={(e) =>
+                    setForm({
+                        ...form,
+                        item: e.target.value,
+                        unit:
+                            items.find((i) => itemKey(i) === e.target.value)
+                                ?.unit ?? '',
+                    })
+                }
             />
             {chosen?.type === 'material' && (
                 <SelectField
                     label={t('stock.field.unit')}
                     hint={t('stock.item.unit_hint')}
                     value={form.unit}
-                    options={[{ value: '', label: '—' }, ...units.map((u) => ({ value: u, label: t(`stock.unit.${u}` as TranslationKey) }))]}
+                    options={[
+                        { value: '', label: '—' },
+                        ...units.map((u) => ({
+                            value: u,
+                            label: t(`stock.unit.${u}` as TranslationKey),
+                        })),
+                    ]}
                     error={call.fieldError('unit')}
                     onChange={(e) => setForm({ ...form, unit: e.target.value })}
                 />
@@ -459,9 +531,13 @@ function UnitsDialog({
     const [enabled, setEnabled] = useState<string[]>(settings.units);
     const [alerts, setAlerts] = useState(settings.low_stock_alerts);
     const submit = async () => {
-        const done = await call.run('PUT', StockController.updateSettings.url(), { units: enabled, low_stock_alerts: alerts });
+        const done = await call.run(
+            'PUT',
+            StockController.updateSettings.url(),
+            { units: enabled, low_stock_alerts: alerts },
+        );
         if (done) {
-            notify(t('stock.settings.saved'), 'success');
+            notify('success', { title: t('stock.settings.saved') });
             onClose();
             router.reload();
         }
@@ -481,7 +557,9 @@ function UnitsDialog({
             }
         >
             <fieldset className="grid gap-1 sm:grid-cols-2">
-                <legend className="mb-2 text-body font-semibold text-strong">{t('stock.settings.units')}</legend>
+                <legend className="mb-2 text-body font-semibold text-strong">
+                    {t('stock.settings.units')}
+                </legend>
                 {units.map((u) => (
                     <CheckboxField
                         key={u}
@@ -489,7 +567,11 @@ function UnitsDialog({
                         checked={u === 'piece' || enabled.includes(u)}
                         disabled={u === 'piece'}
                         onChange={(e) =>
-                            setEnabled(e.target.checked ? [...enabled, u] : enabled.filter((x) => x !== u))
+                            setEnabled(
+                                e.target.checked
+                                    ? [...enabled, u]
+                                    : enabled.filter((x) => x !== u),
+                            )
                         }
                     />
                 ))}

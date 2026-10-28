@@ -28,7 +28,12 @@ type Props = {
  * StockLocations (FUL-01): code, bilingual name, optional branch, status and person in charge. A location without a
  * branch is facility-wide; only facility grants manage it.
  */
-export default function StockLocations({ locations, branches, members, can }: Props) {
+export default function StockLocations({
+    locations,
+    branches,
+    members,
+    can,
+}: Props) {
     const t = useT();
     const [editing, setEditing] = useState<StockLocation | 'new' | null>(null);
 
@@ -40,7 +45,10 @@ export default function StockLocations({ locations, branches, members, can }: Pr
                 description={t('stock.locations.description')}
                 actions={
                     can.create && (
-                        <Button onClick={() => setEditing('new')} data-test="new-location">
+                        <Button
+                            onClick={() => setEditing('new')}
+                            data-test="new-location"
+                        >
                             <Icon icon={Plus} />
                             {t('stock.locations.add')}
                         </Button>
@@ -50,10 +58,16 @@ export default function StockLocations({ locations, branches, members, can }: Pr
             <StockTabs active="locations" />
             <Card className="p-0 md:p-0">
                 {locations.length === 0 ? (
-                    <EmptyState icon={MapPin} title={t('stock.locations.empty')} />
+                    <EmptyState
+                        icon={MapPin}
+                        title={t('stock.locations.empty')}
+                    />
                 ) : (
                     <TableWrap>
-                        <Table caption={t('stock.locations.title')} data-test="locations">
+                        <Table
+                            caption={t('stock.locations.title')}
+                            data-test="locations"
+                        >
                             <thead>
                                 <tr>
                                     <Th>{t('stock.field.code')}</Th>
@@ -68,16 +82,43 @@ export default function StockLocations({ locations, branches, members, can }: Pr
                                 {locations.map((l) => (
                                     <tr key={l.id}>
                                         <Td>
-                                            <bdi dir="ltr" className="font-semibold">{l.code}</bdi>
-                                            {l.is_default && <Badge variant="brand" className="ms-2">{t('stock.locations.default')}</Badge>}
+                                            <bdi
+                                                dir="ltr"
+                                                className="font-semibold"
+                                            >
+                                                {l.code}
+                                            </bdi>
+                                            {l.is_default && (
+                                                <Badge
+                                                    variant="brand"
+                                                    className="ms-2"
+                                                >
+                                                    {t(
+                                                        'stock.locations.default',
+                                                    )}
+                                                </Badge>
+                                            )}
                                         </Td>
                                         <Td>{l.name}</Td>
-                                        <Td>{l.branch?.name ?? t('stock.locations.facility_wide')}</Td>
+                                        <Td>
+                                            {l.branch?.name ??
+                                                t(
+                                                    'stock.locations.facility_wide',
+                                                )}
+                                        </Td>
                                         <Td>{l.manager?.name ?? '—'}</Td>
-                                        <Td><StockStatus status={l.status} /></Td>
+                                        <Td>
+                                            <StockStatus status={l.status} />
+                                        </Td>
                                         <Td className="text-end">
                                             {l.can?.edit && (
-                                                <Button size="sm" variant="ghost" onClick={() => setEditing(l)}>
+                                                <Button
+                                                    size="sm"
+                                                    variant="ghost"
+                                                    onClick={() =>
+                                                        setEditing(l)
+                                                    }
+                                                >
                                                     {t('stock.edit')}
                                                 </Button>
                                             )}
@@ -121,7 +162,13 @@ function LocationDialog({
         code: location?.code ?? '',
         ar: location?.name_i18n.ar ?? '',
         en: location?.name_i18n.en ?? '',
-        branch: location?.branch ? String(location.branch.id) : facilityWide ? '' : branches[0] ? String(branches[0].id) : '',
+        branch: location?.branch
+            ? String(location.branch.id)
+            : facilityWide
+              ? ''
+              : branches[0]
+                ? String(branches[0].id)
+                : '',
         manager: location?.manager ? String(location.manager.id) : '',
         status: location?.status ?? 'active',
     });
@@ -135,10 +182,14 @@ function LocationDialog({
             lock_version: location?.lock_version ?? null,
         };
         const done = location
-            ? await call.run('PUT', StockLocationController.update.url(location.id), body)
+            ? await call.run(
+                  'PUT',
+                  StockLocationController.update.url(location.id),
+                  body,
+              )
             : await call.run('POST', StockLocationController.store.url(), body);
         if (done) {
-            notify(t('stock.locations.saved'), 'success');
+            notify('success', { title: t('stock.locations.saved') });
             onClose();
             router.reload();
         }
@@ -146,25 +197,60 @@ function LocationDialog({
 
     return (
         <Shell
-            title={location ? t('stock.locations.edit') : t('stock.locations.add')}
+            title={
+                location ? t('stock.locations.edit') : t('stock.locations.add')
+            }
             description={t('stock.locations.form_hint')}
             error={call.error}
             onClose={onClose}
             test="location-dialog"
-            footer={<Button disabled={call.busy} onClick={() => void submit()}>{t('stock.save')}</Button>}
+            footer={
+                <Button disabled={call.busy} onClick={() => void submit()}>
+                    {t('stock.save')}
+                </Button>
+            }
         >
-            <TextField label={t('stock.field.code')} dir="ltr" required value={form.code} error={call.fieldError('code')}
-                onChange={(e) => setForm({ ...form, code: e.target.value })} />
+            <TextField
+                label={t('stock.field.code')}
+                dir="ltr"
+                required
+                value={form.code}
+                error={call.fieldError('code')}
+                onChange={(e) => setForm({ ...form, code: e.target.value })}
+            />
             <div className="grid gap-4 sm:grid-cols-2">
-                <TextField label={t('stock.field.name_ar')} dir="rtl" value={form.ar} error={call.fieldError('name.ar')}
-                    onChange={(e) => setForm({ ...form, ar: e.target.value })} />
-                <TextField label={t('stock.field.name_en')} dir="ltr" value={form.en} error={call.fieldError('name.en')}
-                    onChange={(e) => setForm({ ...form, en: e.target.value })} />
+                <TextField
+                    label={t('stock.field.name_ar')}
+                    dir="rtl"
+                    value={form.ar}
+                    error={call.fieldError('name.ar')}
+                    onChange={(e) => setForm({ ...form, ar: e.target.value })}
+                />
+                <TextField
+                    label={t('stock.field.name_en')}
+                    dir="ltr"
+                    value={form.en}
+                    error={call.fieldError('name.en')}
+                    onChange={(e) => setForm({ ...form, en: e.target.value })}
+                />
             </div>
             <SelectField
                 label={t('stock.field.branch')}
                 value={form.branch}
-                options={[...(facilityWide ? [{ value: '', label: t('stock.locations.facility_wide') }] : []), ...branches.map((b) => ({ value: String(b.id), label: b.name }))]}
+                options={[
+                    ...(facilityWide
+                        ? [
+                              {
+                                  value: '',
+                                  label: t('stock.locations.facility_wide'),
+                              },
+                          ]
+                        : []),
+                    ...branches.map((b) => ({
+                        value: String(b.id),
+                        label: b.name,
+                    })),
+                ]}
                 error={call.fieldError('branch_id')}
                 onChange={(e) => setForm({ ...form, branch: e.target.value })}
             />
@@ -172,16 +258,34 @@ function LocationDialog({
                 label={t('stock.field.manager')}
                 value={form.manager}
                 optional
-                options={[{ value: '', label: '—' }, ...members.map((m) => ({ value: String(m.id), label: m.name }))]}
+                options={[
+                    { value: '', label: '—' },
+                    ...members.map((m) => ({
+                        value: String(m.id),
+                        label: m.name,
+                    })),
+                ]}
                 onChange={(e) => setForm({ ...form, manager: e.target.value })}
             />
             {location && (
                 <SelectField
                     label={t('stock.field.status')}
                     value={form.status}
-                    options={['active', 'disabled'].map((s) => ({ value: s, label: t(s === 'active' ? 'stock.status.active_location' : 'stock.status.disabled') }))}
+                    options={['active', 'disabled'].map((s) => ({
+                        value: s,
+                        label: t(
+                            s === 'active'
+                                ? 'stock.status.active_location'
+                                : 'stock.status.disabled',
+                        ),
+                    }))}
                     error={call.fieldError('status')}
-                    onChange={(e) => setForm({ ...form, status: e.target.value as 'active' | 'disabled' })}
+                    onChange={(e) =>
+                        setForm({
+                            ...form,
+                            status: e.target.value as 'active' | 'disabled',
+                        })
+                    }
                 />
             )}
         </Shell>

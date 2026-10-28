@@ -57,7 +57,9 @@ export function ItemLines({
                             placeholder={t('stock.choose_item')}
                             options={items.map((i) => ({
                                 value: itemKey(i),
-                                label: i.code ? `${i.name} (${i.code})` : i.name,
+                                label: i.code
+                                    ? `${i.name} (${i.code})`
+                                    : i.name,
                             }))}
                             error={fieldError(`lines.${index}.item_id`)}
                             onChange={(e) =>

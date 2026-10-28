@@ -25,12 +25,24 @@ export default function StockCountPage({ count, items }: Props) {
     const call = useStockCall();
     const [note, setNote] = useState('');
     const [lines, setLines] = useState<ItemLine[]>(
-        count.lines.map((l) => ({ key: String(l.id), item: itemKey(l.item), quantity: l.counted })),
+        count.lines.map((l) => ({
+            key: String(l.id),
+            item: itemKey(l.item),
+            quantity: l.counted,
+        })),
     );
-    const post = async (method: 'POST' | 'PUT', url: string, body: Record<string, unknown>, done: string) => {
-        const ok = await call.run(method, url, { lock_version: count.lock_version, ...body });
+    const post = async (
+        method: 'POST' | 'PUT',
+        url: string,
+        body: Record<string, unknown>,
+        done: string,
+    ) => {
+        const ok = await call.run(method, url, {
+            lock_version: count.lock_version,
+            ...body,
+        });
         if (ok) {
-            notify(done, 'success');
+            notify('success', { title: done });
             router.reload();
         }
     };
@@ -41,23 +53,78 @@ export default function StockCountPage({ count, items }: Props) {
             <PageHeader
                 title={`${t('stock.counts.one')} ${count.number}`}
                 description={`${count.location.code} — ${count.location.name}`}
-                back={<Link href={StockCountController.index.url()} className="text-link hover:underline">{t('stock.counts.back')}</Link>}
+                back={
+                    <Link
+                        href={StockCountController.index.url()}
+                        className="text-link hover:underline"
+                    >
+                        {t('stock.counts.back')}
+                    </Link>
+                }
                 actions={<StockStatus status={count.status} />}
             />
             <Card className="mb-4">
-                <p className="text-body"><span className="text-weak">{t('stock.field.reason')}: </span>{count.reason}</p>
-                {count.decision_note && <p className="mt-1 text-body"><span className="text-weak">{t('stock.field.note')}: </span>{count.decision_note}</p>}
+                <p className="text-body">
+                    <span className="text-weak">
+                        {t('stock.field.reason')}:{' '}
+                    </span>
+                    {count.reason}
+                </p>
+                {count.decision_note && (
+                    <p className="mt-1 text-body">
+                        <span className="text-weak">
+                            {t('stock.field.note')}:{' '}
+                        </span>
+                        {count.decision_note}
+                    </p>
+                )}
             </Card>
-            {call.error && <Alert variant="danger" role="alert" className="mb-4"><AlertBody>{call.error}</AlertBody></Alert>}
+            {call.error && (
+                <Alert variant="danger" role="alert" className="mb-4">
+                    <AlertBody>{call.error}</AlertBody>
+                </Alert>
+            )}
             {count.can.edit ? (
                 <Card className="mb-4" data-test="count-edit">
-                    <ItemLines items={items} lines={lines} onChange={setLines} quantityLabel={t('stock.field.counted')} fieldError={call.fieldError} />
+                    <ItemLines
+                        items={items}
+                        lines={lines}
+                        onChange={setLines}
+                        quantityLabel={t('stock.field.counted')}
+                        fieldError={call.fieldError}
+                    />
                     <div className="mt-4 flex flex-wrap gap-2">
-                        <Button variant="secondary" disabled={call.busy}
-                            onClick={() => void post('PUT', StockCountController.update.url(count.id), { lines: lines.map((l) => ({ ...splitKey(l.item), counted: l.quantity })) }, t('stock.counts.saved'))}>
+                        <Button
+                            variant="secondary"
+                            disabled={call.busy}
+                            onClick={() =>
+                                void post(
+                                    'PUT',
+                                    StockCountController.update.url(count.id),
+                                    {
+                                        lines: lines.map((l) => ({
+                                            ...splitKey(l.item),
+                                            counted: l.quantity,
+                                        })),
+                                    },
+                                    t('stock.counts.saved'),
+                                )
+                            }
+                        >
                             {t('stock.save')}
                         </Button>
-                        <Button disabled={call.busy} onClick={() => void post('POST', StockCountController.submit.url(count.id), {}, t('stock.counts.submitted'))} data-test="submit-count">
+                        <Button
+                            disabled={call.busy}
+                            onClick={() =>
+                                void post(
+                                    'POST',
+                                    StockCountController.submit.url(count.id),
+                                    {},
+                                    t('stock.counts.submitted'),
+                                )
+                            }
+                            data-test="submit-count"
+                        >
                             {t('stock.counts.submit')}
                         </Button>
                     </div>
@@ -69,20 +136,39 @@ export default function StockCountPage({ count, items }: Props) {
                             <thead>
                                 <tr>
                                     <Th>{t('stock.col.item')}</Th>
-                                    <Th className="text-end">{t('stock.col.expected')}</Th>
-                                    <Th className="text-end">{t('stock.field.counted')}</Th>
-                                    <Th className="text-end">{t('stock.col.current')}</Th>
-                                    <Th className="text-end">{t('stock.col.difference')}</Th>
+                                    <Th className="text-end">
+                                        {t('stock.col.expected')}
+                                    </Th>
+                                    <Th className="text-end">
+                                        {t('stock.field.counted')}
+                                    </Th>
+                                    <Th className="text-end">
+                                        {t('stock.col.current')}
+                                    </Th>
+                                    <Th className="text-end">
+                                        {t('stock.col.difference')}
+                                    </Th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {count.lines.map((l) => (
                                     <tr key={l.id}>
                                         <Td>{l.item.name}</Td>
-                                        <Td className="text-end"><Qty value={l.expected} unit={l.item.unit} /></Td>
-                                        <Td className="text-end"><Qty value={l.counted} strong /></Td>
-                                        <Td className="text-end"><Qty value={l.current} /></Td>
-                                        <Td className="text-end"><Qty value={l.difference} /></Td>
+                                        <Td className="text-end">
+                                            <Qty
+                                                value={l.expected}
+                                                unit={l.item.unit}
+                                            />
+                                        </Td>
+                                        <Td className="text-end">
+                                            <Qty value={l.counted} strong />
+                                        </Td>
+                                        <Td className="text-end">
+                                            <Qty value={l.current} />
+                                        </Td>
+                                        <Td className="text-end">
+                                            <Qty value={l.difference} />
+                                        </Td>
                                     </tr>
                                 ))}
                             </tbody>
@@ -92,12 +178,40 @@ export default function StockCountPage({ count, items }: Props) {
             )}
             {count.can.decide && (
                 <Card data-test="count-decide">
-                    <TextareaField label={t('stock.field.note')} hint={t('stock.counts.note_hint')} value={note} error={call.fieldError('note')} onChange={(e) => setNote(e.target.value)} />
+                    <TextareaField
+                        label={t('stock.field.note')}
+                        hint={t('stock.counts.note_hint')}
+                        value={note}
+                        error={call.fieldError('note')}
+                        onChange={(e) => setNote(e.target.value)}
+                    />
                     <div className="mt-3 flex flex-wrap gap-2">
-                        <Button disabled={call.busy} onClick={() => void post('POST', StockCountController.approve.url(count.id), { note: note || null }, t('stock.counts.approved'))} data-test="approve-count">
+                        <Button
+                            disabled={call.busy}
+                            onClick={() =>
+                                void post(
+                                    'POST',
+                                    StockCountController.approve.url(count.id),
+                                    { note: note || null },
+                                    t('stock.counts.approved'),
+                                )
+                            }
+                            data-test="approve-count"
+                        >
                             {t('stock.counts.approve')}
                         </Button>
-                        <Button variant="destructive" disabled={call.busy || note.trim() === ''} onClick={() => void post('POST', StockCountController.reject.url(count.id), { note }, t('stock.counts.rejected'))}>
+                        <Button
+                            variant="destructive"
+                            disabled={call.busy || note.trim() === ''}
+                            onClick={() =>
+                                void post(
+                                    'POST',
+                                    StockCountController.reject.url(count.id),
+                                    { note },
+                                    t('stock.counts.rejected'),
+                                )
+                            }
+                        >
                             {t('stock.counts.reject')}
                         </Button>
                     </div>
