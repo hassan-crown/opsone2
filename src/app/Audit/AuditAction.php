@@ -234,9 +234,26 @@ enum AuditAction: string
     case CancellationWithdrawn = 'cancellation.withdrawn';
     case AppointmentCustomerChangeRequested = 'appointment.customer_change_requested';
 
+    // P8 public site, theme and domain (domain 07, M-17 / M-35).
+    case SitePageCreated = 'site_page.created';
+    case SitePageDraftSaved = 'site_page.draft_saved';
+    case SitePagePublished = 'site_page.published';
+    case SitePageUnpublished = 'site_page.unpublished';
+    case SitePageDraftDiscarded = 'site_page.draft_discarded';
+    case SitePageArchived = 'site_page.archived';
+    case SitePageRestored = 'site_page.restored';
+    case SiteThemeDraftSaved = 'site_theme.draft_saved';
+    case SiteThemeApplied = 'site_theme.applied';
+    case SiteThemeDraftDiscarded = 'site_theme.draft_discarded';
+    case SiteThemeRestored = 'site_theme.restored';
+    case SiteDomainRequested = 'site_domain.requested';
+    case SiteDomainVerified = 'site_domain.verified';
+    case SiteDomainRemoved = 'site_domain.removed';
+
     public function area(): string
     {
         return match ($this) {
+            self::SitePageCreated, self::SitePageDraftSaved, self::SitePagePublished, self::SitePageUnpublished, self::SitePageDraftDiscarded, self::SitePageArchived, self::SitePageRestored, self::SiteThemeDraftSaved, self::SiteThemeApplied, self::SiteThemeDraftDiscarded, self::SiteThemeRestored, self::SiteDomainRequested, self::SiteDomainVerified, self::SiteDomainRemoved => 'site',
             self::InvitationCreated, self::InvitationAccepted, self::InvitationCancelled, self::InvitationRenewed,
             self::OwnerInvitationCreated, self::OwnerEstablished,
             self::MembershipDisabled, self::MembershipReactivated, self::MembershipAccessUpdated => 'team',

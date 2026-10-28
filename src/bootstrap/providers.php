@@ -14,6 +14,7 @@ use App\Providers\NotificationsServiceProvider;
 use App\Providers\PortalServiceProvider;
 use App\Providers\ReturnsServiceProvider;
 use App\Providers\SettlementServiceProvider;
+use App\Providers\SiteServiceProvider;
 use App\Providers\WorkflowServiceProvider;
 
 return [
@@ -32,4 +33,5 @@ return [
     CancellationServiceProvider::class,
     ReturnsServiceProvider::class,
     PortalServiceProvider::class,
+    SiteServiceProvider::class,
 ];

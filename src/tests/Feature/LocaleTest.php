@@ -9,20 +9,20 @@ uses(RefreshDatabase::class);
 beforeEach(fn () => config(['app.locale' => 'ar', 'app.fallback_locale' => 'en']));
 
 it('defaults to Arabic with a right-to-left document', function () {
-    $this->get('/')
+    $this->get('/login')
         ->assertOk()
         ->assertSee('<html lang="ar" dir="rtl"', false);
 });
 
 it('uses the locale cookie and flips direction for English', function () {
     $this->withUnencryptedCookie('locale', 'en')
-        ->get('/')
+        ->get('/login')
         ->assertSee('<html lang="en" dir="ltr"', false);
 });
 
 it('ignores an unsupported locale cookie', function () {
     $this->withUnencryptedCookie('locale', 'fr')
-        ->get('/')
+        ->get('/login')
         ->assertSee('<html lang="ar" dir="rtl"', false);
 });
 
@@ -37,7 +37,7 @@ it('prefers the signed-in user preference over the cookie', function () {
 
 it('shares locale, direction and translations with the page', function () {
     $this->withUnencryptedCookie('locale', 'en')
-        ->get('/')
+        ->get('/login')
         ->assertInertia(fn (Assert $page) => $page
             ->where('locale', 'en')
             ->where('dir', 'ltr')
@@ -46,7 +46,7 @@ it('shares locale, direction and translations with the page', function () {
 });
 
 it('serves Arabic translations by default', function () {
-    $this->get('/')
+    $this->get('/login')
         ->assertInertia(fn (Assert $page) => $page
             ->where('locale', 'ar')
             ->where('dir', 'rtl')

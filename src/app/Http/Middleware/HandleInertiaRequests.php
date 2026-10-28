@@ -100,6 +100,7 @@ class HandleInertiaRequests extends Middleware
             'stock' => StockAccess::any($user),
             'delivery' => DeliveryAccess::any($user),
             'returns' => ReturnAccess::any($user),
+            'site' => Access::can($user, Permission::P55) || Access::can($user, Permission::P56) || Access::can($user, Permission::P100) || Access::can($user, Permission::P101),
             'procurement' => Access::can($user, Permission::P45) || Access::can($user, Permission::P46) || Access::can($user, Permission::P47),
         ];
     }
