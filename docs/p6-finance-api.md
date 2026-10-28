@@ -1,4 +1,4 @@
-# P6 finance — service API (6a: money foundation and agreement)
+# P6 finance — service API (6a: money foundation and agreement · 6b: collections)
 
 Decisions: [ADR-0013](decisions/0013-money-and-agreement.md). 6b/6c/6d extend this file with their own sections.
 
@@ -25,7 +25,7 @@ Decisions: [ADR-0013](decisions/0013-money-and-agreement.md). 6b/6c/6d extend th
 | `OrderAgreement::history(Order)` | `Collection<Agreement>` | All versions, oldest first; superseded ones are immutable proof. |
 | `OrderAgreement::pendingChange(Order)` | `?AgreementChange` | Open change; its `affected` work is held while presented. |
 | event `App\Agreements\AgreementApplied` | `orderId, agreementId, version, previousTotalMinor, totalMinor, differenceMinor, settlementNeededMinor` | Dispatched **after commit** on every activation (first approval and applied change). Listeners must be idempotent on `agreementId`; recompute dues from `OrderAgreement`, never from the event numbers alone. |
-| bind `App\Agreements\CollectedAmounts` | `collectedFor(Order): Money` | 6b binds its ledger (net of refunds). Read inside the activation transaction for `settlement_needed_minor` (AGR-06: 20,000 → 18,000 with 19,000 collected → 1,000 to settle). The default `NoCollections` returns 0. |
+| bind `App\Agreements\CollectedAmounts` | `collectedFor(Order): Money` | **Bound by 6b** to `LedgerCollectedAmounts` (the order's net collected; 6c refunds reduce it through reversals). Read inside the activation transaction for `settlement_needed_minor` (AGR-06: 20,000 → 18,000 with 19,000 collected → 1,000 to settle). The default `NoCollections` returns 0. |
 
 Nothing in 6a creates a due, a collection or a refund. A lower value only records `settlement_needed_minor`.
 
@@ -90,3 +90,97 @@ documents[{id, kind, number, status, replaces, valid_until, sent_at, sent_by, de
 lock_version, files[], decision, discount?, can{…}}], change{…, affected[{key, name, held}], can{…}}, history[],
 can{create_quote, upload_design, prepare_contract, create_change}`. Without amounts every `*_minor`, `discount`,
 `totals` and `presentations` key is absent — render «hidden», never 0.
+
+## 6b — order money, dues, collections and receipts
+
+Decisions: [ADR-0014](decisions/0014-collections.md). Code: `app/Finance`, `app/Models/Finance`,
+`app/Actions/StateMachines/M10Proof|M11Payment`, `app/Actions/Finance`, `routes/finance.php`.
+
+### Reading money (6c, 6d, reports)
+
+| Call | Returns | Notes |
+|---|---|---|
+| `MoneyLedger::collected(int $orderId)` | `Money` | Net collected on the order (= `CollectedAmounts`). A proof under review is never included. |
+| `MoneyLedger::credit(int $orderId)` | `Money` | Money on the order that no due holds (deposit before the agreement, overpayment). |
+| `MoneyLedger::creditByPayment(int $orderId)` | `array<paymentId, int>` | Oldest payment first, positive only. |
+| `MoneyLedger::allocatedByDue(int $orderId)` | `array<dueId, int>` | |
+| `MoneyLedger::placesOf(int $paymentId, int $orderId)` | `array<dueId\|0, int>` | Where one payment's money sits on an order (0 = credit). 6c: refundable base per payment. |
+| `MoneyLedger::sharesOf(int $paymentId)` | `array<orderId, int>` | A payment's share per order (split / transfers). 6d: allocations per payment for commission. |
+| `Allocator::openDues(int $orderId)` | `Collection<OrderDue>` | Active schedule, oldest first (`position`). |
+| `DueCalendar::dates(Order, $dues)` / `::status(amount, allocated, dueOn)` | | Due date from the event (agreement / payment stage start / date) and the derived `DueStatus`. |
+| `CollectionConditions::overview(Order)` / `::shortfalls(Order)` | | INT-07 checks with their threshold; checks verified earlier that the ledger no longer covers. |
+| `FinancePresenter::forOrder(Order, User)` | array | Screen payload (below). Caller checks P-16. |
+| bind `App\Finance\DisputedAmounts` | `disputedFor(OrderDue): Money` | **6c binds** open disputes; reminders exclude that part. Default `NoDisputes`. |
+
+### Correction primitive (for 6c)
+
+Money is never updated or deleted. `app(MoneyLedger::class)` inside the transaction that locked the orders
+(`FinanceLock::orders()`):
+
+- `reverse(MoneyJournal $journal, string $reason, ?User $actor, string $source): MoneyJournal` — the exact negation of
+  one journal, at most once (`reverses_journal_id` unique), refused if any place of the payment would go negative
+  (so a collection is reversed only after its allocations). A reversal is never reversed — write the effect again.
+- `reversePayment(Payment, $reason, $actor, $source): list<MoneyJournal>` — every open journal of the payment, newest
+  first; afterwards the payment contributes nothing. The payment and its receipt stay as records.
+- `write(JournalKind, Payment, list<{order_id, due_id, amount}>, …)` — the low-level writer the rest uses (moves sum
+  to zero, a collection sums to the payment, no negative place, no due above its amount).
+
+6c's M-11-T07 correction = `reversePayment()` + set the payment `corrected` (M-11-T07 is in `PaymentStatus::transitions()`)
++ `CollectionConditions::shortfalls()` to show affected stages (never un-complete them). A refund (M-12) reverses the
+payment's **latest allocations first** (deallocation journals), then records the money that left; never more than
+`array_sum(placesOf())` minus pending refunds. After any change call `Allocator::trim()/settle()` and
+`CollectionConditions::evaluate()` under the order lock.
+
+### Writes (6b)
+
+Every write: idempotency key (`FinanceWrite`, scope `finance.*`) where money moves, `lock_version` of the order's
+finance head (`FinanceLock::versionOf(Order)`; 409 `stale_version`), `LockingTransaction`, orders locked first (id
+order), `state_transitions` (M-10, M-11) + `audit_events` (area `finance`) in the same transaction, outbox messages.
+
+| Action | Permission | Notes |
+|---|---|---|
+| `M11Payment\T01RecordPayment::handle($user, $order, {amount, method transfer\|cash\|card\|cheque, paid_on, reference (required for transfer/cheque), note?, split?[{order_id, amount}], acknowledge_similar?}, UploadedFile $evidence, $lockVersion, $key)` | P-39 on every order touched | M-11-T00+T01, one receipt `RC-YYYY-000123`, allocation oldest first, INT-07. 409 `duplicate_reference`, `matching_proof`, `similar_payment`; 422 split above the payment / other customer. |
+| `M10Proof\T01ConfirmProof::handle($user, $proof, {amount, paid_on, reference?, acknowledge_similar?, link_payment_id?}, $proofLockVersion, $key)` | P-40 | Links to the existing payment of the same trusted reference (or `link_payment_id`) — no new money; otherwise one payment + receipt. 409 `not_from_*`, `reference_conflict`, `similar_payment`. |
+| `M10Proof\T02RequestProofCorrection::handle($user, $proof, $reason, $lockVersion)` | P-40 | Reason sent to the customer (outbox). File kept. |
+| `M10Proof\T04CancelProof::handle($user, $proof, $reason, $lockVersion)` | P-40 | Only before money. |
+| `Finance\UpdateSchedule::handle($user, $order, {dues: [{name{ar,en?}, reference, basis amount\|percent\|rest, value "5000.00"\|"50"\|null, event agreement\|payment_stage\|date, due_date?}]}, $lockVersion, $key)` | P-38 | 409 `no_agreement`; 422 above the agreement, one `rest`, below what a due holds (`due_has_allocations`). |
+| `Finance\ReallocatePayment::handle($user, $payment, $order, {allocations: [{due_id, amount}]}, $lockVersion, $key)` | P-38 | Within the payment's share on the order and each due's remaining. |
+| `Finance\TransferCredit::handle($user, $from, {to_order_id, amount, reason?}, $lockVersion, $key)` | P-38 on both | Same customer; credit only (409 `not_enough_credit`); no receipt. |
+| `CustomerProofs::submit / resubmit / withdraw(CustomerActor, …)` | P-68 (customer portal, P8) | M-10-T00/T03/T04. File via `AttachmentService::storeFromCustomer()`. |
+| `Gateway\GatewayPayments::begin(CustomerActor, Order, Money, $gatewayKey, $returnUrl)` | P-69 (P8) | Pending payment (M-11-T00) + provider URL. |
+| `Gateway\GatewayPayments::applyWebhook($gatewayKey, Request)` | provider (verified signature) | The **only** way an online payment becomes money: `PaymentGateway::verify()` first; T02/T03/T04/T05/T06, T08 on replay; a late success after failure is referred (notification), never posted. No gateway bound in v1 (`GatewayRegistry` empty → 404). |
+| `CollectionReminders::runDue(now)` (`finance:remind`, hourly) / `preview($user, $dueIds)` / `send($user, $dueIds)` | scheduler / P-37 | Inside `WorkSettings` reminder hours; due soon (≤ 2 days, once per date), overdue (weekly), manual (daily); disputed part excluded. |
+
+Events: `AgreementApplied` → `SyncScheduleOnAgreement` (schedule from the facility template `half`, allocation of the
+deposit, INT-07). Notifications: `finance.receipt_recorded`, `finance.proof_submitted`, `finance.late_gateway_result`
+(link opens `orders.finance`, re-checks P-37). Customer messages (SMS + mail): `receipt:{id}`, `proof:{id}:correction`,
+`proof:{id}:amount`, `due:{id}:{soon|overdue}:{period}`.
+
+### HTTP (screens)
+
+Routes in `src/routes/finance.php`, `auth` + `verified`, writes throttled by `records-create`. JSON writes answer
+`{finance: Payload}` (+ `payment_id`, `receipt`).
+
+| Method & path | Name | Screen |
+|---|---|---|
+| `GET orders/{order}/finance` | `orders.finance` | `FinOrder`, `FinOrderPaid`, `FinSales` (no P-37 → statuses only), `FinOrderMobile`, `FinEnglish`, `FinDark` — Inertia `orders/finance`; JSON with `Accept: application/json` |
+| `POST orders/{order}/finance/payments` (multipart) | `orders.finance.payments.store` | `FinRecordPayment` |
+| `PUT orders/{order}/finance/schedule` | `orders.finance.schedule` | `FinSchedule` |
+| `POST orders/{order}/finance/transfers` | `orders.finance.transfers` | `FinAllocate`, `FinSettle` (credit part) |
+| `POST finance/payments/{payment}/allocation` | `finance.payments.allocation` | allocation review (FIN-06) |
+| `POST finance/proofs/{proof}/confirm` · `/correction` · `/cancel` | `finance.proofs.*` | `FinReceiptReview`, `FinReceiptMobile`, `FinReceiptFix` |
+| `GET finance` | `finance.index` | `FinHome` (P-37) |
+| `POST finance/reminders/preview` · `POST finance/reminders` | `finance.reminders.*` | `FinReminder` |
+| `GET reports/collection?branch_id=` | `reports.collection` | `ReportCollection` (P-60 + P-37) |
+| `POST webhooks/payments/{gateway}` | `webhooks.payments` | provider notifications (no session/CSRF) |
+
+Payload (`FinancePresenter::forOrder`): `amounts_visible, lock_version, has_agreement, agreement_version,
+summary{agreed_minor, collected_minor, remaining_minor, excess_minor, due_now_minor, credit_minor, unscheduled_minor,
+settlement_needed_minor} | null, dues[{id, reference, name, basis, event, due_on, status, amount_minor?, allocated_minor?,
+remaining_minor?}], payments[{id, receipt_number, method, paid_on, reference, origin, status, evidence[], amount_minor?,
+share_minor?, allocations?}], proofs[{id, status, replaced, claimed_minor?, matching_receipt, files[], …}],
+conditions[{reference, basis, threshold_minor?, met, verified}], shortfalls[], can{record, review, schedule, allocate},
+customer_orders[]`. Without P-37 every `*_minor` key, `summary` and file links are absent — render «hidden», never 0.
+
+Not in 6b: refunds (M-12), corrections UI (M-11-T07), disputes, external invoices (6c); commissions (6d); customer
+portal screens and a real gateway (P8).

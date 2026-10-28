@@ -3,6 +3,7 @@
 namespace App\Finance\Gateway;
 
 use App\Access\Exceptions\InvalidTransition;
+use App\Access\TransitionRecorder;
 use App\Agreements\CustomerActor;
 use App\Audit\Audit;
 use App\Audit\AuditAction;
@@ -14,7 +15,7 @@ use App\Finance\FinanceLock;
 use App\Finance\OrderSchedule;
 use App\Finance\PaymentPosting;
 use App\Finance\PaymentRegistry;
-use App\Access\TransitionRecorder;
+use App\Models\Facility;
 use App\Models\Finance\Payment;
 use App\Models\Order;
 use App\Money\Money;
@@ -105,7 +106,7 @@ final class GatewayPayments
             $payment = Payment::query()->lockForUpdate()->findOrFail($known->id);
             $payment->setRelation('order', $order);
             $from = $payment->status;
-            $matches = $event->amountMinor === $payment->amount_minor && strtoupper($event->currency) === 'SAR';
+            $matches = $event->amountMinor === $payment->amount_minor && strtoupper($event->currency) === strtoupper(Facility::current()->currency ?? 'SAR');
             $context = ['transaction' => $event->transactionId, 'outcome' => $event->outcome];
 
             $to = match (true) {

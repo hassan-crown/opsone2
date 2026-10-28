@@ -3,6 +3,7 @@
 namespace App\Finance;
 
 use App\Access\Exceptions\InvalidTransition;
+use App\Access\TransitionRecorder;
 use App\Agreements\CustomerActor;
 use App\Audit\Audit;
 use App\Audit\AuditAction;
@@ -14,7 +15,6 @@ use App\Models\Finance\PaymentProof;
 use App\Models\Order;
 use App\Money\Money;
 use App\Support\LockingTransaction;
-use App\Access\TransitionRecorder;
 use App\Workflow\AppointmentBooking;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\UploadedFile;

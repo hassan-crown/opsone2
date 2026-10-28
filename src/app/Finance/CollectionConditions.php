@@ -10,6 +10,7 @@ use App\Models\User;
 use App\Money\Money;
 use App\Workflow\ActionResults;
 use App\Workflow\Catalogue\ActionType;
+use Illuminate\Support\Collection;
 
 /**
  * The stage collection condition (SRS-INT-07, P5 `payment_check`), read from the ledger: the order's net collected is
@@ -100,7 +101,7 @@ final class CollectionConditions
     }
 
     /**
-     * @return \Illuminate\Support\Collection<int, OrderAction>
+     * @return Collection<int, OrderAction>
      */
     private static function checks(Order $order)
     {

@@ -7,6 +7,7 @@
  */
 
 use App\Access\Exceptions\InvalidTransition;
+use App\Agreements\OrderAgreement;
 use App\Enums\ActionStatus;
 use App\Enums\PaymentStatus;
 use App\Enums\ProofStatus;
@@ -15,8 +16,8 @@ use App\Finance\MoneyLedger;
 use App\Models\Finance\MoneyJournal;
 use App\Models\Finance\Payment;
 use App\Models\Finance\Receipt;
-use App\Agreements\OrderAgreement;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 
@@ -133,7 +134,7 @@ it('FIN-05: a received amount different from the claim is recorded once (the rec
 
     expect(Payment::query()->sole()->amount_minor)->toBe(450_000)
         ->and(MoneyLedger::collected($this->f->order->id)->minor)->toBe(450_000)
-        ->and(Illuminate\Support\Facades\DB::table('outbox_messages')->where('idempotency_key', "proof:{$proof->id}:amount:sms")->exists())->toBeTrue();
+        ->and(DB::table('outbox_messages')->where('idempotency_key', "proof:{$proof->id}:amount:sms")->exists())->toBeTrue();
 });
 
 it('scenario 9 (collection part): a collection of 1,000 is one payment whose refundable base is exactly its 1,000, reversible once', function () {
@@ -143,9 +144,9 @@ it('scenario 9 (collection part): a collection of 1,000 is one payment whose ref
     expect(MoneyLedger::sharesOf($payment->id))->toBe([$this->f->order->id => 100_000]);
     $collection = MoneyJournal::query()->where('payment_id', $payment->id)->where('kind', 'collection')->sole();
     $allocation = MoneyJournal::query()->where('payment_id', $payment->id)->where('kind', 'allocation')->sole();
-    Illuminate\Support\Facades\DB::transaction(fn () => app(MoneyLedger::class)->reverse($allocation, 'test', $this->f->finance, 'web'));
+    DB::transaction(fn () => app(MoneyLedger::class)->reverse($allocation, 'test', $this->f->finance, 'web'));
     // A retried reversal never takes the money back twice.
-    expect(fn () => Illuminate\Support\Facades\DB::transaction(fn () => app(MoneyLedger::class)->reverse($allocation, 'retry', $this->f->finance, 'web')))
+    expect(fn () => DB::transaction(fn () => app(MoneyLedger::class)->reverse($allocation, 'retry', $this->f->finance, 'web')))
         ->toThrow(LogicException::class);
     expect(MoneyLedger::credit($this->f->order->id)->minor)->toBe(100_000)
         ->and($collection->refresh()->kind->value)->toBe('collection');
@@ -167,7 +168,7 @@ it('scenario 11 (collection part): lowering 1,200 to 600 after collecting 900 re
 it('scenario 12 (collection part): taking a payment back keeps the payment and its receipt as records', function () {
     finAgree($this->f, '1000');
     $payment = finPay($this->f->finance, $this->f->order, '1000');
-    Illuminate\Support\Facades\DB::transaction(fn () => app(MoneyLedger::class)->reversePayment($payment, 'entry error', $this->f->finance, 'web'));
+    DB::transaction(fn () => app(MoneyLedger::class)->reversePayment($payment, 'entry error', $this->f->finance, 'web'));
 
     expect(MoneyLedger::collected($this->f->order->id)->minor)->toBe(0)
         ->and(Payment::query()->find($payment->id))->not->toBeNull()

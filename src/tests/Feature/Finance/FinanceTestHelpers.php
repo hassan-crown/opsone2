@@ -48,12 +48,12 @@ function finLine(string $description, string $price, bool $products = true): arr
  *
  * @param  array<string, mixed>  $extra
  */
-function finPay(User $actor, Order $order, string $amount, array $extra = [], ?string $key = null): Payment
+function finPay(User $actor, Order $order, string $amount, array $extra = [], ?string $key = null, ?string $evidence = null): Payment
 {
     return app(T01RecordPayment::class)->handle($actor, $order->refresh(), [
         'amount' => $amount, 'method' => 'transfer', 'paid_on' => now()->toDateString(),
         'reference' => 'FT'.Str::upper(Str::random(10)), 'acknowledge_similar' => true, ...$extra,
-    ], agrPdf('transfer.pdf', Str::random(8)), null, $key ?? agrKey());
+    ], agrPdf('transfer.pdf', $evidence ?? Str::random(8)), null, $key ?? agrKey());
 }
 
 /**
