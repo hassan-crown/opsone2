@@ -4,6 +4,7 @@ use App\Licensing\LicensingServiceProvider;
 use App\Providers\AccessServiceProvider;
 use App\Providers\AppServiceProvider;
 use App\Providers\CatalogServiceProvider;
+use App\Providers\CommissionsServiceProvider;
 use App\Providers\FinanceServiceProvider;
 use App\Providers\FortifyServiceProvider;
 use App\Providers\HelpServiceProvider;
@@ -20,4 +21,5 @@ return [
     CatalogServiceProvider::class,
     WorkflowServiceProvider::class,
     FinanceServiceProvider::class,
+    CommissionsServiceProvider::class,
 ];

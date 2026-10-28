@@ -154,6 +154,16 @@ enum AuditAction: string
     case ProofCorrectionRequested = 'finance.proof_correction_requested';
     case ProofCancelled = 'finance.proof_cancelled';
     case CollectionRemindersSent = 'finance.reminders_sent';
+    case CommissionSettingsUpdated = 'commission.settings_updated';
+    case CommissionPayoutCreated = 'commission.payout_created';
+    case CommissionPayoutReserved = 'commission.payout_reserved';
+    case CommissionPayoutPaid = 'commission.payout_paid';
+    case CommissionPayoutCancelled = 'commission.payout_cancelled';
+    case CommissionPayoutCorrected = 'commission.payout_corrected';
+    case SaleCorrectionRequested = 'commission.sale_correction_requested';
+    case SaleCorrectionApproved = 'commission.sale_correction_approved';
+    case SaleCorrectionRejected = 'commission.sale_correction_rejected';
+    case SaleCorrectionCancelled = 'commission.sale_correction_cancelled';
 
     public function area(): string
     {
@@ -193,6 +203,9 @@ enum AuditAction: string
             self::FinanceScheduleSynced, self::FinanceScheduleUpdated, self::PaymentRecorded, self::PaymentGatewayResult,
             self::PaymentReallocated, self::CreditTransferred, self::MoneyReversed, self::ProofSubmitted, self::ProofConfirmed,
             self::ProofCorrectionRequested, self::ProofCancelled, self::CollectionRemindersSent => 'finance',
+            self::CommissionSettingsUpdated, self::CommissionPayoutCreated, self::CommissionPayoutReserved, self::CommissionPayoutPaid,
+            self::CommissionPayoutCancelled, self::CommissionPayoutCorrected, self::SaleCorrectionRequested,
+            self::SaleCorrectionApproved, self::SaleCorrectionRejected, self::SaleCorrectionCancelled => 'commissions',
         };
     }
 

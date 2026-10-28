@@ -23,6 +23,7 @@ enum StateMachine: string
     case M23 = 'M-23';
     case M26 = 'M-26';
     case M27 = 'M-27';
+    case M33 = 'M-33';
     case M37 = 'M-37';
     case M38 = 'M-38';
 }

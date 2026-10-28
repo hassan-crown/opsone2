@@ -3,6 +3,7 @@
 namespace App\Finance;
 
 use App\Agreements\OrderAgreement;
+use App\Commissions\CommissionAccrual;
 use App\Enums\ActionStatus;
 use App\Models\Order;
 use App\Models\OrderAction;
@@ -24,10 +25,14 @@ final class CollectionConditions
 {
     public const SOURCE_TYPE = 'order_collection';
 
-    public function __construct(private readonly ActionResults $results) {}
+    public function __construct(
+        private readonly ActionResults $results,
+        private readonly CommissionAccrual $commissions,
+    ) {}
 
     /**
-     * Reports every newly met check. Call inside the money write's transaction (after the ledger changed).
+     * Reports every newly met check and re-derives the sale's commission (6d, INT-06). Call inside the money
+     * write's transaction (after the ledger changed).
      *
      * @return list<string> references reported now
      */
@@ -47,6 +52,7 @@ final class CollectionConditions
             $this->results->verifyFromSource($order, ActionType::PaymentCheck, $reference, self::SOURCE_TYPE, $paymentId, $actor);
             $reported[] = $reference;
         }
+        $this->commissions->recompute($order, self::SOURCE_TYPE.':'.$paymentId, $actor);
 
         return $reported;
     }
