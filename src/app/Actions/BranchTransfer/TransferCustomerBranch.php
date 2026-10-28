@@ -8,6 +8,7 @@ use App\Access\TransitionRecorder;
 use App\Audit\Audit;
 use App\Audit\AuditAction;
 use App\Models\Customer;
+use App\Models\Tickets\Ticket;
 use App\Models\User;
 use App\Orders\BranchTransferImpact;
 use Illuminate\Support\Facades\DB;
@@ -48,6 +49,8 @@ final class TransferCustomerBranch
             }
 
             $locked->forceFill(['branch_id' => $target->id, 'assignee_id' => $newAssignee])->save();
+            // General tickets (no order) are in the customer's branch.
+            Ticket::query()->where('customer_id', $locked->id)->whereNull('order_id')->update(['branch_id' => $target->id]);
 
             Audit::record(
                 AuditAction::CustomerBranchTransferred, $locked, $actor,

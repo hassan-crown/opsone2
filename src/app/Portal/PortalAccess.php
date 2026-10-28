@@ -14,6 +14,8 @@ use App\Models\Customer;
 use App\Models\Finance\PaymentProof;
 use App\Models\Finance\Receipt;
 use App\Models\Order;
+use App\Models\Tickets\Ticket;
+use App\Models\Tickets\TicketMessage;
 use Illuminate\Database\Eloquent\Builder;
 
 /**
@@ -106,7 +108,22 @@ final class PortalAccess
     }
 
     /**
-     * Files the customer may open: those of their own proofs and of documents sent to them.
+     * The customer's own tickets (P-71): by owner only, never by order or branch.
+     *
+     * @return Builder<Ticket>
+     */
+    public static function tickets(Customer $customer): Builder
+    {
+        return Ticket::query()->where('tickets.customer_id', $customer->id);
+    }
+
+    public static function ticket(Customer $customer, int|string $id): Ticket
+    {
+        return self::tickets($customer)->whereKey(self::id($id))->firstOrFail();
+    }
+
+    /**
+     * Files the customer may open: those of their own proofs, of documents sent to them and of public ticket messages.
      */
     public static function canDownload(Customer $customer, Attachment $attachment): bool
     {
@@ -115,6 +132,8 @@ final class PortalAccess
         return match (true) {
             $owner instanceof PaymentProof => self::proofs($customer)->whereKey($owner->id)->exists(),
             $owner instanceof AgreementDocument => self::documents($customer)->whereKey($owner->id)->exists(),
+            // A ticket file only when its message is public: an internal note's files are staff-only.
+            $owner instanceof TicketMessage => $owner->isPublic() && self::tickets($customer)->whereKey($owner->ticket_id)->exists(),
             default => false,
         };
     }

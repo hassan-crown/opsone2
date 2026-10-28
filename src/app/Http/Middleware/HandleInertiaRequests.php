@@ -8,6 +8,7 @@ use App\Delivery\DeliveryAccess;
 use App\Inventory\StockAccess;
 use App\Notifications\NotificationFeed;
 use App\Returns\ReturnAccess;
+use App\Tickets\TicketAccess;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -100,6 +101,7 @@ class HandleInertiaRequests extends Middleware
             'stock' => StockAccess::any($user),
             'delivery' => DeliveryAccess::any($user),
             'returns' => ReturnAccess::any($user),
+            'tickets' => TicketAccess::any($user),
             'procurement' => Access::can($user, Permission::P45) || Access::can($user, Permission::P46) || Access::can($user, Permission::P47),
         ];
     }

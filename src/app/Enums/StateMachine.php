@@ -25,6 +25,8 @@ enum StateMachine: string
     // P7 returns (ADR-0019): ready-goods return.
     case M15 = 'M-15';
     case M16 = 'M-16';
+    // P8 tickets (ADR-0023): customer support ticket.
+    case M21 = 'M-21';
     case M22 = 'M-22';
     case M23 = 'M-23';
     // P7a inventory (ADR-0017): stock reservation and stock transfer.

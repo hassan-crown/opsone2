@@ -9,9 +9,12 @@ use App\Http\Middleware\Portal\HandlePortalInertiaRequests;
 use App\Http\Middleware\Portal\SetPortalLocale;
 use App\Http\Middleware\Portal\UseCustomerSession;
 use App\Models\Customer;
+use App\Models\Tickets\Ticket;
 use App\Notifications\NotificationCatalogue;
+use App\Notifications\NotificationTargets;
 use App\Portal\CustomerAppointments;
 use App\Portal\CustomerCancellations;
+use App\Tickets\TicketNotices;
 use Illuminate\Auth\EloquentUserProvider;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Contracts\Foundation\Application;
@@ -72,8 +75,19 @@ final class PortalServiceProvider extends ServiceProvider
             'route' => null,
         ]);
 
+        // Tickets (P8 part D, SHR-08): staff notices on customer activity; opening re-checks P-59 on the live ticket.
+        TicketNotices::define();
+        $this->app->make(NotificationTargets::class)->register(
+            (new Ticket)->getMorphClass(),
+            fn (int $id) => Ticket::query()->find($id),
+            fn (object $t) => route('tickets.show', ['ticket' => $t instanceof Ticket ? $t->id : 0]),
+        );
+
         if (! $this->app->routesAreCached()) {
-            Route::middleware('customer')->prefix(self::PREFIX)->name('customer.')->group(base_path('routes/customer.php'));
+            Route::middleware('customer')->prefix(self::PREFIX)->name('customer.')->group(function () {
+                require base_path('routes/customer.php');
+                require base_path('routes/customer-tickets.php');
+            });
         }
     }
 }

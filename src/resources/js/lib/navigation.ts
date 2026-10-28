@@ -10,6 +10,7 @@ import {
     Package,
     PackageCheck,
     Undo2,
+    LifeBuoy,
     Truck,
     ScrollText,
     Workflow,
@@ -25,6 +26,7 @@ import FinanceHomeController from '@/actions/App/Http/Controllers/Finance/Financ
 import FlowController from '@/actions/App/Http/Controllers/Flow/FlowController';
 import TaskController from '@/actions/App/Http/Controllers/Tasks/TaskController';
 import DeliveryController from '@/actions/App/Http/Controllers/Delivery/DeliveryController';
+import TicketController from '@/actions/App/Http/Controllers/Tickets/TicketController';
 import ReturnController from '@/actions/App/Http/Controllers/Returns/ReturnController';
 import PurchaseController from '@/actions/App/Http/Controllers/Procurement/PurchaseController';
 import OrderController from '@/actions/App/Http/Controllers/Orders/OrderController';
@@ -54,7 +56,8 @@ export type LocalizedNavItem = Omit<NavItem, 'title'> & {
         | 'stock'
         | 'procurement'
         | 'delivery'
-        | 'returns';
+        | 'returns'
+        | 'tickets';
 };
 
 /** Primary navigation (5–7 items max; settings live in the footer / user menu). */
@@ -107,6 +110,12 @@ export const mainNav: LocalizedNavItem[] = [
         href: ReturnController.index(),
         icon: Undo2,
         access: 'returns',
+    },
+    {
+        label: 'tickets.nav_staff',
+        href: TicketController.index(),
+        icon: LifeBuoy,
+        access: 'tickets',
     },
     {
         label: 'customers.nav',
