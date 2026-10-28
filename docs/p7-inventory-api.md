@@ -176,3 +176,18 @@ PHP seams: `Returns\ReturnEligibility::lines($order)` (delivered / held / eligib
 `Returns\Contracts\SettlementFollowUp` (bound to `Settlement\ReturnSettlementFollowUp`, the order's one follow-up). Stock: `return_in` (good),
 `return_damaged` (custody, no balance effect), `return_reclass` (correction out); `source_type = order_return_part`,
 document number = RT.
+
+## P7 merge review — contract changes
+
+| Area | Change |
+|---|---|
+| `POST /stock/adjustments` | `idempotency_key` required (field or `Idempotency-Key` header): one `SA-…` per key, 200 replay, 422 on another payload. |
+| `POST /purchases` | `idempotency_key` required on create (edits keep `lock_version`). |
+| Purchase `location_id` (create, edit, receive) | Active, facility-wide or in the purchase's branch, within the actor's P-46 (draft) / P-47 (receipt) grant — else 422 `location_id`. |
+| Purchase line `order_id` | Only an order of the purchase's branch (422 `lines.N.order_id`). |
+| `POST /orders/{order}/cancellation/preview` | Rate limited (`records-create`). The fingerprint also covers what stays (delivered, issued, completed stages) and the open agreement change. |
+| Cancellation money | Counts collected money on ready orders too; refunds asked by returns are left out of collected / pending money. A `refund` item records `refund_floor`: only refunds asked after it settle it. |
+| Return settlement | `settlement` on accept needs P-37. Each return adds one `return` item (source `return:{id}`) to the order's follow-up: done by its executed refund, dropped without money; resolved otherwise by P-42. |
+| `refunds.order_return_id` | Links a return's refunds; M-12-T07 refuses to retry one the return replaced after a failure (409 `superseded`). |
+| Stock ledger | Location row shared-locked before balances; nothing arrives at a disabled location (422 `location_id`). |
+| Audit log | Amounts of records that belong to an order (returns, delivery notes, cancellations…) follow the order's P-37 rule. |
