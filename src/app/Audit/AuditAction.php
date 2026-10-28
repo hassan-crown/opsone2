@@ -154,6 +154,22 @@ enum AuditAction: string
     case ProofCorrectionRequested = 'finance.proof_correction_requested';
     case ProofCancelled = 'finance.proof_cancelled';
     case CollectionRemindersSent = 'finance.reminders_sent';
+    // P6c settlement (ADR-0015).
+    case RefundRequested = 'refund.requested';
+    case RefundStarted = 'refund.started';
+    case RefundExecuted = 'refund.executed';
+    case RefundFailed = 'refund.failed';
+    case RefundCancelled = 'refund.cancelled';
+    case RefundRetried = 'refund.retried';
+    case PaymentCorrected = 'finance.payment_corrected';
+    case DisputeOpened = 'dispute.opened';
+    case DisputeAwaiting = 'dispute.awaiting_external';
+    case DisputeResumed = 'dispute.resumed';
+    case DisputeResolved = 'dispute.resolved';
+    case ExternalDocumentRequested = 'external_document.requested';
+    case ExternalDocumentAttached = 'external_document.attached';
+    case ExternalDocumentAccepted = 'external_document.accepted';
+    case ExternalDocumentCorrectionRequested = 'external_document.correction_requested';
 
     public function area(): string
     {
@@ -193,6 +209,7 @@ enum AuditAction: string
             self::FinanceScheduleSynced, self::FinanceScheduleUpdated, self::PaymentRecorded, self::PaymentGatewayResult,
             self::PaymentReallocated, self::CreditTransferred, self::MoneyReversed, self::ProofSubmitted, self::ProofConfirmed,
             self::ProofCorrectionRequested, self::ProofCancelled, self::CollectionRemindersSent => 'finance',
+            self::RefundRequested, self::RefundStarted, self::RefundExecuted, self::RefundFailed, self::RefundCancelled, self::RefundRetried, self::PaymentCorrected, self::DisputeOpened, self::DisputeAwaiting, self::DisputeResumed, self::DisputeResolved, self::ExternalDocumentRequested, self::ExternalDocumentAttached, self::ExternalDocumentAccepted, self::ExternalDocumentCorrectionRequested => 'finance',
         };
     }
 

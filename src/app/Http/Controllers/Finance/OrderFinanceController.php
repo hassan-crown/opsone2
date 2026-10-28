@@ -12,6 +12,7 @@ use App\Enums\StateMachine;
 use App\Finance\FinanceLock;
 use App\Finance\FinancePresenter;
 use App\Finance\OrderSchedule;
+use App\Finance\Settlement\SettlementPresenter;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Finance\RecordPaymentRequest;
 use App\Http\Requests\Finance\ScheduleRequest;
@@ -51,6 +52,7 @@ class OrderFinanceController extends Controller
         return Inertia::render('orders/finance', [
             'order' => OrderPresenter::row($order, $actor),
             'finance' => $finance,
+            'settlement' => SettlementPresenter::forOrder($order, $actor),
             'today' => AppointmentBooking::today(),
         ]);
     }

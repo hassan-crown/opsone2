@@ -137,7 +137,7 @@ it('lists due, overdue, receipts and unallocated money in FinHome, scoped by P-3
         ->and(collect($mine['items'])->pluck('order.id')->unique()->all())->toBe([$this->f->order->id]);
 
     $all = $this->actingAs($this->f->owner)->getJson('/finance')->assertOk()->json();
-    expect($all['counts'])->toBe(['overdue' => 0, 'due' => 1, 'proof' => 1, 'settlement' => 1]);
+    expect($all['counts'])->toBe(['overdue' => 0, 'due' => 1, 'proof' => 1, 'settlement' => 1, 'refund' => 0, 'dispute' => 0]);
 
     $this->travel(10)->days();
     $later = $this->actingAs($this->f->owner)->getJson('/finance')->json();

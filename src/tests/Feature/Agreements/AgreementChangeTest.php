@@ -28,6 +28,7 @@ use App\Money\Money;
 use App\Support\StaleRecord;
 use Illuminate\Database\Schema\Builder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
@@ -60,8 +61,8 @@ it('AGR-06: lowering 20,000 to 18,000 after collecting 19,000 leaves 1,000 to se
         ->and($agreement->settlement_needed_minor)->toBe(100_000)
         ->and($this->f->order->refresh()->total_minor)->toBe(1_800_000);
     Event::assertDispatched(AgreementApplied::class, fn (AgreementApplied $e) => $e->agreementId === $agreement->id && $e->settlementNeededMinor === 100_000);
-    // No refund record exists in this part; finance settles it in P6b/P6c.
-    expect(Schema()->hasTable('refunds'))->toBeFalse();
+    // Lowering the agreement never creates a refund by itself; a refund is requested and executed in P6c.
+    expect(DB::table('refunds')->count())->toBe(0);
 });
 
 it('creates a new version on change and keeps the previous one unchanged as proof', function () {

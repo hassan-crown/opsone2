@@ -1,9 +1,10 @@
 import { Head, Link } from '@inertiajs/react';
-import { BellRing, Receipt, TrendingUp } from 'lucide-react';
+import { BellRing, FileText, Receipt, TrendingUp } from 'lucide-react';
 import { useState } from 'react';
 import CollectionReportController from '@/actions/App/Http/Controllers/Finance/CollectionReportController';
 import FinanceHomeController from '@/actions/App/Http/Controllers/Finance/FinanceHomeController';
 import OrderFinanceController from '@/actions/App/Http/Controllers/Finance/OrderFinanceController';
+import ExternalDocumentController from '@/actions/App/Http/Controllers/Settlement/ExternalDocumentController';
 import { toMajor } from '@/components/agreement/money';
 import { Shell } from '@/components/finance/dialogs';
 import type { ReminderRecipient, WorkItem } from '@/components/finance/types';
@@ -26,6 +27,7 @@ type Props = {
     items: WorkItem[];
     counts: Record<Kind, number>;
     can_report: boolean;
+    can_invoices?: boolean;
 };
 
 const TONE: Record<Kind, 'danger' | 'warning' | 'info' | 'neutral'> = {
@@ -33,13 +35,20 @@ const TONE: Record<Kind, 'danger' | 'warning' | 'info' | 'neutral'> = {
     due: 'warning',
     proof: 'info',
     settlement: 'neutral',
+    refund: 'warning',
+    dispute: 'danger',
 };
 
 /**
  * FinHome (FIN-11): what is due, overdue, waiting for a proof decision or holding unallocated money, oldest first,
  * only for orders whose money the viewer may see. Selected dues can be reminded after a preview (FinReminder).
  */
-export default function FinanceHome({ items, counts, can_report }: Props) {
+export default function FinanceHome({
+    items,
+    counts,
+    can_report,
+    can_invoices,
+}: Props) {
     const t = useT();
     const { locale } = useLocale();
     const [filter, setFilter] = useState<Kind | 'all'>('all');
@@ -89,6 +98,17 @@ export default function FinanceHome({ items, counts, can_report }: Props) {
                 description={t('finance.home.description')}
                 actions={
                     <>
+                        {can_invoices && (
+                            <Button asChild variant="secondary">
+                                <Link
+                                    href={ExternalDocumentController.index.url()}
+                                    data-test="invoices-link"
+                                >
+                                    <Icon icon={FileText} />
+                                    {t('invoices.title')}
+                                </Link>
+                            </Button>
+                        )}
                         {can_report && (
                             <Button asChild variant="secondary">
                                 <Link
@@ -118,7 +138,15 @@ export default function FinanceHome({ items, counts, can_report }: Props) {
                 data-test="work-filters"
             >
                 {(
-                    ['all', 'overdue', 'due', 'proof', 'settlement'] as const
+                    [
+                        'all',
+                        'overdue',
+                        'due',
+                        'proof',
+                        'settlement',
+                        'refund',
+                        'dispute',
+                    ] as const
                 ).map((k) => (
                     <Button
                         key={k}

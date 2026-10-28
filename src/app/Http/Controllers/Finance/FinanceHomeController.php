@@ -30,7 +30,7 @@ class FinanceHomeController extends Controller
             return response()->json($list);
         }
 
-        return Inertia::render('finance/index', [...$list, 'can_report' => Access::can($actor, Permission::P60)]);
+        return Inertia::render('finance/index', [...$list, 'can_report' => Access::can($actor, Permission::P60), 'can_invoices' => Access::can($actor, Permission::P44)]);
     }
 
     public function previewReminders(ReminderRequest $request, CollectionReminders $reminders): JsonResponse
