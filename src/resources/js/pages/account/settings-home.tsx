@@ -7,6 +7,7 @@ import {
     LifeBuoy,
     MonitorSmartphone,
     Bell,
+    Archive,
     Mail,
     Palette,
     Percent,
@@ -25,6 +26,7 @@ import { preferences as notificationPrefs } from '@/routes/notifications';
 import { show as ownership } from '@/routes/ownership';
 import { show as plan } from '@/routes/plan';
 import { edit as appearance } from '@/routes/appearance';
+import { show as closure } from '@/routes/closure';
 import { edit as profile } from '@/routes/profile';
 import { edit as security } from '@/routes/security';
 import { basic, home, sales, work } from '@/routes/settings';
@@ -50,6 +52,7 @@ type Props = {
         viewPlan: boolean;
         transferOwnership: boolean;
         manageSupportAccess: boolean;
+        closure: boolean;
     };
     pendingTransferForMe: boolean;
     pendingSupportRequests: number;
@@ -197,27 +200,35 @@ export default function SettingsHome({
         });
     }
 
-    const subscriptionCards: Card[] = can.viewPlan
-        ? [
-              {
-                  key: 'plan',
-                  href: plan(),
-                  icon: CreditCard,
-                  title: t('account.home.plan.title'),
-                  description:
-                      planInfo.seats_limit === null
-                          ? t('account.home.plan.summary_unknown', {
-                                plan: planName,
-                                used: planInfo.seats_used,
-                            })
-                          : t('account.home.plan.summary', {
-                                plan: planName,
-                                used: planInfo.seats_used,
-                                limit: planInfo.seats_limit,
-                            }),
-              },
-          ]
-        : [];
+    const subscriptionCards: Card[] = [];
+    if (can.viewPlan) {
+        subscriptionCards.push({
+            key: 'plan',
+            href: plan(),
+            icon: CreditCard,
+            title: t('account.home.plan.title'),
+            description:
+                planInfo.seats_limit === null
+                    ? t('account.home.plan.summary_unknown', {
+                          plan: planName,
+                          used: planInfo.seats_used,
+                      })
+                    : t('account.home.plan.summary', {
+                          plan: planName,
+                          used: planInfo.seats_used,
+                          limit: planInfo.seats_limit,
+                      }),
+        });
+    }
+    if (can.closure) {
+        subscriptionCards.push({
+            key: 'closure',
+            href: closure(),
+            icon: Archive,
+            title: t('closure.title'),
+            description: t('closure.card'),
+        });
+    }
 
     const accountCards: Card[] = [
         {

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Account\ClosureController;
 use App\Http\Controllers\Account\FacilityProfileController;
 use App\Http\Controllers\Account\OwnershipTransferController;
 use App\Http\Controllers\Account\PlanController;
@@ -29,6 +30,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->name('ownership.accept');
     Route::post('settings/ownership/{transfer}/reject', [OwnershipTransferController::class, 'reject'])->name('ownership.reject');
     Route::delete('settings/ownership/{transfer}', [OwnershipTransferController::class, 'cancel'])->name('ownership.cancel');
+
+    // Facility closure readiness and full data export (Q-53 a, ADR-0028): the owner only.
+    Route::get('settings/closure', [ClosureController::class, 'show'])->name('closure.show');
+    Route::post('settings/closure/exports', [ClosureController::class, 'store'])
+        ->middleware('throttle:3,10')
+        ->name('closure.exports.store');
+    Route::get('settings/closure/exports/{export}/download', [ClosureController::class, 'download'])
+        ->middleware('signed')
+        ->name('closure.exports.download');
 
     Route::get('settings/sessions', [SessionController::class, 'index'])->name('sessions.index');
     Route::delete('settings/sessions', [SessionController::class, 'destroyOthers'])

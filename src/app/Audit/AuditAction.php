@@ -271,6 +271,11 @@ enum AuditAction: string
     case CouponPaused = 'coupon.paused';
     case CouponResumed = 'coupon.resumed';
 
+    case BackupCreated = 'ops.backup_created';
+    case BackupRestored = 'ops.backup_restored';
+    case FacilityExportRequested = 'ops.export_requested';
+    case FacilityExportDownloaded = 'ops.export_downloaded';
+
     public function area(): string
     {
         return match ($this) {
@@ -285,6 +290,7 @@ enum AuditAction: string
             self::BranchCreated, self::BranchUpdated, self::BranchDisabled, self::BranchReactivated => 'branches',
             self::FacilityProfileUpdated, self::SetupStepSaved, self::SetupCompleted => 'settings',
             self::LicenseInstalled => 'license',
+            self::BackupCreated, self::BackupRestored, self::FacilityExportRequested, self::FacilityExportDownloaded => 'operations',
             self::AttachmentUploaded, self::AttachmentDownloaded => 'files',
             self::SmtpSettingsSaved, self::SmtpSettingsTested, self::SmtpEnabled, self::SmtpDisabled => 'integrations',
             self::SupportRequestSubmitted, self::SupportAccessRequested, self::SupportAccessGranted,

@@ -19,17 +19,18 @@ final class CustomerAccess
 {
     public static function canViewCustomer(User $user, Customer $customer): bool
     {
-        return Access::can($user, Permission::P10, $customer) || Access::can($user, Permission::P09, $customer);
+        // Reading survives read-only license phases; every change still goes through Access::can.
+        return Access::canRead($user, Permission::P10, $customer) || Access::canRead($user, Permission::P09, $customer);
     }
 
     public static function canSeeSensitive(User $user, Customer $customer): bool
     {
-        return Access::can($user, Permission::P10, $customer);
+        return Access::canRead($user, Permission::P10, $customer);
     }
 
     public static function canViewInterest(User $user, Interest $interest): bool
     {
-        return Access::can($user, Permission::P09, $interest) || Access::can($user, Permission::P15, $interest);
+        return Access::canRead($user, Permission::P09, $interest) || Access::canRead($user, Permission::P15, $interest);
     }
 
     /**
@@ -37,7 +38,7 @@ final class CustomerAccess
      */
     public static function visibleCustomers(User $user): Builder
     {
-        return ScopedQuery::apply(Customer::query(), $user, [Permission::P09, Permission::P10]);
+        return ScopedQuery::apply(Customer::query(), $user, [Permission::P09, Permission::P10], reading: true);
     }
 
     /**
@@ -45,7 +46,7 @@ final class CustomerAccess
      */
     public static function visibleInterests(User $user): Builder
     {
-        return ScopedQuery::apply(Interest::query(), $user, [Permission::P09, Permission::P15]);
+        return ScopedQuery::apply(Interest::query(), $user, [Permission::P09, Permission::P15], reading: true);
     }
 
     /**

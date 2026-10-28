@@ -10,7 +10,9 @@ use Illuminate\Support\Facades\Facade;
  * @method static bool can(?\Illuminate\Contracts\Auth\Authenticatable $user, Permission|string $permission, ?object $record = null)
  * @method static void authorize(?\Illuminate\Contracts\Auth\Authenticatable $user, Permission|string $permission, ?object $record = null)
  * @method static AccessDecision inspect(?\Illuminate\Contracts\Auth\Authenticatable $user, Permission|string $permission, ?object $record = null)
- * @method static list<Grant> grantsFor(\App\Models\User $user, Permission $permission)
+ * @method static AccessDecision inspectForReading(?\Illuminate\Contracts\Auth\Authenticatable $user, Permission|string $permission, ?object $record = null)
+ * @method static bool canRead(?\Illuminate\Contracts\Auth\Authenticatable $user, Permission|string $permission, ?object $record = null)
+ * @method static list<Grant> grantsFor(\App\Models\User $user, Permission $permission, bool $reading = false)
  * @method static list<Grant> effectiveGrants(\App\Models\User $user)
  *
  * @see Authorizer

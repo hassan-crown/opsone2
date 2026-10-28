@@ -52,6 +52,26 @@ final class Authorizer
 
     public function inspect(?Authenticatable $user, Permission|string $permission, ?object $record = null): AccessDecision
     {
+        return $this->evaluate($user, $permission, $record, reading: false);
+    }
+
+    /**
+     * For SHOWING records a permission already lets the user see (a list, a detail page): the same evaluation without
+     * the license phase step, so read-only and wind-down phases keep reading (SUB-12, NFR-16, ADR-0028). Never use it
+     * to authorize a change.
+     */
+    public function inspectForReading(?Authenticatable $user, Permission|string $permission, ?object $record = null): AccessDecision
+    {
+        return $this->evaluate($user, $permission, $record, reading: true);
+    }
+
+    public function canRead(?Authenticatable $user, Permission|string $permission, ?object $record = null): bool
+    {
+        return $this->inspectForReading($user, $permission, $record)->allowed;
+    }
+
+    private function evaluate(?Authenticatable $user, Permission|string $permission, ?object $record, bool $reading): AccessDecision
+    {
         $permission = $permission instanceof Permission ? $permission : Permission::tryFrom($permission);
 
         if ($permission === null) {
@@ -74,7 +94,7 @@ final class Authorizer
         }
 
         // The user's own account (sign-in, password, sessions, notifications) stays open in every license phase.
-        if ($audience === Audience::Staff) {
+        if ($audience === Audience::Staff && ! $reading) {
             $mode = $this->license->mode();
             if ($mode === LicenseMode::ReadOnly && ! $permission->availableReadOnly()) {
                 return AccessDecision::deny(DenyReason::LicenseReadOnly);
@@ -121,9 +141,9 @@ final class Authorizer
      *
      * @return list<Grant>
      */
-    public function grantsFor(User $user, Permission $permission): array
+    public function grantsFor(User $user, Permission $permission, bool $reading = false): array
     {
-        if ($this->inspect($user, $permission)->allowed === false) {
+        if ($this->evaluate($user, $permission, null, $reading)->allowed === false) {
             return [];
         }
 
