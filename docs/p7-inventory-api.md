@@ -73,3 +73,41 @@ Branch transfer impact `reserved_stock`: `{available: true, applicable, reserved
 
 `SR-YYYY-000001` reservation · `SA-` adjustment · `SI-` direct material issue · `ST-` transfer · `SC-` count; each
 movement carries its document number, so a reservation's reserve → issue → release rows share `SR-…`.
+
+## Delivery (P7c, ADR-0018) — M-14
+
+Quantities are decimal text in JSON, thousandths in PHP. Every write takes `idempotency_key` (field or `Idempotency-Key`
+header, 8–100 chars, reused on retry) and the note's `lock_version`; errors as above (403 Gate, 409 state / stale, 422).
+
+| Method | URL | Body | Permission |
+|---|---|---|---|
+| GET | `/deliveries` (`?status&q`) | — | P-52 → `{awaiting: [{id, number, kind, status, customer, lines, partial, ready}], notes: Page<row>}` |
+| GET | `/orders/{order}/deliveries/create` | — | P-52 on the order → `{order, lines: [{order_line_id, name, unit, ordered, delivered, released, deliverable, unit_price_minor?}]}` |
+| POST | `/orders/{order}/deliveries` | `idempotency_key, note?, lines[{order_line_id, quantity}]` | P-52 on the order → 201 `{note}` (draft, no number) |
+| GET | `/deliveries/{note}` | — | P-52 on the order → `{note: {id, number, status, order, lines[{…, quantity, deliverable?, value_minor?}], proofs[{uuid, name, url}], can{confirm, cancel}, lock_version}}` |
+| POST | `/deliveries/{note}/confirm` | multipart: `idempotency_key, lock_version, delivered_on (≤ today), receiver_name, note?, proofs[1..5]` | P-52 → `{note}` with `number = DN-YYYY-000123` |
+| POST | `/deliveries/{note}/cancel` | `reason, lock_version?` | P-52, drafts only |
+
+PHP seams:
+
+| Seam | Use |
+|---|---|
+| `Actions\StateMachines\M14Delivery\T00CreateDraft::handle($actor, $order, [{order_line_id, quantity_milli}], ?$note, ?$key)` | draft |
+| `…\T01ConfirmDelivery::handle($actor, $note, {delivered_on, receiver_name, note?}, UploadedFile[], ?$lockVersion, ?$key)` | record: order lock → issue reservations → `DN-` number → proof → order T08 → P5 result |
+| `…\T02CancelDraft::handle($actor, $note, $reason, ?$lockVersion, ?$key)` | withdraw a draft |
+| `Delivery\DeliveryProgress::lines($order)` / `::complete($order)` / `::deliveredByLine($orderId)` | owed per line `{ordered, delivered, released, deliverable}`; completion; the delivered base **for returns** (confirmed notes, thousandths by order line id) |
+| `Delivery\DeliveryAccess::{canRecord, canView, canSeeAmounts, orders, scoped}` | P-52 on the order, P-37 for amounts |
+| event `App\Delivery\DeliveryConfirmed(orderId, noteId, first, complete)` | after commit; listeners idempotent on `noteId` |
+
+Refusals: draft/confirm on an order that cannot accept a delivery → 409 `order_{status}`; confirming a non-draft → 409
+`not_from_{status}`; quantity above deliverable → 422 `lines.N.quantity` / `lines`; no receiver / no proof → 422.
+
+Contracts to other domains:
+
+- **P5**: a complete delivery of a custom order calls `ActionResults::verifyFromSource($order, ActionType::RecordDelivery, null, 'delivery_note', $noteId, $actor)`
+  once (nothing for a partial delivery, nothing for ready orders — they have no flow).
+- **P6**: due event `delivery` (`DueEvent::Delivery`, schedule rows accept `event: "delivery"`): due on the date of the
+  order's first confirmed delivery note; `DueCalendar::dates()` derives it, nothing is stored.
+- **P7a**: stock leaves only through `IssueReadyReservation` (movement `issue_reserved`, `source_type = delivery_note`,
+  `source_id = note id`, key `delivery:{note}:{line}:{reservation}`).
+- **Numbers**: `DN-YYYY-000123` (gapless per year, taken at recording; drafts and withdrawn drafts have none).
