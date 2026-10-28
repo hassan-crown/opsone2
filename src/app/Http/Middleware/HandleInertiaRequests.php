@@ -8,8 +8,10 @@ use App\Delivery\DeliveryAccess;
 use App\Inventory\StockAccess;
 use App\Notifications\NotificationFeed;
 use App\Returns\ReturnAccess;
+use App\Support\TranslationsVersion;
 use App\Tickets\TicketAccess;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 use Inertia\Middleware;
 
 class HandleInertiaRequests extends Middleware
@@ -48,7 +50,8 @@ class HandleInertiaRequests extends Middleware
             'locale' => app()->getLocale(),
             'dir' => SetLocale::direction(app()->getLocale()),
             'locales' => config('app.available_locales'),
-            'translations' => $this->translations(),
+            // ~330 KB of strings: sent once per locale and version, then the client keeps them (ADR-0027).
+            'translations' => Inertia::once(fn () => $this->translations())->as(TranslationsVersion::key('translations')),
             'auth' => [
                 'user' => $request->user(),
             ],

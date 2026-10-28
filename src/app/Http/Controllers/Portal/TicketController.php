@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Portal;
 
 use App\Files\Rules\AllowedAttachment;
-use App\Models\Order;
 use App\Models\Tickets\Ticket;
 use App\Portal\CustomerTickets;
 use App\Portal\PortalAccess;
@@ -41,7 +40,7 @@ final class TicketController extends PortalController
         $preset = is_string($linked) ? $orders->firstWhere('id', (int) $linked)?->id : null;
 
         return Inertia::render('portal/ticket-new', [
-            'orders' => array_values($orders->map(fn (Order $o) => PortalPresenter::order($o))->all()),
+            'orders' => PortalPresenter::orders($orders),
             'order_id' => $preset,
             'max_files' => TicketMessages::MAX_FILES,
         ]);

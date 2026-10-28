@@ -13,6 +13,7 @@ use App\Models\Order;
 use App\Models\WorkSettings;
 use App\Orders\OrderAccess;
 use App\Organization\OrgPresenter;
+use App\Support\PropRows;
 use App\Workflow\AppointmentBooking;
 use App\Workflow\AppointmentQueries;
 use Carbon\CarbonImmutable;
@@ -45,9 +46,7 @@ class CalendarController extends Controller
         $from = $view === 'day' ? $anchor : $anchor->subDays($anchor->dayOfWeek);
         $to = $from->addDays($view === 'day' ? 1 : 7);
 
-        $rows = AppointmentQueries::between($user, $from, $to, isset($filters['member']) ? [(int) $filters['member']] : null)
-            ->when(isset($filters['branch']), fn ($c) => $c->filter(fn (Appointment $a) => $a->order->branch_id === (int) $filters['branch']));
-        $rows->each(fn (Appointment $a) => $a->loadMissing(['order.branch', 'order.customer']));
+        $rows = AppointmentQueries::between($user, $from, $to, isset($filters['member']) ? [(int) $filters['member']] : null, isset($filters['branch']) ? (int) $filters['branch'] : null);
 
         $settings = WorkSettings::current();
         $days = [];
@@ -60,7 +59,7 @@ class CalendarController extends Controller
             'date' => $anchor->format('Y-m-d'),
             'from' => $from->format('Y-m-d'),
             'days' => $days,
-            'appointments' => array_values($rows->map(fn (Appointment $a) => CalendarPresenter::row($a, $user))->all()),
+            'appointments' => PropRows::of($rows->map(fn (Appointment $a) => CalendarPresenter::row($a, $user))),
             'filters' => ['branch' => isset($filters['branch']) ? (string) $filters['branch'] : '', 'member' => isset($filters['member']) ? (string) $filters['member'] : ''],
             'branches' => array_values(Branch::query()->orderBy('id')->get()->map(fn (Branch $b) => ['id' => $b->id, 'name' => OrgPresenter::name($b)])->all()),
             'members' => CustomerPresenter::memberOptions(),

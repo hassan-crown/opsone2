@@ -8,6 +8,7 @@ use App\Enums\TaskStatus;
 use App\Models\Appointment;
 use App\Models\Task;
 use App\Models\User;
+use App\Support\PropRows;
 use App\Workflow\AppointmentBooking;
 use App\Workflow\TaskQueries;
 use Illuminate\Support\Collection;
@@ -79,11 +80,13 @@ final class TaskViews
     /**
      * `ExecHomeMobile`: my open work split into today (incl. overdue) and upcoming, each with the visit it is booked on.
      *
-     * @return array{today: list<array<string, mixed>>, upcoming: list<array<string, mixed>>, inbox: int, waiting: int}
+     * @param  array{mine?: Collection<int, Task>, inbox?: Collection<int, Task>}  $loaded  sets the caller already read (home)
+     * @return array{today: list<object>, upcoming: list<object>, inbox: int, waiting: int}
      */
-    public static function execHome(User $user): array
+    public static function execHome(User $user, array $loaded = []): array
     {
-        $mine = self::sorted(TaskQueries::mine($user))->filter(fn (Task $t) => $t->status !== TaskStatus::Waiting);
+        $all = self::sorted($loaded['mine'] ?? TaskQueries::mine($user));
+        $mine = $all->filter(fn (Task $t) => $t->status !== TaskStatus::Waiting);
         $endOfToday = now(AppointmentBooking::timezone())->endOfDay();
         $visits = Appointment::query()->whereIn('task_id', $mine->pluck('id'))->whereNotIn('status', ['cancelled', 'done'])
             ->orderBy('starts_at')->get()->groupBy('task_id');
@@ -101,33 +104,35 @@ final class TaskViews
         $today = $mine->filter(fn (Task $t) => $t->due_at !== null && $t->due_at->lte($endOfToday));
 
         return [
-            'today' => array_values($today->map($shape)->all()),
-            'upcoming' => array_values($mine->reject(fn (Task $t) => $today->contains('id', $t->id))->take(10)->map($shape)->all()),
-            'inbox' => TaskQueries::inbox($user)->count(),
-            'waiting' => TaskQueries::mine($user)->filter(fn (Task $t) => $t->status === TaskStatus::Waiting)->count(),
+            'today' => PropRows::of($today->map($shape)),
+            'upcoming' => PropRows::of($mine->reject(fn (Task $t) => $today->contains('id', $t->id))->take(10)->map($shape)),
+            'inbox' => ($loaded['inbox'] ?? TaskQueries::inbox($user))->count(),
+            'waiting' => $all->count() - $mine->count(),
         ];
     }
 
     /**
      * Home cards (SHR-01): counts and the next few rows, scoped like the lists.
      *
+     * @param  array{mine?: Collection<int, Task>, inbox?: Collection<int, Task>}  $loaded  sets the caller already read (home)
      * @return array<string, array<string, mixed>>
      */
-    public static function homeCards(User $user): array
+    public static function homeCards(User $user, array $loaded = []): array
     {
         $cards = [];
-        $mine = self::sorted(TaskQueries::mine($user));
+        $mine = self::sorted($loaded['mine'] ?? TaskQueries::mine($user));
         $open = $mine->filter(fn (Task $t) => $t->status !== TaskStatus::Waiting);
+        $inbox = $loaded['inbox'] ?? TaskQueries::inbox($user);
         $cards['my_tasks'] = [
             'count' => $mine->count(),
             'overdue' => $mine->filter(fn (Task $t) => $t->due_at !== null && $t->due_at->isPast())->count(),
             'waiting' => $mine->count() - $open->count(),
-            'inbox' => TaskQueries::inbox($user)->count(),
+            'inbox' => $inbox->count(),
             'items' => $open->take(3)->map(fn (Task $t) => TaskPresenter::row($t, $user))->values()->all(),
         ];
 
         if (Access::can($user, Permission::P22)) {
-            $unassigned = self::pick(['mine' => collect(), 'inbox' => TaskQueries::inbox($user), 'followed' => TaskQueries::followed($user), 'completed' => collect()], 'all');
+            $unassigned = self::pick(['mine' => collect(), 'inbox' => $inbox, 'followed' => TaskQueries::followed($user), 'completed' => collect()], 'all');
             $cards['department_inbox'] = [
                 'count' => $unassigned->count(),
                 'items' => $unassigned->take(3)->map(fn (Task $t) => TaskPresenter::row($t, $user))->values()->all(),

@@ -143,6 +143,7 @@ final class MoneyLedger
 
         $journals = [];
         foreach ($open as $journal) {
+            $journal->setRelation('payment', $payment);
             $journals[] = $this->reverse($journal, $reason, $actor, $source);
         }
 

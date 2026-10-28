@@ -30,11 +30,23 @@ class StockItem extends Model
 
     protected $attributes = ['lock_version' => 1];
 
+    /** Set by StockItems::preload() for lists; false = not preloaded. */
+    private CatalogReadyVariant|CatalogMaterial|false|null $preloadedCatalog = false;
+
     public function catalogItem(): CatalogReadyVariant|CatalogMaterial|null
     {
+        if ($this->preloadedCatalog !== false) {
+            return $this->preloadedCatalog;
+        }
+
         return $this->item_type === self::READY_VARIANT
             ? CatalogReadyVariant::query()->with('product')->find($this->item_id)
             : CatalogMaterial::query()->find($this->item_id);
+    }
+
+    public function preloadCatalog(CatalogReadyVariant|CatalogMaterial|null $catalog): void
+    {
+        $this->preloadedCatalog = $catalog;
     }
 
     protected function casts(): array

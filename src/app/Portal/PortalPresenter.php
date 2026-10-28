@@ -3,6 +3,7 @@
 namespace App\Portal;
 
 use App\Agreements\OrderAgreement;
+use App\Enums\AgreementStatus;
 use App\Enums\AppointmentStatus;
 use App\Enums\CancellationStatus;
 use App\Enums\CustomOrderStatus;
@@ -13,6 +14,7 @@ use App\Enums\ReadyOrderStatus;
 use App\Finance\Allocator;
 use App\Finance\DueCalendar;
 use App\Finance\MoneyLedger;
+use App\Models\Agreements\Agreement;
 use App\Models\Agreements\AgreementDocument;
 use App\Models\Agreements\CustomerDecision;
 use App\Models\Appointment;
@@ -43,9 +45,34 @@ final class PortalPresenter
     private const TOTAL_KEYS = ['discount_minor', 'net_minor', 'vat_minor', 'total_minor'];
 
     /**
+     * Rows of an order list with titles and current stages read in two queries for the whole list (ADR-0027).
+     *
+     * @param  iterable<Order>  $orders
+     * @return list<array<string, mixed>>
+     */
+    public static function orders(iterable $orders): array
+    {
+        $orders = collect($orders)->values();
+        $ids = $orders->pluck('id')->all();
+        if ($ids === []) {
+            return [];
+        }
+        $stages = OrderStage::query()->whereIn('order_id', $ids)->where('show_to_customer', true)
+            ->whereNotNull('started_at')->whereNull('completed_at')->orderBy('position')->get()->groupBy('order_id');
+        $lines = OrderLine::query()->whereIn('order_id', $ids)->whereNull('removed_at')->orderBy('position')
+            ->get(['id', 'order_id', 'position', 'description'])->groupBy('order_id');
+
+        return array_values($orders->map(fn (Order $order) => self::order($order, [
+            'stage' => self::stageName($stages->get($order->id)?->first()),
+            'line' => $lines->get($order->id)?->first()?->description,
+        ]))->all());
+    }
+
+    /**
+     * @param  array{stage: string|null, line: string|null}|null  $preloaded  from orders()
      * @return array<string, mixed>
      */
-    public static function order(Order $order): array
+    public static function order(Order $order, ?array $preloaded = null): array
     {
         return [
             'id' => $order->id,
@@ -53,9 +80,9 @@ final class PortalPresenter
             'kind' => $order->kind->value,
             'status' => $order->status,
             'open' => ! in_array($order->status, [CustomOrderStatus::Cancelled->value, CustomOrderStatus::Closed->value, ReadyOrderStatus::Delivered->value], true),
-            'title' => self::title($order),
+            'title' => self::title($order, $preloaded),
             'created_on' => $order->created_at->toDateString(),
-            'stage' => self::currentStage($order),
+            'stage' => $preloaded === null ? self::currentStage($order) : $preloaded['stage'],
         ];
     }
 
@@ -110,9 +137,14 @@ final class PortalPresenter
             $items[] = ['type' => 'proof', 'id' => $proof->id, 'order' => $proof->order->number, 'order_id' => $proof->order_id,
                 'reason' => $proof->correction_reason];
         }
-        foreach (PortalAccess::orders($customer)->get() as $order) {
+        // Only orders that accept a proof (acceptsProofs: an active agreement, not cancelled or closed) can owe a
+        // payment here; their money is read per order, the rest is never computed (ADR-0027).
+        $payable = PortalAccess::orders($customer)
+            ->whereNotIn('orders.status', [CustomOrderStatus::Cancelled->value, CustomOrderStatus::Closed->value])
+            ->whereIn('orders.id', Agreement::query()->where('status', AgreementStatus::Active->value)->select('order_id'));
+        foreach ($payable->get() as $order) {
             $finance = self::finance($order);
-            if (($finance['due_now_minor'] ?? 0) > 0 && self::acceptsProofs($order)) {
+            if (($finance['due_now_minor'] ?? 0) > 0) {
                 $items[] = ['type' => 'payment', 'id' => $order->id, 'order' => $order->number, 'order_id' => $order->id,
                     'amount_minor' => $finance['due_now_minor'], 'pending_minor' => $finance['pending_proofs_minor']];
             }
@@ -368,20 +400,28 @@ final class PortalPresenter
 
     private static function currentStage(Order $order): ?string
     {
-        $stage = OrderStage::query()->where('order_id', $order->id)->where('show_to_customer', true)
-            ->whereNotNull('started_at')->whereNull('completed_at')->orderBy('position')->first();
+        return self::stageName(OrderStage::query()->where('order_id', $order->id)->where('show_to_customer', true)
+            ->whereNotNull('started_at')->whereNull('completed_at')->orderBy('position')->first());
+    }
 
+    private static function stageName(?OrderStage $stage): ?string
+    {
         return $stage === null ? null : ($stage->public_name->get() ?? $stage->name->get());
     }
 
-    private static function title(Order $order): ?string
+    /**
+     * @param  array{stage: string|null, line: string|null}|null  $preloaded
+     */
+    private static function title(Order $order, ?array $preloaded = null): ?string
     {
         if (! $order->isReady() && $order->need_summary !== null && $order->need_summary !== '') {
             return $order->need_summary;
         }
-        $line = $order->activeLines()->orderBy('position')->first();
+        if ($preloaded !== null) {
+            return $preloaded['line'];
+        }
 
-        return $line?->description;
+        return $order->activeLines()->orderBy('position')->first()?->description;
     }
 
     private static function local(mixed $at): string

@@ -18,6 +18,7 @@ use App\Models\Order;
 use App\Models\User;
 use App\Orders\OrderAccess;
 use App\Workflow\AppointmentBooking;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 
 /**
  * The order's money for the screens (FinOrder, FinOrderPaid, FinSales, FinOrderMobile, FinEnglish, FinDark): the four
@@ -212,6 +213,8 @@ final class FinancePresenter
     private static function files(array $attachments, User $viewer): array
     {
         $files = app(AttachmentService::class);
+        // canDownload() asks the Gate about each file's owner: load the owners once.
+        (new EloquentCollection($attachments))->loadMissing('attachable');
 
         return array_map(fn (Attachment $a) => [
             'uuid' => $a->uuid,
