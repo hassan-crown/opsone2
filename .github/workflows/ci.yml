@@ -65,6 +65,61 @@ jobs:
         if: steps.app.outputs.exists != 'true'
         run: echo 'Starter is intentionally empty; app tests start after /project-init.'
 
+  laravel-tests-mariadb:
+    # Same suite against the production engine (MariaDB 11): catches collation, strict-mode, savepoint and
+    # SUM()-type differences that SQLite hides.
+    runs-on: ubuntu-latest
+    services:
+      mariadb:
+        image: mariadb:11
+        env:
+          MARIADB_ROOT_PASSWORD: root
+          MARIADB_DATABASE: opsone_test
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="healthcheck.sh --connect --innodb_initialized"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.5'
+          extensions: mbstring, intl, zip, bcmath, pdo_sqlite, pdo_mysql, redis
+          coverage: none
+      - name: Install PHP dependencies
+        working-directory: src
+        run: composer install --no-interaction --prefer-dist
+      - name: Prepare environment
+        working-directory: src
+        run: |
+          cp -n .env.example .env
+          php artisan key:generate --force
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Build frontend assets (Vite manifest required by Inertia tests)
+        working-directory: src
+        run: |
+          corepack enable
+          pnpm install --frozen-lockfile
+          pnpm run build
+      - name: Run tests on MariaDB
+        working-directory: src
+        run: php artisan test
+        env:
+          DB_CONNECTION: mysql
+          DB_HOST: 127.0.0.1
+          DB_PORT: 3306
+          DB_DATABASE: opsone_test
+          DB_USERNAME: root
+          DB_PASSWORD: root
+          CACHE_STORE: array
+          SESSION_DRIVER: array
+          QUEUE_CONNECTION: sync
+
   frontend-build:
     runs-on: ubuntu-latest
     steps:
