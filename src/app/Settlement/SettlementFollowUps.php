@@ -182,9 +182,11 @@ final class SettlementFollowUps
         if ($refundItems === []) {
             return [];
         }
+        // Only refunds asked after the item count: one already pending at the decision was taken off its target.
+        $floors = array_map(fn (SettlementItem $i) => (int) ($i->details['refund_floor'] ?? 0), $refundItems);
         $since = min(array_map(fn (SettlementItem $i) => $i->created_at, $refundItems));
         $pool = (int) Refund::query()->where('order_id', $order->id)->where('status', RefundStatus::Executed->value)
-            ->whereNotIn('id', self::returnRefundIds($order->id))
+            ->whereNull('order_return_id')->where('id', '>', min($floors))
             ->where('executed_at', '>=', $since)->sum('amount_minor');
         $covered = [];
         foreach ($refundItems as $item) {
@@ -204,7 +206,7 @@ final class SettlementFollowUps
      */
     public static function returnRefundIds(int $orderId): array
     {
-        return OrderReturn::query()->where('order_id', $orderId)->whereNotNull('refund_id')->pluck('refund_id')->map(fn ($id) => (int) $id)->values()->all();
+        return Refund::query()->where('order_id', $orderId)->whereNotNull('order_return_id')->pluck('id')->map(fn ($id) => (int) $id)->values()->all();
     }
 
     /**

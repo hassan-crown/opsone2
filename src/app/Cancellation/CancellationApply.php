@@ -23,6 +23,7 @@ use App\Models\Agreements\CustomerDecision;
 use App\Models\Appointment;
 use App\Models\Cancellation\OrderCancellation;
 use App\Models\Cancellation\OrderCancellationLine;
+use App\Models\Finance\Refund;
 use App\Models\Inventory\StockReservation;
 use App\Models\Order;
 use App\Models\OrderLine;
@@ -239,7 +240,8 @@ final class CancellationApply
             return;
         }
         if ($refund > 0) {
-            $this->settlement->add($order, SettlementItem::REFUND, $source, ['cancellation' => $cancellation->number], $refund);
+            $floor = (int) Refund::query()->where('order_id', $order->id)->max('id');
+            $this->settlement->add($order, SettlementItem::REFUND, $source, ['cancellation' => $cancellation->number, 'refund_floor' => $floor], $refund);
         }
         foreach ($purchases as $po) {
             $this->settlement->add($order, SettlementItem::SUPPLIER, $source, ['number' => $po['number']], null, 'purchase_order', $po['id']);

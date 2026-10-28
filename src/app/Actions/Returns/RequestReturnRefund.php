@@ -64,6 +64,7 @@ final class RequestReturnRefund
             $reason = T00RequestReturn::reason($data['reason'], 'reason');
 
             $refund = $this->refunds->request($actor, $locked, $payment, $amount, $data['method'], $locked->number.' — '.$reason, $idempotencyKey);
+            $refund->forceFill(['order_return_id' => $locked->id])->save();
             $locked->forceFill(['refund_id' => $refund->id, 'lock_version' => $locked->lock_version + 1])->save();
             Audit::record(AuditAction::ReturnRefundRequested, $locked, $actor, after: ['number' => $locked->number, 'refund' => $refund->id, 'amount_minor' => $amount->minor], reason: $reason, source: $source, branchIds: [$locked->order->branch_id], label: $locked->number);
             if ($locked->status === ReturnStatus::Inspected) {

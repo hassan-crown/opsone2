@@ -2,13 +2,16 @@
 
 namespace App\Actions\StateMachines\M12Refund;
 
+use App\Access\Exceptions\InvalidTransition;
 use App\Access\Permission;
 use App\Access\TransitionRecorder;
 use App\Audit\Audit;
 use App\Audit\AuditAction;
+use App\Enums\StateMachine;
 use App\Finance\FinanceLock;
 use App\Finance\FinanceWrite;
 use App\Models\Finance\Refund;
+use App\Models\Returns\OrderReturn;
 use App\Models\User;
 use Illuminate\Support\Facades\Validator;
 
@@ -33,6 +36,10 @@ final class T07RetryRefund
 
         $this->write->run('refund.retry', $actor, $idempotencyKey, [...$data, 'refund' => $refund->id, 'lock_version' => $lockVersion], function () use ($actor, $refund, $data, $lockVersion, $source) {
             [$order, $locked, $head] = RefundStep::lock($actor, $refund, Permission::P43, $lockVersion, 'T07');
+            // A return asked a new refund after this one failed: retrying the old one would pay the return twice.
+            if ($locked->order_return_id !== null && OrderReturn::query()->whereKey($locked->order_return_id)->value('refund_id') !== $locked->id) {
+                throw new InvalidTransition(StateMachine::M12, 'T07', 'superseded');
+            }
             T01StartRefund::start($this->transitions, $locked, $data['reference'] ?? null, 'T07', $actor, $source);
             FinanceLock::touch($head);
             Audit::record(AuditAction::RefundRetried, $order, $actor, after: ['refund' => $locked->id, 'attempt' => $locked->attempt], source: $source, label: $order->number);

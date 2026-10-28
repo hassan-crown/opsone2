@@ -7,7 +7,11 @@
  * settles the cancellation's refund item (and vice versa).
  */
 
+use App\Access\Exceptions\InvalidTransition;
 use App\Actions\Returns\RequestReturnRefund;
+use App\Actions\StateMachines\M12Refund\T01StartRefund;
+use App\Actions\StateMachines\M12Refund\T04RecordRefundFailure;
+use App\Actions\StateMachines\M12Refund\T07RetryRefund;
 use App\Actions\StateMachines\M15Return\T03WithdrawReturn;
 use App\Models\Finance\Payment;
 use App\Models\Finance\Refund;
@@ -143,4 +147,44 @@ it('lets a cancellation of the undelivered rest leave an open return untouched, 
     rtReceive($f->keeper, $return, $f->location, '1', ['1', '0', '0']);
     expect($return->refresh()->status->value)->toBe('inspected');
     stockJournalMatches();
+});
+
+it('never lets a refund pending at the cancellation settle the cancellation refund item', function () {
+    $d = deliveryFixture(10, 5);
+    $order = $d->order->refresh();
+    $payment = finPay($d->owner, $order, Money::of((int) $order->total_minor)->toInput());
+    $unit = intdiv((int) $order->total_minor, 5);
+    $pending = setRefund($d->owner, $order, $payment, Money::of($unit)->toInput());
+
+    // 2 of 5 cancelled: 2 units back, one of them already on its way.
+    cnCancel($d->owner, $order, ['scope' => 'partial', 'lines' => [['ref' => 'l'.deliveryLineId($order), 'quantity' => '2']]]);
+    $item = SettlementItem::query()->where('order_id', $order->id)->where('kind', SettlementItem::REFUND)->sole();
+    expect($item->target_minor)->toBe($unit);
+
+    // The refund asked before the decision is paid: the item still waits for its own unit.
+    setPaid($d->owner, $pending);
+    expect($item->refresh()->status)->toBe('open');
+
+    setPaid($d->owner, setRefund($d->owner, $order->refresh(), $payment, Money::of($unit)->toInput()));
+    expect($item->refresh()->status)->toBe('done');
+});
+
+it('refuses to retry a failed return refund the return already asked again', function () {
+    $f = returnFixture(10, 5, 5);
+    $payment = finPay($f->owner, $f->order, Money::of((int) $f->order->refresh()->total_minor)->toInput());
+    $return = rtAccept($f->manager, rtRequest($f->keeper, $f->order, $f->line, '2'));
+
+    $first = seamRefund($f->manager, $return, $payment);
+    $started = app(T01StartRefund::class)->handle($f->owner, $first->refresh(), [], $first->lock_version, rtKey());
+    $failed = app(T04RecordRefundFailure::class)->handle($f->owner, $started, 'رفض البنك التحويل', $started->lock_version, rtKey());
+    $second = seamRefund($f->manager, $return, $payment);
+
+    expect($first->refresh()->order_return_id)->toBe($return->id)->and($second->order_return_id)->toBe($return->id)
+        ->and(SettlementFollowUps::returnRefundIds($f->order->id))->toBe([$first->id, $second->id]);
+    setRefused(fn () => app(T07RetryRefund::class)->handle($f->owner, $failed->refresh(), [], $failed->lock_version, rtKey()), InvalidTransition::class, 'superseded');
+
+    // The live one is paid once; the return item is settled by it.
+    setPaid($f->owner, $second);
+    expect(seamItem($return)->status)->toBe('done')
+        ->and((int) Refund::query()->where('status', 'executed')->sum('amount_minor'))->toBe((int) $return->refresh()->settlement_minor);
 });
