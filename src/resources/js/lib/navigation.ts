@@ -16,11 +16,13 @@ import {
     Users,
     Warehouse,
     Globe,
+    ShoppingBag,
 } from 'lucide-react';
 import CommissionController from '@/actions/App/Http/Controllers/Commissions/CommissionController';
 import CalendarController from '@/actions/App/Http/Controllers/Calendar/CalendarController';
 import CatalogHomeController from '@/actions/App/Http/Controllers/Catalog/CatalogHomeController';
 import SitePageController from '@/actions/App/Http/Controllers/Site/SitePageController';
+import StoreAdminController from '@/actions/App/Http/Controllers/Store/StoreAdminController';
 import StockController from '@/actions/App/Http/Controllers/Inventory/StockController';
 import CustomerController from '@/actions/App/Http/Controllers/Customers/CustomerController';
 import FinanceHomeController from '@/actions/App/Http/Controllers/Finance/FinanceHomeController';
@@ -57,7 +59,8 @@ export type LocalizedNavItem = Omit<NavItem, 'title'> & {
         | 'procurement'
         | 'delivery'
         | 'returns'
-        | 'site';
+        | 'site'
+        | 'store';
 };
 
 /** Primary navigation (5–7 items max; settings live in the footer / user menu). */
@@ -152,6 +155,12 @@ export const mainNav: LocalizedNavItem[] = [
         href: SitePageController.index(),
         icon: Globe,
         access: 'site',
+    },
+    {
+        label: 'store.nav',
+        href: StoreAdminController.links(),
+        icon: ShoppingBag,
+        access: 'store',
     },
     {
         label: 'flow.nav',

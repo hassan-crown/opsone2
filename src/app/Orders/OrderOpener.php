@@ -116,6 +116,49 @@ final class OrderOpener
     }
 
     /**
+     * M-05-T00 from the store (ADR-0023): the customer proved their identity at checkout and chose the lines; no staff
+     * member opens it, so there is no staff authorization here — the caller checked that the store is selling
+     * (license `ready_goods`, StoreGate). The order opens in the store's receiving branch, followed by the basket
+     * link's owner or the store handler. Inside the caller's transaction.
+     *
+     * @param  list<array{type: string, variant_id: int, quantity: string}>  $lines
+     */
+    public function openFromStore(Customer $customer, int $branchId, ?int $assigneeId, array $lines, string $source): Order
+    {
+        if (DB::transactionLevel() === 0) {
+            throw new LogicException('Orders are opened inside the caller\'s transaction.');
+        }
+        if (Branch::query()->whereKey($branchId)->where('status', OrganizationUnitStatus::Active)->doesntExist()) {
+            throw ValidationException::withMessages(['branch_id' => __('orders.validation.branch_inactive')]);
+        }
+
+        $order = new Order([
+            'kind' => OrderKind::Ready,
+            'status' => ReadyOrderStatus::Draft->value,
+            'customer_id' => $customer->id,
+            'branch_id' => $branchId,
+            'assignee_id' => $assigneeId,
+            'created_by' => null,
+        ]);
+        $order->contact_id = $customer->isOrganization() ? self::contactFor($customer, null) : null;
+        $order->number = $this->sequence->format(self::SEQUENCE, 'ORD');
+        $order->save();
+
+        foreach ($lines as $i => $input) {
+            $this->lines->build($order, $input, null, $i + 1, 'lines.'.$i)->save();
+        }
+        $order->total_minor = OrderLineBuilder::total($order, 'lines');
+        $order->save();
+
+        $this->transitions->record(OrderKind::Ready->machine(), 'T00', $order, null, ReadyOrderStatus::Draft, null, $source, context: [
+            'number' => $order->number, 'channel' => 'store',
+        ]);
+        Audit::record(AuditAction::OrderCreated, $order, null, after: OrderPresenter::auditSnapshot($order), source: $source, label: $order->number);
+
+        return $order;
+    }
+
+    /**
      * The order's contact person: only an active contact of this organization customer; its primary by default.
      */
     public static function contactFor(Customer $customer, mixed $contactId): ?int

@@ -142,5 +142,10 @@ function readyGateway(): PaymentGateway
         {
             return new VerifiedGatewayEvent('x', 'y', 'succeeded', 1, 'SAR');
         }
+
+        public function fetch(Payment $payment): ?VerifiedGatewayEvent
+        {
+            return null;
+        }
     };
 }

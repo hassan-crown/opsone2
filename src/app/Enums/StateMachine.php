@@ -34,6 +34,9 @@ enum StateMachine: string
     case M25 = 'M-25';
     case M26 = 'M-26';
     case M27 = 'M-27';
+    // P8 store (ADR-0023): basket link and coupon use.
+    case M31 = 'M-31';
+    case M32 = 'M-32';
     case M33 = 'M-33';
     // P7 cancellation (ADR-0020): customer cancellation request.
     case M34 = 'M-34';

@@ -274,6 +274,11 @@ function finFakeGateway(): PaymentGateway
 
             return new VerifiedGatewayEvent($data['ref'], $data['tx'], $data['outcome'], $data['amount'], $data['currency']);
         }
+
+        public function fetch(Payment $payment): ?VerifiedGatewayEvent
+        {
+            return null;
+        }
     };
 }
 

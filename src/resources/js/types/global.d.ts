@@ -37,6 +37,7 @@ declare module '@inertiajs/core' {
                 delivery: boolean;
                 returns: boolean;
                 site: boolean;
+                store: boolean;
             } | null;
             [key: string]: unknown;
         };

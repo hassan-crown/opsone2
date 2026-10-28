@@ -250,9 +250,25 @@ enum AuditAction: string
     case SiteDomainVerified = 'site_domain.verified';
     case SiteDomainRemoved = 'site_domain.removed';
 
+    // P8 store, basket links, coupons and Moyasar (domain 07, ADR-0023).
+    case StoreSettingsUpdated = 'store.settings_updated';
+    case PaymentGatewaySettingsSaved = 'store.gateway_settings_saved';
+    case StoreCheckoutStarted = 'store.checkout_started';
+    case StoreCheckoutPaid = 'store.checkout_paid';
+    case StoreCheckoutReleased = 'store.checkout_released';
+    case StoreCheckoutNeedsAttention = 'store.checkout_needs_attention';
+    case StoreLinkIssued = 'store.link_issued';
+    case StoreLinkCancelled = 'store.link_cancelled';
+    case StoreLinkUsed = 'store.link_used';
+    case CouponCreated = 'coupon.created';
+    case CouponUpdated = 'coupon.updated';
+    case CouponPaused = 'coupon.paused';
+    case CouponResumed = 'coupon.resumed';
+
     public function area(): string
     {
         return match ($this) {
+            self::StoreSettingsUpdated, self::PaymentGatewaySettingsSaved, self::StoreCheckoutStarted, self::StoreCheckoutPaid, self::StoreCheckoutReleased, self::StoreCheckoutNeedsAttention, self::StoreLinkIssued, self::StoreLinkCancelled, self::StoreLinkUsed, self::CouponCreated, self::CouponUpdated, self::CouponPaused, self::CouponResumed => 'store',
             self::SitePageCreated, self::SitePageDraftSaved, self::SitePagePublished, self::SitePageUnpublished, self::SitePageDraftDiscarded, self::SitePageArchived, self::SitePageRestored, self::SiteThemeDraftSaved, self::SiteThemeApplied, self::SiteThemeDraftDiscarded, self::SiteThemeRestored, self::SiteDomainRequested, self::SiteDomainVerified, self::SiteDomainRemoved => 'site',
             self::InvitationCreated, self::InvitationAccepted, self::InvitationCancelled, self::InvitationRenewed,
             self::OwnerInvitationCreated, self::OwnerEstablished,

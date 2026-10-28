@@ -35,4 +35,14 @@ return [
         ],
     ],
 
+    // Q-45 (ADR-0023): the facility's Moyasar merchant account. Facility settings (encrypted) win; these TEST-mode
+    // values are only a fallback for local work. Live keys are refused in this release.
+    'moyasar' => [
+        'base_url' => env('MOYASAR_BASE_URL', 'https://api.moyasar.com/v1'),
+        'publishable_key' => env('MOYASAR_TEST_PUBLISHABLE_KEY'),
+        'secret_key' => env('MOYASAR_TEST_SECRET_KEY'),
+        'webhook_secret' => env('MOYASAR_TEST_WEBHOOK_SECRET'),
+        'timeout' => (int) env('MOYASAR_TIMEOUT', 10),
+    ],
+
 ];
