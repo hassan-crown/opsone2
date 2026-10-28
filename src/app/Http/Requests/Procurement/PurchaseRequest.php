@@ -16,6 +16,13 @@ class PurchaseRequest extends AgreementWriteRequest
 {
     protected bool $requiresKey = false;
 
+    /** Creating takes a key (a double click must not make two POs); an edit is guarded by the draft's lock_version. */
+    protected function prepareForValidation(): void
+    {
+        $this->requiresKey = $this->isMethod('POST');
+        parent::prepareForValidation();
+    }
+
     /**
      * @return array<string, mixed>
      */

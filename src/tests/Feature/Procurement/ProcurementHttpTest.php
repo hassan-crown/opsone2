@@ -54,6 +54,11 @@ it('creates, confirms and receives an order through the screens; a repeated rece
         'lines' => [['item_type' => 'ready_variant', 'item_id' => $this->f->variant->id, 'quantity' => '10', 'unit_cost' => '11.50']],
         'idempotency_key' => 'create-key-1',
     ])->assertRedirect();
+    // Creating needs a key: a double click never makes a second purchase order.
+    $this->post(route('purchases.store'), [
+        'supplier_id' => $this->f->supplier->id, 'branch_id' => $this->f->org->a->id,
+        'lines' => [['item_type' => 'ready_variant', 'item_id' => $this->f->variant->id, 'quantity' => '1']],
+    ])->assertSessionHasErrors('idempotency_key');
     $po = PurchaseOrder::query()->firstOrFail();
     expect($po->gross_minor)->toBe(11_500);
 
