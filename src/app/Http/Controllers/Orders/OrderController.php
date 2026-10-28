@@ -6,6 +6,7 @@ use App\Access\Access;
 use App\Access\Permission;
 use App\Actions\Orders\CreateOrders;
 use App\Actions\Orders\UpdateOrder;
+use App\Cancellation\OrderCancellationPanel;
 use App\Customers\CustomerAccess;
 use App\Customers\CustomerPresenter;
 use App\Delivery\OrderDeliveryPanel;
@@ -231,6 +232,8 @@ class OrderController extends Controller
             'stock' => OrderStockPanel::forOrder($order, $actor),
             // P7 delivery: what is owed, the delivery notes and the record action (ADR-0018).
             'delivery' => OrderDeliveryPanel::forOrder($order, $actor),
+            // P7 cancellation: the CancelReview entry point and the settlement follow-up state (ADR-0020).
+            'cancellation' => OrderCancellationPanel::forOrder($order, $actor),
             // Targets for the transfer dialog; the server still checks P-19 over both branches on preview and apply.
             'transferBranches' => $detail['can']['transfer_branch']
                 ? array_values(Branch::query()->where('status', 'active')->whereKeyNot($order->branch_id)->orderBy('id')->get()

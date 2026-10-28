@@ -111,3 +111,42 @@ Contracts to other domains:
 - **P7a**: stock leaves only through `IssueReadyReservation` (movement `issue_reserved`, `source_type = delivery_note`,
   `source_id = note id`, key `delivery:{note}:{line}:{reservation}`).
 - **Numbers**: `DN-YYYY-000123` (gapless per year, taken at recording; drafts and withdrawn drafts have none).
+
+## Cancellation and the settlement follow-up (P7e, ADR-0020) — M-34
+
+Every write takes `idempotency_key` (field or `Idempotency-Key` header), the order's `lock_version` and, when applying,
+the reviewed `hash`. Errors: 403 Gate, 409 `{condition}` (`preview_stale`, `request_pending`, `fully_delivered`,
+`not_from_*`) or `{code: stale_version}`, 422 fields (`lines.N.quantity`, `retained`, `channel`, `reason`, …).
+
+| Method | URL | Body | Permission |
+|---|---|---|---|
+| GET | `/orders/{order}/cancellation` | — | P-18, or P-16 when a settlement follow-up exists → Inertia `orders/cancel` / JSON `{order, amounts_visible, lines[], pending, history[], settlement, channels, can{review, amounts}}` |
+| POST | `/orders/{order}/cancellation/preview` | `scope full\|partial, lines[{ref, quantity}]?, retained?` | P-18 (+ P-37 for `retained`) → `{impact, hash, lock_version}` |
+| POST | `/orders/{order}/cancellation/requests` | `+ source, channel, requested_on, reason` | P-18 → 201, custom order `cancellation_pending` (M-34-T01 + M-04-T04) |
+| POST | `/orders/{order}/cancellation` | `+ request fields, hash` | P-18 → 201 record and accept (M-34-T03; decides the pending request if any) |
+| POST | `/cancellations/{c}/accept` | `scope, lines?, retained?, hash` | P-18 (M-34-T02) |
+| POST | `/cancellations/{c}/reject` | `reason, lock_version?` | P-18 (M-34-T04 + M-04-T06) |
+| POST | `/settlement-items/{item}/resolve` | `reason, status done\|dropped, lock_version?` | P-43 refund · P-46 supplier · P-18 other |
+
+Line refs: `l{order_line_id}` (ready lines; custom lines before an agreement — whole line only) or `a{index}` (agreement
+line of a custom order). `impact`: `order{status, status_before, status_after}`, `lines[{ref, description, unit,
+quantity_milli, value_minor?}]`, `stops{tasks[], appointments[], stages[], change}`, `stays{delivered[], issued[],
+stages[], collected_minor?}`, `settlement{money{collected_minor, value_before_minor, value_after_minor, retained_minor,
+pending_refunds_minor, refund_minor}?, agreement{version_after, total_minor?, dues[{reference, name, amount_after_minor?}]},
+stock[{reservation_id, number, item, location, release_milli}], purchases[{id, number, status, supplier, lines[{remaining_milli,
+gross_minor (P-82)}]}], commission{user, difference_minor?}}`. Without P-37 every `*_minor` key is absent.
+
+PHP seams:
+
+| Seam | Use |
+|---|---|
+| `Actions\StateMachines\M34Cancellation\T01RequestCancellation::handle($actor, $order, $data, $lockVersion, $key)` | record a request |
+| `…\T02AcceptCancellation::handle($actor, $cancellation, $scope, $hash, $lockVersion, $key)` / `…\T03RecordAndAcceptCancellation::handle($actor, $order, $data, $hash, $lockVersion, $key)` | apply (CancellationApply, one transaction) |
+| `…\T04RejectCancellation::handle($actor, $cancellation, $reason, $lockVersion)` | reject |
+| `Cancellation\CancellationImpact::compute($order, CancellationInput, ?$pending)` | the review (`hash`) |
+| `Cancellation\CancellableLines::for($order)` / `::cancelledByLine($orderId)` | what may be cancelled; quantities taken off custom lines |
+| `Settlement\SettlementFollowUps` | **one follow-up per order** — `open($order)`, `add($order, $kind, $source, $details, $targetMinor, $refType, $refId, $done)` (idempotent per `source:kind:ref`), `sync($order)` (items from their sources, close when none open), `resolve($actor, $item, done\|dropped, $note, $lockVersion)`, `forOrder($order)`; all under the order lock |
+| `Models\Settlement\SettlementItem::{REFUND, STOCK_RELEASE, SUPPLIER, COMMISSION, RETURN}` | item kinds; a return (P-53) adds `return` / `refund` items with source `return:{id}` |
+
+Numbers: `CN-YYYY-000123` (cancellation request). Events reused: `Finance\Settlement\RefundExecuted` → follow-up sync.
+Commission holds: `cancellation` while a refund item is open.

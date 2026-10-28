@@ -2,6 +2,7 @@
 
 namespace App\Delivery;
 
+use App\Cancellation\CancellableLines;
 use App\Enums\CustomOrderStatus;
 use App\Enums\DeliveryStatus;
 use App\Enums\ReadyOrderStatus;
@@ -37,6 +38,8 @@ final class DeliveryProgress
     public static function lines(Order $order): array
     {
         $delivered = self::deliveredByLine($order->id);
+        // P7 cancellation (ADR-0020): an accepted partial cancellation takes its quantity off a custom line.
+        $cancelled = $order->isReady() ? [] : CancellableLines::cancelledByLine($order->id);
         $reservations = $order->isReady()
             ? StockReservation::query()->where('order_id', $order->id)->get()->groupBy('order_line_id')
             : new Collection;
@@ -56,7 +59,7 @@ final class DeliveryProgress
                 $deliverable = (int) $held->sum(fn (StockReservation $r) => $r->status->isOpen() ? $r->remainingMilli() : 0);
             } else {
                 $released = 0;
-                $deliverable = max(0, $ordered - $done);
+                $deliverable = max(0, $ordered - $done - ($cancelled[$line->id] ?? 0));
             }
             $rows[$line->id] = ['line' => $line, 'ordered' => $ordered, 'delivered' => $done, 'released' => $released, 'deliverable' => $deliverable];
         }

@@ -209,6 +209,12 @@ enum AuditAction: string
     case DeliveryDrafted = 'delivery.drafted';
     case DeliveryConfirmed = 'delivery.confirmed';
     case DeliveryCancelled = 'delivery.cancelled';
+    // P7 cancellation (domain 02/06, M-34) and the settlement follow-up (INT-08).
+    case CancellationRequested = 'cancellation.requested';
+    case CancellationAccepted = 'cancellation.accepted';
+    case CancellationRejected = 'cancellation.rejected';
+    case SettlementItemResolved = 'settlement.item_resolved';
+    case SettlementClosed = 'settlement.closed';
 
     public function area(): string
     {
@@ -257,6 +263,8 @@ enum AuditAction: string
             self::PurchaseCreated, self::PurchaseUpdated, self::PurchaseConfirmed, self::PurchaseReceived,
             self::PurchaseAdjusted, self::PurchaseRemainderCancelled => 'procurement',
             self::DeliveryDrafted, self::DeliveryConfirmed, self::DeliveryCancelled => 'delivery',
+            self::CancellationRequested, self::CancellationAccepted, self::CancellationRejected,
+            self::SettlementItemResolved, self::SettlementClosed => 'cancellation',
             self::RefundRequested, self::RefundStarted, self::RefundExecuted, self::RefundFailed, self::RefundCancelled, self::RefundRetried, self::PaymentCorrected, self::DisputeOpened, self::DisputeAwaiting, self::DisputeResumed, self::DisputeResolved, self::ExternalDocumentRequested, self::ExternalDocumentAttached, self::ExternalDocumentAccepted, self::ExternalDocumentCorrectionRequested => 'finance',
         };
     }

@@ -61,7 +61,9 @@ final class T01IssueReservation
 
         $from = $reservation->status;
         $reservation->issued_milli += $quantityMilli;
-        $reservation->status = $reservation->remainingMilli() === 0 ? ReservationStatus::Issued : ReservationStatus::PartiallyIssued;
+        // A part released by a partial cancellation (ADR-0020) makes a fully used reservation «settled mixed».
+        $reservation->status = $reservation->remainingMilli() > 0 ? ReservationStatus::PartiallyIssued
+            : ($reservation->released_milli > 0 ? ReservationStatus::SettledMixed : ReservationStatus::Issued);
         $reservation->lock_version++;
         $reservation->save();
 

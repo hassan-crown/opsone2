@@ -3,6 +3,7 @@
 use App\Licensing\LicensingServiceProvider;
 use App\Providers\AccessServiceProvider;
 use App\Providers\AppServiceProvider;
+use App\Providers\CancellationServiceProvider;
 use App\Providers\CatalogServiceProvider;
 use App\Providers\CommissionsServiceProvider;
 use App\Providers\FinanceServiceProvider;
@@ -26,4 +27,5 @@ return [
     CommissionsServiceProvider::class,
     SettlementServiceProvider::class,
     InventoryServiceProvider::class,
+    CancellationServiceProvider::class,
 ];

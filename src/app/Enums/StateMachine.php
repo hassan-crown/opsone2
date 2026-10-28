@@ -31,6 +31,8 @@ enum StateMachine: string
     case M26 = 'M-26';
     case M27 = 'M-27';
     case M33 = 'M-33';
+    // P7 cancellation (ADR-0020): customer cancellation request.
+    case M34 = 'M-34';
     case M37 = 'M-37';
     case M38 = 'M-38';
     // P6c product decisions Q-38 / Q-39: derived states promoted to machines.
