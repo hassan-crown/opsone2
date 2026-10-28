@@ -33,6 +33,7 @@ declare module '@inertiajs/core' {
                 finance: boolean;
                 commissions: boolean;
                 stock: boolean;
+                procurement: boolean;
             } | null;
             [key: string]: unknown;
         };
