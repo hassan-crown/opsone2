@@ -4,6 +4,7 @@ import { useState } from 'react';
 import CustomerContactController from '@/actions/App/Http/Controllers/Customers/CustomerContactController';
 import CustomerController from '@/actions/App/Http/Controllers/Customers/CustomerController';
 import InterestController from '@/actions/App/Http/Controllers/Customers/InterestController';
+import PortalInviteController from '@/actions/App/Http/Controllers/Customers/PortalInviteController';
 import OrderController from '@/actions/App/Http/Controllers/Orders/OrderController';
 import { ContactDialog } from '@/components/customers/contact-dialog';
 import type {
@@ -115,6 +116,21 @@ export default function CustomerShow({
                                 {t('customers.profile.new_interest')}
                             </Link>
                         </Button>
+                        {can.edit && customer.portal_login_enabled && (
+                            <Button
+                                variant="secondary"
+                                data-test="portal-invite"
+                                onClick={() =>
+                                    router.post(
+                                        PortalInviteController.url(customer.id),
+                                        {},
+                                        { preserveScroll: true },
+                                    )
+                                }
+                            >
+                                {t('portal.invite.action')}
+                            </Button>
+                        )}
                         {can.edit && (
                             <Button asChild data-test="edit-customer">
                                 <Link
