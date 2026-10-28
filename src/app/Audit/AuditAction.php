@@ -142,6 +142,18 @@ enum AuditAction: string
     case DiscountApproved = 'discount_decision.approved';
     case DiscountRejected = 'discount_decision.rejected';
     case DiscountCancelled = 'discount_decision.cancelled';
+    case FinanceScheduleSynced = 'finance.schedule_synced';
+    case FinanceScheduleUpdated = 'finance.schedule_updated';
+    case PaymentRecorded = 'finance.payment_recorded';
+    case PaymentGatewayResult = 'finance.payment_gateway_result';
+    case PaymentReallocated = 'finance.payment_reallocated';
+    case CreditTransferred = 'finance.credit_transferred';
+    case MoneyReversed = 'finance.money_reversed';
+    case ProofSubmitted = 'finance.proof_submitted';
+    case ProofConfirmed = 'finance.proof_confirmed';
+    case ProofCorrectionRequested = 'finance.proof_correction_requested';
+    case ProofCancelled = 'finance.proof_cancelled';
+    case CollectionRemindersSent = 'finance.reminders_sent';
 
     public function area(): string
     {
@@ -178,6 +190,9 @@ enum AuditAction: string
             self::DocumentReplaced, self::DocumentExpired, self::DocumentExtended, self::DocumentCancelled, self::AgreementActivated,
             self::ChangeCreated, self::ChangeDraftUpdated, self::ChangePresented, self::ChangeRevisionRequested, self::ChangeApplied,
             self::ChangeWithdrawn, self::DiscountRequested, self::DiscountApproved, self::DiscountRejected, self::DiscountCancelled => 'agreement',
+            self::FinanceScheduleSynced, self::FinanceScheduleUpdated, self::PaymentRecorded, self::PaymentGatewayResult,
+            self::PaymentReallocated, self::CreditTransferred, self::MoneyReversed, self::ProofSubmitted, self::ProofConfirmed,
+            self::ProofCorrectionRequested, self::ProofCancelled, self::CollectionRemindersSent => 'finance',
         };
     }
 

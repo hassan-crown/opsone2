@@ -37,6 +37,20 @@ final class AttachmentService
     {
         $this->access->authorize($actor, $owner->attachmentUploadPermission(), $owner);
 
+        return $this->persist($actor, $owner, $file, $purpose);
+    }
+
+    /**
+     * A file the customer uploads from their own account (P-68, P8 portal): no staff user, so the caller — the
+     * customer service that re-checked the order is theirs — is the authorization. Same type, size and quota checks.
+     */
+    public function storeFromCustomer(Model&AttachmentOwner $owner, UploadedFile $file, string $purpose): Attachment
+    {
+        return $this->persist(null, $owner, $file, $purpose);
+    }
+
+    private function persist(?User $actor, Model&AttachmentOwner $owner, UploadedFile $file, ?string $purpose): Attachment
+    {
         Validator::make(['file' => $file], ['file' => ['required', new AllowedAttachment]])->validate();
         $extension = (string) AllowedAttachment::detect($file);
 
@@ -64,7 +78,7 @@ final class AttachmentService
                     'mime' => (string) $file->getMimeType(),
                     'size_bytes' => $size,
                     'sha256' => $sha256,
-                    'uploaded_by_user_id' => $actor->id,
+                    'uploaded_by_user_id' => $actor?->id,
                 ]);
 
                 Audit::record(AuditAction::AttachmentUploaded, $owner, $actor, after: [
@@ -73,7 +87,7 @@ final class AttachmentService
                     'mime' => $attachment->mime,
                     'size_bytes' => $attachment->size_bytes,
                     'purpose' => $purpose,
-                ], source: TransitionRecorder::SOURCE_WEB);
+                ], source: $actor === null ? 'customer' : TransitionRecorder::SOURCE_WEB);
 
                 return $attachment;
             });
