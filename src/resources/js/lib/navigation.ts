@@ -8,17 +8,25 @@ import {
     Inbox,
     LayoutGrid,
     Package,
+    PackageCheck,
+    Undo2,
+    Truck,
     ScrollText,
     Workflow,
     Users,
+    Warehouse,
 } from 'lucide-react';
 import CommissionController from '@/actions/App/Http/Controllers/Commissions/CommissionController';
 import CalendarController from '@/actions/App/Http/Controllers/Calendar/CalendarController';
 import CatalogHomeController from '@/actions/App/Http/Controllers/Catalog/CatalogHomeController';
+import StockController from '@/actions/App/Http/Controllers/Inventory/StockController';
 import CustomerController from '@/actions/App/Http/Controllers/Customers/CustomerController';
 import FinanceHomeController from '@/actions/App/Http/Controllers/Finance/FinanceHomeController';
 import FlowController from '@/actions/App/Http/Controllers/Flow/FlowController';
 import TaskController from '@/actions/App/Http/Controllers/Tasks/TaskController';
+import DeliveryController from '@/actions/App/Http/Controllers/Delivery/DeliveryController';
+import ReturnController from '@/actions/App/Http/Controllers/Returns/ReturnController';
+import PurchaseController from '@/actions/App/Http/Controllers/Procurement/PurchaseController';
 import OrderController from '@/actions/App/Http/Controllers/Orders/OrderController';
 import InterestController from '@/actions/App/Http/Controllers/Customers/InterestController';
 import AuditLogController from '@/actions/App/Http/Controllers/Audit/AuditLogController';
@@ -42,7 +50,11 @@ export type LocalizedNavItem = Omit<NavItem, 'title'> & {
         | 'tasks'
         | 'calendar'
         | 'finance'
-        | 'commissions';
+        | 'commissions'
+        | 'stock'
+        | 'procurement'
+        | 'delivery'
+        | 'returns';
 };
 
 /** Primary navigation (5–7 items max; settings live in the footer / user menu). */
@@ -79,6 +91,24 @@ export const mainNav: LocalizedNavItem[] = [
         access: 'commissions',
     },
     {
+        label: 'procurement.nav',
+        href: PurchaseController.index(),
+        icon: Truck,
+        access: 'procurement',
+    },
+    {
+        label: 'delivery.nav',
+        href: DeliveryController.index(),
+        icon: PackageCheck,
+        access: 'delivery',
+    },
+    {
+        label: 'returns.nav',
+        href: ReturnController.index(),
+        icon: Undo2,
+        access: 'returns',
+    },
+    {
         label: 'customers.nav',
         href: CustomerController.index(),
         icon: Users,
@@ -101,6 +131,12 @@ export const mainNav: LocalizedNavItem[] = [
         href: CatalogHomeController.url(),
         icon: Package,
         access: 'catalog',
+    },
+    {
+        label: 'stock.nav',
+        href: StockController.index(),
+        icon: Warehouse,
+        access: 'stock',
     },
     {
         label: 'org.nav.branches',

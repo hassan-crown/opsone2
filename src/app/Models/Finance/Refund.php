@@ -25,6 +25,7 @@ use LogicException;
  * @property int $id
  * @property string|null $number
  * @property int $order_id
+ * @property int|null $order_return_id
  * @property int $payment_id
  * @property int $customer_id
  * @property int $amount_minor

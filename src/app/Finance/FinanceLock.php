@@ -21,6 +21,20 @@ use LogicException;
 final class FinanceLock
 {
     /**
+     * A ready order has no agreement or dues; it takes money only on the manual path (ADR-0019, the money side of a
+     * ready-goods return): a staff-recorded payment (M-11-T01, P-39, credit on the order) and refunds requested (P-42)
+     * and executed or followed up by staff (P-43) — M-12 T00/T01/T02/T04/T06/T07. Online payments (gateway M-11-T00/T02),
+     * customer proofs (M-10), provider refund results (M-12-T03/T05), corrections, transfers, schedules, disputes,
+     * documents and commissions still refuse ready orders. TODO(P8): the store checkout revisits ready-order money.
+     *
+     * @var array<string, list<string>>
+     */
+    private const READY_PATHS = [
+        'M-11' => ['T01'],
+        'M-12' => ['T00', 'T01', 'T02', 'T04', 'T06', 'T07'],
+    ];
+
+    /**
      * @param  list<int>  $orderIds
      * @return array<int, Order> keyed by id
      */
@@ -35,7 +49,7 @@ final class FinanceLock
         $orders = [];
         foreach ($ids as $id) {
             $order = Order::query()->lockForUpdate()->find($id) ?? throw new LogicException('The order disappeared.');
-            if ($order->kind !== OrderKind::Custom) {
+            if ($order->kind !== OrderKind::Custom && ! in_array($code, self::READY_PATHS[$machine->value] ?? [], true)) {
                 throw new InvalidTransition($machine, $code, 'ready_order');
             }
             $orders[$id] = $order;

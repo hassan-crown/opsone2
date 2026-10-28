@@ -27,6 +27,12 @@ import { EditOrderDialog } from '@/components/orders/edit-dialog';
 import { LinePicker } from '@/components/orders/line-picker';
 import { lineName, optionsText } from '@/components/orders/lines';
 import { KindBadge, StatusBadge } from '@/components/orders/status';
+import { OrderCancelCard } from '@/components/cancellation/order-cancel-card';
+import type { OrderCancellation } from '@/components/cancellation/order-cancel-card';
+import { OrderDeliveryCard } from '@/components/delivery/order-delivery-card';
+import type { OrderDelivery } from '@/components/delivery/order-delivery-card';
+import { OrderStockCard } from '@/components/stock/order-stock-card';
+import type { OrderStock } from '@/components/stock/types';
 import { toPayload } from '@/components/orders/types';
 import type {
     HistoryEntry,
@@ -57,6 +63,9 @@ type Props = {
     members: Option[];
     invoiceTypes: string[];
     transferBranches: Option[];
+    stock?: OrderStock;
+    delivery?: OrderDelivery | null;
+    cancellation?: OrderCancellation | null;
 };
 
 // Loaded on demand: keeps the page's preload `Link` header (one entry per static chunk) within nginx's buffer.
@@ -90,6 +99,9 @@ export default function OrderShow({
     members,
     invoiceTypes,
     transferBranches,
+    stock,
+    delivery,
+    cancellation,
 }: Props) {
     const t = useT();
     const { locale } = useLocale();
@@ -535,6 +547,26 @@ export default function OrderShow({
                         </div>
 
                         <div className="grid min-w-0 content-start gap-4">
+                            {stock && (
+                                <OrderStockCard
+                                    orderId={order.id}
+                                    lockVersion={order.lock_version}
+                                    status={order.status}
+                                    stock={stock}
+                                />
+                            )}
+                            {delivery && (
+                                <OrderDeliveryCard
+                                    orderId={order.id}
+                                    delivery={delivery}
+                                />
+                            )}
+                            {cancellation && (
+                                <OrderCancelCard
+                                    orderId={order.id}
+                                    cancellation={cancellation}
+                                />
+                            )}
                             <Card data-test="order-money">
                                 <h2 className="text-heading mb-2 text-strong">
                                     {t('orders.money.title')}

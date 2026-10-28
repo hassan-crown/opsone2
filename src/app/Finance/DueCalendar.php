@@ -3,8 +3,10 @@
 namespace App\Finance;
 
 use App\Agreements\OrderAgreement;
+use App\Enums\DeliveryStatus;
 use App\Enums\DueEvent;
 use App\Enums\DueStatus;
+use App\Models\Delivery\DeliveryNote;
 use App\Models\Finance\OrderDue;
 use App\Models\Order;
 use App\Models\OrderAction;
@@ -29,12 +31,14 @@ final class DueCalendar
         $timezone = AppointmentBooking::timezone();
         $agreedAt = OrderAgreement::history($order)->first()?->approved_at;
         $stageStarts = null;
+        $firstDelivery = null;
 
         $dates = [];
         foreach ($dues as $due) {
             $dates[$due->id] = match ($due->due_event) {
                 DueEvent::Date => $due->due_date?->toDateString(),
                 DueEvent::Agreement => $agreedAt === null ? null : CarbonImmutable::parse($agreedAt)->setTimezone($timezone)->toDateString(),
+                DueEvent::Delivery => $firstDelivery ??= self::firstDeliveryDate($order),
                 DueEvent::PaymentStage => ($stageStarts ??= self::paymentStageStarts($order))[$due->reference] ?? null,
             };
         }
@@ -56,6 +60,18 @@ final class DueCalendar
         }
 
         return $allocated > 0 ? DueStatus::PartiallyPaid : DueStatus::Due;
+    }
+
+    /**
+     * The date of the order's first confirmed delivery note (P7, ADR-0018): later deliveries never move it, so an
+     * «at delivery» due falls due once.
+     */
+    private static function firstDeliveryDate(Order $order): ?string
+    {
+        $note = DeliveryNote::query()->where('order_id', $order->id)->where('status', DeliveryStatus::Confirmed->value)
+            ->orderBy('delivered_on')->orderBy('id')->first();
+
+        return $note?->delivered_on?->toDateString();
     }
 
     /**

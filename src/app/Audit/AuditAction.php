@@ -181,6 +181,50 @@ enum AuditAction: string
     case ExternalDocumentAttached = 'external_document.attached';
     case ExternalDocumentAccepted = 'external_document.accepted';
     case ExternalDocumentCorrectionRequested = 'external_document.correction_requested';
+    // P7a inventory (ADR-0017).
+    case StockLocationSaved = 'stock.location_saved';
+    case StockItemUpdated = 'stock.item_updated';
+    case InventorySettingsUpdated = 'stock.settings_updated';
+    case StockAdjusted = 'stock.adjusted';
+    case StockReserved = 'stock.reserved';
+    case StockReleased = 'stock.released';
+    case StockIssued = 'stock.issued';
+    case StockTransferCreated = 'stock.transfer_created';
+    case StockTransferMoved = 'stock.transfer_moved';
+    case StockCountRecorded = 'stock.count_recorded';
+    case ReadyOrderConfirmed = 'order.ready_confirmed';
+    case ReadyOrderCancelled = 'order.ready_cancelled';
+    // P7 procurement (domain 06, M-13).
+    case SupplierCreated = 'supplier.created';
+    case SupplierUpdated = 'supplier.updated';
+    case SupplierDisabled = 'supplier.disabled';
+    case SupplierEnabled = 'supplier.enabled';
+    case PurchaseCreated = 'purchase.created';
+    case PurchaseUpdated = 'purchase.updated';
+    case PurchaseConfirmed = 'purchase.confirmed';
+    case PurchaseReceived = 'purchase.received';
+    case PurchaseAdjusted = 'purchase.adjusted';
+    case PurchaseRemainderCancelled = 'purchase.remainder_cancelled';
+    // P7 delivery (domain 06, M-14).
+    case DeliveryDrafted = 'delivery.drafted';
+    case DeliveryConfirmed = 'delivery.confirmed';
+    case DeliveryCancelled = 'delivery.cancelled';
+    // P7 cancellation (domain 02/06, M-34) and the settlement follow-up (INT-08).
+    case CancellationRequested = 'cancellation.requested';
+    case CancellationAccepted = 'cancellation.accepted';
+    case CancellationRejected = 'cancellation.rejected';
+    case SettlementItemResolved = 'settlement.item_resolved';
+    case SettlementClosed = 'settlement.closed';
+    // P7 returns (domain 06, M-15).
+    case ReturnRequested = 'return.requested';
+    case ReturnAccepted = 'return.accepted';
+    case ReturnRejected = 'return.rejected';
+    case ReturnReceived = 'return.received';
+    case ReturnInspected = 'return.inspected';
+    case ReturnWithdrawn = 'return.withdrawn';
+    case ReturnCorrected = 'return.corrected';
+    case ReturnRefundRequested = 'return.refund_requested';
+    case ReturnSettingsUpdated = 'return.settings_updated';
 
     public function area(): string
     {
@@ -208,7 +252,9 @@ enum AuditAction: string
             self::CatalogReadyCreated, self::CatalogReadyUpdated, self::CatalogReadyStatusChanged,
             self::CatalogVariantCreated, self::CatalogVariantUpdated, self::CatalogVariantStatusChanged => 'catalog',
             self::OrderCreated, self::OrderUpdated, self::OrderLineAdded, self::OrderLineRemoved,
-            self::OrderBranchTransferred => 'orders',
+            self::OrderBranchTransferred, self::ReadyOrderConfirmed, self::ReadyOrderCancelled => 'orders',
+            self::StockLocationSaved, self::StockItemUpdated, self::InventorySettingsUpdated, self::StockAdjusted, self::StockReserved,
+            self::StockReleased, self::StockIssued, self::StockTransferCreated, self::StockTransferMoved, self::StockCountRecorded => 'stock',
             self::FlowTemplateChosen, self::FlowDraftSaved, self::FlowPublished, self::FlowDraftDiscarded, self::OrderPaused, self::OrderResumed, self::OrderExecutionFinished, self::OrderReopenedForCorrection, self::StageCompleted, self::ActionAllowed, self::ActionReworked, self::ActionNeedChanged, self::UpcomingWorkEdited, self::MeasurementRecorded, self::MeasurementCorrected => 'workflow',
             self::TaskAssigned, self::TaskRouted, self::TaskReassigned, self::TaskClaimed, self::TaskCompleted, self::TaskCancelled, self::TaskReleased => 'tasks',
             self::AppointmentProposed, self::AppointmentSent, self::AppointmentConfirmed, self::AppointmentChangeRequested, self::AppointmentChangeDiscarded, self::AppointmentChanged, self::AppointmentCompleted, self::AppointmentCancelled => 'appointments',
@@ -223,6 +269,14 @@ enum AuditAction: string
             self::CommissionSettingsUpdated, self::CommissionPayoutCreated, self::CommissionPayoutReserved, self::CommissionPayoutPaid,
             self::CommissionPayoutCancelled, self::CommissionPayoutCorrected, self::SaleCorrectionRequested,
             self::SaleCorrectionApproved, self::SaleCorrectionRejected, self::SaleCorrectionCancelled => 'commissions',
+            self::SupplierCreated, self::SupplierUpdated, self::SupplierDisabled, self::SupplierEnabled,
+            self::PurchaseCreated, self::PurchaseUpdated, self::PurchaseConfirmed, self::PurchaseReceived,
+            self::PurchaseAdjusted, self::PurchaseRemainderCancelled => 'procurement',
+            self::DeliveryDrafted, self::DeliveryConfirmed, self::DeliveryCancelled => 'delivery',
+            self::CancellationRequested, self::CancellationAccepted, self::CancellationRejected,
+            self::SettlementItemResolved, self::SettlementClosed => 'cancellation',
+            self::ReturnRequested, self::ReturnAccepted, self::ReturnRejected, self::ReturnReceived, self::ReturnInspected,
+            self::ReturnWithdrawn, self::ReturnCorrected, self::ReturnRefundRequested, self::ReturnSettingsUpdated => 'returns',
             self::RefundRequested, self::RefundStarted, self::RefundExecuted, self::RefundFailed, self::RefundCancelled, self::RefundRetried, self::PaymentCorrected, self::DisputeOpened, self::DisputeAwaiting, self::DisputeResumed, self::DisputeResolved, self::ExternalDocumentRequested, self::ExternalDocumentAttached, self::ExternalDocumentAccepted, self::ExternalDocumentCorrectionRequested => 'finance',
         };
     }
