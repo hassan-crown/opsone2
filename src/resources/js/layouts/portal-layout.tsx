@@ -179,7 +179,7 @@ export default function PortalLayout({ children }: { children: ReactNode }) {
                                 active(item.href) ? 'page' : undefined
                             }
                             className={cn(
-                                'flex min-h-14 flex-col items-center justify-center gap-1 px-1 text-caption',
+                                'flex min-h-14 flex-col items-center justify-center gap-1 px-0.5 text-[0.6875rem] leading-tight',
                                 active(item.href)
                                     ? 'text-brand'
                                     : 'text-weak hover:text-strong',
