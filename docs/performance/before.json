@@ -1,0 +1,218 @@
+{
+    "dashboard": {
+        "uri": "\/dashboard",
+        "status": 200,
+        "p50_ms": 93.8,
+        "p95_ms": 102.2,
+        "queries": 54,
+        "sql_ms": 12.6,
+        "kb": 605.9
+    },
+    "orders": {
+        "uri": "\/orders",
+        "status": 200,
+        "p50_ms": 129.1,
+        "p95_ms": 138.2,
+        "queries": 55,
+        "sql_ms": 16.8,
+        "kb": 613.9
+    },
+    "orders_filtered": {
+        "uri": "\/orders?status=in_progress&branch=2&page=20",
+        "status": 200,
+        "p50_ms": 139.2,
+        "p95_ms": 158.5,
+        "queries": 55,
+        "sql_ms": 21.3,
+        "kb": 614
+    },
+    "orders_search": {
+        "uri": "\/orders?q=محمد",
+        "status": 200,
+        "p50_ms": 110.4,
+        "p95_ms": 123.3,
+        "queries": 55,
+        "sql_ms": 14.5,
+        "kb": 614
+    },
+    "orders_deep_page": {
+        "uri": "\/orders?page=900",
+        "status": 200,
+        "p50_ms": 137.8,
+        "p95_ms": 151,
+        "queries": 55,
+        "sql_ms": 17.7,
+        "kb": 613.8
+    },
+    "orders_scoped": {
+        "uri": "\/orders",
+        "status": 200,
+        "p50_ms": 152.1,
+        "p95_ms": 213.4,
+        "queries": 65,
+        "sql_ms": 19,
+        "kb": 613.4
+    },
+    "order_show": {
+        "uri": "\/orders\/20001",
+        "status": 200,
+        "p50_ms": 99.8,
+        "p95_ms": 110.8,
+        "queries": 56,
+        "sql_ms": 9.7,
+        "kb": 607
+    },
+    "customers": {
+        "uri": "\/customers",
+        "status": 200,
+        "p50_ms": 103.4,
+        "p95_ms": 108.2,
+        "queries": 40,
+        "sql_ms": 7.1,
+        "kb": 611.2
+    },
+    "customers_search": {
+        "uri": "\/customers?q=فهد",
+        "status": 200,
+        "p50_ms": 129,
+        "p95_ms": 149.6,
+        "queries": 40,
+        "sql_ms": 14.1,
+        "kb": 611.2
+    },
+    "search": {
+        "uri": "\/search?q=فهد",
+        "status": 200,
+        "p50_ms": 111,
+        "p95_ms": 135.2,
+        "queries": 59,
+        "sql_ms": 14.4,
+        "kb": 606.7
+    },
+    "tasks": {
+        "uri": "\/tasks",
+        "status": 200,
+        "p50_ms": 103,
+        "p95_ms": 112.3,
+        "queries": 45,
+        "sql_ms": 11.1,
+        "kb": 605.7
+    },
+    "tasks_inbox": {
+        "uri": "\/tasks?view=inbox",
+        "status": 200,
+        "p50_ms": 112.2,
+        "p95_ms": 139.7,
+        "queries": 32,
+        "sql_ms": 9.9,
+        "kb": 604.2
+    },
+    "tasks_executor": {
+        "uri": "\/tasks",
+        "status": 200,
+        "p50_ms": 960.3,
+        "p95_ms": 1371.5,
+        "queries": 2445,
+        "sql_ms": 463.6,
+        "kb": 757
+    },
+    "tasks_supervisor": {
+        "uri": "\/tasks?view=inbox",
+        "status": 200,
+        "p50_ms": 880.4,
+        "p95_ms": 1207.2,
+        "queries": 2240,
+        "sql_ms": 475.3,
+        "kb": 750.5
+    },
+    "dashboard_executor": {
+        "uri": "\/dashboard",
+        "status": 200,
+        "p50_ms": 816.5,
+        "p95_ms": 860.2,
+        "queries": 2452,
+        "sql_ms": 355.9,
+        "kb": 735.9
+    },
+    "calendar": {
+        "uri": "\/calendar",
+        "status": 200,
+        "p50_ms": 1363.8,
+        "p95_ms": 1546,
+        "queries": 2923,
+        "sql_ms": 569.6,
+        "kb": 957.9
+    },
+    "finance": {
+        "uri": "\/finance",
+        "status": 200,
+        "p50_ms": 847.9,
+        "p95_ms": 1024.1,
+        "queries": 1137,
+        "sql_ms": 359.9,
+        "kb": 719.8
+    },
+    "finance_scoped": {
+        "uri": "\/finance",
+        "status": 200,
+        "p50_ms": 674.5,
+        "p95_ms": 808.5,
+        "queries": 1150,
+        "sql_ms": 273.4,
+        "kb": 719.1
+    },
+    "stock": {
+        "uri": "\/stock",
+        "status": 200,
+        "p50_ms": 602.2,
+        "p95_ms": 629.9,
+        "queries": 1047,
+        "sql_ms": 201.2,
+        "kb": 785.5
+    },
+    "store": {
+        "uri": "\/ar\/store",
+        "status": 200,
+        "p50_ms": 44,
+        "p95_ms": 52.5,
+        "queries": 53,
+        "sql_ms": 13.6,
+        "kb": 27.4
+    },
+    "store_checkout": {
+        "uri": "\/ar\/store\/checkout",
+        "status": 200,
+        "p50_ms": 30.4,
+        "p95_ms": 41.9,
+        "queries": 28,
+        "sql_ms": 8.5,
+        "kb": 7.3
+    },
+    "portal_home": {
+        "uri": "\/portal",
+        "status": 200,
+        "p50_ms": 314.8,
+        "p95_ms": 340,
+        "queries": 734,
+        "sql_ms": 182.8,
+        "kb": 41.2
+    },
+    "portal_orders": {
+        "uri": "\/portal\/orders",
+        "status": 200,
+        "p50_ms": 67.3,
+        "p95_ms": 95.3,
+        "queries": 88,
+        "sql_ms": 26.5,
+        "kb": 46.2
+    },
+    "portal_order": {
+        "uri": "\/portal\/orders\/19956",
+        "status": 200,
+        "p50_ms": 36.2,
+        "p95_ms": 41.7,
+        "queries": 27,
+        "sql_ms": 7.4,
+        "kb": 38.4
+    }
+}
