@@ -105,7 +105,7 @@ final class CustomerOtp
         $code = self::code();
         DB::transaction(function () use ($customer, $identifier, $hash, $purpose, $channel, $code, $ip) {
             Customer::query()->whereKey($customer->id)->lockForUpdate()->first(['id']);
-            CustomerOtpChallenge::query()->where('identifier_hash', $hash)->whereNull('consumed_at')->update(['consumed_at' => now()]);
+            CustomerOtpChallenge::query()->where('identifier_hash', $hash)->whereIn('purpose', [self::LOGIN, self::ACTIVATION])->whereNull('consumed_at')->update(['consumed_at' => now()]);
             $challenge = CustomerOtpChallenge::query()->create([
                 'customer_id' => $customer->id,
                 'identifier_hash' => $hash,
@@ -131,8 +131,8 @@ final class CustomerOtp
         $this->ensureNotLocked($hash, $ip);
 
         $result = DB::transaction(function () use ($hash, $code) {
-            $challenge = CustomerOtpChallenge::query()->where('identifier_hash', $hash)->whereNull('consumed_at')
-                ->where('expires_at', '>', now())->latest('id')->lockForUpdate()->first();
+            $challenge = CustomerOtpChallenge::query()->where('identifier_hash', $hash)->whereIn('purpose', [self::LOGIN, self::ACTIVATION])
+                ->whereNull('consumed_at')->where('expires_at', '>', now())->latest('id')->lockForUpdate()->first();
             if ($challenge === null) {
                 return null;
             }

@@ -14,6 +14,7 @@ use App\Notifications\NotificationCatalogue;
 use App\Notifications\NotificationTargets;
 use App\Portal\CustomerAppointments;
 use App\Portal\CustomerCancellations;
+use App\Portal\PortalSession;
 use App\Tickets\TicketNotices;
 use Illuminate\Auth\EloquentUserProvider;
 use Illuminate\Cache\RateLimiting\Limit;
@@ -59,6 +60,12 @@ final class PortalServiceProvider extends ServiceProvider
 
         // Outer bound per address on the sign-in endpoints; the per-identifier caps live in CustomerOtp.
         RateLimiter::for('portal-otp', fn (Request $request) => Limit::perMinute(30)->by('portal-otp:'.$request->ip()));
+        // Every write of a signed-in customer (requests, uploads, replies) shares one bucket per customer account.
+        RateLimiter::for('portal-write', function (Request $request) {
+            $key = 'portal-write:'.(PortalSession::customer()->id ?? 'ip:'.$request->ip());
+
+            return [Limit::perMinute(20)->by($key.':m'), Limit::perHour(120)->by($key.':h')];
+        });
 
         NotificationCatalogue::define(CustomerCancellations::NOTIFY_REQUESTED, [
             'mandatory' => false,

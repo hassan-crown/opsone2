@@ -156,6 +156,17 @@ it('sends a cancellation request the facility decides; the customer can withdraw
         ->and($order->refresh()->status)->toBe(CustomOrderStatus::InProgress->value);
 });
 
+it('refuses to withdraw a cancellation the facility recorded; only the customer\'s own request is theirs', function () {
+    $order = $this->f->orderA;
+    $this->post("/portal/orders/{$order->id}/cancellation", ['reason' => 'تغيرت الخطة'])->assertRedirect();
+    $cancellation = OrderCancellation::query()->where('order_id', $order->id)->sole();
+    $cancellation->forceFill(['source' => OrderCancellation::SOURCE_EXTERNAL])->save();
+
+    $this->post("/portal/cancellations/{$cancellation->id}/withdraw")->assertSessionHasErrors('transition');
+    expect($cancellation->refresh()->status)->toBe(CancellationStatus::Pending)
+        ->and($order->refresh()->status)->toBe(CustomOrderStatus::CancellationPending->value);
+});
+
 it('changes the workspace language and lists updates', function () {
     $this->put('/portal/locale', ['locale' => 'en'])->assertRedirect();
     expect($this->f->a->refresh()->portal_locale)->toBe('en');

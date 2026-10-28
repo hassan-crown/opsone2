@@ -42,20 +42,20 @@ Route::middleware(AuthenticateCustomer::class)->group(function () {
 
     Route::get('documents', [DocumentController::class, 'index'])->name('documents.index');
     Route::get('documents/{document}', [DocumentController::class, 'show'])->name('documents.show');
-    Route::post('documents/{document}/approve', [DocumentController::class, 'approve'])->name('documents.approve');
-    Route::post('documents/{document}/changes', [DocumentController::class, 'requestChanges'])->name('documents.changes');
+    Route::post('documents/{document}/approve', [DocumentController::class, 'approve'])->middleware('throttle:portal-write')->name('documents.approve');
+    Route::post('documents/{document}/changes', [DocumentController::class, 'requestChanges'])->middleware('throttle:portal-write')->name('documents.changes');
 
     Route::get('orders/{order}/pay', [PaymentController::class, 'show'])->name('orders.pay');
-    Route::post('orders/{order}/proofs', [PaymentController::class, 'store'])->middleware('throttle:records-create')->name('proofs.store');
-    Route::post('proofs/{proof}/resubmit', [PaymentController::class, 'resubmit'])->middleware('throttle:records-create')->name('proofs.resubmit');
-    Route::post('proofs/{proof}/withdraw', [PaymentController::class, 'withdraw'])->name('proofs.withdraw');
+    Route::post('orders/{order}/proofs', [PaymentController::class, 'store'])->middleware('throttle:portal-write')->name('proofs.store');
+    Route::post('proofs/{proof}/resubmit', [PaymentController::class, 'resubmit'])->middleware('throttle:portal-write')->name('proofs.resubmit');
+    Route::post('proofs/{proof}/withdraw', [PaymentController::class, 'withdraw'])->middleware('throttle:portal-write')->name('proofs.withdraw');
 
-    Route::post('appointments/{appointment}/confirm', [AppointmentController::class, 'confirm'])->name('appointments.confirm');
-    Route::post('appointments/{appointment}/change', [AppointmentController::class, 'requestChange'])->name('appointments.change');
+    Route::post('appointments/{appointment}/confirm', [AppointmentController::class, 'confirm'])->middleware('throttle:portal-write')->name('appointments.confirm');
+    Route::post('appointments/{appointment}/change', [AppointmentController::class, 'requestChange'])->middleware('throttle:portal-write')->name('appointments.change');
 
     Route::get('orders/{order}/cancel', [CancellationController::class, 'create'])->name('orders.cancel');
-    Route::post('orders/{order}/cancellation', [CancellationController::class, 'store'])->name('cancellations.store');
-    Route::post('cancellations/{cancellation}/withdraw', [CancellationController::class, 'withdraw'])->name('cancellations.withdraw');
+    Route::post('orders/{order}/cancellation', [CancellationController::class, 'store'])->middleware('throttle:portal-write')->name('cancellations.store');
+    Route::post('cancellations/{cancellation}/withdraw', [CancellationController::class, 'withdraw'])->middleware('throttle:portal-write')->name('cancellations.withdraw');
 
     Route::get('settings', [SettingsController::class, 'show'])->name('settings');
     Route::post('logout', [SignInController::class, 'logout'])->name('logout');

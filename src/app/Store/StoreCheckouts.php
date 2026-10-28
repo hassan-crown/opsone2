@@ -46,6 +46,9 @@ final class StoreCheckouts
     /** After this long without an answer from the provider past the window, a person looks at it (M-05-T05). */
     public const UNREACHABLE_GRACE_MINUTES = 30;
 
+    /** Checkouts one customer may hold open at once, so one account cannot keep the stock reserved. */
+    public const MAX_OPEN_PER_CUSTOMER = 2;
+
     public function __construct(
         private readonly StoreGate $gate,
         private readonly StoreCatalogue $catalogue,
@@ -112,6 +115,12 @@ final class StoreCheckouts
     private function open(Customer $customer, array $lines, ?StoreLink $link, ?string $couponCode, string $idempotencyKey, PaymentGateway $gateway): StoreCheckout
     {
         return LockingTransaction::run(function () use ($customer, $lines, $link, $couponCode, $idempotencyKey, $gateway) {
+            // The customer row is the lock for the open-checkout cap (two starts at once count each other).
+            Customer::query()->whereKey($customer->id)->lockForUpdate()->firstOrFail();
+            $open = StoreCheckout::query()->where('customer_id', $customer->id)->where('status', CheckoutStatus::PendingPayment)->count();
+            if ($open >= self::MAX_OPEN_PER_CUSTOMER) {
+                throw ValidationException::withMessages(['lines' => __('checkout.validation.too_many_open')]);
+            }
             $settings = $this->gate->assertSelling();
             if ($link !== null) {
                 $link = $this->links->beginAttempt($link, $customer);

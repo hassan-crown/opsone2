@@ -15,6 +15,7 @@ use App\Notifications\Channels\SmsChannel;
 use App\Portal\CustomerOtp;
 use App\Portal\PortalInvitation;
 use App\Portal\PortalSession;
+use App\Store\CheckoutOtp;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Queue;
@@ -94,6 +95,22 @@ it('signs in by the email linked to the account, never to another address', func
     $this->post('/portal/login', ['identifier' => strtoupper($this->customer->email)])->assertRedirect('/portal/login/verify');
     expect(OutboxMessage::query()->where('idempotency_key', 'like', 'portal-otp:%')->sole()->recipient)->toBe($this->customer->email);
 
+});
+
+it('keeps a pending store checkout code apart: a sign-in code neither cancels it nor spends its attempts', function () {
+    $checkout = CustomerOtpChallenge::query()->create([
+        'customer_id' => $this->customer->id, 'identifier_hash' => CustomerOtp::identifierHash($this->customer->mobile),
+        'purpose' => CheckoutOtp::PURPOSE, 'channel' => 'sms', 'code_hash' => str_repeat('0', 64),
+        'expires_at' => now()->addMinutes(5), 'ip' => '127.0.0.1',
+    ]);
+
+    $this->post('/portal/login', ['identifier' => $this->customer->mobile])->assertRedirect('/portal/login/verify');
+    $this->post('/portal/login/verify', ['code' => '000000']);
+    $this->post('/portal/login/verify', ['code' => lastOtpCode()]);
+
+    expect(PortalSession::customer()?->id)->toBe($this->customer->id)
+        ->and($checkout->refresh()->consumed_at)->toBeNull()
+        ->and($checkout->attempts)->toBe(0);
 });
 
 it('refuses an expired code', function () {

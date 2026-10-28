@@ -63,7 +63,8 @@ final class StoreLinks
         foreach (array_slice($data['lines'], 0, self::MAX_LINES) as $i => $line) {
             $variant = $this->catalogue->variant((int) $line['variant_id']);
             $quantity = (int) $line['quantity'];
-            if ($variant === null || $quantity < 1 || $quantity > Cart::MAX_QUANTITY) {
+            // The cap holds on the summed quantity too: repeating a variant on several lines adds up.
+            if ($variant === null || $quantity < 1 || ($lines[$variant->id] ?? 0) + $quantity > Cart::MAX_QUANTITY) {
                 throw ValidationException::withMessages(["lines.{$i}" => __('links.validation.line')]);
             }
             $lines[$variant->id] = ($lines[$variant->id] ?? 0) + $quantity;

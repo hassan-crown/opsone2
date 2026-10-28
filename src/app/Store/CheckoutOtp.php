@@ -53,7 +53,7 @@ final class CheckoutOtp
 
         $code = str_pad((string) random_int(0, 10 ** CustomerOtp::DIGITS - 1), CustomerOtp::DIGITS, '0', STR_PAD_LEFT);
         DB::transaction(function () use ($customer, $hash, $channel, $to, $code, $ip, $name) {
-            CustomerOtpChallenge::query()->where('identifier_hash', $hash)->whereNull('consumed_at')->update(['consumed_at' => now()]);
+            CustomerOtpChallenge::query()->where('identifier_hash', $hash)->where('purpose', self::PURPOSE)->whereNull('consumed_at')->update(['consumed_at' => now()]);
             $challenge = CustomerOtpChallenge::query()->create([
                 'customer_id' => $customer?->id,
                 'identifier_hash' => $hash,

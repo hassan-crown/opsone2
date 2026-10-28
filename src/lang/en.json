@@ -4319,6 +4319,7 @@
     "checkout.validation.sold_out": "One of the items no longer has the quantity you asked for. Update the cart and try again.",
     "checkout.validation.gateway_unavailable": "Payment could not start right now and nothing was held. Try again shortly.",
     "checkout.validation.try_later": "The payment status could not be checked right now. Try again shortly.",
+    "checkout.validation.too_many_open": "You already have checkouts waiting for payment. Finish or cancel one of them first.",
     "checkout.pending.title": "Order status",
     "checkout.pending.state.pending_payment": "Confirming your order",
     "checkout.pending.state.paid": "Your order is confirmed",

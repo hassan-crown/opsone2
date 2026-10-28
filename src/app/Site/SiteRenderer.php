@@ -58,6 +58,8 @@ final class SiteRenderer
         $appearanceCookie = request()->cookie('appearance');
         $appearance = in_array($appearanceCookie, ['light', 'dark', 'contrast', 'system'], true) ? $appearanceCookie : ($theme['appearance'] ?? 'system');
 
+        $submission = (string) Str::uuid();
+
         return view('site.page', [
             'locale' => $locale,
             'dir' => $locale === 'ar' ? 'rtl' : 'ltr',
@@ -82,21 +84,27 @@ final class SiteRenderer
             'favicon' => $this->mediaUrl($theme['favicon'] ?? null),
             'appearance' => $appearance,
             'contact' => ['phone' => $facility?->contact_phone, 'email' => $facility?->contact_email, 'address' => $facility?->address],
-            'formToken' => Crypt::encryptString((string) time()),
-            'submissionKey' => (string) Str::uuid(),
+            'formToken' => Crypt::encryptString(time().'|'.$submission),
+            'submissionKey' => $submission,
             'media' => fn (?string $uuid) => $this->mediaUrl($uuid),
             'linkUrl' => fn (?string $link) => $this->linkUrl($link, $locale),
             'leadAction' => route('site.lead', ['locale' => $locale]),
         ]);
     }
 
-    public static function tokenAge(string $token): ?int
+    /**
+     * Seconds since the form was shown, or null for a token that is forged, belongs to another form or is too old.
+     */
+    public static function tokenAge(string $token, string $submission): ?int
     {
         try {
-            return time() - (int) Crypt::decryptString($token);
+            [$at, $key] = array_pad(explode('|', Crypt::decryptString($token), 2), 2, '');
         } catch (DecryptException) {
             return null;
         }
+        $age = time() - (int) $at;
+
+        return hash_equals($key, $submission) && $age <= (int) config('site.lead.max_seconds') ? $age : null;
     }
 
     private function mediaUrl(?string $uuid): ?string

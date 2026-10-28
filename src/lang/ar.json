@@ -4319,6 +4319,7 @@
     "checkout.validation.sold_out": "نفدت الكمية المطلوبة من أحد المنتجات. عدّل السلة وحاول مجددًا.",
     "checkout.validation.gateway_unavailable": "تعذر بدء الدفع الآن ولم يُحجز شيء. حاول بعد قليل.",
     "checkout.validation.try_later": "تعذر التحقق من حالة الدفع الآن. حاول بعد قليل.",
+    "checkout.validation.too_many_open": "لديك عمليات شراء بانتظار الدفع. أكمل إحداها أو ألغها أولًا.",
     "checkout.pending.title": "حالة الطلب",
     "checkout.pending.state.pending_payment": "جارٍ تأكيد طلبك",
     "checkout.pending.state.paid": "تم تأكيد طلبك",

@@ -11,6 +11,7 @@ return [
     // Lead form: the shortest time a human needs to fill it, and the per-IP limits (honeypot + throttle, no captcha).
     'lead' => [
         'min_seconds' => (int) env('SITE_LEAD_MIN_SECONDS', 3),
+        'max_seconds' => (int) env('SITE_LEAD_MAX_SECONDS', 7200),
         'per_ip_per_hour' => (int) env('SITE_LEAD_PER_HOUR', 5),
         'per_ip_per_day' => (int) env('SITE_LEAD_PER_DAY', 20),
     ],

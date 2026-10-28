@@ -8,6 +8,7 @@
 use App\Actions\Site\SitePageWriter;
 use App\Models\Facility;
 use App\Models\Site\SiteDomain;
+use App\Site\Domain\TrustedHosts;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\Support\Org;
 
@@ -140,4 +141,20 @@ it('exposes system pages and unknown languages as 404', function () {
     $this->get('/ar/store')->assertNotFound();
     $this->get('/ar/account')->assertNotFound();
     $this->get('/fr/about')->assertNotFound();
+});
+
+it('trusts only the app host and a verified custom domain as the Host header', function () {
+    SiteDomain::query()->create(['hostname' => 'www.alnoor-kitchens.com', 'status' => SiteDomain::VERIFIED, 'verification_token' => 'x']);
+    TrustedHosts::forget();
+    $patterns = TrustedHosts::patterns();
+    $matches = fn (string $host) => collect($patterns)->contains(fn (string $p) => preg_match('{'.$p.'}i', $host) === 1);
+
+    expect($matches('www.alnoor-kitchens.com'))->toBeTrue()
+        ->and($matches('evil.com'))->toBeFalse()
+        ->and($matches('www.alnoor-kitchens.com.evil.com'))->toBeFalse();
+
+    // Removing or adding a domain is seen on the next request (the cache is cleared after the commit).
+    SiteDomain::query()->delete();
+    TrustedHosts::forget();
+    expect(TrustedHosts::patterns())->toBe([]);
 });

@@ -9,6 +9,7 @@ use App\Audit\AuditAction;
 use App\Models\Site\SiteDomain;
 use App\Models\User;
 use App\Site\Domain\DnsTxtResolver;
+use App\Site\Domain\TrustedHosts;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -84,9 +85,12 @@ final class DomainManager
     {
         $this->access->authorize($actor, Permission::P101);
 
-        return DB::transaction(function () use ($actor) {
+        // The DNS lookup runs before the row lock, so a slow resolver never holds the domain row.
+        $records = $this->dns->txt(SiteDomain::query()->orderBy('id')->firstOrFail()->txtName());
+
+        return DB::transaction(function () use ($actor, $records) {
+            DB::afterCommit(fn () => TrustedHosts::forget());
             $domain = SiteDomain::query()->lockForUpdate()->orderBy('id')->firstOrFail();
-            $records = $this->dns->txt($domain->txtName());
             $domain->last_checked_at = Carbon::now();
             if ($records === null) {
                 $domain->last_error = 'lookup_failed';
@@ -113,6 +117,7 @@ final class DomainManager
         $this->access->authorize($actor, Permission::P101);
 
         DB::transaction(function () use ($actor) {
+            DB::afterCommit(fn () => TrustedHosts::forget());
             $domain = SiteDomain::query()->lockForUpdate()->orderBy('id')->first();
             if ($domain === null) {
                 return;

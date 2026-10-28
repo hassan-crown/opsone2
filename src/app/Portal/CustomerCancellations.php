@@ -105,6 +105,10 @@ final class CustomerCancellations
             if ($locked->status !== CancellationStatus::Pending) {
                 throw new InvalidTransition(StateMachine::M34, 'T05', 'not_from_'.$locked->status->value);
             }
+            // Only a request the customer made from the account is theirs to withdraw; one staff recorded is not.
+            if ($locked->source !== OrderCancellation::SOURCE_ACCOUNT) {
+                throw new InvalidTransition(StateMachine::M34, 'T05', 'not_customer_request');
+            }
 
             $locked->forceFill(['status' => CancellationStatus::Withdrawn, 'decided_at' => now(), 'active_key' => null, 'lock_version' => $locked->lock_version + 1])->save();
             $this->transitions->record(StateMachine::M34, 'T05', $locked, CancellationStatus::Pending, CancellationStatus::Withdrawn, null, PortalSession::SOURCE, null, ['order_id' => $order->id]);

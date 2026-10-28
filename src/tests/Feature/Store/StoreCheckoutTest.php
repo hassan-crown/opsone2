@@ -215,7 +215,7 @@ it('scenario 3 (late part): late payment when the stock was sold meanwhile is ke
         ->and($item->kind)->toBe('refund')
         ->and($item->target_minor)->toBe($late->total_minor)
         ->and(storeAvailable($this->s))->toBe('0')
-        ->and(StockReservation::query()->where('status', 'active')->sum('quantity_milli'))->toBe(5000);
+        ->and((int) StockReservation::query()->where('status', 'active')->sum('quantity_milli'))->toBe(5000);
     stockJournalMatches();
 });
 
@@ -271,6 +271,14 @@ it('when Moyasar cannot start the payment nothing stays held', function () {
         ->and(storeAvailable($this->s))->toBe('5');
 });
 
+it('one customer cannot keep the stock held with many open checkouts', function () {
+    storeStart($this->buyer, [$this->variant->id => 1]);
+    storeStart($this->buyer, [$this->variant->id => 1]);
+    expect(fn () => storeStart($this->buyer, [$this->variant->id => 1]))->toThrow(ValidationException::class)
+        ->and(StoreCheckout::query()->count())->toBe(2)
+        ->and(storeAvailable($this->s))->toBe('3');
+});
+
 it('more than the stock is refused before anything is written', function () {
     expect(fn () => storeStart($this->buyer, [$this->variant->id => 6]))->toThrow(ValidationException::class)
         ->and(StoreCheckout::query()->count())->toBe(0)
@@ -285,6 +293,32 @@ it('a declined card while the invoice can still be paid is not a final failure',
 
     moyasarWebhook(FakeMoyasar::pay($checkout))->assertOk();
     expect($checkout->refresh()->status)->toBe(CheckoutStatus::Paid);
+});
+
+it('a late notice of a declined attempt never cancels an invoice a later attempt paid', function () {
+    ['checkout' => $checkout] = storeStart($this->buyer, [$this->variant->id => 1]);
+    $declined = FakeMoyasar::pay($checkout, 'failed');
+    $paid = FakeMoyasar::pay($checkout);
+
+    // The failure notice arrives after the invoice was paid (before or after the paid notice).
+    moyasarWebhook($declined, 'payment_failed')->assertOk()->assertJson(['ignored' => true]);
+    expect($checkout->refresh()->status)->toBe(CheckoutStatus::PendingPayment);
+    moyasarWebhook($paid)->assertOk();
+    moyasarWebhook($declined, 'payment_failed')->assertOk()->assertJson(['ignored' => true]);
+    expect($checkout->refresh()->status)->toBe(CheckoutStatus::Paid)
+        ->and($checkout->order->refresh()->status)->toBe(ReadyOrderStatus::Confirmed->value);
+});
+
+it('a payment outside the app\'s invoices that names a checkout reference in its metadata is not money for it', function () {
+    ['checkout' => $checkout] = storeStart($this->buyer, [$this->variant->id => 1]);
+    FakeMoyasar::$payments['pay_direct1'] = [
+        'id' => 'pay_direct1', 'status' => 'paid', 'amount' => $checkout->total_minor, 'currency' => 'SAR', 'invoice_id' => null,
+        'created_at' => now()->toIso8601String(), 'metadata' => ['merchant_reference' => $checkout->payment->reference],
+    ];
+
+    moyasarWebhook('pay_direct1')->assertOk()->assertJson(['ignored' => true]);
+    expect($checkout->refresh()->status)->toBe(CheckoutStatus::PendingPayment)
+        ->and(Receipt::query()->where('order_id', $checkout->order_id)->exists())->toBeFalse();
 });
 
 it('FinanceLock: a ready order takes online money only through the store checkout (the portal begin refuses it)', function () {

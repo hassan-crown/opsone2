@@ -24,10 +24,12 @@ beforeEach(function () {
 
 function leadPayload(array $override = []): array
 {
+    $submission = $override['submission'] ?? (string) Str::uuid();
+
     return array_merge([
         'name' => 'سلمان', 'mobile' => '0551234567', 'email' => null, 'need' => 'أحتاج مطبخًا جديدًا',
-        'submission' => (string) Str::uuid(),
-        'form_token' => Crypt::encryptString((string) (time() - 30)),
+        'submission' => $submission,
+        'form_token' => Crypt::encryptString((time() - 30).'|'.$submission),
         'website' => '',
     ], $override);
 }
@@ -72,9 +74,14 @@ it('the honeypot silently drops bots without storing anything', function () {
     expect(Interest::query()->count())->toBe(0);
 });
 
-it('a form submitted faster than a human or with a forged token is dropped', function () {
-    $this->post('/en/contact', leadPayload(['form_token' => Crypt::encryptString((string) time())]))->assertSessionHas('lead_reference');
+it('a form submitted faster than a human, with a forged, stale or borrowed token is dropped', function () {
+    $fresh = (string) Str::uuid();
+    $this->post('/en/contact', leadPayload(['submission' => $fresh, 'form_token' => Crypt::encryptString(time().'|'.$fresh)]))->assertSessionHas('lead_reference');
     $this->post('/en/contact', leadPayload(['form_token' => 'forged']))->assertSessionHas('lead_reference');
+    // A token kept and replayed: older than the window, or taken from another form.
+    $old = (string) Str::uuid();
+    $this->post('/en/contact', leadPayload(['submission' => $old, 'form_token' => Crypt::encryptString((time() - 7201).'|'.$old)]))->assertSessionHas('lead_reference');
+    $this->post('/en/contact', leadPayload(['form_token' => Crypt::encryptString((time() - 30).'|'.Str::uuid())]))->assertSessionHas('lead_reference');
 
     expect(Interest::query()->count())->toBe(0);
 });
@@ -96,6 +103,22 @@ it('is throttled per IP after the hourly limit', function () {
 
     $this->post('/en/contact', leadPayload())->assertStatus(429);
     expect(Interest::query()->count())->toBe(5);
+});
+
+it('behind the proxy each visitor has their own bucket: the forwarded address counts, not the proxy\'s', function () {
+    config(['site.lead.per_ip_per_hour' => 2, 'site.lead.per_ip_per_day' => 20]);
+    $from = fn (string $visitor) => $this->withServerVariables(['REMOTE_ADDR' => '172.18.0.5'])->withHeader('X-Forwarded-For', $visitor);
+
+    $from('203.0.113.9')->post('/en/contact', leadPayload())->assertStatus(302);
+    $from('203.0.113.9')->post('/en/contact', leadPayload())->assertStatus(302);
+    $from('203.0.113.9')->post('/en/contact', leadPayload())->assertStatus(429);
+    $from('198.51.100.7')->post('/en/contact', leadPayload())->assertStatus(302);
+
+    // A client that is not a proxy cannot pick its own address.
+    $direct = fn (string $claimed) => $this->withServerVariables(['REMOTE_ADDR' => '203.0.113.50'])->withHeader('X-Forwarded-For', $claimed);
+    $direct('192.0.2.1')->post('/en/contact', leadPayload())->assertStatus(302);
+    $direct('192.0.2.2')->post('/en/contact', leadPayload())->assertStatus(302);
+    $direct('192.0.2.3')->post('/en/contact', leadPayload())->assertStatus(429);
 });
 
 it('fails cleanly when the facility has no active branch', function () {

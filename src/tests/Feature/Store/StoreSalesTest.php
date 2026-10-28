@@ -127,6 +127,12 @@ it('SAL-02/05: a link is a random token, reserves nothing, and its owner comes o
         'lines' => [['variant_id' => $this->variant->id, 'quantity' => 1]], 'owner_id' => $this->owner->id, 'hours' => 5,
     ])->assertRedirect();
     expect(StoreLink::query()->latest('id')->first()->owner_id)->toBe($this->sales->id);
+    // The per-line quantity cap also holds when the same variant is repeated on several lines.
+    $count = StoreLink::query()->count();
+    $this->actingAs($this->sales)->post('/store-admin/links', [
+        'lines' => [['variant_id' => $this->variant->id, 'quantity' => 60], ['variant_id' => $this->variant->id, 'quantity' => 60]], 'hours' => 5,
+    ])->assertSessionHasErrors('lines.1');
+    expect(StoreLink::query()->count())->toBe($count);
     auth()->logout();
 
     // Buying through the link, with forged owner fields in the request.

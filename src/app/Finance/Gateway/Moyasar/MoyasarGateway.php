@@ -87,13 +87,30 @@ final class MoyasarGateway implements PaymentGateway
         if (in_array($status, ['initiated', 'authorized', 'verified'], true)) {
             throw new IgnoredGatewayEvent('Payment still in progress.');
         }
-        // A declined card on an invoice that can still be paid is not a final failure: the customer may try again.
-        if ($status === 'failed' && is_string($payment['invoice_id'] ?? null)
-            && ($this->client->invoice($payment['invoice_id'])['status'] ?? null) === 'initiated') {
-            throw new IgnoredGatewayEvent('Invoice still payable.');
+        if ($status === 'failed' && is_string($payment['invoice_id'] ?? null)) {
+            $invoice = $this->client->invoice($payment['invoice_id']);
+            // A declined card on an invoice that can still be paid is not a final failure: the customer may try again.
+            if (($invoice['status'] ?? null) === 'initiated') {
+                throw new IgnoredGatewayEvent('Invoice still payable.');
+            }
+            // A late notice of an earlier declined attempt never undoes a later attempt that paid the invoice.
+            foreach (is_array($invoice['payments'] ?? null) ? $invoice['payments'] : [] as $p) {
+                if (is_array($p) && in_array($p['status'] ?? null, ['paid', 'captured'], true)) {
+                    throw new IgnoredGatewayEvent('Invoice paid by another attempt.');
+                }
+            }
         }
 
-        return $this->event($payment);
+        // Only a payment on an invoice this app opened is ours; a payment made elsewhere that only names one of our
+        // references in its metadata is never money for that checkout.
+        $session = is_string($payment['invoice_id'] ?? null)
+            ? GatewaySession::query()->where('gateway', self::KEY)->where('provider_ref', $payment['invoice_id'])->first()
+            : null;
+        if ($session === null) {
+            throw new IgnoredGatewayEvent('Payment is not on an invoice of this app.');
+        }
+
+        return $this->event($payment, $session);
     }
 
     public function fetch(Payment $payment): ?VerifiedGatewayEvent
@@ -123,14 +140,9 @@ final class MoyasarGateway implements PaymentGateway
     /**
      * @param  array<string, mixed>  $p  a Moyasar payment record read with the secret key
      */
-    private function event(array $p, ?GatewaySession $session = null): VerifiedGatewayEvent
+    private function event(array $p, GatewaySession $session): VerifiedGatewayEvent
     {
-        $session ??= is_string($p['invoice_id'] ?? null)
-            ? GatewaySession::query()->where('gateway', self::KEY)->where('provider_ref', $p['invoice_id'])->first()
-            : null;
-        $reference = $session === null
-            ? (string) ($p['metadata']['merchant_reference'] ?? '')
-            : (string) Payment::query()->whereKey($session->payment_id)->value('reference');
+        $reference = (string) Payment::query()->whereKey($session->payment_id)->value('reference');
 
         $outcome = match ($p['status'] ?? null) {
             'paid', 'captured' => 'succeeded',

@@ -93,7 +93,7 @@ it('serves files only to the customer the signed link is bound to and only for t
     $own = Attachment::query()->where('attachable_type', (new PaymentProof)->getMorphClass())->where('attachable_id', $this->f->recA->proof->id)->sole();
     $foreign = Attachment::query()->where('attachable_type', (new PaymentProof)->getMorphClass())->where('attachable_id', $this->f->recB->proof->id)->sole();
 
-    $this->get(PortalFiles::url($own, $this->f->a))->assertOk();
+    $this->get(PortalFiles::url($own, $this->f->a))->assertOk()->assertHeader('Content-Security-Policy', "default-src 'none'; sandbox");
     // B's file with a link signed for A: not found. A link issued for B: refused for A.
     $this->get(PortalFiles::url($foreign, $this->f->a))->assertNotFound();
     $this->get(PortalFiles::url($foreign, $this->f->b))->assertForbidden();
@@ -122,4 +122,14 @@ it('shows no staff-only data: no internal notes, staff names, costs or commissio
             ->not->toContain('orgNav')
             ->not->toContain('"user":{');
     }
+});
+
+it('throttles the writes of one customer account without touching another customer', function () {
+    foreach (range(1, 20) as $i) {
+        $this->post('/portal/proofs/999999/withdraw')->assertNotFound();
+    }
+    $this->post('/portal/proofs/999999/withdraw')->assertTooManyRequests();
+
+    actingAsCustomer($this->f->b);
+    $this->post('/portal/proofs/999999/withdraw')->assertNotFound();
 });
