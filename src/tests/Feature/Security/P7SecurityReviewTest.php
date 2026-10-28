@@ -78,7 +78,7 @@ it('authorizes a settlement item resolution before the follow-up is re-read', fu
     $before = SettlementItem::query()->get()->map(fn (SettlementItem $i) => [$i->id, $i->status, $i->lock_version, $i->target_minor])->all();
     expect(fn () => app(SettlementFollowUps::class)->resolve($outsider, $item, SettlementItem::DROPPED, 'لا حاجة للرد', null))->toThrow(AuthorizationException::class);
     expect(SettlementItem::query()->get()->map(fn (SettlementItem $i) => [$i->id, $i->status, $i->lock_version, $i->target_minor])->all())->toBe($before)
-        ->and(AuditEvent::query()->where('actor_id', $outsider->id)->count())->toBe(0);
+        ->and(AuditEvent::query()->where('actor_user_id', $outsider->id)->count())->toBe(0);
 });
 
 it('posts a stock adjustment once per idempotency key', function () {

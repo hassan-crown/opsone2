@@ -5,6 +5,9 @@
  * shared database. Both lock the order row first; whichever commits first wins and the other is refused — the
  * delivery because the order is cancelled, the cancellation because its reviewed impact no longer holds. Issued plus
  * released never exceeds the reservation, and two concurrent decisions apply once.
+ *
+ * Which process wins depends on the scheduler (locally the cancellation usually does, on CI the delivery may), so
+ * each order of commits is also pinned without processes in CancellationInterleavingTest.
  */
 
 use App\Access\Exceptions\InvalidTransition;
@@ -119,7 +122,9 @@ it('never lets a cancellation and a delivery both succeed on the same reserved q
         expect($delivered xor $cancelled)->toBeTrue()
             ->and($reservation->issued_milli + $reservation->released_milli)->toBe(5000);
         if ($delivered) {
-            expect($outcomes[1])->toBe('state:preview_stale')->and($order->status)->toBe('delivered')
+            // All 5 were handed over: the order is delivered, so the cancellation is refused by state before its review
+            // is even compared (a partial delivery would make it `preview_stale` instead — see the interleaving test).
+            expect($outcomes[1])->toBe('state:not_from_delivered')->and($order->status)->toBe('delivered')
                 ->and(OrderCancellation::query()->count())->toBe(0);
         } else {
             expect($outcomes[0])->toBe('state:order_cancelled')->and($order->status)->toBe('cancelled')
