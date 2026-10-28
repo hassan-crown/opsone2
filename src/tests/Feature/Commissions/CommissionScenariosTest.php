@@ -154,7 +154,7 @@ it('partial collections sum exactly to the commission of the whole, rounded once
 
     // 100,001 × 3.33% = 3,330.0333 → 3,330 halalas, whatever the parts.
     expect(comAccrued($this->f->order))->toBe(3_330)
-        ->and(CommissionEntry::query()->sum('amount_minor'))->toBe(3_330)
+        ->and((int) CommissionEntry::query()->sum('amount_minor'))->toBe(3_330)
         ->and(CommissionEntry::query()->orderByDesc('id')->value('accrued_minor'))->toBe(3_330);
 });
 

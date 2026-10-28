@@ -124,7 +124,7 @@ it('T04 keeps the original and turns the difference into an adjustment: 50 recor
 
     $next = comPay($this->f->finance, $this->f->sales);
     expect($next->amount_minor)->toBe(1_000)
-        ->and($next->lines()->whereNull('order_sale_id')->sum('amount_minor'))->toBe(1_000)
+        ->and((int) $next->lines()->whereNull('order_sale_id')->sum('amount_minor'))->toBe(1_000)
         ->and(app(CommissionBalances::class)->summary($this->f->sales->id)['available_minor'])->toBe(0);
 });
 

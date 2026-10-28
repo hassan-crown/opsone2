@@ -5,6 +5,7 @@ namespace Tests\Support;
 use App\Access\Permission;
 use App\Files\Contracts\AttachmentOwner;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\QueryException;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
@@ -23,9 +24,23 @@ final class FileOwnerRecord extends Model implements AttachmentOwner
 
     public $timestamps = false;
 
+    /**
+     * A TEMPORARY table: on MariaDB/MySQL a plain CREATE TABLE inside the test's transaction commits it implicitly,
+     * which destroys the savepoints `DB::transaction()` relies on (a later rollback fails with "SAVEPOINT does not
+     * exist"). Temporary tables do not commit, and a later test on the same connection reuses the one that is left.
+     */
     public static function createTable(): void
     {
+        try {
+            self::query()->delete();
+
+            return;
+        } catch (QueryException) {
+            // not created yet on this connection
+        }
+
         Schema::create('test_file_owners', function (Blueprint $table) {
+            $table->temporary();
             $table->id();
             $table->unsignedBigInteger('branch_id');
         });
