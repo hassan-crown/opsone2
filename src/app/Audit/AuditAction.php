@@ -233,6 +233,13 @@ enum AuditAction: string
     case PortalSignInLocked = 'portal.sign_in_locked';
     case CancellationWithdrawn = 'cancellation.withdrawn';
     case AppointmentCustomerChangeRequested = 'appointment.customer_change_requested';
+    // P9 reports and exports (domain 09, SHR-12).
+    case ReportExportRequested = 'report_export.requested';
+    case ReportExportGenerated = 'report_export.generated';
+    case ReportExportFailed = 'report_export.failed';
+    case ReportExportDownloaded = 'report_export.downloaded';
+    case ReportExportPurged = 'report_export.purged';
+
     // P8 tickets (domain 09, SHR-08, M-21).
     case TicketOpened = 'ticket.opened';
     case TicketAssigned = 'ticket.assigned';
@@ -279,6 +286,7 @@ enum AuditAction: string
     public function area(): string
     {
         return match ($this) {
+            self::ReportExportRequested, self::ReportExportGenerated, self::ReportExportFailed, self::ReportExportDownloaded, self::ReportExportPurged => 'reports',
             self::StoreSettingsUpdated, self::PaymentGatewaySettingsSaved, self::StoreCheckoutStarted, self::StoreCheckoutPaid, self::StoreCheckoutReleased, self::StoreCheckoutNeedsAttention, self::StoreLinkIssued, self::StoreLinkCancelled, self::StoreLinkUsed, self::CouponCreated, self::CouponUpdated, self::CouponPaused, self::CouponResumed => 'store',
             self::SitePageCreated, self::SitePageDraftSaved, self::SitePagePublished, self::SitePageUnpublished, self::SitePageDraftDiscarded, self::SitePageArchived, self::SitePageRestored, self::SiteThemeDraftSaved, self::SiteThemeApplied, self::SiteThemeDraftDiscarded, self::SiteThemeRestored, self::SiteDomainRequested, self::SiteDomainVerified, self::SiteDomainRemoved => 'site',
             self::InvitationCreated, self::InvitationAccepted, self::InvitationCancelled, self::InvitationRenewed,

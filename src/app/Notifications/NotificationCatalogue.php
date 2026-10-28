@@ -29,6 +29,14 @@ final class NotificationCatalogue
             'body' => 'notifications.type.support_access_requested.body',
             'route' => 'support-access.index',
         ],
+        // P9: a requested report export is ready to download (P-62; the file link re-checks access on open).
+        'report.export_ready' => [
+            'mandatory' => false,
+            'permission' => Permission::P62,
+            'title' => 'reports.notify.ready.title',
+            'body' => 'reports.notify.ready.body',
+            'route' => 'reports.exports.index',
+        ],
         // P7a: reorder level crossed (alert only); opening re-checks P-48.
         'stock.low' => [
             'mandatory' => false,

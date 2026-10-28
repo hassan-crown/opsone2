@@ -12,6 +12,7 @@ use App\Models\SupportRequest;
 use App\Models\User;
 use App\Notifications\OutboxDeliverer;
 use App\Notifications\OutboxStatus;
+use App\Reports\Export\ReportExports;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Hash;
@@ -117,3 +118,9 @@ Schedule::command('ops:backup --prune')
     ->withoutOverlapping(120);
 Schedule::command('ops:heartbeat')->everyMinute();
 Schedule::command('ops:exports-prune')->hourly()->withoutOverlapping();
+
+Artisan::command('reports:purge-exports', function (ReportExports $exports) {
+    $this->info(sprintf('Removed %d expired report export file(s).', $exports->purgeExpired()));
+})->purpose('Delete report export files past their retention (SHR-12)');
+
+Schedule::command('reports:purge-exports')->hourly()->withoutOverlapping();
