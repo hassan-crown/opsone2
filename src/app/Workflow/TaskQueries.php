@@ -54,6 +54,19 @@ final class TaskQueries
     }
 
     /**
+     * Work the user finished in the last 30 days (the «المكتملة» tab); never more than LIMIT rows.
+     *
+     * @return Collection<int, Task>
+     */
+    public static function completed(User $user): Collection
+    {
+        return Task::query()->with(['order', 'action'])->where('status', TaskStatus::Completed->value)
+            ->where('completed_by', $user->id)->where('completed_at', '>=', now()->subDays(30))
+            ->orderByDesc('completed_at')->limit(self::LIMIT)->get()
+            ->filter(fn (Task $t) => Access::can($user, Permission::P24, $t))->values();
+    }
+
+    /**
      * Eligible members for a task with their open work count (for `TaskAssign`); empty unless the actor may assign it.
      *
      * @return list<array{user_id: int, name: string, open_tasks: int}>

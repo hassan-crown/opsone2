@@ -1,6 +1,7 @@
 import {
     GitBranch,
     ClipboardList,
+    ListChecks,
     Inbox,
     LayoutGrid,
     Package,
@@ -11,6 +12,7 @@ import {
 import CatalogHomeController from '@/actions/App/Http/Controllers/Catalog/CatalogHomeController';
 import CustomerController from '@/actions/App/Http/Controllers/Customers/CustomerController';
 import FlowController from '@/actions/App/Http/Controllers/Flow/FlowController';
+import TaskController from '@/actions/App/Http/Controllers/Tasks/TaskController';
 import OrderController from '@/actions/App/Http/Controllers/Orders/OrderController';
 import InterestController from '@/actions/App/Http/Controllers/Customers/InterestController';
 import AuditLogController from '@/actions/App/Http/Controllers/Audit/AuditLogController';
@@ -30,7 +32,8 @@ export type LocalizedNavItem = Omit<NavItem, 'title'> & {
         | 'customers'
         | 'catalog'
         | 'orders'
-        | 'flow';
+        | 'flow'
+        | 'tasks';
 };
 
 /** Primary navigation (5–7 items max; settings live in the footer / user menu). */
@@ -41,6 +44,12 @@ export const mainNav: LocalizedNavItem[] = [
         href: OrderController.index(),
         icon: ClipboardList,
         access: 'orders',
+    },
+    {
+        label: 'tasks.nav',
+        href: TaskController.index(),
+        icon: ListChecks,
+        access: 'tasks',
     },
     {
         label: 'customers.nav',
