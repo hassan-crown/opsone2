@@ -12,6 +12,7 @@ use App\Models\SupportRequest;
 use App\Models\User;
 use App\Notifications\OutboxDeliverer;
 use App\Notifications\OutboxStatus;
+use App\Reports\Export\ReportExports;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Hash;
@@ -108,3 +109,9 @@ Artisan::command('support:expire', function (T04ExpireSupportAccess $expire) {
 })->purpose('End support grants past their window and lapsed requests (M-38-T04)');
 
 Schedule::command('support:expire')->everyMinute()->withoutOverlapping();
+
+Artisan::command('reports:purge-exports', function (ReportExports $exports) {
+    $this->info(sprintf('Removed %d expired report export file(s).', $exports->purgeExpired()));
+})->purpose('Delete report export files past their retention (SHR-12)');
+
+Schedule::command('reports:purge-exports')->hourly()->withoutOverlapping();

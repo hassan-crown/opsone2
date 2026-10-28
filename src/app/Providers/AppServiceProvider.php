@@ -35,6 +35,7 @@ class AppServiceProvider extends ServiceProvider
         RateLimiter::for('orders-create', fn (Request $request) => Limit::perMinute(30)->by('orders-create:'.($request->user()?->getAuthIdentifier() ?? $request->ip())));
         // Shared bucket per user for the other P4 create/apply endpoints (customers, contacts, interests, conversion,
         // order lines, branch transfers, catalog records): generous for people, a ceiling for scripts.
+        RateLimiter::for('report-exports', fn (Request $request) => Limit::perHour((int) config('reports.export_rate_per_hour', 20))->by('report-exports:'.($request->user()?->getAuthIdentifier() ?? $request->ip())));
         RateLimiter::for('records-create', fn (Request $request) => Limit::perMinute(60)->by('records-create:'.($request->user()?->getAuthIdentifier() ?? $request->ip())));
     }
 

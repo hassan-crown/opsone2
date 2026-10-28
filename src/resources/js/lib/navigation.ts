@@ -18,6 +18,7 @@ import {
     Warehouse,
     Globe,
     ShoppingBag,
+    BarChart3,
 } from 'lucide-react';
 import CommissionController from '@/actions/App/Http/Controllers/Commissions/CommissionController';
 import CalendarController from '@/actions/App/Http/Controllers/Calendar/CalendarController';
@@ -32,6 +33,7 @@ import TaskController from '@/actions/App/Http/Controllers/Tasks/TaskController'
 import DeliveryController from '@/actions/App/Http/Controllers/Delivery/DeliveryController';
 import TicketController from '@/actions/App/Http/Controllers/Tickets/TicketController';
 import ReturnController from '@/actions/App/Http/Controllers/Returns/ReturnController';
+import ReportsController from '@/actions/App/Http/Controllers/Reports/ReportsController';
 import PurchaseController from '@/actions/App/Http/Controllers/Procurement/PurchaseController';
 import OrderController from '@/actions/App/Http/Controllers/Orders/OrderController';
 import InterestController from '@/actions/App/Http/Controllers/Customers/InterestController';
@@ -63,7 +65,8 @@ export type LocalizedNavItem = Omit<NavItem, 'title'> & {
         | 'returns'
         | 'site'
         | 'store'
-        | 'tickets';
+        | 'tickets'
+        | 'reports';
 };
 
 /** Primary navigation (5–7 items max; settings live in the footer / user menu). */
@@ -170,6 +173,12 @@ export const mainNav: LocalizedNavItem[] = [
         href: StoreAdminController.links(),
         icon: ShoppingBag,
         access: 'store',
+    },
+    {
+        label: 'reports.nav.reports',
+        href: ReportsController.index(),
+        icon: BarChart3,
+        access: 'reports',
     },
     {
         label: 'flow.nav',
