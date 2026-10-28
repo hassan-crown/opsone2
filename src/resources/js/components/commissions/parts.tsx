@@ -4,7 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { useT } from '@/lib/i18n';
 import type { TranslationKey } from '@/lib/i18n';
 import { Amount } from '@/components/opsone/amount';
-import type { Entry, PayoutStatus } from './types';
+import type { Correction, Entry, PayoutStatus } from './types';
 
 const PAYOUT_TONE: Record<
     PayoutStatus,
@@ -89,4 +89,21 @@ export function entryKey(
     }
 
     return `commissions.entry.${SOURCES.includes(entry.source) ? entry.source : 'other'}` as TranslationKey;
+}
+
+/** «from ← to» in Arabic, «from → to» in English: who or which rate a correction moves from and to. */
+export function CorrectionMove({ correction: c }: { correction: Correction }) {
+    const t = useT();
+    const owner = c.kind === 'owner';
+
+    return (
+        <>
+            {t('commissions.corrections.move', {
+                from: owner
+                    ? (c.from ?? '')
+                    : `${bpToPercent(c.from_rate_bp)}%`,
+                to: owner ? (c.to ?? '') : `${bpToPercent(c.to_rate_bp)}%`,
+            })}
+        </>
+    );
 }

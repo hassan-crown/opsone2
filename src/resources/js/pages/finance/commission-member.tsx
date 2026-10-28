@@ -170,7 +170,7 @@ export default function CommissionMember(initial: Statement) {
                             )}
                             {s.sales.map((sale) => (
                                 <tr key={sale.id} data-test="sale-row">
-                                    <Td className="font-semibold">
+                                    <Td className="font-semibold whitespace-nowrap">
                                         <Link
                                             href={OrderSaleController.show.url(
                                                 sale.order.id,

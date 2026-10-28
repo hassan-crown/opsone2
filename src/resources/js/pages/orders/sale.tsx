@@ -4,7 +4,12 @@ import { useState } from 'react';
 import OrderSaleController from '@/actions/App/Http/Controllers/Commissions/OrderSaleController';
 import OrderController from '@/actions/App/Http/Controllers/Orders/OrderController';
 import { bpToPercent, percentToBp } from '@/components/agreement/money';
-import { entryKey, Minor, Rate } from '@/components/commissions/parts';
+import {
+    entryKey,
+    Minor,
+    Rate,
+    CorrectionMove,
+} from '@/components/commissions/parts';
 import type { Correction, SalePayload } from '@/components/commissions/types';
 import { Shell } from '@/components/finance/dialogs';
 import { useFinanceCall } from '@/components/finance/use-finance-call';
@@ -219,14 +224,7 @@ export default function OrderSale({ order, sale: initial }: Props) {
                                         )}
                                     </span>
                                     <span className="text-weak">
-                                        {c.kind === 'owner' ? (
-                                            `${c.from} ← ${c.to}`
-                                        ) : (
-                                            <>
-                                                <Rate bp={c.from_rate_bp} /> ←{' '}
-                                                <Rate bp={c.to_rate_bp} />
-                                            </>
-                                        )}
+                                        <CorrectionMove correction={c} />
                                     </span>
                                 </div>
                                 <p className="text-body">{c.reason}</p>

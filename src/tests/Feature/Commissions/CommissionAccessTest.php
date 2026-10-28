@@ -144,7 +144,7 @@ it('renders the screens: FinCommissions, the member statement, the sale page and
     $this->actingAs($f->manager)->put('/settings/sales/commissions', ['enabled' => true, 'default_rate_bp' => 100, 'manual_lines_eligible' => true, 'roles' => [], 'members' => []])
         ->assertForbidden();
     $this->actingAs($f->finance)->put('/settings/sales/commissions', [
-        'enabled' => true, 'default_rate_bp' => 250, 'manual_lines_eligible' => false, 'roles' => [], 'members' => [], 'lock_version' => App\Models\Commissions\CommissionSettings::current()->lock_version,
+        'enabled' => true, 'default_rate_bp' => 250, 'manual_lines_eligible' => false, 'roles' => [], 'members' => [], 'lock_version' => CommissionSettings::current()->lock_version,
     ])->assertRedirect('/settings/sales');
     expect(CommissionSettings::current()->default_rate_bp)->toBe(250);
 });

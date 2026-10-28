@@ -2814,5 +2814,6 @@
     "audit.action.commission.sale_correction_requested": "Sale correction requested",
     "audit.action.commission.sale_correction_approved": "Sale correction approved",
     "audit.action.commission.sale_correction_rejected": "Sale correction rejected",
-    "audit.action.commission.sale_correction_cancelled": "Sale correction withdrawn"
+    "audit.action.commission.sale_correction_cancelled": "Sale correction withdrawn",
+    "commissions.corrections.move": ":from → :to"
 }

@@ -2814,5 +2814,6 @@
     "audit.action.commission.sale_correction_requested": "طلب تصحيح مبيعة",
     "audit.action.commission.sale_correction_approved": "اعتماد تصحيح مبيعة",
     "audit.action.commission.sale_correction_rejected": "رفض تصحيح مبيعة",
-    "audit.action.commission.sale_correction_cancelled": "سحب تصحيح مبيعة"
+    "audit.action.commission.sale_correction_cancelled": "سحب تصحيح مبيعة",
+    "commissions.corrections.move": ":from ← :to"
 }

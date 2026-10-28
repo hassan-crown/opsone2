@@ -2,7 +2,7 @@ import { Head, Link } from '@inertiajs/react';
 import { BadgePercent, Settings2 } from 'lucide-react';
 import CommissionController from '@/actions/App/Http/Controllers/Commissions/CommissionController';
 import OrderSaleController from '@/actions/App/Http/Controllers/Commissions/OrderSaleController';
-import { Minor, Rate } from '@/components/commissions/parts';
+import { Minor, Rate, CorrectionMove } from '@/components/commissions/parts';
 import type { Correction, MemberRow } from '@/components/commissions/types';
 import { EmptyState } from '@/components/opsone/empty-state';
 import { Icon } from '@/components/opsone/icon';
@@ -201,14 +201,7 @@ export default function Commissions({
                                         )}
                                     </Badge>
                                     <span className="text-weak">
-                                        {c.kind === 'owner' ? (
-                                            `${c.from} ← ${c.to}`
-                                        ) : (
-                                            <>
-                                                <Rate bp={c.from_rate_bp} /> ←{' '}
-                                                <Rate bp={c.to_rate_bp} />
-                                            </>
-                                        )}
+                                        <CorrectionMove correction={c} />
                                     </span>
                                 </span>
                                 <Button asChild size="sm" variant="secondary">
