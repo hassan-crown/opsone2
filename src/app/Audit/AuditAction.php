@@ -181,6 +181,17 @@ enum AuditAction: string
     case ExternalDocumentAttached = 'external_document.attached';
     case ExternalDocumentAccepted = 'external_document.accepted';
     case ExternalDocumentCorrectionRequested = 'external_document.correction_requested';
+    // P7 procurement (domain 06, M-13).
+    case SupplierCreated = 'supplier.created';
+    case SupplierUpdated = 'supplier.updated';
+    case SupplierDisabled = 'supplier.disabled';
+    case SupplierEnabled = 'supplier.enabled';
+    case PurchaseCreated = 'purchase.created';
+    case PurchaseUpdated = 'purchase.updated';
+    case PurchaseConfirmed = 'purchase.confirmed';
+    case PurchaseReceived = 'purchase.received';
+    case PurchaseAdjusted = 'purchase.adjusted';
+    case PurchaseRemainderCancelled = 'purchase.remainder_cancelled';
 
     public function area(): string
     {
@@ -223,6 +234,9 @@ enum AuditAction: string
             self::CommissionSettingsUpdated, self::CommissionPayoutCreated, self::CommissionPayoutReserved, self::CommissionPayoutPaid,
             self::CommissionPayoutCancelled, self::CommissionPayoutCorrected, self::SaleCorrectionRequested,
             self::SaleCorrectionApproved, self::SaleCorrectionRejected, self::SaleCorrectionCancelled => 'commissions',
+            self::SupplierCreated, self::SupplierUpdated, self::SupplierDisabled, self::SupplierEnabled,
+            self::PurchaseCreated, self::PurchaseUpdated, self::PurchaseConfirmed, self::PurchaseReceived,
+            self::PurchaseAdjusted, self::PurchaseRemainderCancelled => 'procurement',
             self::RefundRequested, self::RefundStarted, self::RefundExecuted, self::RefundFailed, self::RefundCancelled, self::RefundRetried, self::PaymentCorrected, self::DisputeOpened, self::DisputeAwaiting, self::DisputeResumed, self::DisputeResolved, self::ExternalDocumentRequested, self::ExternalDocumentAttached, self::ExternalDocumentAccepted, self::ExternalDocumentCorrectionRequested => 'finance',
         };
     }

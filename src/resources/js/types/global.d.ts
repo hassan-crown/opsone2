@@ -32,6 +32,7 @@ declare module '@inertiajs/core' {
                 calendar: boolean;
                 finance: boolean;
                 commissions: boolean;
+                procurement: boolean;
             } | null;
             [key: string]: unknown;
         };
