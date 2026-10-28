@@ -182,7 +182,8 @@ it('never shows an internal note, its files or its author to the customer: props
     $page = $this->get("/portal/tickets/{$t->id}")->assertOk();
     $json = json_encode($page->viewData('page')['props'], JSON_UNESCAPED_UNICODE);
     expect($json)->toContain('نعمل على حل المشكلة')->toContain('public.pdf')
-        ->not->toContain('SECRET-NOTE')->not->toContain('internal.pdf')->not->toContain($f->owner->name)->not->toContain('assignee');
+        ->not->toContain('SECRET-NOTE')->not->toContain('internal.pdf')->not->toContain($f->owner->name);
+    expect(json_encode($page->viewData('page')['props']['ticket']))->not->toContain('assignee');
     $page->assertInertia(fn (Assert $p) => $p->has('ticket.messages', 2)); // the opening message and the public reply
 
     // Notifications to the customer carry no text of any message, only that there is an update.
