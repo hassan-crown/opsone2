@@ -42,6 +42,12 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
+
+        // Facility customers in their workspace (ADR-0022): a separate session cookie, never the staff session.
+        'customer' => [
+            'driver' => 'session',
+            'provider' => 'customers',
+        ],
     ],
 
     /*
@@ -65,6 +71,12 @@ return [
         'users' => [
             'driver' => 'eloquent',
             'model' => env('AUTH_MODEL', User::class),
+        ],
+
+        // Registered by PortalServiceProvider (an Eloquent provider over App\Models\Customer). A driver of its own
+        // keeps the customer model out of the staff guard's type: `$request->user()` is only ever a staff User.
+        'customers' => [
+            'driver' => 'portal-customers',
         ],
 
         // 'users' => [

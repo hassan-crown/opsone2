@@ -225,6 +225,14 @@ enum AuditAction: string
     case ReturnCorrected = 'return.corrected';
     case ReturnRefundRequested = 'return.refund_requested';
     case ReturnSettingsUpdated = 'return.settings_updated';
+    // P8 customer workspace (domain 07, ADR-0022).
+    case PortalInvited = 'portal.invited';
+    case PortalSignedIn = 'portal.signed_in';
+    case PortalSignedOut = 'portal.signed_out';
+    case PortalSessionsEnded = 'portal.sessions_ended';
+    case PortalSignInLocked = 'portal.sign_in_locked';
+    case CancellationWithdrawn = 'cancellation.withdrawn';
+    case AppointmentCustomerChangeRequested = 'appointment.customer_change_requested';
 
     public function area(): string
     {
@@ -257,7 +265,7 @@ enum AuditAction: string
             self::StockReleased, self::StockIssued, self::StockTransferCreated, self::StockTransferMoved, self::StockCountRecorded => 'stock',
             self::FlowTemplateChosen, self::FlowDraftSaved, self::FlowPublished, self::FlowDraftDiscarded, self::OrderPaused, self::OrderResumed, self::OrderExecutionFinished, self::OrderReopenedForCorrection, self::StageCompleted, self::ActionAllowed, self::ActionReworked, self::ActionNeedChanged, self::UpcomingWorkEdited, self::MeasurementRecorded, self::MeasurementCorrected => 'workflow',
             self::TaskAssigned, self::TaskRouted, self::TaskReassigned, self::TaskClaimed, self::TaskCompleted, self::TaskCancelled, self::TaskReleased => 'tasks',
-            self::AppointmentProposed, self::AppointmentSent, self::AppointmentConfirmed, self::AppointmentChangeRequested, self::AppointmentChangeDiscarded, self::AppointmentChanged, self::AppointmentCompleted, self::AppointmentCancelled => 'appointments',
+            self::AppointmentProposed, self::AppointmentSent, self::AppointmentConfirmed, self::AppointmentChangeRequested, self::AppointmentChangeDiscarded, self::AppointmentChanged, self::AppointmentCompleted, self::AppointmentCancelled, self::AppointmentCustomerChangeRequested => 'appointments',
             self::WorkSettingsUpdated, self::FinanceSettingsUpdated, self::CashProofPolicyUpdated, self::DiscountLimitsUpdated => 'settings',
             self::DocumentCreated, self::DocumentDraftUpdated, self::DocumentSent, self::DocumentApproved, self::DocumentChangesRequested,
             self::DocumentReplaced, self::DocumentExpired, self::DocumentExtended, self::DocumentCancelled, self::AgreementActivated,
@@ -273,10 +281,11 @@ enum AuditAction: string
             self::PurchaseCreated, self::PurchaseUpdated, self::PurchaseConfirmed, self::PurchaseReceived,
             self::PurchaseAdjusted, self::PurchaseRemainderCancelled => 'procurement',
             self::DeliveryDrafted, self::DeliveryConfirmed, self::DeliveryCancelled => 'delivery',
-            self::CancellationRequested, self::CancellationAccepted, self::CancellationRejected,
+            self::CancellationRequested, self::CancellationAccepted, self::CancellationRejected, self::CancellationWithdrawn,
             self::SettlementItemResolved, self::SettlementClosed => 'cancellation',
             self::ReturnRequested, self::ReturnAccepted, self::ReturnRejected, self::ReturnReceived, self::ReturnInspected,
             self::ReturnWithdrawn, self::ReturnCorrected, self::ReturnRefundRequested, self::ReturnSettingsUpdated => 'returns',
+            self::PortalInvited, self::PortalSignedIn, self::PortalSignedOut, self::PortalSessionsEnded, self::PortalSignInLocked => 'portal',
             self::RefundRequested, self::RefundStarted, self::RefundExecuted, self::RefundFailed, self::RefundCancelled, self::RefundRetried, self::PaymentCorrected, self::DisputeOpened, self::DisputeAwaiting, self::DisputeResumed, self::DisputeResolved, self::ExternalDocumentRequested, self::ExternalDocumentAttached, self::ExternalDocumentAccepted, self::ExternalDocumentCorrectionRequested => 'finance',
         };
     }
