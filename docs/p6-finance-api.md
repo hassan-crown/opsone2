@@ -184,3 +184,54 @@ customer_orders[]`. Without P-37 every `*_minor` key, `summary` and file links a
 
 Not in 6b: refunds (M-12), corrections UI (M-11-T07), disputes, external invoices (6c); commissions (6d); customer
 portal screens and a real gateway (P8).
+
+## 6d — sale ownership and commissions
+
+Decisions: [ADR-0016](decisions/0016-commissions.md). Code: `app/Commissions`, `app/Models/Commissions`,
+`app/Actions/StateMachines/M33Payout`, `app/Actions/Commissions`, `routes/commissions.php`.
+
+### Hook for 6c (refunds, corrections, disputes, cancellations)
+
+| Call | When | Effect |
+|---|---|---|
+| `CollectionConditions::evaluate($order, $paymentId, $actor)` | After any ledger change, under the order lock (already the 6b contract) | Also re-derives the order's commission: one signed difference entry (source `order_collection:{payment}`), nothing when unchanged. |
+| `app(CommissionAccrual::class)->recompute(Order $order, string $source, ?User $actor, ?string $reason)` | Inside the transaction that locked the order, when commission must follow without a ledger change (cancellation, a correction with its own source such as `refund:{id}` / `correction:{id}`) | `?CommissionEntry` — the difference written, or null. Idempotent. A negative difference after a payout is carried, never erasing the payout. |
+| bind `App\Commissions\SettlementHolds` | 6c decorates the default (`LedgerSettlementHolds`: money above the agreement) | `holdOf(Order): ?string` — `refund`, `dispute`, `cancellation`, `settlement` or null. A held order is left out of payouts; its accrual is still recorded; the member's other orders stay payable. Known codes have labels (`commissions.hold.*`). |
+
+### Reading
+
+| Call | Returns |
+|---|---|
+| `SaleOwnership::active(Order)` | `?OrderSale` — `user_id`, `rate_bp` (pinned), `rate_source`, `owner_source`, `agreement_id`, `pinned_at`. |
+| `CommissionBasis::of(Order, OrderSale)` | `{eligible_minor, collected_minor, agreed_minor, target_minor}` — eligible lines before VAT × rate × allocated / agreed (Q-61 default). |
+| `CommissionAccrual::accrued(OrderSale)` | int halalas accrued now. |
+| `CommissionBalances::summary(int $userId, ?list<int> $saleIds)` / `::payable(int $userId, Carbon $until)` | Statement figures (`accrued, paid, reserved, held, available` — negative = carried) / what a payout would take now (`lines`, `amount_minor`, `held`). |
+| `SaleScope::apply(Builder<OrderSale>, User, Permission = P94)` | Sales the viewer's grants cover (`own` = the sale's member). |
+
+### Writes
+
+| Action | Permission | Notes |
+|---|---|---|
+| `M33Payout\T00CreatePayout::handle($user, $member, {period_from, period_to}, $key)` | P-96 over the payout (member's scope) | Draft; `payout_open`, `own_payout`. |
+| `M33Payout\T01ApprovePayout::handle($user, $payout, $lockVersion, $key, ?{method, paid_on, reference, note?}, ?UploadedFile $proof)` | P-96 | M-33-T01 (+T02 when execution and proof are given). Locks member then orders; `nothing_available`. |
+| `M33Payout\T02RecordPayout::handle($user, $payout, {method transfer\|cash\|cheque\|payroll, paid_on, reference, note?}, UploadedFile $proof, $lockVersion, $key)` | P-96 | Reserved → paid. Once (`not_from_paid`). |
+| `M33Payout\T03CancelPayout::handle($user, $payout, $reason, $lockVersion)` | P-96 | Draft/reserved → cancelled; lines released. |
+| `M33Payout\T04CorrectPayout::handle($user, $payout, {amount "40.00", reason}, UploadedFile $proof, $lockVersion, $key)` | P-97 | Paid → corrected; the difference becomes a member adjustment. |
+| `Commissions\RequestSaleCorrection::handle($user, $order, {kind owner\|rate, to_user_id?, rate_bp?, reason})` | P-98 (owner) / P-97 (rate) over the sale | `own_sale`, `correction_open`, `no_sale`, `no_change`. |
+| `Commissions\DecideSaleCorrection::approve($user, $c, $lockVersion)` / `reject($user, $c, $reason, $lockVersion)` / `cancel($user, $c, $lockVersion)` | P-97, not the requester nor an affected member / the requester | Approval supersedes the sale and moves the accrual (`transfer_out`/`transfer_in`). |
+| `Commissions\UpdateCommissionSettings::handle($user, {enabled, default_rate_bp, manual_lines_eligible, roles[{role_template_id, rate_bp\|null}], members[{user_id, rate_bp\|null}]}, $lockVersion)` | P-95 | New sales only. |
+
+### HTTP (screens)
+
+Routes in `src/routes/commissions.php`, `auth` + `verified`, writes throttled by `records-create`. Payout writes
+answer `{payout_id, statement: Payload}`; sale writes `{sale: Payload}` (+ `correction_id`, 201).
+
+| Method & path | Name | Screen |
+|---|---|---|
+| `GET finance/commissions` | `finance.commissions` | `FinCommissions` (P-94) |
+| `GET finance/commissions/members/{member}` · `GET finance/commissions/mine` | `finance.commissions.member` · `.mine` | `FinMyCommission` + `FinPayout` |
+| `POST finance/commissions/members/{member}/payouts` | `finance.commissions.payouts.store` | `FinPayout` (draft) |
+| `POST finance/commissions/payouts/{payout}/approve` (multipart; `pay_now` + execution + `proof`) · `/record` · `/cancel` · `/correct` | `finance.commissions.payouts.*` | `FinPayout` |
+| `GET orders/{order}/sale` | `orders.sale` | sale owner and commission correction (P-94/P-97/P-98) |
+| `POST orders/{order}/sale/corrections` · `POST sale-corrections/{c}/approve` · `/reject` · `/cancel` | `orders.sale.corrections.store`, `sale-corrections.*` | idem |
+| `PUT settings/sales/commissions` | `settings.sales.commissions` | `SettingsSales` (commission part, P-95) |
