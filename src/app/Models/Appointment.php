@@ -29,6 +29,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
  * @property string|null $conflict_reason
  * @property bool $conflicted
  * @property array{starts_at: string, ends_at: string, reason: string, requested_by: int, requested_at: string}|null $pending_change
+ * @property array{note: string, preferred: string|null, requested_at: string}|null $customer_request
  * @property string|null $outcome
  * @property bool $no_show
  * @property string|null $cancel_reason
@@ -112,6 +113,7 @@ class Appointment extends Model implements ScopedRecord
             'conflicted' => 'boolean',
             'no_show' => 'boolean',
             'pending_change' => 'array',
+            'customer_request' => 'array',
             'lock_version' => 'integer',
         ];
     }

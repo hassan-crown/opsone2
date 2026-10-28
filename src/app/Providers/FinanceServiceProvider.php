@@ -6,7 +6,9 @@ use App\Agreements\AgreementApplied;
 use App\Agreements\CollectedAmounts;
 use App\Finance\CollectionNotices;
 use App\Finance\DisputedAmounts;
+use App\Finance\Gateway\GatewayOutcomes;
 use App\Finance\Gateway\GatewayRegistry;
+use App\Finance\Gateway\NoGatewayOutcomes;
 use App\Finance\LedgerCollectedAmounts;
 use App\Finance\NoDisputes;
 use App\Finance\SyncScheduleOnAgreement;
@@ -27,6 +29,7 @@ class FinanceServiceProvider extends ServiceProvider
         $this->app->bind(CollectedAmounts::class, LedgerCollectedAmounts::class);
         $this->app->bindIf(DisputedAmounts::class, NoDisputes::class);
         $this->app->singleton(GatewayRegistry::class);
+        $this->app->bindIf(GatewayOutcomes::class, NoGatewayOutcomes::class);
     }
 
     public function boot(): void

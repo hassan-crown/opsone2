@@ -7,6 +7,7 @@ use App\Access\TransitionRecorder;
 use App\Agreements\CustomerActor;
 use App\Audit\Audit;
 use App\Audit\AuditAction;
+use App\Enums\OrderKind;
 use App\Enums\PaymentMethod;
 use App\Enums\PaymentStatus;
 use App\Enums\StateMachine;
@@ -26,7 +27,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
 /**
- * Online payment (FIN-07, M-11-T02..T06, T08) without any provider bound in v1. A payment starts `pending_confirmation`
+ * Online payment (FIN-07, M-11-T02..T06, T08); the provider is Moyasar (Q-45, ADR-0023). A payment starts `pending_confirmation`
  * from the customer's account; it becomes money only in `applyWebhook()`, after the gateway verified the provider's
  * signed notification — the browser return page never confirms (FIN-03). A repeated or late notification returns the
  * known result (one receipt, T08); a success that arrives after a local failure or cancellation is referred to the
@@ -42,6 +43,7 @@ final class GatewayPayments
         private readonly PaymentPosting $posting,
         private readonly TransitionRecorder $transitions,
         private readonly CollectionNotices $notices,
+        private readonly GatewayOutcomes $outcomes,
     ) {}
 
     public static function merchantReference(Payment $payment): string
@@ -58,32 +60,60 @@ final class GatewayPayments
     public function begin(CustomerActor $customer, Order $order, Money $amount, string $gatewayKey, string $returnUrl): array
     {
         $gateway = $this->gateways->get($gatewayKey) ?? throw new InvalidTransition(StateMachine::M11, 'T00', 'gateway_unavailable');
-        if ($amount->isNegative() || $amount->isZero()) {
-            throw new InvalidTransition(StateMachine::M11, 'T00', 'invalid_amount');
-        }
 
         $payment = LockingTransaction::run(function () use ($customer, $order, $amount, $gateway) {
             $order = FinanceLock::order($order->id, StateMachine::M11, 'T00');
             if ($order->customer_id !== $customer->customerId) {
                 throw new AuthorizationException;
             }
-            $merchant = 'PAY-'.Str::upper(Str::random(20));
-            $payment = PaymentRegistry::create([
-                'customer_id' => $order->customer_id, 'order_id' => $order->id, 'amount_minor' => $amount->minor,
-                'method' => PaymentMethod::Online, 'paid_on' => AppointmentBooking::today(), 'reference' => $merchant,
-                'reference_key' => self::key($gateway->key(), $merchant), 'origin' => Payment::ORIGIN_GATEWAY,
-                'status' => PaymentStatus::PendingConfirmation, 'gateway' => $gateway->key(),
-            ], 'T00');
-            $this->transitions->record(StateMachine::M11, 'T00', $payment, null, PaymentStatus::PendingConfirmation, null, self::SOURCE);
+            // A ready order is paid online only through the store checkout, with its reservation (ADR-0023).
+            if ($order->kind !== OrderKind::Custom) {
+                throw new InvalidTransition(StateMachine::M11, 'T00', 'ready_order');
+            }
 
-            return $payment;
+            return $this->createPending($order, $amount, $gateway);
         });
 
         return ['payment' => $payment, 'url' => $gateway->checkoutUrl($payment, self::merchantReference($payment), $returnUrl)];
     }
 
     /**
-     * The only way an online payment becomes money: verify, then apply once.
+     * M-11-T00 for an order the caller already locked (FinanceLock), inside the caller's transaction.
+     */
+    public function createPending(Order $order, Money $amount, PaymentGateway $gateway): Payment
+    {
+        if ($amount->isNegative() || $amount->isZero()) {
+            throw new InvalidTransition(StateMachine::M11, 'T00', 'invalid_amount');
+        }
+        $merchant = 'PAY-'.Str::upper(Str::random(20));
+        $payment = PaymentRegistry::create([
+            'customer_id' => $order->customer_id, 'order_id' => $order->id, 'amount_minor' => $amount->minor,
+            'method' => PaymentMethod::Online, 'paid_on' => AppointmentBooking::today(), 'reference' => $merchant,
+            'reference_key' => self::key($gateway->key(), $merchant), 'origin' => Payment::ORIGIN_GATEWAY,
+            'status' => PaymentStatus::PendingConfirmation, 'gateway' => $gateway->key(),
+        ], 'T00');
+        $payment->setRelation('order', $order);
+        $this->transitions->record(StateMachine::M11, 'T00', $payment, null, PaymentStatus::PendingConfirmation, null, self::SOURCE);
+
+        return $payment;
+    }
+
+    /**
+     * M-11-T06 by the system when the provider never created anything for the pending payment (the store could not
+     * start the provider checkout), inside the caller's transaction with the order locked.
+     */
+    public function cancelPending(int $paymentId, string $reason): void
+    {
+        $payment = Payment::query()->lockForUpdate()->findOrFail($paymentId);
+        if ($payment->status !== PaymentStatus::PendingConfirmation) {
+            return;
+        }
+        $payment->forceFill(['status' => PaymentStatus::Cancelled, 'lock_version' => $payment->lock_version + 1])->save();
+        $this->transitions->record(StateMachine::M11, 'T06', $payment, PaymentStatus::PendingConfirmation, PaymentStatus::Cancelled, null, self::SOURCE, $reason);
+    }
+
+    /**
+     * Verify the provider's notification, then apply once.
      */
     public function applyWebhook(string $gatewayKey, Request $request): ?Payment
     {
@@ -91,7 +121,16 @@ final class GatewayPayments
         if ($gateway === null) {
             abort(404);
         }
-        $event = $gateway->verify($request);
+
+        return $this->applyVerified($gateway, $gateway->verify($request));
+    }
+
+    /**
+     * The only way an online payment becomes money: a result the gateway itself verified (its webhook check or its
+     * authenticated re-fetch), applied once under the order's lock.
+     */
+    public function applyVerified(PaymentGateway $gateway, VerifiedGatewayEvent $event): ?Payment
+    {
         if (! in_array($event->outcome, VerifiedGatewayEvent::OUTCOMES, true)) {
             throw new InvalidGatewaySignature('Unknown outcome.');
         }
@@ -133,6 +172,7 @@ final class GatewayPayments
                 $this->transitions->record(StateMachine::M11, 'T08', $payment, $from, $from, null, self::SOURCE, 'late_success', $context);
                 $this->notices->lateGatewayResult($order, $event->merchantReference);
                 Audit::record(AuditAction::PaymentGatewayResult, $order, null, after: [...$context, 'payment' => $payment->id, 'late_success' => true], source: self::SOURCE, label: $order->number);
+                $this->outcomes->applied($payment, $order, $from, $event, true);
 
                 return $payment;
             }
@@ -146,8 +186,10 @@ final class GatewayPayments
                 $this->transitions->record(StateMachine::M11, $transition, $payment, $from, $status, null, self::SOURCE, null, $context);
             }
             Audit::record(AuditAction::PaymentGatewayResult, $order, null, after: [...$context, 'payment' => $payment->id, 'status' => $status->value], source: self::SOURCE, label: $order->number);
+            $payment->refresh()->setRelation('order', $order);
+            $this->outcomes->applied($payment, $order, $from, $event, false);
 
-            return $payment->refresh();
+            return $payment;
         });
     }
 

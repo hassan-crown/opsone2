@@ -7,9 +7,10 @@ use Illuminate\Http\Request;
 
 /**
  * An online payment provider for the facility's own merchant account (FIN-07, P-69; OpsOne never holds merchant
- * money). Optional and not implemented in v1 (P8 chooses the provider). The browser return page never confirms
- * anything: a payment is confirmed only by `GatewayPayments::applyWebhook()`, which asks the gateway to verify the
- * provider's signed notification first — there is no other way to build a `VerifiedGatewayEvent` into money.
+ * money). Q-45: Moyasar (`Moyasar\MoyasarGateway`, ADR-0023). The browser return page never confirms anything: a
+ * payment is confirmed only by `GatewayPayments::applyVerified()`, fed either by `verify()` of the provider's
+ * notification or by `fetch()`, the gateway's own authenticated read of the provider's record — there is no other
+ * way to build a `VerifiedGatewayEvent` into money.
  */
 interface PaymentGateway
 {
@@ -19,6 +20,8 @@ interface PaymentGateway
     /**
      * Starts a checkout for the pending payment; returns the provider page to send the customer to. The merchant
      * reference (`GatewayPayments::merchantReference()`) must be sent so the notification can name the payment.
+     *
+     * @throws GatewayUnavailable when the provider cannot be reached or refuses
      */
     public function checkoutUrl(Payment $payment, string $merchantReference, string $returnUrl): string;
 
@@ -28,4 +31,12 @@ interface PaymentGateway
      * @throws InvalidGatewaySignature when it cannot be trusted
      */
     public function verify(Request $request): VerifiedGatewayEvent;
+
+    /**
+     * Reads the payment's current outcome from the provider (server to server). Null when the provider has no
+     * payment for it yet (the customer has not paid).
+     *
+     * @throws GatewayUnavailable when the provider cannot be reached
+     */
+    public function fetch(Payment $payment): ?VerifiedGatewayEvent;
 }

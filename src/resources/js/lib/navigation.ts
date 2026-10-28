@@ -10,21 +10,27 @@ import {
     Package,
     PackageCheck,
     Undo2,
+    LifeBuoy,
     Truck,
     ScrollText,
     Workflow,
     Users,
     Warehouse,
+    Globe,
+    ShoppingBag,
 } from 'lucide-react';
 import CommissionController from '@/actions/App/Http/Controllers/Commissions/CommissionController';
 import CalendarController from '@/actions/App/Http/Controllers/Calendar/CalendarController';
 import CatalogHomeController from '@/actions/App/Http/Controllers/Catalog/CatalogHomeController';
+import SitePageController from '@/actions/App/Http/Controllers/Site/SitePageController';
+import StoreAdminController from '@/actions/App/Http/Controllers/Store/StoreAdminController';
 import StockController from '@/actions/App/Http/Controllers/Inventory/StockController';
 import CustomerController from '@/actions/App/Http/Controllers/Customers/CustomerController';
 import FinanceHomeController from '@/actions/App/Http/Controllers/Finance/FinanceHomeController';
 import FlowController from '@/actions/App/Http/Controllers/Flow/FlowController';
 import TaskController from '@/actions/App/Http/Controllers/Tasks/TaskController';
 import DeliveryController from '@/actions/App/Http/Controllers/Delivery/DeliveryController';
+import TicketController from '@/actions/App/Http/Controllers/Tickets/TicketController';
 import ReturnController from '@/actions/App/Http/Controllers/Returns/ReturnController';
 import PurchaseController from '@/actions/App/Http/Controllers/Procurement/PurchaseController';
 import OrderController from '@/actions/App/Http/Controllers/Orders/OrderController';
@@ -54,7 +60,10 @@ export type LocalizedNavItem = Omit<NavItem, 'title'> & {
         | 'stock'
         | 'procurement'
         | 'delivery'
-        | 'returns';
+        | 'returns'
+        | 'site'
+        | 'store'
+        | 'tickets';
 };
 
 /** Primary navigation (5–7 items max; settings live in the footer / user menu). */
@@ -109,6 +118,12 @@ export const mainNav: LocalizedNavItem[] = [
         access: 'returns',
     },
     {
+        label: 'tickets.nav_staff',
+        href: TicketController.index(),
+        icon: LifeBuoy,
+        access: 'tickets',
+    },
+    {
         label: 'customers.nav',
         href: CustomerController.index(),
         icon: Users,
@@ -143,6 +158,18 @@ export const mainNav: LocalizedNavItem[] = [
         href: BranchController.index(),
         icon: GitBranch,
         access: 'branches',
+    },
+    {
+        label: 'site.nav',
+        href: SitePageController.index(),
+        icon: Globe,
+        access: 'site',
+    },
+    {
+        label: 'store.nav',
+        href: StoreAdminController.links(),
+        icon: ShoppingBag,
+        access: 'store',
     },
     {
         label: 'flow.nav',

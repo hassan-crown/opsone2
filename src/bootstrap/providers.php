@@ -11,8 +11,11 @@ use App\Providers\FortifyServiceProvider;
 use App\Providers\HelpServiceProvider;
 use App\Providers\InventoryServiceProvider;
 use App\Providers\NotificationsServiceProvider;
+use App\Providers\PortalServiceProvider;
 use App\Providers\ReturnsServiceProvider;
 use App\Providers\SettlementServiceProvider;
+use App\Providers\SiteServiceProvider;
+use App\Providers\StoreServiceProvider;
 use App\Providers\WorkflowServiceProvider;
 
 return [
@@ -30,4 +33,7 @@ return [
     InventoryServiceProvider::class,
     CancellationServiceProvider::class,
     ReturnsServiceProvider::class,
+    PortalServiceProvider::class,
+    StoreServiceProvider::class,
+    SiteServiceProvider::class,
 ];

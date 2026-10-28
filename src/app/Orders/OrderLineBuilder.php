@@ -24,8 +24,9 @@ final class OrderLineBuilder
 {
     /**
      * @param  array<string, mixed>  $input  one validated line (see OrderLineRules)
+     * @param  User|null  $actor  null for a line the customer chose in the store (ADR-0023)
      */
-    public function build(Order $order, array $input, User $actor, int $position, string $errorKey = 'line'): OrderLine
+    public function build(Order $order, array $input, ?User $actor, int $position, string $errorKey = 'line'): OrderLine
     {
         $type = OrderLineType::from((string) $input['type']);
         if ($type->kind() !== $order->kind) {
@@ -38,7 +39,7 @@ final class OrderLineBuilder
             'line_type' => $type,
             'description' => self::text($input['description'] ?? null),
             'unit' => self::text($input['unit'] ?? null),
-            'added_by' => $actor->id,
+            'added_by' => $actor?->id,
         ]);
 
         return match ($type) {

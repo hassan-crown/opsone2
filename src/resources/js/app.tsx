@@ -3,6 +3,7 @@ import { Providers } from '@/components/opsone/providers';
 import { initializeTheme } from '@/hooks/use-appearance';
 import AppLayout from '@/layouts/app-layout';
 import AuthLayout from '@/layouts/auth-layout';
+import PortalLayout from '@/layouts/portal-layout';
 import SettingsLayout from '@/layouts/settings/layout';
 import WizardLayout from '@/layouts/wizard-layout';
 
@@ -17,6 +18,8 @@ void createInertiaApp({
                 return Providers;
             case name.startsWith('auth/'):
                 return [Providers, AuthLayout];
+            case name.startsWith('portal/'):
+                return [Providers, PortalLayout];
             case name.startsWith('org/setup/'):
                 return [Providers, WizardLayout];
             case name.startsWith('settings/'):

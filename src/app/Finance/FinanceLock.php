@@ -21,16 +21,19 @@ use LogicException;
 final class FinanceLock
 {
     /**
-     * A ready order has no agreement or dues; it takes money only on the manual path (ADR-0019, the money side of a
+     * A ready order has no agreement or dues; it takes money on the manual path (ADR-0019, the money side of a
      * ready-goods return): a staff-recorded payment (M-11-T01, P-39, credit on the order) and refunds requested (P-42)
-     * and executed or followed up by staff (P-43) — M-12 T00/T01/T02/T04/T06/T07. Online payments (gateway M-11-T00/T02),
-     * customer proofs (M-10), provider refund results (M-12-T03/T05), corrections, transfers, schedules, disputes,
-     * documents and commissions still refuse ready orders. TODO(P8): the store checkout revisits ready-order money.
+     * and executed or followed up by staff (P-43) — M-12 T00/T01/T02/T04/T06/T07 — and, since the store (ADR-0023),
+     * on the online path: the store checkout's pending payment (M-11-T00, `GatewayPayments::createPending`; the
+     * portal's `begin()` refuses ready orders) and its result only through `GatewayPayments::applyVerified()`
+     * (M-11-T02..T06), i.e. a Moyasar webhook whose secret was verified or Moyasar's own record read server to server.
+     * Customer proofs (M-10), provider refund results (M-12-T03/T05), corrections, transfers, schedules, disputes,
+     * documents and commissions still refuse ready orders.
      *
      * @var array<string, list<string>>
      */
     private const READY_PATHS = [
-        'M-11' => ['T01'],
+        'M-11' => ['T00', 'T01', 'T02'],
         'M-12' => ['T00', 'T01', 'T02', 'T04', 'T06', 'T07'],
     ];
 

@@ -1,2 +1,5 @@
 User-agent: *
-Disallow:
+Disallow: /site-admin/
+Disallow: /dashboard
+Disallow: /settings/
+Disallow: /api/

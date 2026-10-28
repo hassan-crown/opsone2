@@ -5,7 +5,10 @@ namespace App\Models;
 use App\Access\Contracts\ScopedRecord;
 use App\Enums\ContactChannel;
 use App\Enums\CustomerKind;
+use Carbon\CarbonInterface;
 use Database\Factories\CustomerFactory;
+use Illuminate\Auth\Authenticatable;
+use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -21,6 +24,11 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property string $mobile
  * @property string|null $email
  * @property bool $portal_login_enabled
+ * @property CarbonInterface|null $portal_activated_at
+ * @property CarbonInterface|null $email_verified_at
+ * @property int $portal_session_version
+ * @property string|null $portal_locale
+ * @property CarbonInterface|null $portal_last_login_at
  * @property string $country
  * @property int $branch_id
  * @property int|null $assignee_id
@@ -37,8 +45,11 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
     'kind', 'name', 'mobile', 'email', 'portal_login_enabled', 'country', 'branch_id', 'assignee_id', 'created_by',
     'preferred_channel', 'internal_notes', 'commercial_registration', 'vat_number', 'office_phone',
 ])]
-class Customer extends Model implements ScopedRecord
+class Customer extends Model implements AuthenticatableContract, ScopedRecord
 {
+    // The customer signs in to their own workspace with a one-time code (guard `customer`, ADR-0022); no password.
+    use Authenticatable;
+
     /** @use HasFactory<CustomerFactory> */
     use HasFactory;
 
@@ -77,6 +88,12 @@ class Customer extends Model implements ScopedRecord
         return $this->hasMany(Interest::class, 'customer_id');
     }
 
+    /** No password and no «remember me»: a customer session lives only as long as its cookie. */
+    public function getRememberTokenName(): string
+    {
+        return '';
+    }
+
     public function isOrganization(): bool
     {
         return $this->kind === CustomerKind::Organization;
@@ -108,6 +125,10 @@ class Customer extends Model implements ScopedRecord
             'kind' => CustomerKind::class,
             'preferred_channel' => ContactChannel::class,
             'portal_login_enabled' => 'boolean',
+            'portal_activated_at' => 'datetime',
+            'email_verified_at' => 'datetime',
+            'portal_session_version' => 'integer',
+            'portal_last_login_at' => 'datetime',
         ];
     }
 }

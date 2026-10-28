@@ -53,6 +53,8 @@ final class T03RequestChange
                 'requested_by' => $actor->id,
                 'requested_at' => now()->toIso8601String(),
             ];
+            // The proposal answers the customer's own change request from their workspace (ADR-0022).
+            $appointment->customer_request = null;
             $conflicts = array_values($this->booking->conflicts($appointment->memberIds(), $start, $end, $appointment->id)->pluck('id')->map(intval(...))->all());
             $this->log->record($appointment, 'T03', AppointmentStatus::Confirmed, AppointmentStatus::Confirmed, $actor, $source, AuditAction::AppointmentChangeRequested,
                 $reason, ['change' => $appointment->pending_change, 'conflicts' => $conflicts], after: ['pending_change' => $appointment->pending_change]);

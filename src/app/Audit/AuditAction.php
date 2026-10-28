@@ -225,10 +225,57 @@ enum AuditAction: string
     case ReturnCorrected = 'return.corrected';
     case ReturnRefundRequested = 'return.refund_requested';
     case ReturnSettingsUpdated = 'return.settings_updated';
+    // P8 customer workspace (domain 07, ADR-0022).
+    case PortalInvited = 'portal.invited';
+    case PortalSignedIn = 'portal.signed_in';
+    case PortalSignedOut = 'portal.signed_out';
+    case PortalSessionsEnded = 'portal.sessions_ended';
+    case PortalSignInLocked = 'portal.sign_in_locked';
+    case CancellationWithdrawn = 'cancellation.withdrawn';
+    case AppointmentCustomerChangeRequested = 'appointment.customer_change_requested';
+    // P8 tickets (domain 09, SHR-08, M-21).
+    case TicketOpened = 'ticket.opened';
+    case TicketAssigned = 'ticket.assigned';
+    case TicketReplied = 'ticket.replied';
+    case TicketNoted = 'ticket.noted';
+    case TicketStatusChanged = 'ticket.status_changed';
+
+    // P8 public site, theme and domain (domain 07, M-17 / M-35).
+    case SitePageCreated = 'site_page.created';
+    case SitePageDraftSaved = 'site_page.draft_saved';
+    case SitePagePublished = 'site_page.published';
+    case SitePageUnpublished = 'site_page.unpublished';
+    case SitePageDraftDiscarded = 'site_page.draft_discarded';
+    case SitePageArchived = 'site_page.archived';
+    case SitePageRestored = 'site_page.restored';
+    case SiteThemeDraftSaved = 'site_theme.draft_saved';
+    case SiteThemeApplied = 'site_theme.applied';
+    case SiteThemeDraftDiscarded = 'site_theme.draft_discarded';
+    case SiteThemeRestored = 'site_theme.restored';
+    case SiteDomainRequested = 'site_domain.requested';
+    case SiteDomainVerified = 'site_domain.verified';
+    case SiteDomainRemoved = 'site_domain.removed';
+
+    // P8 store, basket links, coupons and Moyasar (domain 07, ADR-0023).
+    case StoreSettingsUpdated = 'store.settings_updated';
+    case PaymentGatewaySettingsSaved = 'store.gateway_settings_saved';
+    case StoreCheckoutStarted = 'store.checkout_started';
+    case StoreCheckoutPaid = 'store.checkout_paid';
+    case StoreCheckoutReleased = 'store.checkout_released';
+    case StoreCheckoutNeedsAttention = 'store.checkout_needs_attention';
+    case StoreLinkIssued = 'store.link_issued';
+    case StoreLinkCancelled = 'store.link_cancelled';
+    case StoreLinkUsed = 'store.link_used';
+    case CouponCreated = 'coupon.created';
+    case CouponUpdated = 'coupon.updated';
+    case CouponPaused = 'coupon.paused';
+    case CouponResumed = 'coupon.resumed';
 
     public function area(): string
     {
         return match ($this) {
+            self::StoreSettingsUpdated, self::PaymentGatewaySettingsSaved, self::StoreCheckoutStarted, self::StoreCheckoutPaid, self::StoreCheckoutReleased, self::StoreCheckoutNeedsAttention, self::StoreLinkIssued, self::StoreLinkCancelled, self::StoreLinkUsed, self::CouponCreated, self::CouponUpdated, self::CouponPaused, self::CouponResumed => 'store',
+            self::SitePageCreated, self::SitePageDraftSaved, self::SitePagePublished, self::SitePageUnpublished, self::SitePageDraftDiscarded, self::SitePageArchived, self::SitePageRestored, self::SiteThemeDraftSaved, self::SiteThemeApplied, self::SiteThemeDraftDiscarded, self::SiteThemeRestored, self::SiteDomainRequested, self::SiteDomainVerified, self::SiteDomainRemoved => 'site',
             self::InvitationCreated, self::InvitationAccepted, self::InvitationCancelled, self::InvitationRenewed,
             self::OwnerInvitationCreated, self::OwnerEstablished,
             self::MembershipDisabled, self::MembershipReactivated, self::MembershipAccessUpdated => 'team',
@@ -257,7 +304,7 @@ enum AuditAction: string
             self::StockReleased, self::StockIssued, self::StockTransferCreated, self::StockTransferMoved, self::StockCountRecorded => 'stock',
             self::FlowTemplateChosen, self::FlowDraftSaved, self::FlowPublished, self::FlowDraftDiscarded, self::OrderPaused, self::OrderResumed, self::OrderExecutionFinished, self::OrderReopenedForCorrection, self::StageCompleted, self::ActionAllowed, self::ActionReworked, self::ActionNeedChanged, self::UpcomingWorkEdited, self::MeasurementRecorded, self::MeasurementCorrected => 'workflow',
             self::TaskAssigned, self::TaskRouted, self::TaskReassigned, self::TaskClaimed, self::TaskCompleted, self::TaskCancelled, self::TaskReleased => 'tasks',
-            self::AppointmentProposed, self::AppointmentSent, self::AppointmentConfirmed, self::AppointmentChangeRequested, self::AppointmentChangeDiscarded, self::AppointmentChanged, self::AppointmentCompleted, self::AppointmentCancelled => 'appointments',
+            self::AppointmentProposed, self::AppointmentSent, self::AppointmentConfirmed, self::AppointmentChangeRequested, self::AppointmentChangeDiscarded, self::AppointmentChanged, self::AppointmentCompleted, self::AppointmentCancelled, self::AppointmentCustomerChangeRequested => 'appointments',
             self::WorkSettingsUpdated, self::FinanceSettingsUpdated, self::CashProofPolicyUpdated, self::DiscountLimitsUpdated => 'settings',
             self::DocumentCreated, self::DocumentDraftUpdated, self::DocumentSent, self::DocumentApproved, self::DocumentChangesRequested,
             self::DocumentReplaced, self::DocumentExpired, self::DocumentExtended, self::DocumentCancelled, self::AgreementActivated,
@@ -273,10 +320,12 @@ enum AuditAction: string
             self::PurchaseCreated, self::PurchaseUpdated, self::PurchaseConfirmed, self::PurchaseReceived,
             self::PurchaseAdjusted, self::PurchaseRemainderCancelled => 'procurement',
             self::DeliveryDrafted, self::DeliveryConfirmed, self::DeliveryCancelled => 'delivery',
-            self::CancellationRequested, self::CancellationAccepted, self::CancellationRejected,
+            self::CancellationRequested, self::CancellationAccepted, self::CancellationRejected, self::CancellationWithdrawn,
             self::SettlementItemResolved, self::SettlementClosed => 'cancellation',
             self::ReturnRequested, self::ReturnAccepted, self::ReturnRejected, self::ReturnReceived, self::ReturnInspected,
             self::ReturnWithdrawn, self::ReturnCorrected, self::ReturnRefundRequested, self::ReturnSettingsUpdated => 'returns',
+            self::TicketOpened, self::TicketAssigned, self::TicketReplied, self::TicketNoted, self::TicketStatusChanged => 'tickets',
+            self::PortalInvited, self::PortalSignedIn, self::PortalSignedOut, self::PortalSessionsEnded, self::PortalSignInLocked => 'portal',
             self::RefundRequested, self::RefundStarted, self::RefundExecuted, self::RefundFailed, self::RefundCancelled, self::RefundRetried, self::PaymentCorrected, self::DisputeOpened, self::DisputeAwaiting, self::DisputeResumed, self::DisputeResolved, self::ExternalDocumentRequested, self::ExternalDocumentAttached, self::ExternalDocumentAccepted, self::ExternalDocumentCorrectionRequested => 'finance',
         };
     }

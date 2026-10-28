@@ -53,6 +53,9 @@
   corrections, credit transfers, schedules, disputes, documents and commissions still refuse ready orders. Regression
   tests: `ReadyOrderMoneyTest` (grants, reserved limit, idempotency, online still refused) and `CustomOrderMoneyTest`
   (made-to-order finance unchanged). **P8 revisits ready-order money with the store checkout** (online payment,
+  *Update (ADR-0023, P8c):* the store checkout opened M-11-T00/T02 for ready orders — the pending payment created inside
+  the checkout and its result only through `GatewayPayments::applyVerified()` (a verified Moyasar webhook re-read from
+  Moyasar, or Moyasar's record read server to server); the portal's `begin()` still refuses ready orders.
   provider refunds).
 - **Commission (INT-06)**: acceptance calls the 6d hook `CommissionAccrual::recompute($order, 'return:{id}', …)` (a
   no-op while ready orders carry no sale) and `ReturnSettlementHolds` decorates `SettlementHolds`: an order with a return
