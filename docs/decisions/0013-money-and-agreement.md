@@ -1,6 +1,7 @@
 # ADR-0013 — Money foundation and the agreement inside the order (P6a)
 
-Status: accepted as reversible defaults (Q-34 a, Q-35 a, Q-36 c, Q-40 a)
+Status: accepted — Q-35 a decided by the product owner (2026-10-28: VAT-inclusive prices by default, 15%, changeable per
+facility); Q-34 a, Q-36 c, Q-40 a as reversible defaults
 
 > Service and HTTP contract for 6b/6c/6d and the screens: [`docs/p6-finance-api.md`](../p6-finance-api.md).
 
@@ -17,7 +18,7 @@ Status: accepted as reversible defaults (Q-34 a, Q-35 a, Q-36 c, Q-40 a)
 - **Allocation (`Money::allocate(weights)`)**: largest remainder — each part gets its truncated share, the halalas left
   go one by one to the largest remainders (earlier parts on ties); the parts always sum exactly to the amount. Used to
   spread a document discount over its lines (so VAT stays per line) and, later, collections over dues.
-- **VAT (Q-35 a, `App\Money\VatCalculator`)**: rate per facility in basis points (default 1500 = 15%), entered prices
+- **VAT (Q-35 a, decided by the product owner 2026-10-28; `App\Money\VatCalculator`)**: rate per facility in basis points (default 1500 = 15%), entered prices
   VAT-inclusive (default) or exclusive, computed per line on the discounted line amount: inclusive
   `vat = amount × r / (1 + r)`, exclusive `vat = amount × r`, both half-up. The tax invoice stays external (BR-20).
 - **Facility settings**: `finance_settings` (one row, defaults until saved; `lock_version`): `vat_rate_bp`,
