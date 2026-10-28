@@ -4,12 +4,16 @@ use App\Actions\StateMachines\M15Return\T00RequestReturn;
 use App\Actions\StateMachines\M15Return\T01ReceiveReturn;
 use App\Actions\StateMachines\M15Return\T02InspectReturn;
 use App\Actions\StateMachines\M15Return\T05AcceptReturn;
+use App\Finance\Gateway\PaymentGateway;
+use App\Finance\Gateway\VerifiedGatewayEvent;
 use App\Inventory\Quantity;
+use App\Models\Finance\Payment;
 use App\Models\Inventory\StockLocation;
 use App\Models\Order;
 use App\Models\Returns\OrderReturn;
 use App\Models\Returns\OrderReturnPart;
 use App\Models\User;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
@@ -115,4 +119,28 @@ function rtRefused(Closure $attempt, string $exception, ?string $condition = nul
         }
     }
     expect(rtSnapshot())->toBe($before);
+}
+
+/**
+ * A provider stand-in for the online-payment paths (never trusted here; only `begin` is exercised).
+ */
+function readyGateway(): PaymentGateway
+{
+    return new class implements PaymentGateway
+    {
+        public function key(): string
+        {
+            return 'readypay';
+        }
+
+        public function checkoutUrl(Payment $payment, string $merchantReference, string $returnUrl): string
+        {
+            return 'https://pay.test/'.$merchantReference;
+        }
+
+        public function verify(Request $request): VerifiedGatewayEvent
+        {
+            return new VerifiedGatewayEvent('x', 'y', 'succeeded', 1, 'SAR');
+        }
+    };
 }

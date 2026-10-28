@@ -1,6 +1,6 @@
 # ADR-0019: Ready-goods returns — eligibility, receipt, inspection and refund (P7d)
 
-- Status: accepted (2026-10-28). One product point is flagged for the manager (below: money on ready orders).
+- Status: accepted (2026-10-28). Includes a change to P6 (ready-order money on the manual path), approved by the manager.
 - Scope: domain 06 (SRS-FUL-06, FUL-11), INT-02 / INT-03 / INT-05 / INT-06, process P04, machine **M-15** (T00 request,
   T05 accept, T06 reject, T01 receive, T07 further receipt, T02 inspect, T03 withdraw, T04 correct), integration scenarios
   7 and 8 and the return side of scenario 4. Permissions (all over the **order**): P-53 or P-42 request, P-102 decide,
@@ -45,10 +45,15 @@
   amount from the payment's refundable limit under the order lock. One live refund per return (`refund_exists`), amount
   ≤ settlement (`above_settlement`) and ≤ the payment's refundable money (`not_refundable`); a failed or cancelled refund
   may be asked again. Execution stays M-12-T02 by P-43 with proof (`RF-…`).
-- **Money on ready orders** (flag for the manager): P6 refused every money write on ready orders (`FinanceLock`
-  `ready_order`). A return refund needs money on the order, so `FinanceLock` now admits ready orders for **M-11**
-  (recorded payment, credit on the order — no agreement or dues) and **M-12** only; agreements, dues and every other
-  machine still refuse them. Isolated in its own commit; P8's store checkout replaces counter payments later.
+- **Money on ready orders — a change to P6 (manager decision, option A)**: P6 refused every money write on ready
+  orders (`FinanceLock` `ready_order`). A return refund needs money on the order, so `FinanceLock::READY_PATHS` admits
+  ready orders on the **manual path only**: a staff-recorded payment M-11-T01 (P-39, credit on the order — no agreement
+  or dues) and staff refunds M-12 T00 request (P-42), T01 start / T02 confirm / T04 failure / T07 retry (P-43), T06
+  cancel (P-42). Online payments (gateway M-11-T00/T02), customer proofs (M-10), provider refund results (M-12-T03/T05),
+  corrections, credit transfers, schedules, disputes, documents and commissions still refuse ready orders. Regression
+  tests: `ReadyOrderMoneyTest` (grants, reserved limit, idempotency, online still refused) and `CustomOrderMoneyTest`
+  (made-to-order finance unchanged). **P8 revisits ready-order money with the store checkout** (online payment,
+  provider refunds).
 - **Commission (INT-06)**: acceptance calls the 6d hook `CommissionAccrual::recompute($order, 'return:{id}', …)` (a
   no-op while ready orders carry no sale) and `ReturnSettlementHolds` decorates `SettlementHolds`: an order with a return
   undecided / expected / under inspection, or inspected with a settlement and no refund asked, is held (`settlement`).
