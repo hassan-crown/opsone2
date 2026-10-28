@@ -24,6 +24,9 @@ declare module '@inertiajs/core' {
                 team: boolean;
                 branches: boolean;
                 audit: boolean;
+                customers: boolean;
+                catalog: boolean;
+                orders: boolean;
             } | null;
             [key: string]: unknown;
         };

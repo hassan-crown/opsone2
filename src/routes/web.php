@@ -19,6 +19,9 @@ require __DIR__.'/shared-audit.php';
 require __DIR__.'/notifications.php';
 require __DIR__.'/help.php';
 require __DIR__.'/support-access.php';
+require __DIR__.'/customers.php';
+require __DIR__.'/catalog.php';
+require __DIR__.'/orders.php';
 
 if (app()->isLocal()) {
     Route::inertia('_design', 'design')->name('design');

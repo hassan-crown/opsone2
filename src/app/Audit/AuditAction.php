@@ -53,6 +53,42 @@ enum AuditAction: string
     case SupportSignedIn = 'support_access.signed_in';
     case SupportViewed = 'support_access.viewed';
 
+    case CustomerCreated = 'customer.created';
+    case CustomerUpdated = 'customer.updated';
+    case CustomerContactAdded = 'customer.contact_added';
+    case CustomerContactUpdated = 'customer.contact_updated';
+    case CustomerContactPrimaryChanged = 'customer.contact_primary_changed';
+    case CustomerContactRemoved = 'customer.contact_removed';
+
+    case InterestCreated = 'interest.created';
+    case InterestUpdated = 'interest.updated';
+    case InterestFollowed = 'interest.followed';
+    case InterestConverted = 'interest.converted';
+    case InterestClosed = 'interest.closed';
+    case InterestReopened = 'interest.reopened';
+    case CatalogProductCreated = 'catalog_product.created';
+    case CatalogProductUpdated = 'catalog_product.updated';
+    case CatalogProductDisabled = 'catalog_product.disabled';
+    case CatalogProductEnabled = 'catalog_product.enabled';
+    case CatalogMaterialCreated = 'catalog_material.created';
+    case CatalogMaterialUpdated = 'catalog_material.updated';
+    case CatalogMaterialDisabled = 'catalog_material.disabled';
+    case CatalogMaterialEnabled = 'catalog_material.enabled';
+    case CatalogReadyCreated = 'catalog_ready.created';
+    case CatalogReadyUpdated = 'catalog_ready.updated';
+    case CatalogReadyStatusChanged = 'catalog_ready.status_changed';
+    case CatalogVariantCreated = 'catalog_variant.created';
+    case CatalogVariantUpdated = 'catalog_variant.updated';
+    case CatalogVariantStatusChanged = 'catalog_variant.status_changed';
+
+    case CustomerBranchTransferred = 'customer.branch_transferred';
+
+    case OrderCreated = 'order.created';
+    case OrderUpdated = 'order.updated';
+    case OrderLineAdded = 'order.line_added';
+    case OrderLineRemoved = 'order.line_removed';
+    case OrderBranchTransferred = 'order.branch_transferred';
+
     public function area(): string
     {
         return match ($this) {
@@ -70,6 +106,16 @@ enum AuditAction: string
             self::SupportRequestSubmitted, self::SupportAccessRequested, self::SupportAccessGranted,
             self::SupportAccessRejected, self::SupportAccessRevoked, self::SupportAccessExpired,
             self::SupportSignedIn, self::SupportViewed => 'support',
+            self::CustomerCreated, self::CustomerUpdated, self::CustomerContactAdded, self::CustomerContactUpdated,
+            self::CustomerContactPrimaryChanged, self::CustomerContactRemoved, self::CustomerBranchTransferred => 'customers',
+            self::InterestCreated, self::InterestUpdated, self::InterestFollowed, self::InterestConverted,
+            self::InterestClosed, self::InterestReopened => 'interests',
+            self::CatalogProductCreated, self::CatalogProductUpdated, self::CatalogProductDisabled, self::CatalogProductEnabled,
+            self::CatalogMaterialCreated, self::CatalogMaterialUpdated, self::CatalogMaterialDisabled, self::CatalogMaterialEnabled,
+            self::CatalogReadyCreated, self::CatalogReadyUpdated, self::CatalogReadyStatusChanged,
+            self::CatalogVariantCreated, self::CatalogVariantUpdated, self::CatalogVariantStatusChanged => 'catalog',
+            self::OrderCreated, self::OrderUpdated, self::OrderLineAdded, self::OrderLineRemoved,
+            self::OrderBranchTransferred => 'orders',
         };
     }
 

@@ -31,8 +31,11 @@
 - `app/Audit` — append-only audit trail: `Audit::record(AuditAction::X, $subject, $actor, before:, after:)` INSIDE the
   change's transaction; `AuditLog` screen (P-63). `app/Files` — private attachments (`AttachmentService`, `AllowedAttachment`
   rule, signed links re-checking access on the owner, `storage_mb` quota) — `docs/decisions/0006-audit-and-attachments.md`.
+- `app/Catalog` + `app/Actions/Catalog` + `routes/catalog.php` — made-to-order products, materials, ready goods/variants (P-11/P-12/P-13, `ready_goods`): money in minor units (`MinorUnits`), JSON `{ar,en}` text (`App\Support\Translatable`), append-only `catalog_versions`, soft-disable, single write path `CatalogWriter` — `docs/decisions/0010-catalog-versioning.md`.
 - `app/SupportAccess` + `M38SupportAccess` — OpsOne support delegation: `is_support` identities act only through a live,
   time-boxed, read-only grant (`EnforceSupportAccess`) — `docs/decisions/0008-support-access.md`.
+- `app/Customers`, `app/Actions/Customers`, `M03Interest` — customers, contacts and interests (phone normalization, scoped lists via `Access\ScopedQuery`, hidden fields per P-10) — `docs/decisions/0009-customers-and-interests.md`. Bilingual JSON columns use `App\Support\Translatable\TranslatableString`.
+- `app/Orders`, `app/Actions/Orders`, `app/Actions/BranchTransfer`, `M04CustomOrder`/`M05ReadyOrder`, `routes/orders.php` — orders (custom opens in progress without price, ready as draft), frozen lines (`catalog_version_id` + snapshot), gapless numbers (`Support\GaplessSequence` inside `Support\LockingTransaction`), idempotent create (`Support\Idempotency`), `lock_version` (409 `StaleRecord`), money only with P-37, ready part needs `ready_goods` via `LicensedRecord`, atomic branch transfer — `docs/decisions/0011-orders.md`, contract `docs/p4-orders-api.md`.
 - `app/Actions/Fortify` — Fortify actions; `app/Http/{Controllers,Requests,Middleware}`; `app/Concerns` — shared validation rules.
 - `resources/js/pages` — Inertia pages; `resources/js/components/ui` — shadcn/ui components.
 - `routes/web.php`, `routes/settings.php`, `routes/account.php` (facility settings, plan/usage, ownership transfer, my sessions). Use `Route::get($uri, fn () => redirect($to))`, not `Route::redirect()`.

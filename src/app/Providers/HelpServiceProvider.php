@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Home\HomeWidgets;
 use App\Search\Providers\BranchSearchProvider;
+use App\Search\Providers\CustomerSearchProvider;
 use App\Search\Providers\HelpArticleSearchProvider;
 use App\Search\Providers\MemberSearchProvider;
 use App\Search\SearchService;
@@ -23,6 +24,7 @@ class HelpServiceProvider extends ServiceProvider
         $this->app->tag([
             MemberSearchProvider::class,
             BranchSearchProvider::class,
+            CustomerSearchProvider::class,
             HelpArticleSearchProvider::class,
         ], 'search.providers');
 
