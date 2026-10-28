@@ -27,6 +27,8 @@ import { PageHeader } from '@/components/opsone/page-header';
 import { notify } from '@/components/opsone/toast';
 import { KindBadge, StatusBadge } from '@/components/orders/status';
 import type { OrderRow } from '@/components/orders/types';
+import { SettlementCard } from '@/components/settlement/settlement-card';
+import type { SettlementPayload } from '@/components/settlement/types';
 import { Alert, AlertBody, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -43,6 +45,7 @@ import type { TranslationKey } from '@/lib/i18n';
 type Props = {
     order: OrderRow;
     finance: FinancePayload;
+    settlement: SettlementPayload;
     today: string;
 };
 
@@ -78,14 +81,21 @@ function Money({
  * for a decision and the stage collection checks (INT-07). The server removes amounts without P-37 and decides every
  * action again; the page only shows what `can` allows.
  */
-export default function OrderFinance({ order, finance, today }: Props) {
+export default function OrderFinance({
+    order,
+    finance,
+    settlement,
+    today,
+}: Props) {
     const t = useT();
     const { locale } = useLocale();
     const [payload, setPayload] = useState(finance);
     const [fromProps, setFromProps] = useState(finance);
+    const [settled, setSettled] = useState(settlement);
     if (fromProps !== finance) {
         setFromProps(finance);
         setPayload(finance);
+        setSettled(settlement);
     }
     const [open, setOpen] = useState<Open>(null);
     const {
@@ -608,6 +618,18 @@ export default function OrderFinance({ order, finance, today }: Props) {
                 </div>
 
                 <div className="grid min-w-0 content-start gap-6">
+                    <SettlementCard
+                        orderId={order.id}
+                        orderNumber={order.number}
+                        lockVersion={payload.lock_version}
+                        settlement={settled}
+                        dues={dues}
+                        today={today}
+                        onChange={(next) => {
+                            setPayload(next.finance);
+                            setSettled(next.settlement);
+                        }}
+                    />
                     <Card data-test="conditions">
                         <CardHeader>
                             <CardTitle>

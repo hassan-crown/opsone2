@@ -18,6 +18,7 @@ enum StateMachine: string
     case M09 = 'M-09';
     case M10 = 'M-10';
     case M11 = 'M-11';
+    case M12 = 'M-12';
     case M16 = 'M-16';
     case M22 = 'M-22';
     case M23 = 'M-23';
@@ -26,4 +27,7 @@ enum StateMachine: string
     case M33 = 'M-33';
     case M37 = 'M-37';
     case M38 = 'M-38';
+    // P6c product decisions Q-38 / Q-39: derived states promoted to machines.
+    case M39 = 'M-39';
+    case M40 = 'M-40';
 }

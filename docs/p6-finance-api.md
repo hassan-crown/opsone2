@@ -1,4 +1,4 @@
-# P6 finance — service API (6a: money foundation and agreement · 6b: collections)
+# P6 finance — service API (6a: money foundation and agreement · 6b: collections · 6c: refunds and settlement)
 
 Decisions: [ADR-0013](decisions/0013-money-and-agreement.md). 6b/6c/6d extend this file with their own sections.
 
@@ -185,6 +185,68 @@ customer_orders[]`. Without P-37 every `*_minor` key, `summary` and file links a
 
 Not in 6b: refunds (M-12), corrections UI (M-11-T07), disputes, external invoices (6c); commissions (6d); customer
 portal screens and a real gateway (P8).
+
+## 6c — refunds, corrections, disputes and external documents
+
+Decisions: [ADR-0015](decisions/0015-refunds-disputes.md). Code: `app/Finance/Settlement`, `app/Models/Finance`
+(`Refund`, `PaymentCorrection`, `FinancialDispute`, `ExternalDocument`), `app/Actions/StateMachines/M12Refund|M39Dispute|M40Document`,
+`M11Payment/T07CorrectPayment`, `routes/finance-refunds.php`.
+
+### Reading (6d, P7, reports)
+
+| Call | Returns | Notes |
+|---|---|---|
+| `RefundLimits::refundable(Payment, int $orderId)` | `Money` | Payment's money on the order − reserved refunds (requested / in progress / unresolved). 0 unless confirmed. |
+| `RefundLimits::reserved()/executed()/placed()` · `::freeCredit(int $orderId)` | `Money` | Credit no reservation holds (what may still be transferred). |
+| event `Finance\Settlement\RefundExecuted` | `refundId, orderId, paymentId, amountMinor, number` | After commit, once per executed refund (T02/T05). 6d: negative commission difference; idempotent on `refundId`. |
+| `DisputedAmounts` (bound to `OpenDisputeAmounts`) | `disputedFor(OrderDue): Money` | Open disputes on that due; reminders exclude it. |
+| `SettlementPresenter::forOrder(Order, User)` | array | Screen payload (below). Caller checks P-16. |
+| `SettlementWorkItems::for(Builder $orders)` | list | FinHome kinds `refund`, `dispute`. |
+
+### Writes
+
+Every write: idempotency key (required), the version read (finance head for T00 creations; the record's
+`lock_version` for its transitions), order row lock first, `state_transitions` + `audit_events` in the transaction.
+
+| Action | Permission | Notes |
+|---|---|---|
+| `M12Refund\T00RequestRefund::handle($user, $order, {payment_id, amount, method transfer\|cash\|card\|cheque, reason}, $lockVersion, $key)` | P-42 | Reserves at once. 409 `not_refundable`, `payment_not_on_order`. |
+| `M12Refund\T01StartRefund::handle($user, $refund, {reference?}, $lockVersion, $key)` | P-43 | Sent; limit re-checked. |
+| `M12Refund\T02ConfirmRefund::handle($user, $refund, {reference, note?}, UploadedFile $proof, $lockVersion, $key)` | P-43 | From requested (records T01) or in progress. Deallocates latest first, `refund` journal, voucher `RF-YYYY-000123`, INT-07, `RefundExecuted`. 409 `not_refundable` if the money moved away. |
+| `M12Refund\T04RecordRefundFailure::handle(?$user, $refund, $reason, $lockVersion, $key)` | P-43 (or provider: `null` user) | Releases the reservation. |
+| `M12Refund\T06CancelRefund::handle($user, $refund, $reason, $lockVersion, $key)` | P-42 | Requested only. |
+| `M12Refund\T07RetryRefund::handle($user, $refund, {reference?}, $lockVersion, $key)` | P-43 | Failed → in progress; limit re-checked. |
+| `M12Refund\RefundProviderResults::unresolved($refund, $ref)` / `::succeeded($refund, $ref)` | provider (P8) | T03 / T05 (`reference_mismatch`). |
+| `M11Payment\T07CorrectPayment::handle($user, $order, $payment, {kind void\|amend, reason, amount?, method?, paid_on?, reference?}, ?UploadedFile, $lockVersion, $key)` | P-41 on every order the payment touched | Reversal journals + `corrected` + voucher `CR-YYYY-000123`; amend re-enters a new payment + receipt. 409 `payment_has_refunds`, `split_payment`, `nothing_changed`, `not_from_*`. |
+| `M39Dispute\T00OpenDispute::handle($user, $order, {payment_id?\|refund_id?\|due_id?, subject, amount, amount_note?, responsible_id, reason}, $lockVersion, $key)` | P-85 | 409 `no_movement`; 422 amount above the movement without `amount_note`. |
+| `M39Dispute\T01AwaitExternal` (party, note?) · `T02ResumeDispute` (note) · `T03ResolveDispute` ({outcome upheld\|partly_upheld\|rejected, resolution}, UploadedFile $proof) | P-85 | Never moves money. |
+| `M40Document\T00RequestDocument::handle($user, $order, {kind, event, payment_id?, refund_id?, note?}, $key)` | P-44 | Requested. |
+| `M40Document\T01AttachDocument::handle($user, $order, ?$document, {source, number, issued_on, amount, currency?} + links for a new one, UploadedFile, $lockVersion, $key)` | P-44 | T01 / T04 (after correction). 409 `duplicate_number` (per source). |
+| `M40Document\T02AcceptDocument` · `T03RequestDocumentCorrection` (reason) | P-44 | Attached only. |
+
+### HTTP (screens)
+
+Routes in `src/routes/finance-refunds.php` (`auth` + `verified`, writes throttled by `records-create`). JSON writes
+answer `{finance, settlement}` (+ `refund_id`, `number`, `correction_id`, `dispute_id`, `document_id`).
+
+| Method & path | Name | Screen |
+|---|---|---|
+| `POST orders/{order}/finance/refunds` | `orders.finance.refunds.store` | `FinRefund` |
+| `POST finance/refunds/{refund}/start` · `/confirm` (multipart) · `/fail` · `/retry` · `/cancel` | `finance.refunds.*` | `FinRefundExec` |
+| `POST finance/payments/{payment}/correction` (multipart, `order_id`) | `finance.payments.correction` | `FinCorrect` |
+| `POST orders/{order}/finance/disputes` | `orders.finance.disputes.store` | `FinDispute` |
+| `POST finance/disputes/{dispute}/await` · `/resume` · `/resolve` (multipart) | `finance.disputes.*` | `FinDisputeResolve` |
+| `POST orders/{order}/finance/documents` · `/documents/link` (multipart) | `orders.finance.documents.*` | `FinInvoiceLink` |
+| `POST finance/documents/{document}/attach` (multipart) · `/accept` · `/correction` | `finance.documents.*` | `FinInvoiceLink` |
+| `GET finance/invoices` | `finance.invoices` | `FinInvoices` (P-44) |
+
+`orders/finance` gets a `settlement` prop (`SettlementPresenter::forOrder`): `amounts_visible, payments[{id,
+receipt_number, status, refundable, correctable, split, amount_minor?, placed_minor?, reserved_minor?, refunded_minor?,
+refundable_minor?}], refunds[{…, status, can{start, confirm, fail, retry, cancel}, amount_minor?}], corrections[{number,
+kind, receipt_number, replacement_receipt, before_minor?, after_minor?}], disputes[{…, can{await, resume, resolve},
+amount_minor?}], documents[{…, status, files (P-44), can{attach, review}, amount_minor?}], open_disputes,
+customer_tax{vat_number, commercial_registration, missing[]}, members[], can{request_refund, execute_refund, correct,
+dispute, documents}`. Without P-37 every `*_minor` key and money files are absent — render «hidden», never 0.
 
 ## 6d — sale ownership and commissions
 

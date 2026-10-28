@@ -18,7 +18,8 @@ use LogicException;
  * invariants hold on every write: moves sum to zero, a collection puts exactly the payment's amount on orders, no
  * place of a payment ever goes negative, and no due is allocated above its amount.
  *
- * For 6c: `reverse()` / `reversePayment()` are the only correction primitives (docs/p6-finance-api.md).
+ * `reverse()` / `reversePayment()` are the only correction primitives (docs/p6-finance-api.md); `refund()` records
+ * money that really left (6c, ADR-0015).
  * Call inside the transaction that locked the orders (FinanceLock).
  */
 final class MoneyLedger
@@ -58,6 +59,9 @@ final class MoneyLedger
             JournalKind::Collection => $payment->amount_minor,
             JournalKind::Reversal => $reverses === null ? throw new LogicException('A reversal names its journal.')
                 : -(int) MoneyEntry::query()->where('journal_id', $reverses->id)->sum('amount_minor'),
+            // Money that left: only from the order's credit (deallocate first), never as a positive entry.
+            JournalKind::Refund => $sum < 0 && array_filter($entries, fn (array $e) => $e['due_id'] !== null || $e['amount'] > 0) === []
+                ? $sum : throw new LogicException('A refund journal takes money off order credit only.'),
             default => 0,
         };
         if ($sum !== $expected) {
@@ -88,6 +92,20 @@ final class MoneyLedger
         $this->guard($payment, $entries, $kind);
 
         return $journal;
+    }
+
+    /**
+     * Money that really left to the customer (an executed refund, M-12-T02/T05): the amount leaves the order's credit
+     * of this payment. The caller deallocates first (`RefundPosting`); the guard refuses a credit going negative.
+     */
+    public function refund(Payment $payment, int $orderId, Money $amount, ?User $actor, string $source, string $reason): MoneyJournal
+    {
+        if ($amount->isNegative() || $amount->isZero()) {
+            throw new LogicException('A refund is positive.');
+        }
+
+        return $this->write(JournalKind::Refund, $payment, [['order_id' => $orderId, 'due_id' => null, 'amount' => -$amount->minor]], $actor, $source, $reason)
+            ?? throw new LogicException('A refund has entries.');
     }
 
     /**

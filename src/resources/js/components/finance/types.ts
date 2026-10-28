@@ -109,10 +109,12 @@ export type FinancePayload = {
 export type FinanceResponse = { finance: FinancePayload };
 
 export type WorkItem = {
-    kind: 'overdue' | 'due' | 'proof' | 'settlement';
+    kind: 'overdue' | 'due' | 'proof' | 'settlement' | 'refund' | 'dispute';
     key: string;
     due_id?: number;
     proof_id?: number;
+    refund_id?: number;
+    dispute_id?: number;
     order: { id: number; number: string; customer: string };
     label: string | null;
     date: string;

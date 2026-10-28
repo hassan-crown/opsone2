@@ -5,6 +5,7 @@ namespace App\Finance;
 use App\Access\Permission;
 use App\Access\ScopedQuery;
 use App\Enums\DueStatus;
+use App\Finance\Settlement\SettlementWorkItems;
 use App\Models\Finance\MoneyEntry;
 use App\Models\Finance\PaymentProof;
 use App\Models\Order;
@@ -15,11 +16,11 @@ use Carbon\CarbonImmutable;
 /**
  * FinHome (FIN-11): one list of what is due, overdue, waiting for a proof decision or holding money that needs
  * allocation or settlement, oldest first, scoped by P-37 over each order (a list never shows what opening the order
- * would refuse). Refunds and disputes join in 6c.
+ * would refuse). Refunds not yet executed and open disputes come from 6c (SettlementWorkItems).
  */
 final class FinanceWorkList
 {
-    public const KINDS = ['overdue', 'due', 'proof', 'settlement'];
+    public const KINDS = ['overdue', 'due', 'proof', 'settlement', ...SettlementWorkItems::KINDS];
 
     /**
      * @return array{items: list<array<string, mixed>>, counts: array<string, int>}
@@ -85,7 +86,9 @@ final class FinanceWorkList
             ];
         }
 
-        $rank = ['overdue' => 0, 'proof' => 1, 'due' => 2, 'settlement' => 3];
+        array_push($items, ...SettlementWorkItems::for(clone $orders));
+
+        $rank = ['overdue' => 0, 'proof' => 1, 'refund' => 2, 'due' => 3, 'dispute' => 4, 'settlement' => 5];
         usort($items, fn (array $a, array $b) => [$rank[$a['kind']], $a['date']] <=> [$rank[$b['kind']], $b['date']]);
         $counts = array_fill_keys(self::KINDS, 0);
         foreach ($items as $item) {

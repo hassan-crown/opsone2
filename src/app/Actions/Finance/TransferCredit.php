@@ -16,6 +16,7 @@ use App\Finance\FinanceLock;
 use App\Finance\FinanceWrite;
 use App\Finance\MoneyLedger;
 use App\Finance\OrderSchedule;
+use App\Finance\Settlement\RefundLimits;
 use App\Models\Finance\Payment;
 use App\Models\Order;
 use App\Models\User;
@@ -86,7 +87,8 @@ final class TransferCredit
             $this->schedule->sync($source0, $heads[$from->id], $actor, $source);
             $this->schedule->sync($target, $heads[$toId], $actor, $source);
 
-            if (MoneyLedger::credit($source0->id)->compare($amount) < 0) {
+            // Credit reserved by a refund not yet executed stays for that refund (FIN-05).
+            if (RefundLimits::freeCredit($source0->id)->compare($amount) < 0) {
                 throw new InvalidTransition(StateMachine::M11, 'transfer', 'not_enough_credit');
             }
             // Newest payment first: the oldest money stays where it was paid.
