@@ -13,6 +13,7 @@ use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use LogicException;
 
 /**
@@ -153,10 +154,37 @@ class Order extends Model implements LicensedRecord, ScopedRecord, StatefulRecor
         return [$this->branch_id];
     }
 
+    /**
+     * @return HasOne<OrderWorkflow, $this>
+     */
+    public function workflow(): HasOne
+    {
+        return $this->hasOne(OrderWorkflow::class);
+    }
+
+    /**
+     * @return HasMany<OrderStage, $this>
+     */
+    public function stages(): HasMany
+    {
+        return $this->hasMany(OrderStage::class)->orderBy('position');
+    }
+
+    /**
+     * The department following the order's active main stage (P5): a department supervisor's scope covers the order
+     * while its current stage is with that department. No workflow or no department follow-up means none.
+     */
     public function accessDepartmentId(): ?int
     {
-        // Department work arrives with the workflow (P5); until then a department scope covers no order.
-        return null;
+        if (! $this->exists || $this->kind !== OrderKind::Custom) {
+            return null;
+        }
+
+        $department = OrderStage::query()
+            ->whereKey(OrderWorkflow::query()->where('order_id', $this->id)->select('active_stage_id'))
+            ->value('follow_up_department_id');
+
+        return $department === null ? null : (int) $department;
     }
 
     public function accessAssigneeIds(): array

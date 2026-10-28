@@ -1,14 +1,20 @@
 import {
     GitBranch,
     ClipboardList,
+    ListChecks,
+    CalendarDays,
     Inbox,
     LayoutGrid,
     Package,
     ScrollText,
+    Workflow,
     Users,
 } from 'lucide-react';
+import CalendarController from '@/actions/App/Http/Controllers/Calendar/CalendarController';
 import CatalogHomeController from '@/actions/App/Http/Controllers/Catalog/CatalogHomeController';
 import CustomerController from '@/actions/App/Http/Controllers/Customers/CustomerController';
+import FlowController from '@/actions/App/Http/Controllers/Flow/FlowController';
+import TaskController from '@/actions/App/Http/Controllers/Tasks/TaskController';
 import OrderController from '@/actions/App/Http/Controllers/Orders/OrderController';
 import InterestController from '@/actions/App/Http/Controllers/Customers/InterestController';
 import AuditLogController from '@/actions/App/Http/Controllers/Audit/AuditLogController';
@@ -21,7 +27,16 @@ import type { NavItem } from '@/types';
 export type LocalizedNavItem = Omit<NavItem, 'title'> & {
     label: TranslationKey;
     /** Shown only when the server's Gate allows it (`orgNav` shared prop); routes still enforce access. */
-    access?: 'team' | 'branches' | 'audit' | 'customers' | 'catalog' | 'orders';
+    access?:
+        | 'team'
+        | 'branches'
+        | 'audit'
+        | 'customers'
+        | 'catalog'
+        | 'orders'
+        | 'flow'
+        | 'tasks'
+        | 'calendar';
 };
 
 /** Primary navigation (5–7 items max; settings live in the footer / user menu). */
@@ -32,6 +47,18 @@ export const mainNav: LocalizedNavItem[] = [
         href: OrderController.index(),
         icon: ClipboardList,
         access: 'orders',
+    },
+    {
+        label: 'tasks.nav',
+        href: TaskController.index(),
+        icon: ListChecks,
+        access: 'tasks',
+    },
+    {
+        label: 'calendar.nav',
+        href: CalendarController.index(),
+        icon: CalendarDays,
+        access: 'calendar',
     },
     {
         label: 'customers.nav',
@@ -62,6 +89,12 @@ export const mainNav: LocalizedNavItem[] = [
         href: BranchController.index(),
         icon: GitBranch,
         access: 'branches',
+    },
+    {
+        label: 'flow.nav',
+        href: FlowController.edit(),
+        icon: Workflow,
+        access: 'flow',
     },
     {
         label: 'audit.nav',

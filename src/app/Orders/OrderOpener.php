@@ -19,6 +19,7 @@ use App\Models\Order;
 use App\Models\PurchaseReference;
 use App\Models\User;
 use App\Support\GaplessSequence;
+use App\Workflow\StageEngine;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use LogicException;
@@ -26,7 +27,8 @@ use LogicException;
 /**
  * Shared body of M-04-T00 and M-05-T00: check the server-side facts (customer visible, contact of that customer,
  * active branch inside the P-15 grant, valid assignee), take the next gapless number, write the order and its
- * frozen lines, and record the transition and the audit event — all in the caller's transaction.
+ * frozen lines, record the transition and the audit event, and start a custom order's flow — all in the caller's
+ * transaction.
  */
 final class OrderOpener
 {
@@ -37,6 +39,7 @@ final class OrderOpener
         private readonly TransitionRecorder $transitions,
         private readonly GaplessSequence $sequence,
         private readonly OrderLineBuilder $lines,
+        private readonly StageEngine $workflow,
     ) {}
 
     /**
@@ -103,6 +106,11 @@ final class OrderOpener
             'number' => $order->number, 'purchase_reference_id' => $reference?->id,
         ]);
         Audit::record(AuditAction::OrderCreated, $order, $actor, after: OrderPresenter::auditSnapshot($order), source: $source, label: $order->number);
+
+        // A custom order pins the published flow version and starts its first stage (WF-01, WF-10).
+        if ($kind === OrderKind::Custom) {
+            $this->workflow->start($order, $actor, $source);
+        }
 
         return $order;
     }

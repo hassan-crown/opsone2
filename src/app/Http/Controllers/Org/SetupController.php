@@ -12,6 +12,7 @@ use App\Actions\StateMachines\M02Setup\T02CompleteSetup;
 use App\Enums\InvitationStatus;
 use App\Enums\OrganizationUnitStatus;
 use App\Enums\SetupStatus;
+use App\Flow\FlowPresenter;
 use App\Http\Requests\Org\SetupOrgRequest;
 use App\Models\Branch;
 use App\Models\Department;
@@ -137,6 +138,12 @@ class SetupController extends OrgController
                 'regions' => Region::query()->get()->map(fn ($r) => ['id' => $r->id, 'name' => OrgPresenter::name($r)])->all(),
                 'usage' => $this->usage('branches', $limits->activeBranches()),
                 'canCreate' => $this->access->can($actor, Permission::P03, new Branch),
+            ],
+            SetupSteps::FLOW => [
+                'flow' => FlowPresenter::state(),
+                'flowOptions' => FlowPresenter::options(),
+                'canChooseFlow' => $this->access->can($actor, Permission::P21),
+                'canEditFlow' => $this->access->can($actor, Permission::P20),
             ],
             SetupSteps::TEAM => [
                 'invitations' => Invitation::query()->where('status', InvitationStatus::Pending->value)->where('expires_at', '>', now())

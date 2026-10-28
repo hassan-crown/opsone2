@@ -43,6 +43,49 @@ final class NotificationCatalogue
             'body' => null,
             'route' => null,
         ],
+        // P5: work and appointments; opening re-checks P-24 on the live task or appointment.
+        'task.assigned' => [
+            'mandatory' => false,
+            'permission' => Permission::P24,
+            'title' => 'notifications.type.task_assigned.title',
+            'body' => 'notifications.type.task_assigned.body',
+            'route' => null,
+        ],
+        'task.unassigned' => [
+            'mandatory' => false,
+            'permission' => Permission::P24,
+            'title' => 'notifications.type.task_unassigned.title',
+            'body' => 'notifications.type.task_unassigned.body',
+            'route' => null,
+        ],
+        'appointment.confirmed' => [
+            'mandatory' => false,
+            'permission' => Permission::P24,
+            'title' => 'notifications.type.appointment_confirmed.title',
+            'body' => 'notifications.type.appointment_confirmed.body',
+            'route' => null,
+        ],
+        'appointment.changed' => [
+            'mandatory' => false,
+            'permission' => Permission::P24,
+            'title' => 'notifications.type.appointment_changed.title',
+            'body' => 'notifications.type.appointment_changed.body',
+            'route' => null,
+        ],
+        'appointment.cancelled' => [
+            'mandatory' => false,
+            'permission' => Permission::P24,
+            'title' => 'notifications.type.appointment_cancelled.title',
+            'body' => 'notifications.type.appointment_cancelled.body',
+            'route' => null,
+        ],
+        'appointment.conflict' => [
+            'mandatory' => false,
+            'permission' => Permission::P24,
+            'title' => 'notifications.type.appointment_conflict.title',
+            'body' => 'notifications.type.appointment_conflict.body',
+            'route' => null,
+        ],
     ];
 
     /**
