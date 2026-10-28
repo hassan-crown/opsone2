@@ -159,7 +159,7 @@ final class T07CorrectPayment
 
             foreach ($orders as $id => $locked) {
                 $this->allocator->settle($locked, $actor, $source);
-                $this->conditions->evaluate($locked, $fresh->id, $actor);
+                $this->conditions->evaluate($locked, $fresh->id, $actor, 'correction:'.$number, $number);
                 FinanceLock::touch($heads[$id]);
             }
 

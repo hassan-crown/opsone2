@@ -32,11 +32,12 @@ final class CollectionConditions
 
     /**
      * Reports every newly met check and re-derives the sale's commission (6d, INT-06). Call inside the money
-     * write's transaction (after the ledger changed).
+     * write's transaction (after the ledger changed). `$commissionSource` names the cause on the commission entry
+     * when it is not the payment itself (6c: `refund:{id}`, `correction:{number}`).
      *
      * @return list<string> references reported now
      */
-    public function evaluate(Order $order, int $paymentId, ?User $actor): array
+    public function evaluate(Order $order, int $paymentId, ?User $actor, ?string $commissionSource = null, ?string $reason = null): array
     {
         $collected = MoneyLedger::collected($order->id);
         $reported = [];
@@ -52,7 +53,7 @@ final class CollectionConditions
             $this->results->verifyFromSource($order, ActionType::PaymentCheck, $reference, self::SOURCE_TYPE, $paymentId, $actor);
             $reported[] = $reference;
         }
-        $this->commissions->recompute($order, self::SOURCE_TYPE.':'.$paymentId, $actor);
+        $this->commissions->recompute($order, $commissionSource ?? self::SOURCE_TYPE.':'.$paymentId, $actor, $reason);
 
         return $reported;
     }

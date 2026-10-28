@@ -65,7 +65,7 @@ final class RefundPosting
         $refund->forceFill(['number' => $number, 'journal_id' => $journal->id, 'executed_by' => $actor?->id, 'executed_at' => now()]);
 
         $this->allocator->settle($order, $actor, $source);
-        $this->conditions->evaluate($order, $refund->payment_id, $actor);
+        $this->conditions->evaluate($order, $refund->payment_id, $actor, 'refund:'.$refund->id, $number);
         FinanceLock::touch($head);
 
         $event = new RefundExecuted($refund->id, $order->id, $refund->payment_id, $refund->amount_minor, $number);
