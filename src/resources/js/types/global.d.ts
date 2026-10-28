@@ -29,6 +29,7 @@ declare module '@inertiajs/core' {
                 flow: boolean;
                 orders: boolean;
                 tasks: boolean;
+                calendar: boolean;
             } | null;
             [key: string]: unknown;
         };

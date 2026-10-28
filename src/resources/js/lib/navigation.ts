@@ -2,6 +2,7 @@ import {
     GitBranch,
     ClipboardList,
     ListChecks,
+    CalendarDays,
     Inbox,
     LayoutGrid,
     Package,
@@ -9,6 +10,7 @@ import {
     Workflow,
     Users,
 } from 'lucide-react';
+import CalendarController from '@/actions/App/Http/Controllers/Calendar/CalendarController';
 import CatalogHomeController from '@/actions/App/Http/Controllers/Catalog/CatalogHomeController';
 import CustomerController from '@/actions/App/Http/Controllers/Customers/CustomerController';
 import FlowController from '@/actions/App/Http/Controllers/Flow/FlowController';
@@ -33,7 +35,8 @@ export type LocalizedNavItem = Omit<NavItem, 'title'> & {
         | 'catalog'
         | 'orders'
         | 'flow'
-        | 'tasks';
+        | 'tasks'
+        | 'calendar';
 };
 
 /** Primary navigation (5–7 items max; settings live in the footer / user menu). */
@@ -50,6 +53,12 @@ export const mainNav: LocalizedNavItem[] = [
         href: TaskController.index(),
         icon: ListChecks,
         access: 'tasks',
+    },
+    {
+        label: 'calendar.nav',
+        href: CalendarController.index(),
+        icon: CalendarDays,
+        access: 'calendar',
     },
     {
         label: 'customers.nav',

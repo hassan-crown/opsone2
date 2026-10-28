@@ -24,6 +24,7 @@ require __DIR__.'/catalog.php';
 require __DIR__.'/orders.php';
 require __DIR__.'/flow.php';
 require __DIR__.'/tasks.php';
+require __DIR__.'/calendar.php';
 
 if (app()->isLocal()) {
     Route::inertia('_design', 'design')->name('design');
