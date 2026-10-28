@@ -57,6 +57,7 @@ All Actions authorize on the order through the Gate, lock it, check the machine 
 | `M09Change\T05WithdrawChange::handle($user, $change, $reason, $lockVersion)` | P-36 | Proposal only; releases the hold. |
 | `CustomerDecisions::approveDocument / requestDocumentChanges / approveChange / requestChangeRevision(CustomerActor, …, $contentHash[, $note])` | P-67 (customer portal, P8) | The portal authenticates the customer and checks access first; this re-checks the order's customer. Records time and mobile (Q-40 a). |
 | `UpdateFinanceSettings::handle($user, $data, $lockVersion)` | P-02 | `vat_rate_bp` 0..5000, `prices_include_vat`, `quote_validity_days` 1..365, `contracts_enabled`. |
+| `UpdateCashProofPolicy::handle($user, {cash_proof_required}, $lockVersion)` | the owner | Q-62: whether a cash collection needs a proof file (default true). Audited. |
 | `UpdateDiscountLimits::handle($user, {limits: [{role_template_id, custom_bp, ready_bp, approval_bp}]})` | the owner | Per role template; the owner's role has none. |
 | `AgreementPresenter::forOrder($order, $viewer)` | caller checks P-16 | The screen payload below. `amounts_visible` = P-37 or P-29 over the order. |
 
@@ -139,7 +140,7 @@ order), `state_transitions` (M-10, M-11) + `audit_events` (area `finance`) in th
 
 | Action | Permission | Notes |
 |---|---|---|
-| `M11Payment\T01RecordPayment::handle($user, $order, {amount, method transfer\|cash\|card\|cheque, paid_on, reference (required for transfer/cheque), note?, split?[{order_id, amount}], acknowledge_similar?}, UploadedFile $evidence, $lockVersion, $key)` | P-39 on every order touched | M-11-T00+T01, one receipt `RC-YYYY-000123`, allocation oldest first, INT-07. 409 `duplicate_reference`, `matching_proof`, `similar_payment`; 422 split above the payment / other customer. |
+| `M11Payment\T01RecordPayment::handle($user, $order, {amount, method transfer\|cash\|card\|cheque, paid_on, reference (required for transfer/cheque), note?, split?[{order_id, amount}], acknowledge_similar?}, ?UploadedFile $evidence, $lockVersion, $key)` | P-39 on every order touched | M-11-T00+T01, one receipt `RC-YYYY-000123`, allocation oldest first, INT-07. Evidence required (422 `evidence`) except cash when the owner turned `cash_proof_required` off — then `note` is required (Q-62). 409 `duplicate_reference`, `matching_proof`, `similar_payment`; 422 split above the payment / other customer. |
 | `M10Proof\T01ConfirmProof::handle($user, $proof, {amount, paid_on, reference?, acknowledge_similar?, link_payment_id?}, $proofLockVersion, $key)` | P-40 | Links to the existing payment of the same trusted reference (or `link_payment_id`) — no new money; otherwise one payment + receipt. 409 `not_from_*`, `reference_conflict`, `similar_payment`. |
 | `M10Proof\T02RequestProofCorrection::handle($user, $proof, $reason, $lockVersion)` | P-40 | Reason sent to the customer (outbox). File kept. |
 | `M10Proof\T04CancelProof::handle($user, $proof, $reason, $lockVersion)` | P-40 | Only before money. |

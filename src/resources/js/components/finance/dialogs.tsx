@@ -109,15 +109,17 @@ function FileInput({
     label,
     hint,
     error,
+    required = true,
     onChange,
 }: {
     label: string;
     hint?: string;
     error?: string;
+    required?: boolean;
     onChange: (file: File | null) => void;
 }) {
     return (
-        <Field label={label} hint={hint} error={error} required>
+        <Field label={label} hint={hint} error={error} required={required}>
             {(control) => (
                 <input
                     {...control}
@@ -140,6 +142,7 @@ export function RecordPaymentDialog({
     dueName,
     customerOrders,
     today,
+    cashProofRequired = true,
     onClose,
     onDone,
 }: {
@@ -150,6 +153,7 @@ export function RecordPaymentDialog({
     dueName: string | null;
     customerOrders: { id: number; number: string }[];
     today: string;
+    cashProofRequired?: boolean;
     onClose: () => void;
     onDone: (finance: FinancePayload, receipt: string | null) => void;
 }) {
@@ -171,9 +175,16 @@ export function RecordPaymentDialog({
     const [splitAmount, setSplitAmount] = useState('');
     const [acknowledge, setAcknowledge] = useState(false);
 
+    // Cash without a file only when the owner allowed it; the note then says why (ADR-0014).
+    const proofOptional = method === 'cash' && !cashProofRequired;
     const submit = async () => {
-        if (!file) {
+        if (!file && !proofOptional) {
             call.setError(t('finance.record.evidence_required'));
+
+            return;
+        }
+        if (!file && note.trim() === '') {
+            call.setError(t('finance.record.cash_note_required'));
 
             return;
         }
@@ -192,7 +203,9 @@ export function RecordPaymentDialog({
         if (acknowledge) {
             form.append('acknowledge_similar', '1');
         }
-        form.append('evidence', file);
+        if (file) {
+            form.append('evidence', file);
+        }
         const data = await call.run('POST', url, form);
         if (data) {
             onDone(data.finance, data.receipt);
@@ -267,7 +280,12 @@ export function RecordPaymentDialog({
             />
             <FileInput
                 label={t('finance.field.evidence')}
-                hint={t('finance.record.evidence_hint')}
+                hint={
+                    proofOptional
+                        ? t('finance.record.cash_proof_optional')
+                        : t('finance.record.evidence_hint')
+                }
+                required={!proofOptional}
                 error={call.fieldError('evidence') ?? call.fieldError('file')}
                 onChange={setFile}
             />
@@ -301,6 +319,8 @@ export function RecordPaymentDialog({
             <TextareaField
                 label={t('finance.field.note')}
                 value={note}
+                required={proofOptional && !file}
+                error={call.fieldError('note')}
                 onChange={(e) => setNote(e.target.value)}
             />
             {call.condition === 'similar_payment' && (

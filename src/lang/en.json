@@ -2815,5 +2815,13 @@
     "audit.action.commission.sale_correction_approved": "Sale correction approved",
     "audit.action.commission.sale_correction_rejected": "Sale correction rejected",
     "audit.action.commission.sale_correction_cancelled": "Sale correction withdrawn",
-    "commissions.corrections.move": ":from → :to"
+    "commissions.corrections.move": ":from → :to",
+    "agreements.settings.cash_proof": "Cash collection proof",
+    "agreements.settings.cash_proof_hint": "Decided by the facility owner. Transfers, cards and cheques always need a proof.",
+    "agreements.settings.cash_proof_required": "A cash collection needs a proof file",
+    "finance.record.cash_proof_optional": "Optional for cash by the owner's setting; without a file, write the reason in the note.",
+    "finance.record.cash_note_required": "Write why there is no proof in the note.",
+    "finance.validation.evidence_required": "Attach the collection proof.",
+    "finance.validation.cash_note_required": "A cash collection without a proof needs a note with the reason.",
+    "audit.action.finance_settings.cash_proof_updated": "Cash collection proof requirement changed"
 }

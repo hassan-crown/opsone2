@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property bool $prices_include_vat
  * @property int $quote_validity_days
  * @property bool $contracts_enabled
+ * @property bool $cash_proof_required owner-only (ADR-0014): a cash collection needs a proof file
  * @property int $lock_version
  * @property int|null $updated_by
  */
@@ -29,11 +30,19 @@ class FinanceSettings extends Model
 
     protected $guarded = ['id', 'lock_version'];
 
-    protected $attributes = ['lock_version' => 1];
+    protected $attributes = ['lock_version' => 1, 'cash_proof_required' => true];
 
     public static function current(): self
     {
         return self::query()->orderBy('id')->first() ?? new self(self::DEFAULTS);
+    }
+
+    /**
+     * Whether a cash collection must carry a proof file (default yes). Other methods always need one.
+     */
+    public function cashProofRequired(): bool
+    {
+        return $this->cash_proof_required ?? true;
     }
 
     public function vat(): VatCalculator
@@ -48,6 +57,7 @@ class FinanceSettings extends Model
             'prices_include_vat' => 'boolean',
             'quote_validity_days' => 'integer',
             'contracts_enabled' => 'boolean',
+            'cash_proof_required' => 'boolean',
             'lock_version' => 'integer',
         ];
     }

@@ -95,6 +95,8 @@ export type FinancePayload = {
     conditions: FinanceCondition[];
     shortfalls: string[];
     templates: string[];
+    /** Owner setting (ADR-0014): false lets a cash collection go without a proof file, with a note. */
+    cash_proof_required: boolean;
     can: {
         record: boolean;
         review: boolean;

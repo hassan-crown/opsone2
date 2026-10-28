@@ -2815,5 +2815,13 @@
     "audit.action.commission.sale_correction_approved": "اعتماد تصحيح مبيعة",
     "audit.action.commission.sale_correction_rejected": "رفض تصحيح مبيعة",
     "audit.action.commission.sale_correction_cancelled": "سحب تصحيح مبيعة",
-    "commissions.corrections.move": ":from ← :to"
+    "commissions.corrections.move": ":from ← :to",
+    "agreements.settings.cash_proof": "إثبات التحصيل النقدي",
+    "agreements.settings.cash_proof_hint": "يقرره مالك المنشأة. التحويل والبطاقة والشيك تحتاج إثباتًا دائمًا.",
+    "agreements.settings.cash_proof_required": "التحصيل النقدي يحتاج ملف إثبات",
+    "finance.record.cash_proof_optional": "اختياري للنقد بإعداد المالك؛ دون ملف اكتب السبب في الملاحظة.",
+    "finance.record.cash_note_required": "اكتب سبب غياب الإثبات في الملاحظة.",
+    "finance.validation.evidence_required": "أرفق إثبات التحصيل.",
+    "finance.validation.cash_note_required": "التحصيل النقدي دون إثبات يحتاج ملاحظة بالسبب.",
+    "audit.action.finance_settings.cash_proof_updated": "تعديل اشتراط إثبات التحصيل النقدي"
 }

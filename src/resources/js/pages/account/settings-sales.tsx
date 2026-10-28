@@ -40,6 +40,8 @@ type Props = {
     canEditLimits: boolean;
     commissions: CommissionSettingsProps;
     canEditCommissions: boolean;
+    cashProofRequired: boolean;
+    canEditCashProof: boolean;
 };
 
 type LimitKey = 'custom_bp' | 'ready_bp' | 'approval_bp';
@@ -56,6 +58,8 @@ export default function SettingsSales({
     canEditLimits,
     commissions,
     canEditCommissions,
+    cashProofRequired,
+    canEditCashProof,
 }: Props) {
     const t = useT();
     const [vat, setVat] = useState(bpToPercent(settings.vat_rate_bp));
@@ -80,6 +84,23 @@ export default function SettingsSales({
     );
     const [limitErrors, setLimitErrors] = useState<Record<string, string>>({});
     const [savingLimits, setSavingLimits] = useState(false);
+    const [cashProof, setCashProof] = useState(cashProofRequired);
+    const [savingCashProof, setSavingCashProof] = useState(false);
+
+    const saveCashProof = () => {
+        setSavingCashProof(true);
+        router.put(
+            SalesSettingsController.updateCashProof.url(),
+            {
+                cash_proof_required: cashProof,
+                lock_version: settings.lock_version,
+            },
+            {
+                preserveScroll: true,
+                onFinish: () => setSavingCashProof(false),
+            },
+        );
+    };
 
     const saveLimits = () => {
         const rows = Object.entries(limits).map(([id, values]) => ({
@@ -306,6 +327,38 @@ export default function SettingsSales({
                 <p className="text-caption text-weak">
                     {t('agreements.settings.no_recalc')}
                 </p>
+            </section>
+            <section
+                className="mt-10 max-w-2xl space-y-4"
+                data-test="cash-proof"
+            >
+                <Heading
+                    variant="small"
+                    title={t('agreements.settings.cash_proof')}
+                    description={t('agreements.settings.cash_proof_hint')}
+                />
+                <CheckboxField
+                    label={t('agreements.settings.cash_proof_required')}
+                    checked={cashProof}
+                    disabled={!canEditCashProof}
+                    onChange={(e) => setCashProof(e.target.checked)}
+                    data-test="cash-proof-required"
+                />
+                {canEditCashProof ? (
+                    <Button
+                        type="button"
+                        onClick={saveCashProof}
+                        loading={savingCashProof}
+                        disabled={cashProof === cashProofRequired}
+                        data-test="save-cash-proof"
+                    >
+                        {t('ui.save')}
+                    </Button>
+                ) : (
+                    <p className="text-caption text-weak">
+                        {t('agreements.settings.limits_owner_only')}
+                    </p>
+                )}
             </section>
             <CommissionSettingsSection
                 settings={commissions}

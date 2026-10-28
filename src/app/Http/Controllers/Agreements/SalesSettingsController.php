@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Agreements;
 use App\Access\Access;
 use App\Access\Permission;
 use App\Actions\Commissions\UpdateCommissionSettings;
+use App\Actions\Settings\UpdateCashProofPolicy;
 use App\Actions\Settings\UpdateDiscountLimits;
 use App\Actions\Settings\UpdateFinanceSettings;
 use App\Http\Controllers\Controller;
@@ -48,6 +49,8 @@ class SalesSettingsController extends Controller
             ])->all()),
             'canEdit' => Access::can($user, Permission::P02),
             'canEditLimits' => UpdateDiscountLimits::canEdit($user),
+            'cashProofRequired' => $settings->cashProofRequired(),
+            'canEditCashProof' => UpdateCashProofPolicy::canEdit($user),
             'commissions' => self::commissions(),
             'canEditCommissions' => UpdateCommissionSettings::canEdit($user),
         ]);
@@ -67,6 +70,15 @@ class SalesSettingsController extends Controller
     public function updateLimits(DiscountLimitsRequest $request, UpdateDiscountLimits $update): RedirectResponse
     {
         $update->handle($this->actor($request), $request->validated());
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('agreements.settings.saved')]);
+
+        return to_route('settings.sales');
+    }
+
+    public function updateCashProof(Request $request, UpdateCashProofPolicy $update): RedirectResponse
+    {
+        $version = $request->input('lock_version');
+        $update->handle($this->actor($request), ['cash_proof_required' => $request->boolean('cash_proof_required')], $version === null ? null : (int) $version);
         Inertia::flash('toast', ['type' => 'success', 'message' => __('agreements.settings.saved')]);
 
         return to_route('settings.sales');

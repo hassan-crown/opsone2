@@ -13,6 +13,7 @@ use App\Models\Finance\MoneyEntry;
 use App\Models\Finance\OrderDue;
 use App\Models\Finance\Payment;
 use App\Models\Finance\PaymentProof;
+use App\Models\FinanceSettings;
 use App\Models\Order;
 use App\Models\User;
 use App\Orders\OrderAccess;
@@ -78,6 +79,7 @@ final class FinancePresenter
             'conditions' => array_map(fn (array $c) => $amounts ? $c : array_diff_key($c, ['threshold_minor' => true]), CollectionConditions::overview($order)),
             'shortfalls' => CollectionConditions::shortfalls($order),
             'templates' => array_keys(OrderSchedule::TEMPLATES),
+            'cash_proof_required' => FinanceSettings::current()->cashProofRequired(),
             'can' => [
                 'record' => Access::can($viewer, Permission::P39, $order),
                 'review' => Access::can($viewer, Permission::P40, $order),

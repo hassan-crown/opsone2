@@ -5,7 +5,7 @@
   (collection transaction), permissions P-37..P-40 (+P-41/P-43 reserved for 6c), P-60 for the report.
 - Builds on: ADR-0011 (orders, gapless numbers, idempotency, `lock_version`), ADR-0012 (engine results, INT-07),
   ADR-0013 (Money, agreement, `AgreementApplied`, `CollectedAmounts`).
-- Product decisions: Q-41 receipt numbers per facility and year `RC-2026-000123`; Q-42 refunds are recorded manually
+- Product decisions: Q-62 cash proof is an owner setting (decided 2026-10-28, see «Recording»); Q-41 receipt numbers per facility and year `RC-2026-000123`; Q-42 refunds are recorded manually
   in 6c (nothing here); FIN-07 online payment is an optional P8 integration — only an interface and the
   verified-webhook path exist now.
 
@@ -66,6 +66,12 @@
   with the same reference is refused with `matching_proof` (confirm it from the proof instead); a payment of the same
   customer and amount within 3 days without a matching reference is only a warning (`similar_payment`) that the
   person acknowledges — a real payment is never blocked for looking alike.
+- **Cash proof (product owner, decided 2026-10-28; Q-62):** «proof file required for cash collections» is a facility
+  finance setting (`finance_settings.cash_proof_required`, default **required** — the behaviour above) that only the
+  facility owner changes (`UpdateCashProofPolicy`, `SettingsSales`, audited `finance_settings.cash_proof_updated`).
+  When off, a **cash** collection may be recorded without a file, but its collector (the recording member,
+  `recorded_by`) and a note with the reason stay mandatory (422 `note`); a transfer, card or cheque always requires
+  its proof (422 `evidence`). The receipt, allocation and conditions are unchanged.
 - A customer proof (`payment_proofs`, M-10, P-68 from the portal in P8 — service `CustomerProofs`) is never money.
   P-40 confirms the amount actually received (M-10-T01): if a payment with the same trusted reference already exists
   the proof is **linked** to it (no new payment, receipt or allocation — INT-04); otherwise one payment + one receipt

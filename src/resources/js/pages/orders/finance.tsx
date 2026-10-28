@@ -747,6 +747,7 @@ export default function OrderFinance({ order, finance, today }: Props) {
                     dueName={firstOpenDue ? dueName(firstOpenDue) : null}
                     customerOrders={payload.customer_orders}
                     today={today}
+                    cashProofRequired={payload.cash_proof_required}
                     onClose={() => setOpen(null)}
                     onDone={(next, receipt) =>
                         done(

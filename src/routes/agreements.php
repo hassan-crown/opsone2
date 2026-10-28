@@ -44,4 +44,5 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('settings/sales', [SalesSettingsController::class, 'edit'])->name('settings.sales');
     Route::put('settings/sales', [SalesSettingsController::class, 'update'])->middleware('throttle:records-create')->name('settings.sales.update');
     Route::put('settings/sales/limits', [SalesSettingsController::class, 'updateLimits'])->middleware('throttle:records-create')->name('settings.sales.limits');
+    Route::put('settings/sales/cash-proof', [SalesSettingsController::class, 'updateCashProof'])->middleware('throttle:records-create')->name('settings.sales.cash-proof');
 });

@@ -121,6 +121,7 @@ enum AuditAction: string
     case AppointmentCancelled = 'appointment.cancelled';
     case WorkSettingsUpdated = 'work_settings.updated';
     case FinanceSettingsUpdated = 'finance_settings.updated';
+    case CashProofPolicyUpdated = 'finance_settings.cash_proof_updated';
     case DiscountLimitsUpdated = 'discount_limits.updated';
     case DocumentCreated = 'agreement_document.created';
     case DocumentDraftUpdated = 'agreement_document.draft_updated';
@@ -195,7 +196,7 @@ enum AuditAction: string
             self::FlowTemplateChosen, self::FlowDraftSaved, self::FlowPublished, self::FlowDraftDiscarded, self::OrderPaused, self::OrderResumed, self::OrderExecutionFinished, self::OrderReopenedForCorrection, self::StageCompleted, self::ActionAllowed, self::ActionReworked, self::ActionNeedChanged, self::UpcomingWorkEdited, self::MeasurementRecorded, self::MeasurementCorrected => 'workflow',
             self::TaskAssigned, self::TaskRouted, self::TaskReassigned, self::TaskClaimed, self::TaskCompleted, self::TaskCancelled, self::TaskReleased => 'tasks',
             self::AppointmentProposed, self::AppointmentSent, self::AppointmentConfirmed, self::AppointmentChangeRequested, self::AppointmentChangeDiscarded, self::AppointmentChanged, self::AppointmentCompleted, self::AppointmentCancelled => 'appointments',
-            self::WorkSettingsUpdated, self::FinanceSettingsUpdated, self::DiscountLimitsUpdated => 'settings',
+            self::WorkSettingsUpdated, self::FinanceSettingsUpdated, self::CashProofPolicyUpdated, self::DiscountLimitsUpdated => 'settings',
             self::DocumentCreated, self::DocumentDraftUpdated, self::DocumentSent, self::DocumentApproved, self::DocumentChangesRequested,
             self::DocumentReplaced, self::DocumentExpired, self::DocumentExtended, self::DocumentCancelled, self::AgreementActivated,
             self::ChangeCreated, self::ChangeDraftUpdated, self::ChangePresented, self::ChangeRevisionRequested, self::ChangeApplied,

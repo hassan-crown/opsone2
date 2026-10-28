@@ -18,6 +18,7 @@ use App\Finance\OrderSchedule;
 use App\Finance\PaymentPosting;
 use App\Finance\PaymentRegistry;
 use App\Models\Finance\Payment;
+use App\Models\FinanceSettings;
 use App\Models\Order;
 use App\Models\User;
 use App\Money\Money;
@@ -28,7 +29,8 @@ use Illuminate\Validation\ValidationException;
 
 /**
  * M-11-T00 + T01 by staff (P-39, FIN-04): a payment received is recorded with amount, method, date, reference and
- * evidence and is confirmed at once — one numbered receipt, allocation oldest due first, the stage collection condition
+ * evidence (a cash collection may go without a file when the owner turned `cash_proof_required` off — then the
+ * note is mandatory, ADR-0014) and is confirmed at once — one numbered receipt, allocation oldest due first, the stage collection condition
  * — with no second approval. A part or more than what is due may be recorded; what no due needs stays as the order's
  * credit. Optionally split over other orders of the same customer (FIN-04: 7,000 + 3,000 of one 10,000). Refused
  * without effect: `duplicate_reference`, `matching_proof` (confirm the customer's proof instead) and an unacknowledged
@@ -65,7 +67,7 @@ final class T01RecordPayment
     /**
      * @param  array<string, mixed>  $data
      */
-    public function handle(User $actor, Order $order, array $data, UploadedFile $evidence, ?int $lockVersion, ?string $idempotencyKey, string $source = TransitionRecorder::SOURCE_WEB): Payment
+    public function handle(User $actor, Order $order, array $data, ?UploadedFile $evidence, ?int $lockVersion, ?string $idempotencyKey, string $source = TransitionRecorder::SOURCE_WEB): Payment
     {
         /** @var array{amount: string, method: string, paid_on: string, reference?: string|null, note?: string|null, split?: list<array{order_id: int, amount: string}>|null, acknowledge_similar?: bool|null} $data */
         $data = Validator::make($data, self::rules())->validate();
@@ -82,8 +84,9 @@ final class T01RecordPayment
             throw ValidationException::withMessages(['split' => __('finance.validation.split_exceeds')]);
         }
         $method = PaymentMethod::from($data['method']);
+        self::checkEvidence($method, $evidence, $data['note'] ?? null);
         $referenceKey = $method->referenceKey($data['reference'] ?? null);
-        $payload = [...$data, 'order_id' => $order->id, 'lock_version' => $lockVersion, 'evidence' => hash_file('sha256', (string) $evidence->getRealPath())];
+        $payload = [...$data, 'order_id' => $order->id, 'lock_version' => $lockVersion, 'evidence' => $evidence === null ? null : hash_file('sha256', (string) $evidence->getRealPath())];
 
         $result = $this->write->run('payment.record', $actor, $idempotencyKey, $payload, function () use ($actor, $order, $data, $amount, $own, $split, $method, $referenceKey, $evidence, $lockVersion, $source) {
             $orders = FinanceLock::orders([$order->id, ...array_keys($split)], StateMachine::M11, 'T01');
@@ -124,19 +127,38 @@ final class T01RecordPayment
             ]);
             $payment->setRelation('order', $main);
             $this->transitions->record(StateMachine::M11, 'T00', $payment, null, PaymentStatus::Recorded, $actor, $source);
-            $this->files->store($actor, $payment, $evidence, 'payment_evidence');
+            if ($evidence !== null) {
+                $this->files->store($actor, $payment, $evidence, 'payment_evidence');
+            }
 
             $receipt = $this->posting->confirm($payment, 'T01', [$main->id => $own] + $split, $orders, $heads, $actor, $source);
 
             Audit::record(AuditAction::PaymentRecorded, $main, $actor, after: [
                 'payment' => $payment->id, 'receipt' => $receipt->number, 'amount_minor' => $amount->minor, 'method' => $method->value,
-                'paid_on' => $data['paid_on'], 'shares' => array_map(fn (Money $m) => $m->minor, [$main->id => $own] + $split),
+                'paid_on' => $data['paid_on'], 'evidence' => $evidence !== null, 'shares' => array_map(fn (Money $m) => $m->minor, [$main->id => $own] + $split),
             ], source: $source, label: $main->number);
 
             return ['payment_id' => $payment->id, 'receipt' => $receipt->number];
         });
 
         return Payment::query()->findOrFail((int) $result['result']['payment_id']);
+    }
+
+    /**
+     * A proof file is required, except for cash when the facility owner turned it off; a cash collection without a
+     * file keeps its collector (the recording member) and must say why in the note.
+     */
+    private static function checkEvidence(PaymentMethod $method, ?UploadedFile $evidence, ?string $note): void
+    {
+        if ($evidence !== null) {
+            return;
+        }
+        if ($method !== PaymentMethod::Cash || FinanceSettings::current()->cashProofRequired()) {
+            throw ValidationException::withMessages(['evidence' => __('finance.validation.evidence_required')]);
+        }
+        if (trim((string) $note) === '') {
+            throw ValidationException::withMessages(['note' => __('finance.validation.cash_note_required')]);
+        }
     }
 
     private static function money(string $text, string $field): Money
