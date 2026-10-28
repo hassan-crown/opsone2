@@ -7,6 +7,7 @@ use App\Providers\CatalogServiceProvider;
 use App\Providers\FortifyServiceProvider;
 use App\Providers\HelpServiceProvider;
 use App\Providers\NotificationsServiceProvider;
+use App\Providers\WorkflowServiceProvider;
 
 return [
     AppServiceProvider::class,
@@ -16,4 +17,5 @@ return [
     NotificationsServiceProvider::class,
     HelpServiceProvider::class,
     CatalogServiceProvider::class,
+    WorkflowServiceProvider::class,
 ];

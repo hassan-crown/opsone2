@@ -89,6 +89,38 @@ enum AuditAction: string
     case OrderLineRemoved = 'order.line_removed';
     case OrderBranchTransferred = 'order.branch_transferred';
 
+    case FlowTemplateChosen = 'flow.template_chosen';
+    case FlowDraftSaved = 'flow.draft_saved';
+    case FlowPublished = 'flow.published';
+    case FlowDraftDiscarded = 'flow.draft_discarded';
+    case OrderPaused = 'order.paused';
+    case OrderResumed = 'order.resumed';
+    case OrderExecutionFinished = 'order.execution_finished';
+    case OrderReopenedForCorrection = 'order.reopened_for_correction';
+    case StageCompleted = 'order.stage_completed';
+    case ActionAllowed = 'order.action_allowed';
+    case ActionReworked = 'order.action_reworked';
+    case ActionNeedChanged = 'order.action_need_changed';
+    case UpcomingWorkEdited = 'order.upcoming_work_edited';
+    case MeasurementRecorded = 'order.measurement_recorded';
+    case MeasurementCorrected = 'order.measurement_corrected';
+    case TaskAssigned = 'task.assigned';
+    case TaskRouted = 'task.routed';
+    case TaskReassigned = 'task.reassigned';
+    case TaskClaimed = 'task.claimed';
+    case TaskCompleted = 'task.completed';
+    case TaskCancelled = 'task.cancelled';
+    case TaskReleased = 'task.released';
+    case AppointmentProposed = 'appointment.proposed';
+    case AppointmentSent = 'appointment.sent';
+    case AppointmentConfirmed = 'appointment.confirmed';
+    case AppointmentChangeRequested = 'appointment.change_requested';
+    case AppointmentChangeDiscarded = 'appointment.change_discarded';
+    case AppointmentChanged = 'appointment.changed';
+    case AppointmentCompleted = 'appointment.completed';
+    case AppointmentCancelled = 'appointment.cancelled';
+    case WorkSettingsUpdated = 'work_settings.updated';
+
     public function area(): string
     {
         return match ($this) {
@@ -116,6 +148,10 @@ enum AuditAction: string
             self::CatalogVariantCreated, self::CatalogVariantUpdated, self::CatalogVariantStatusChanged => 'catalog',
             self::OrderCreated, self::OrderUpdated, self::OrderLineAdded, self::OrderLineRemoved,
             self::OrderBranchTransferred => 'orders',
+            self::FlowTemplateChosen, self::FlowDraftSaved, self::FlowPublished, self::FlowDraftDiscarded, self::OrderPaused, self::OrderResumed, self::OrderExecutionFinished, self::OrderReopenedForCorrection, self::StageCompleted, self::ActionAllowed, self::ActionReworked, self::ActionNeedChanged, self::UpcomingWorkEdited, self::MeasurementRecorded, self::MeasurementCorrected => 'workflow',
+            self::TaskAssigned, self::TaskRouted, self::TaskReassigned, self::TaskClaimed, self::TaskCompleted, self::TaskCancelled, self::TaskReleased => 'tasks',
+            self::AppointmentProposed, self::AppointmentSent, self::AppointmentConfirmed, self::AppointmentChangeRequested, self::AppointmentChangeDiscarded, self::AppointmentChanged, self::AppointmentCompleted, self::AppointmentCancelled => 'appointments',
+            self::WorkSettingsUpdated => 'settings',
         };
     }
 

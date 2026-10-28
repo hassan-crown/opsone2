@@ -5,6 +5,7 @@ namespace App\Actions\Orders;
 use App\Access\Authorizer;
 use App\Access\Permission;
 use App\Access\TransitionRecorder;
+use App\Actions\StateMachines\M27ActionResult\T07ApplyNeedChange;
 use App\Audit\Audit;
 use App\Audit\AuditAction;
 use App\Enums\OrderKind;
@@ -25,7 +26,10 @@ final class UpdateOrder
 {
     public const FIELDS = ['need_summary', 'needs_measurement', 'needs_design', 'invoice_type', 'assignee_id', 'contact_id'];
 
-    public function __construct(private readonly Authorizer $access) {}
+    public function __construct(
+        private readonly Authorizer $access,
+        private readonly T07ApplyNeedChange $needs,
+    ) {}
 
     /**
      * @param  array<string, mixed>  $data  validated; only keys present are changed
@@ -58,8 +62,13 @@ final class UpdateOrder
                 return $locked;
             }
 
+            $needsChanged = $locked->kind === OrderKind::Custom && $locked->isDirty(['needs_measurement', 'needs_design']);
             $locked->lock_version++;
             $locked->save();
+            if ($needsChanged) {
+                // An action that now applies leaves «غير مطلوب» (M-27-T07); one that no longer applies waits for P-28.
+                $this->needs->handle($actor, $locked, $source);
+            }
             Audit::record(AuditAction::OrderUpdated, $locked, $actor, before: $before, after: OrderPresenter::auditSnapshot($locked), source: $source, label: $locked->number);
 
             return $locked;
