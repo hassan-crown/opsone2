@@ -52,7 +52,8 @@ export default function DeliveryShow({ note }: Props) {
     });
     const cancel = useForm({ reason: '' });
     const errors = form.errors as Record<string, string | undefined>;
-    const title = note.number ?? t('delivery.draft_title', { order: note.order.number });
+    const title =
+        note.number ?? t('delivery.draft_title', { order: note.order.number });
 
     const submit = (event: React.FormEvent) => {
         event.preventDefault();
@@ -108,7 +109,9 @@ export default function DeliveryShow({ note }: Props) {
                             </dt>
                             <dd>
                                 <Link
-                                    href={OrderController.show.url(note.order.id)}
+                                    href={OrderController.show.url(
+                                        note.order.id,
+                                    )}
                                     className="text-link hover:underline"
                                 >
                                     {note.order.number}
@@ -124,7 +127,10 @@ export default function DeliveryShow({ note }: Props) {
                                     </dt>
                                     <dd>
                                         {note.delivered_on
-                                            ? formatDate(note.delivered_on, locale)
+                                            ? formatDate(
+                                                  note.delivered_on,
+                                                  locale,
+                                              )
                                             : '—'}
                                     </dd>
                                 </div>
@@ -132,7 +138,9 @@ export default function DeliveryShow({ note }: Props) {
                                     <dt className="text-caption text-weak">
                                         {t('delivery.col_receiver')}
                                     </dt>
-                                    <dd data-test="receiver">{note.receiver_name}</dd>
+                                    <dd data-test="receiver">
+                                        {note.receiver_name}
+                                    </dd>
                                 </div>
                                 <div>
                                     <dt className="text-caption text-weak">
@@ -175,10 +183,16 @@ export default function DeliveryShow({ note }: Props) {
                             </thead>
                             <tbody>
                                 {note.lines.map((l) => (
-                                    <tr key={l.order_line_id} data-test="note-line">
+                                    <tr
+                                        key={l.order_line_id}
+                                        data-test="note-line"
+                                    >
                                         <Td>{l.name}</Td>
                                         <Td>
-                                            <QtyText value={l.quantity} unit={l.unit} />
+                                            <QtyText
+                                                value={l.quantity}
+                                                unit={l.unit}
+                                            />
                                         </Td>
                                         {note.status === 'draft' && (
                                             <Td>
@@ -191,7 +205,11 @@ export default function DeliveryShow({ note }: Props) {
                                         {amounts && (
                                             <Td className="text-end">
                                                 {l.value_minor !== undefined ? (
-                                                    <Amount value={l.value_minor / 100} />
+                                                    <Amount
+                                                        value={
+                                                            l.value_minor / 100
+                                                        }
+                                                    />
                                                 ) : (
                                                     '—'
                                                 )}
@@ -213,7 +231,10 @@ export default function DeliveryShow({ note }: Props) {
                             {note.proofs.map((p) => (
                                 <li key={p.uuid}>
                                     {p.url ? (
-                                        <a href={p.url} className="text-link hover:underline">
+                                        <a
+                                            href={p.url}
+                                            className="text-link hover:underline"
+                                        >
                                             {p.name}
                                         </a>
                                     ) : (
@@ -226,7 +247,11 @@ export default function DeliveryShow({ note }: Props) {
                 )}
 
                 {note.can.confirm && (
-                    <form onSubmit={submit} className="grid gap-4" data-test="record-form">
+                    <form
+                        onSubmit={submit}
+                        className="grid gap-4"
+                        data-test="record-form"
+                    >
                         <Card className="gap-4">
                             <h2 className="text-heading text-strong">
                                 {t('delivery.record_title')}
@@ -237,7 +262,10 @@ export default function DeliveryShow({ note }: Props) {
                                     maxLength={120}
                                     value={form.data.receiver_name}
                                     onChange={(e) =>
-                                        form.setData('receiver_name', e.target.value)
+                                        form.setData(
+                                            'receiver_name',
+                                            e.target.value,
+                                        )
                                     }
                                     required
                                     error={errors.receiver_name}
@@ -249,7 +277,10 @@ export default function DeliveryShow({ note }: Props) {
                                     max={today()}
                                     value={form.data.delivered_on}
                                     onChange={(e) =>
-                                        form.setData('delivered_on', e.target.value)
+                                        form.setData(
+                                            'delivered_on',
+                                            e.target.value,
+                                        )
                                     }
                                     required
                                     error={errors.delivered_on}
@@ -258,14 +289,20 @@ export default function DeliveryShow({ note }: Props) {
                             <TextareaField
                                 label={t('delivery.note')}
                                 value={form.data.note}
-                                onChange={(e) => form.setData('note', e.target.value)}
+                                onChange={(e) =>
+                                    form.setData('note', e.target.value)
+                                }
                                 optional
                                 error={errors.note}
                             />
                             <div className="grid gap-2">
-                                <Label htmlFor="proofs">{t('delivery.proof_input')}</Label>
+                                <Label htmlFor="proofs">
+                                    {t('delivery.proof_input')}
+                                </Label>
                                 <p className="text-caption text-weak">
-                                    {t('delivery.proofs_hint', { n: MAX_PROOFS })}
+                                    {t('delivery.proofs_hint', {
+                                        n: MAX_PROOFS,
+                                    })}
                                 </p>
                                 <input
                                     ref={fileInput}
@@ -273,7 +310,9 @@ export default function DeliveryShow({ note }: Props) {
                                     type="file"
                                     multiple
                                     accept="image/*,application/pdf"
-                                    disabled={form.data.proofs.length >= MAX_PROOFS}
+                                    disabled={
+                                        form.data.proofs.length >= MAX_PROOFS
+                                    }
                                     onChange={(e) => addFiles(e.target.files)}
                                     className="block w-full text-body file:me-3 file:min-h-11 file:cursor-pointer file:rounded-md file:border file:border-stroke-control file:bg-surface file:px-4 file:text-control"
                                     data-test="proofs-input"
@@ -292,12 +331,15 @@ export default function DeliveryShow({ note }: Props) {
                                                     type="button"
                                                     variant="ghost"
                                                     size="icon-sm"
-                                                    aria-label={t('delivery.remove_file')}
+                                                    aria-label={t(
+                                                        'delivery.remove_file',
+                                                    )}
                                                     onClick={() =>
                                                         form.setData(
                                                             'proofs',
                                                             form.data.proofs.filter(
-                                                                (_, n) => n !== i,
+                                                                (_, n) =>
+                                                                    n !== i,
                                                             ),
                                                         )
                                                     }
@@ -309,7 +351,10 @@ export default function DeliveryShow({ note }: Props) {
                                     </ul>
                                 )}
                                 {proofError && (
-                                    <p className="text-caption text-danger-text" role="alert">
+                                    <p
+                                        className="text-caption text-danger-text"
+                                        role="alert"
+                                    >
                                         {proofError}
                                     </p>
                                 )}
@@ -342,7 +387,9 @@ export default function DeliveryShow({ note }: Props) {
                         <TextareaField
                             label={t('delivery.cancel_reason')}
                             value={cancel.data.reason}
-                            onChange={(e) => cancel.setData('reason', e.target.value)}
+                            onChange={(e) =>
+                                cancel.setData('reason', e.target.value)
+                            }
                             required
                             error={cancel.errors.reason}
                         />
@@ -351,11 +398,17 @@ export default function DeliveryShow({ note }: Props) {
                                 type="button"
                                 variant="destructive"
                                 loading={cancel.processing}
-                                disabled={cancel.processing || cancel.data.reason.trim().length < 3}
+                                disabled={
+                                    cancel.processing ||
+                                    cancel.data.reason.trim().length < 3
+                                }
                                 onClick={() =>
-                                    cancel.post(DeliveryController.cancel.url(note.id), {
-                                        preserveScroll: true,
-                                    })
+                                    cancel.post(
+                                        DeliveryController.cancel.url(note.id),
+                                        {
+                                            preserveScroll: true,
+                                        },
+                                    )
                                 }
                             >
                                 {t('delivery.withdraw_confirm')}

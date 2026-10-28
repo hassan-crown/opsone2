@@ -8,7 +8,7 @@
 
 use App\Access\Exceptions\InvalidTransition;
 use App\Actions\StateMachines\M05ReadyOrder\T09CancelReadyRemainder;
-use App\Actions\StateMachines\M14Delivery\T00CreateDraft;
+use App\Actions\StateMachines\M14Delivery\T01ConfirmDelivery;
 use App\Actions\StateMachines\M14Delivery\T02CancelDraft;
 use App\Delivery\DeliveryConfirmed;
 use App\Delivery\DeliveryPresenter;
@@ -16,13 +16,14 @@ use App\Delivery\DeliveryProgress;
 use App\Enums\DeliveryStatus;
 use App\Enums\DueEvent;
 use App\Finance\DueCalendar;
-use App\Models\AuditEvent;
 use App\Models\Attachment;
+use App\Models\AuditEvent;
 use App\Models\Delivery\DeliveryNote;
 use App\Models\Finance\OrderDue;
 use App\Models\Inventory\StockMovement;
 use App\Models\Inventory\StockReservation;
 use App\Models\StateTransition;
+use App\Support\StaleRecord;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Event;
@@ -141,9 +142,9 @@ it('a double submit with the same key issues the stock once and replays the firs
 
 it('checks the optimistic lock of the note and withdraws a draft without number or stock', function () {
     $draft = deliveryDraft($this->d->keeper, $this->order, [$this->line => '2']);
-    expect(fn () => app(\App\Actions\StateMachines\M14Delivery\T01ConfirmDelivery::class)->handle(
+    expect(fn () => app(T01ConfirmDelivery::class)->handle(
         $this->d->keeper, $draft, ['delivered_on' => now()->toDateString(), 'receiver_name' => 'س'], [deliveryProof()], 99, 'stale-key-0001',
-    ))->toThrow(\App\Support\StaleRecord::class);
+    ))->toThrow(StaleRecord::class);
 
     app(T02CancelDraft::class)->handle($this->d->keeper, $draft, 'خطأ في الكمية', $draft->lock_version, null);
     expect($draft->refresh()->status)->toBe(DeliveryStatus::Cancelled)->and($draft->number)->toBeNull()

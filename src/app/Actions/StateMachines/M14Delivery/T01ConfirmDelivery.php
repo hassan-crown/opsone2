@@ -17,8 +17,10 @@ use App\Enums\ReadyOrderStatus;
 use App\Enums\StateMachine;
 use App\Files\AttachmentService;
 use App\Inventory\OrderStock;
+use App\Inventory\Quantity;
 use App\Inventory\StockLedger;
 use App\Models\Delivery\DeliveryNote;
+use App\Models\Delivery\DeliveryNoteLine;
 use App\Models\Inventory\StockReservation;
 use App\Models\Order;
 use App\Models\User;
@@ -89,7 +91,7 @@ final class T01ConfirmDelivery
             foreach ($lines as $line) {
                 $row = $rows[$line->order_line_id] ?? null;
                 if ($row === null || $line->quantity_milli > $row['deliverable']) {
-                    throw ValidationException::withMessages(['lines' => __('delivery.error.over_deliverable', ['remaining' => \App\Inventory\Quantity::format($row['deliverable'] ?? 0)])]);
+                    throw ValidationException::withMessages(['lines' => __('delivery.error.over_deliverable', ['remaining' => Quantity::format($row['deliverable'] ?? 0)])]);
                 }
             }
 
@@ -145,7 +147,7 @@ final class T01ConfirmDelivery
      * Issues every ready line's quantity from its open reservations, oldest reservation first, locking the balances in
      * the global order before the first movement.
      *
-     * @param  Collection<int, \App\Models\Delivery\DeliveryNoteLine>  $lines
+     * @param  Collection<int, DeliveryNoteLine>  $lines
      */
     private function issueReady(User $actor, Order $order, DeliveryNote $note, $lines, string $source): void
     {
@@ -167,7 +169,7 @@ final class T01ConfirmDelivery
                 $left -= $take;
             }
             if ($left > 0) {
-                throw ValidationException::withMessages(['lines' => __('delivery.error.over_deliverable', ['remaining' => \App\Inventory\Quantity::format($line->quantity_milli - $left)])]);
+                throw ValidationException::withMessages(['lines' => __('delivery.error.over_deliverable', ['remaining' => Quantity::format($line->quantity_milli - $left)])]);
             }
         }
         $this->ledger->lockMany(array_map(fn (array $p) => [$p[0]->location_id, $p[0]->stock_item_id], $plan));

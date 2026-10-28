@@ -26,7 +26,13 @@ export function KindLabel({ kind }: { kind: 'custom' | 'ready' }) {
 }
 
 /** A decimal quantity with left-to-right digits in both languages. */
-export function QtyText({ value, unit }: { value: string; unit?: string | null }) {
+export function QtyText({
+    value,
+    unit,
+}: {
+    value: string;
+    unit?: string | null;
+}) {
     return (
         <span className="whitespace-nowrap tabular-nums">
             <bdi dir="ltr">{value}</bdi>

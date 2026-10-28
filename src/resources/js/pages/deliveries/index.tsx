@@ -3,10 +3,7 @@ import { PackageCheck } from 'lucide-react';
 import DeliveryController from '@/actions/App/Http/Controllers/Delivery/DeliveryController';
 import OrderController from '@/actions/App/Http/Controllers/Orders/OrderController';
 import { FilterBar, Pager } from '@/components/catalog/shared';
-import {
-    DeliveryStatusBadge,
-    KindLabel,
-} from '@/components/delivery/shared';
+import { DeliveryStatusBadge, KindLabel } from '@/components/delivery/shared';
 import { EmptyState } from '@/components/opsone/empty-state';
 import { PageHeader } from '@/components/opsone/page-header';
 import { Table, TableWrap, Td, Th } from '@/components/org/data-table';

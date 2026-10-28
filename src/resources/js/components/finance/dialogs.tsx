@@ -785,7 +785,12 @@ export function ScheduleDialog({
                             update(i, { event: e.target.value as Row['event'] })
                         }
                         options={(
-                            ['agreement', 'payment_stage', 'delivery', 'date'] as const
+                            [
+                                'agreement',
+                                'payment_stage',
+                                'delivery',
+                                'date',
+                            ] as const
                         ).map((ev) => ({
                             value: ev,
                             label: t(`finance.event.${ev}` as TranslationKey),

@@ -551,7 +551,12 @@ export default function OrderShow({
                                     stock={stock}
                                 />
                             )}
-                            {delivery && <OrderDeliveryCard orderId={order.id} delivery={delivery} />}
+                            {delivery && (
+                                <OrderDeliveryCard
+                                    orderId={order.id}
+                                    delivery={delivery}
+                                />
+                            )}
                             <Card data-test="order-money">
                                 <h2 className="text-heading mb-2 text-strong">
                                     {t('orders.money.title')}

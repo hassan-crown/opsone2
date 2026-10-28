@@ -23,12 +23,11 @@ final class Locations
             return [];
         }
 
-        return StockAccess::locations($user, Permission::P47)
+        return array_values(StockAccess::locations($user, Permission::P47)
             ->where('status', 'active')
             ->orderBy('code')
             ->get()
             ->map(fn (StockLocation $l): array => ['id' => $l->id, 'name' => $l->code.' — '.($l->name->get() ?? $l->code)])
-            ->values()
-            ->all();
+            ->all());
     }
 }

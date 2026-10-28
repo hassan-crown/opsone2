@@ -44,7 +44,9 @@ export default function DeliveryForm({ order, lines }: Props) {
         });
     };
 
-    const anyPositive = form.data.quantities.some((q) => (parseQty(q) ?? 0) > 0);
+    const anyPositive = form.data.quantities.some(
+        (q) => (parseQty(q) ?? 0) > 0,
+    );
     const orderUrl = OrderController.show.url(order.id);
 
     return (
@@ -55,7 +57,11 @@ export default function DeliveryForm({ order, lines }: Props) {
                 description={`${order.customer} · ${t(`delivery.kind.${order.kind}` as TranslationKey)}`}
                 back={<BackLink href={orderUrl} label={order.number} />}
             />
-            <form onSubmit={submit} className="grid gap-4" data-test="delivery-form">
+            <form
+                onSubmit={submit}
+                className="grid gap-4"
+                data-test="delivery-form"
+            >
                 <FormErrors errors={errors} />
                 <Card className="gap-4">
                     <h2 className="text-heading text-strong">
@@ -79,13 +85,24 @@ export default function DeliveryForm({ order, lines }: Props) {
                                         </p>
                                         <p className="text-caption text-weak">
                                             {t('delivery.ordered')}{' '}
-                                            <QtyText value={l.ordered} unit={l.unit} />
+                                            <QtyText
+                                                value={l.ordered}
+                                                unit={l.unit}
+                                            />
                                             {' · '}
-                                            {t('delivery.delivered_before')}{' '}
-                                            <QtyText value={l.delivered} unit={l.unit} />
+                                            {t(
+                                                'delivery.delivered_before',
+                                            )}{' '}
+                                            <QtyText
+                                                value={l.delivered}
+                                                unit={l.unit}
+                                            />
                                             {' · '}
                                             {t('delivery.deliverable')}{' '}
-                                            <QtyText value={l.deliverable} unit={l.unit} />
+                                            <QtyText
+                                                value={l.deliverable}
+                                                unit={l.unit}
+                                            />
                                         </p>
                                     </div>
                                     <TextField
@@ -96,8 +113,11 @@ export default function DeliveryForm({ order, lines }: Props) {
                                         onChange={(e) =>
                                             form.setData(
                                                 'quantities',
-                                                form.data.quantities.map((q, n) =>
-                                                    n === i ? e.target.value : q,
+                                                form.data.quantities.map(
+                                                    (q, n) =>
+                                                        n === i
+                                                            ? e.target.value
+                                                            : q,
                                                 ),
                                             )
                                         }
@@ -106,9 +126,13 @@ export default function DeliveryForm({ order, lines }: Props) {
                                             (milli === null
                                                 ? t('delivery.error.quantity')
                                                 : over
-                                                  ? t('delivery.error.over_deliverable', {
-                                                        remaining: l.deliverable,
-                                                    })
+                                                  ? t(
+                                                        'delivery.error.over_deliverable',
+                                                        {
+                                                            remaining:
+                                                                l.deliverable,
+                                                        },
+                                                    )
                                                   : undefined)
                                         }
                                     />
@@ -117,7 +141,10 @@ export default function DeliveryForm({ order, lines }: Props) {
                         })}
                     </ul>
                     {errors.lines && (
-                        <p className="text-caption text-danger-text" role="alert">
+                        <p
+                            className="text-caption text-danger-text"
+                            role="alert"
+                        >
                             {errors.lines}
                         </p>
                     )}

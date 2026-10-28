@@ -54,7 +54,9 @@ export function OrderDeliveryCard({
                                 </bdi>
                             </Link>{' '}
                             <span className="text-caption text-weak">
-                                {t(`delivery.status.${n.status}` as TranslationKey)}
+                                {t(
+                                    `delivery.status.${n.status}` as TranslationKey,
+                                )}
                                 {n.delivered_on
                                     ? ` · ${formatDate(n.delivered_on, locale)}`
                                     : ''}
@@ -64,7 +66,12 @@ export function OrderDeliveryCard({
                 </ul>
             )}
             {delivery.can_record && (
-                <Button asChild variant="secondary" size="sm" data-test="record-delivery-link">
+                <Button
+                    asChild
+                    variant="secondary"
+                    size="sm"
+                    data-test="record-delivery-link"
+                >
                     <Link href={DeliveryController.create.url(orderId)}>
                         {t('delivery.deliver')}
                     </Link>
