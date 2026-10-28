@@ -3028,5 +3028,6 @@
     "audit.action.external_document.requested": "Accounting document requested",
     "audit.action.external_document.attached": "Accounting document linked",
     "audit.action.external_document.accepted": "Accounting document accepted",
-    "audit.action.external_document.correction_requested": "Accounting document correction requested"
+    "audit.action.external_document.correction_requested": "Accounting document correction requested",
+    "commissions.validation.own_rate": "You cannot change your own commission rate."
 }

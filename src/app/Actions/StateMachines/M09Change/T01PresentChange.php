@@ -46,7 +46,7 @@ final class T01PresentChange
 
             $base = Agreement::query()->findOrFail($change->base_agreement_id);
             $content = $change->content;
-            $state = DiscountCheck::state($actor, DiscountDecision::SUBJECT_CHANGE, $change->id, $content)['state'];
+            $state = DiscountCheck::state($actor, DiscountDecision::SUBJECT_CHANGE, $change->id, $content, $order)['state'];
             match ($state) {
                 DiscountCheck::INCOMPLETE => Transition::refuse(StateMachine::M09, $code, 'content_incomplete'),
                 DiscountCheck::NEEDS_DECISION, DiscountCheck::REQUESTED => Transition::refuse(StateMachine::M09, $code, 'discount_needs_decision'),

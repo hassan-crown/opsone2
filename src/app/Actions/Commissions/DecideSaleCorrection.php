@@ -104,7 +104,10 @@ final class DecideSaleCorrection
         $order = FinanceLock::order($correction->order_id, StateMachine::M33, 'T05');
         $fresh = $this->fresh($correction, $lockVersion);
         $fresh->setRelation('order', $order);
-        Access::authorize($actor, Permission::P97, $fresh);
+        // Scoped like the request: over the sale, whose `own` is its member (ADR-0016), not the order's creator.
+        $sale = $fresh->sale()->firstOrFail();
+        $sale->setRelation('order', $order);
+        Access::authorize($actor, Permission::P97, $sale);
         if ($fresh->requested_by === $actor->id) {
             throw new InvalidTransition(StateMachine::M33, 'T05', 'own_request');
         }

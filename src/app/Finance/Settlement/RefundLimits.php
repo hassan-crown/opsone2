@@ -54,11 +54,23 @@ final class RefundLimits
      */
     public static function freeCredit(int $orderId): Money
     {
-        $reserved = (int) Refund::query()->where('order_id', $orderId)
-            ->whereIn('status', [RefundStatus::Requested->value, RefundStatus::InProgress->value, RefundStatus::Unresolved->value])
-            ->sum('amount_minor');
-        $free = MoneyLedger::credit($orderId)->minus(Money::of($reserved));
+        return Money::of(array_sum(self::freeCreditByPayment($orderId)));
+    }
 
-        return $free->isNegative() ? Money::zero() : $free;
+    /**
+     * Free credit per payment, oldest first: a payment's credit minus what its own pending refunds still need from its
+     * money on the order (a refund takes the payment's credit first, then its allocations), never below zero.
+     *
+     * @return array<int, int> payment id → halalas
+     */
+    public static function freeCreditByPayment(int $orderId): array
+    {
+        $free = [];
+        foreach (MoneyLedger::creditByPayment($orderId) as $paymentId => $credit) {
+            $spare = self::placed($paymentId, $orderId)->minor - self::reserved($paymentId, $orderId)->minor;
+            $free[$paymentId] = max(0, min($credit, $spare));
+        }
+
+        return $free;
     }
 }

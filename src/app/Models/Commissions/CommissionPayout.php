@@ -112,9 +112,12 @@ class CommissionPayout extends Model implements AttachmentOwner
         return Permission::P94;
     }
 
+    /**
+     * A paid payout only receives the proof of its correction (M-33-T04), which is P-97's; every other proof is P-96's.
+     */
     public function attachmentUploadPermission(): Permission
     {
-        return Permission::P96;
+        return $this->status === PayoutStatus::Paid ? Permission::P97 : Permission::P96;
     }
 
     protected function casts(): array

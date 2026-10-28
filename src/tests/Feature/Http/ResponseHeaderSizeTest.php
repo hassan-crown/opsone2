@@ -7,8 +7,8 @@
  */
 
 use App\Http\Middleware\AddPreloadLinkHeaders;
-use Illuminate\Foundation\Vite;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Vite;
 use Illuminate\Support\Facades\Vite as ViteFacade;
 use Illuminate\Support\HtmlString;
 use Illuminate\Testing\TestResponse;

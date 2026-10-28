@@ -201,7 +201,7 @@ final class CommissionPresenter
             'lock_version' => $c->lock_version,
             'can' => [
                 'decide' => $c->status === SaleCorrection::PENDING && $c->requested_by !== $viewer->id
-                    && ! in_array($viewer->id, $c->affectedUserIds(), true) && Access::can($viewer, Permission::P97, $c),
+                    && ! in_array($viewer->id, $c->affectedUserIds(), true) && Access::can($viewer, Permission::P97, $c->sale),
                 'cancel' => $c->status === SaleCorrection::PENDING && $c->requested_by === $viewer->id,
             ],
         ])->all());

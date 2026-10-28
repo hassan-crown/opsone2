@@ -101,7 +101,7 @@ final class T01SendDocument
         if (OrderAgreement::current($document->order) !== null) {
             Transition::refuse(StateMachine::M08, 'T01', 'agreement_exists');
         }
-        $state = DiscountCheck::state($actor, DiscountDecision::SUBJECT_DOCUMENT, $document->id, $content)['state'];
+        $state = DiscountCheck::state($actor, DiscountDecision::SUBJECT_DOCUMENT, $document->id, $content, $document->order)['state'];
         match ($state) {
             DiscountCheck::INCOMPLETE => Transition::refuse(StateMachine::M08, 'T01', 'content_incomplete'),
             DiscountCheck::NEEDS_DECISION, DiscountCheck::REQUESTED => Transition::refuse(StateMachine::M08, 'T01', 'discount_needs_decision'),

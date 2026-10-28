@@ -89,7 +89,7 @@ class AgreementController extends Controller
      */
     private function created(Request $request, Order $order, array $ids): JsonResponse
     {
-        return response()->json([...$ids, 'agreement' => AgreementPresenter::forOrder($order->refresh(), $this->actor($request))], 201);
+        return response()->json([...$ids, 'agreement' => AgreementPresenter::forResponse($order->refresh(), $this->actor($request))], 201);
     }
 
     private function actor(Request $request): User

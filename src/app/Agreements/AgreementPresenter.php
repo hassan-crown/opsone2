@@ -32,6 +32,17 @@ use App\Orders\OrderAccess;
 final class AgreementPresenter
 {
     /**
+     * The payload a write answers with: only for a viewer of the order (P-16). A designer reaching a document through
+     * an assigned task without P-16 gets the ids alone, never the whole agreement.
+     *
+     * @return array<string, mixed>|null
+     */
+    public static function forResponse(Order $order, User $viewer): ?array
+    {
+        return OrderAccess::canView($viewer, $order) ? self::forOrder($order, $viewer) : null;
+    }
+
+    /**
      * @return array<string, mixed>
      */
     public static function forOrder(Order $order, User $viewer): array
@@ -82,7 +93,7 @@ final class AgreementPresenter
             : AgreementChange::query()->find($decision->subject_id);
         $current = $subject !== null && hash_equals($decision->content_hash, ContentHash::of(DiscountCheck::priceKey($subject->content)));
         $totals = $subject?->content['totals'] ?? [];
-        $limit = DiscountLimits::of($viewer, 'approval_bp');
+        $limit = DiscountLimits::of($viewer, 'approval_bp', $order);
 
         return [
             'id' => $decision->id,
@@ -172,7 +183,7 @@ final class AgreementPresenter
         $status = $document->status;
         $decision = CustomerDecision::query()->where('subject_type', 'document')->where('subject_id', $document->id)->latest('id')->first();
         $discount = $document->kind === DocumentKind::Quote && $status === DocumentStatus::Draft
-            ? DiscountCheck::state($viewer, DiscountDecision::SUBJECT_DOCUMENT, $document->id, $document->content)
+            ? DiscountCheck::state($viewer, DiscountDecision::SUBJECT_DOCUMENT, $document->id, $document->content, $order)
             : null;
         $prepare = Access::can($viewer, $document->kind->preparePermission(), $document);
 
@@ -215,7 +226,7 @@ final class AgreementPresenter
     {
         $p = fn (Permission $permission) => Access::can($viewer, $permission, $order);
         $editable = in_array($change->status, [ChangeStatus::Draft, ChangeStatus::NeedsRevision], true);
-        $discount = $editable ? DiscountCheck::state($viewer, DiscountDecision::SUBJECT_CHANGE, $change->id, $change->content) : null;
+        $discount = $editable ? DiscountCheck::state($viewer, DiscountDecision::SUBJECT_CHANGE, $change->id, $change->content, $order) : null;
         $base = $change->baseAgreement;
         $actions = OrderAction::query()->where('order_id', $order->id)->whereIn('key', $change->affected ?? [])->get()
             ->map(fn (OrderAction $a) => ['key' => $a->key, 'name' => $a->name->get(), 'held' => $a->held_by_change_id === $change->id])->all();

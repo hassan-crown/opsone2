@@ -3028,5 +3028,6 @@
     "audit.action.external_document.requested": "طلب مستند محاسبي",
     "audit.action.external_document.attached": "ربط مستند محاسبي",
     "audit.action.external_document.accepted": "قبول مستند محاسبي",
-    "audit.action.external_document.correction_requested": "طلب تصحيح مستند محاسبي"
+    "audit.action.external_document.correction_requested": "طلب تصحيح مستند محاسبي",
+    "commissions.validation.own_rate": "لا يمكنك تغيير نسبة عمولتك بنفسك."
 }

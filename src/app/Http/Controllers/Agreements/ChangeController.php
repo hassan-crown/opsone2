@@ -73,7 +73,7 @@ class ChangeController extends Controller
      */
     private function respond(Request $request, AgreementChange $change, array $extra = [], int $status = 200): JsonResponse
     {
-        return response()->json([...$extra, 'agreement' => AgreementPresenter::forOrder($change->order()->firstOrFail(), $this->actor($request))], $status);
+        return response()->json([...$extra, 'agreement' => AgreementPresenter::forResponse($change->order()->firstOrFail(), $this->actor($request))], $status);
     }
 
     private function actor(Request $request): User

@@ -85,7 +85,7 @@ class DocumentController extends Controller
      */
     private function respond(Request $request, AgreementDocument $document, array $extra = [], int $status = 200): JsonResponse
     {
-        return response()->json([...$extra, 'agreement' => AgreementPresenter::forOrder($document->order()->firstOrFail(), $this->actor($request))], $status);
+        return response()->json([...$extra, 'agreement' => AgreementPresenter::forResponse($document->order()->firstOrFail(), $this->actor($request))], $status);
     }
 
     private function actor(Request $request): User

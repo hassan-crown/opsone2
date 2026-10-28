@@ -58,7 +58,7 @@ final class T01ApproveDiscount
             if (! hash_equals($decision->content_hash, ContentHash::of(DiscountCheck::priceKey($subject->content)))) {
                 Transition::refuse(StateMachine::M26, $code, 'content_changed');
             }
-            if ($approve && DiscountLimits::exceeds(Money::of($decision->discount_minor), Money::of($decision->base_minor), DiscountLimits::of($actor, 'approval_bp'))) {
+            if ($approve && DiscountLimits::exceeds(Money::of($decision->discount_minor), Money::of($decision->base_minor), DiscountLimits::of($actor, 'approval_bp', $order))) {
                 Transition::refuse(StateMachine::M26, $code, 'above_approval_limit');
             }
 

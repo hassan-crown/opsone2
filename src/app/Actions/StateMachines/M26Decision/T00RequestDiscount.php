@@ -56,7 +56,7 @@ final class T00RequestDiscount
                 }
             }
 
-            $check = DiscountCheck::state($actor, $type, $subject->id, $subject->content);
+            $check = DiscountCheck::state($actor, $type, $subject->id, $subject->content, $order);
             if ($check['state'] !== DiscountCheck::NEEDS_DECISION) {
                 Transition::refuse(StateMachine::M26, 'T00', $check['state'] === DiscountCheck::REQUESTED ? 'already_requested' : 'within_limit');
             }

@@ -2,6 +2,7 @@
 
 namespace App\Finance;
 
+use App\Access\Access;
 use App\Access\Permission;
 use App\Models\Customer;
 use App\Models\Facility;
@@ -55,7 +56,7 @@ final class CollectionNotices
 
         $assignee = $order->assignee;
         if ($assignee !== null && $assignee->id !== $actor?->id) {
-            $this->notifier->send($assignee, self::RECEIPT_RECORDED, $params, $order, "receipt:{$receipt->id}");
+            $this->toStaff($assignee, self::RECEIPT_RECORDED, $params, $order, "receipt:{$receipt->id}");
         }
     }
 
@@ -63,7 +64,7 @@ final class CollectionNotices
     {
         $assignee = $order->assignee;
         if ($assignee !== null) {
-            $this->notifier->send($assignee, self::PROOF_SUBMITTED, ['order' => $order->number, 'amount' => $proof->claimed()->toInput()], $order, "proof:{$proof->id}");
+            $this->toStaff($assignee, self::PROOF_SUBMITTED, ['order' => $order->number, 'amount' => $proof->claimed()->toInput()], $order, "proof:{$proof->id}");
         }
     }
 
@@ -83,7 +84,7 @@ final class CollectionNotices
     {
         $assignee = $order->assignee;
         if ($assignee !== null) {
-            $this->notifier->send($assignee, self::LATE_GATEWAY_RESULT, ['order' => $order->number, 'reference' => $reference], $order, "gateway:{$reference}:late");
+            $this->toStaff($assignee, self::LATE_GATEWAY_RESULT, ['order' => $order->number, 'reference' => $reference], $order, "gateway:{$reference}:late");
         }
     }
 
@@ -95,6 +96,19 @@ final class CollectionNotices
         return $this->toCustomer($order->customer, "finance.message.due_{$kind}", [
             'order' => $order->number, 'amount' => $remaining->toInput(), 'due' => (string) $due->name->get(self::locale($order->customer)),
         ], "due:{$due->id}:{$kind}:{$period}");
+    }
+
+    /**
+     * Staff money notices carry amounts in the stored row and the mail: only for someone who may see the order's
+     * money (P-37). The assignee needs only P-16, so the link's later check alone would be too late.
+     *
+     * @param  array<string, string>  $params
+     */
+    private function toStaff(User $user, string $type, array $params, Order $order, string $key): void
+    {
+        if (Access::can($user, Permission::P37, $order)) {
+            $this->notifier->send($user, $type, $params, $order, $key);
+        }
     }
 
     /**

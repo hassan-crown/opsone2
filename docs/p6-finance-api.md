@@ -197,7 +197,7 @@ Decisions: [ADR-0015](decisions/0015-refunds-disputes.md). Code: `app/Finance/Se
 | Call | Returns | Notes |
 |---|---|---|
 | `RefundLimits::refundable(Payment, int $orderId)` | `Money` | Payment's money on the order − reserved refunds (requested / in progress / unresolved). 0 unless confirmed. |
-| `RefundLimits::reserved()/executed()/placed()` · `::freeCredit(int $orderId)` | `Money` | Credit no reservation holds (what may still be transferred). |
+| `RefundLimits::reserved()/executed()/placed()` · `::freeCredit(int $orderId)` · `::freeCreditByPayment(int $orderId)` | `Money` / `array<payment, halalas>` | Credit no reservation holds (what may still be transferred), per payment: a payment's credit minus what its own pending refunds still need. `TransferCredit` takes only that. |
 | event `Finance\Settlement\RefundExecuted` | `refundId, orderId, paymentId, amountMinor, number` | After commit, once per executed refund (T02/T05). 6d: negative commission difference; idempotent on `refundId`. |
 | `DisputedAmounts` (bound to `OpenDisputeAmounts`) | `disputedFor(OrderDue): Money` | Open disputes on that due; reminders exclude it. |
 | `SettlementPresenter::forOrder(Order, User)` | array | Screen payload (below). Caller checks P-16. |
@@ -257,9 +257,9 @@ Decisions: [ADR-0016](decisions/0016-commissions.md). Code: `app/Commissions`, `
 
 | Call | When | Effect |
 |---|---|---|
-| `CollectionConditions::evaluate($order, $paymentId, $actor)` | After any ledger change, under the order lock (already the 6b contract) | Also re-derives the order's commission: one signed difference entry (source `order_collection:{payment}`), nothing when unchanged. |
+| `CollectionConditions::evaluate($order, $paymentId, $actor, ?$commissionSource, ?$reason)` | After any ledger change, under the order lock (already the 6b contract) | Also re-derives the order's commission: one signed difference entry (source `order_collection:{payment}`, or the given source — 6c passes `refund:{id}` with the RF number and `correction:{CR}`), nothing when unchanged. |
 | `app(CommissionAccrual::class)->recompute(Order $order, string $source, ?User $actor, ?string $reason)` | Inside the transaction that locked the order, when commission must follow without a ledger change (cancellation, a correction with its own source such as `refund:{id}` / `correction:{id}`) | `?CommissionEntry` — the difference written, or null. Idempotent. A negative difference after a payout is carried, never erasing the payout. |
-| bind `App\Commissions\SettlementHolds` | 6c decorates the default (`LedgerSettlementHolds`: money above the agreement) | `holdOf(Order): ?string` — `refund`, `dispute`, `cancellation`, `settlement` or null. A held order is left out of payouts; its accrual is still recorded; the member's other orders stay payable. Known codes have labels (`commissions.hold.*`). |
+| bind `App\Commissions\SettlementHolds` | Bound by 6c to `Finance\Settlement\SettlementCommissionHolds`: a reserving refund → `refund`, an unresolved dispute → `dispute`, else the default (`LedgerSettlementHolds`: money above the agreement) | `holdOf(Order): ?string` — `refund`, `dispute`, `cancellation`, `settlement` or null. A held order is left out of payouts; its accrual is still recorded; the member's other orders stay payable. Known codes have labels (`commissions.hold.*`). |
 
 ### Reading
 

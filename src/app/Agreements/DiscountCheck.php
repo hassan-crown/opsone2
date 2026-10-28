@@ -6,6 +6,7 @@ use App\Access\TransitionRecorder;
 use App\Enums\DiscountDecisionStatus;
 use App\Enums\StateMachine;
 use App\Models\Agreements\DiscountDecision;
+use App\Models\Order;
 use App\Models\User;
 use App\Money\Money;
 
@@ -35,9 +36,9 @@ final class DiscountCheck
      * @param  array<string, mixed>  $content  priced content (QuoteInput::priced)
      * @return array{state: string, limit_bp: int|null, share_bp: int, over_minor: int, decision_id: int|null}
      */
-    public static function state(User $user, string $subjectType, int $subjectId, array $content): array
+    public static function state(User $user, string $subjectType, int $subjectId, array $content, ?Order $order = null): array
     {
-        $limit = DiscountLimits::of($user, 'custom_bp');
+        $limit = DiscountLimits::of($user, 'custom_bp', $order);
         $totals = $content['totals'] ?? [];
         if (! ($content['complete'] ?? false)) {
             return ['state' => self::INCOMPLETE, 'limit_bp' => $limit, 'share_bp' => 0, 'over_minor' => 0, 'decision_id' => null];

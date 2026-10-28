@@ -30,6 +30,7 @@ use App\Models\Finance\PaymentCorrection;
 use App\Models\Finance\Refund;
 use App\Models\Order;
 use App\Models\User;
+use App\Support\StaleRecord;
 use App\Workflow\AppointmentBooking;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Validator;
@@ -92,8 +93,18 @@ final class T07CorrectPayment
             'evidence' => $evidence === null ? null : hash_file('sha256', (string) $evidence->getRealPath())];
 
         $result = $this->write->run('payment.correct', $actor, $idempotencyKey, $payload, function () use ($actor, $order, $payment, $data, $kind, $reason, $amount, $method, $paidOn, $evidence, $lockVersion, $source) {
-            $orderIds = MoneyEntry::query()->where('payment_id', $payment->id)->distinct()->pluck('order_id')->map(fn ($id) => (int) $id)->all();
+            $placedOn = fn () => MoneyEntry::query()->where('payment_id', $payment->id)->distinct()->pluck('order_id')->map(fn ($id) => (int) $id)->all();
+            $orderIds = $placedOn();
+            // The correction belongs to an order the payment is on — never to an unrelated order of the actor's scope.
+            if (! in_array($order->id, [$payment->order_id, ...$orderIds], true)) {
+                throw new InvalidTransition(StateMachine::M11, 'T07', 'payment_not_on_order');
+            }
             $orders = FinanceLock::orders(array_values([$order->id, $payment->order_id, ...$orderIds]), StateMachine::M11, 'T07');
+            // Money may have moved to another order (a transfer) between the read and the locks: every order the
+            // reversal will write on must be locked and authorized, so the client re-reads and retries.
+            if (array_diff($placedOn(), array_keys($orders)) !== []) {
+                throw new StaleRecord(FinanceLock::versionOf($order));
+            }
             $heads = [];
             foreach ($orders as $id => $locked) {
                 Access::authorize($actor, Permission::P41, $locked);

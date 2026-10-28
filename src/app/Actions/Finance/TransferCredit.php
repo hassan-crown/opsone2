@@ -87,16 +87,21 @@ final class TransferCredit
             $this->schedule->sync($source0, $heads[$from->id], $actor, $source);
             $this->schedule->sync($target, $heads[$toId], $actor, $source);
 
-            // Credit reserved by a refund not yet executed stays for that refund (FIN-05).
-            if (RefundLimits::freeCredit($source0->id)->compare($amount) < 0) {
+            // Credit reserved by a refund not yet executed stays for that refund (FIN-05), per payment: another
+            // payment's free credit never makes a reserved payment's money movable.
+            $free = RefundLimits::freeCreditByPayment($source0->id);
+            if (array_sum($free) < $amount->minor) {
                 throw new InvalidTransition(StateMachine::M11, 'transfer', 'not_enough_credit');
             }
             // Newest payment first: the oldest money stays where it was paid.
             $left = $amount->minor;
             $lastPayment = 0;
-            foreach (array_reverse(MoneyLedger::creditByPayment($source0->id), true) as $paymentId => $credit) {
+            foreach (array_reverse($free, true) as $paymentId => $credit) {
                 if ($left === 0) {
                     break;
+                }
+                if ($credit === 0) {
+                    continue;
                 }
                 $take = min($credit, $left);
                 $this->ledger->write(JournalKind::Transfer, Payment::query()->findOrFail($paymentId), [

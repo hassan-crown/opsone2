@@ -13,6 +13,7 @@ use App\Models\Commissions\CommissionSettings;
 use App\Models\User;
 use App\Support\LockingTransaction;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationException;
 
 /**
  * SettingsSales commission part (SAL-10, SAL-19, P-95): on/off, the default rate, optional rates per role template
@@ -64,6 +65,13 @@ final class UpdateCommissionSettings
             $settings->lock_version = $settings->exists ? $settings->lock_version + 1 : 1;
             $settings->save();
 
+            // Nobody sets their own commission rate (SAL-19 spirit, as RequestSaleCorrection): the row may be resent unchanged.
+            $current = CommissionRate::query()->where('user_id', $actor->id)->value('rate_bp');
+            foreach ($data['members'] as $i => $row) {
+                if ((int) ($row['user_id'] ?? 0) === $actor->id && ($row['rate_bp'] ?? null) !== ($current === null ? null : (int) $current)) {
+                    throw ValidationException::withMessages(["members.{$i}.rate_bp" => __('commissions.validation.own_rate')]);
+                }
+            }
             foreach ([['roles', 'role_template_id'], ['members', 'user_id']] as [$list, $column]) {
                 foreach ($data[$list] as $row) {
                     $rate = $row['rate_bp'] ?? null;

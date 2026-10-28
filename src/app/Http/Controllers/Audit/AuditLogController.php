@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Audit;
 
 use App\Access\Authorizer;
+use App\Access\Contracts\ScopedRecord;
 use App\Access\Permission;
 use App\Audit\AuditAction;
 use App\Audit\AuditQuery;
@@ -15,6 +16,8 @@ use App\Models\Order;
 use App\Models\User;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -27,6 +30,9 @@ use Throwable;
 final class AuditLogController extends Controller
 {
     private const PER_PAGE = 25;
+
+    /** Amount maps written without the `_minor` suffix (due/order id → halalas). */
+    private const MONEY_KEYS = ['places', 'shares', 'held', 'rates'];
 
     public function __construct(private readonly Authorizer $access) {}
 
@@ -165,11 +171,20 @@ final class AuditLogController extends Controller
 
     /**
      * Order amounts in an event are hidden fields for a viewer without P-37 over that order (P-63: «تنقيح الأسرار
-     * والحقول المحجوبة»). An order that no longer exists falls back to any P-37 grant.
+     * والحقول المحجوبة»). An order that no longer exists falls back to any P-37 grant. Commission events (payouts,
+     * sale corrections, rates) need P-94 over their subject instead: P-37 on an order says nothing about a colleague's
+     * commission.
      */
     private function canSeeMoney(User $user, AuditEvent $event): bool
     {
-        if ($event->subject_type !== (new Order)->getMorphClass()) {
+        $isOrder = $event->subject_type === (new Order)->getMorphClass();
+        if ($event->actionEnum()?->area() === 'commissions') {
+            $class = $event->subject_type === null ? null : Relation::getMorphedModel($event->subject_type) ?? $event->subject_type;
+            $subject = $class !== null && $event->subject_id !== null && is_a($class, Model::class, true) ? $class::query()->find($event->subject_id) : null;
+
+            return $this->access->can($user, Permission::P94, $subject instanceof ScopedRecord ? $subject : null);
+        }
+        if (! $isOrder) {
             return true;
         }
         $order = $event->subject_id === null ? null : Order::query()->find($event->subject_id);
@@ -184,7 +199,7 @@ final class AuditLogController extends Controller
     private static function withoutMoney(array $values): array
     {
         foreach ($values as $key => $value) {
-            if (is_string($key) && str_ends_with($key, '_minor')) {
+            if (is_string($key) && (str_ends_with($key, '_minor') || str_ends_with($key, '_bp') || in_array($key, self::MONEY_KEYS, true))) {
                 $values[$key] = AuditRecorder::REDACTED;
             } elseif (is_array($value)) {
                 $values[$key] = self::withoutMoney($value);
