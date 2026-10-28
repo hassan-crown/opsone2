@@ -15,6 +15,7 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Str;
 use Tests\Support\Org;
 use Tests\Support\RecordingStockReceiver;
+use App\Models\Inventory\StockLocation;
 
 require_once __DIR__.'/../Catalog/CatalogTestHelpers.php';
 
@@ -40,7 +41,8 @@ function procFixture(): object
     $f->variant = makeVariant($f->owner, makeReady($f->owner), ['code' => 'HND-1']);
     $f->tracked = makeMaterial($f->owner, ['unit' => 'm', 'track_quantity' => true]);
     $f->plain = makeMaterial($f->owner, ['name' => ['ar' => 'خشب', 'en' => 'Wood'], 'track_quantity' => false]);
-    $f->location = 7;
+    // A real store of branch A: the receipt location is checked on the server (active, branch, P-47).
+    $f->location = StockLocation::query()->create(['code' => 'PA1', 'name' => ['ar' => 'مستودع المشتريات', 'en' => 'Purchases store'], 'branch_id' => $f->org->a->id])->id;
 
     return $f;
 }

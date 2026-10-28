@@ -82,3 +82,20 @@ it('refuses a cut above the reservation and a partial that cancels everything', 
     cnRefused(fn () => cnCancel($d->owner, $d->order, ['scope' => 'partial', 'lines' => [['ref' => 'l'.$line, 'quantity' => '6']]]), ValidationException::class);
     cnRefused(fn () => cnCancel($d->owner, $d->order, ['scope' => 'partial', 'lines' => [['ref' => 'l'.$line, 'quantity' => '5']]]), ValidationException::class);
 });
+
+it('fingerprints what stays with the customer, so an issue or a delivery after the review makes it stale', function () {
+    $d = deliveryFixture(10, 5);
+    $impact = cnPreview($d->order, ['scope' => 'full']);
+    $hash = App\Cancellation\CancellationImpact::hash($impact);
+
+    $issued = $impact;
+    $issued['stays']['issued'][] = ['number' => 'SI-2026-000009', 'item' => 'قماش', 'unit' => 'metre', 'issued_milli' => 1500];
+    $changed = $impact;
+    $changed['stops']['change'] = ['number' => 'CH-1', 'status' => 'open'];
+    expect(App\Cancellation\CancellationImpact::hash($issued))->not->toBe($hash)
+        ->and(App\Cancellation\CancellationImpact::hash($changed))->not->toBe($hash);
+
+    // A real delivery between the review and the confirm: 409 preview_stale, nothing applied.
+    deliveryConfirm($d->keeper, deliveryDraft($d->keeper, $d->order, [deliveryLineId($d->order) => '1']));
+    cnRefused(fn () => cnCancel($d->owner, $d->order, ['scope' => 'full'], hash: $impact['hash']), App\Access\Exceptions\InvalidTransition::class, 'preview_stale');
+});

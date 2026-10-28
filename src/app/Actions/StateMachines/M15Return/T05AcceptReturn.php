@@ -49,6 +49,10 @@ final class T05AcceptReturn
         $this->write->run('accept', $actor, $idempotencyKey, $payload, function () use ($actor, $return, $lines, $reason, $settlementMinor, $lockVersion, $source) {
             $locked = ReturnLock::lock($return, $lockVersion, 'T05');
             Access::authorize($actor, Permission::P102, $locked);
+            // A settlement other than the value is a money figure: only who may see the order's amounts sets it.
+            if ($settlementMinor !== null) {
+                Access::authorize($actor, Permission::P37, $locked->order);
+            }
             $reason = T00RequestReturn::reason($reason, 'reason');
 
             $own = OrderReturnLine::query()->where('order_return_id', $locked->id)->get()->keyBy('order_line_id');

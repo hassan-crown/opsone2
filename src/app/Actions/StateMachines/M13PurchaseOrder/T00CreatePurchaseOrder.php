@@ -13,6 +13,7 @@ use App\Models\FinanceSettings;
 use App\Models\Procurement\PurchaseOrder;
 use App\Models\Procurement\Supplier;
 use App\Models\User;
+use App\Procurement\Locations;
 use App\Procurement\ProcurementWrite;
 use App\Procurement\PurchaseLines;
 use App\Support\GaplessSequence;
@@ -44,6 +45,7 @@ final class T00CreatePurchaseOrder
             if (! $supplier->isActive()) {
                 throw ValidationException::withMessages(['supplier_id' => __('procurement.error.supplier_disabled')]);
             }
+            Locations::check($actor, $data['location_id'] ?? null, (int) $data['branch_id'], Permission::P46);
             $settings = FinanceSettings::current();
             $po = PurchaseOrder::query()->create([
                 'number' => $this->sequence->format('po', 'PO', 6),

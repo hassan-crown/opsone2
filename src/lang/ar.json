@@ -3288,6 +3288,7 @@
     "procurement.error.quantity": "أدخل كمية أكبر من صفر بثلاث خانات عشرية كحد أقصى.",
     "procurement.error.item_unavailable": "هذا الصنف غير متاح للتوريد.",
     "procurement.error.order_missing": "الطلب المرتبط غير موجود.",
+    "procurement.error.location": "اختر موقع مخزون نشطًا في فرع أمر الشراء ولديك صلاحية الاستلام فيه.",
     "procurement.error.supplier_disabled": "هذا المورد معطل ولا يمكن استخدامه في طلب توريد جديد.",
     "procurement.error.confirm_incomplete": "مطلوب قبل تأكيد الطلب.",
     "procurement.error.line_unknown": "هذا البند لا يتبع الطلب.",

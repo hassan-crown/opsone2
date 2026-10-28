@@ -14,6 +14,7 @@ use App\Models\Procurement\PurchaseOrderLine;
 use App\Models\Procurement\PurchaseReceipt;
 use App\Models\Procurement\PurchaseReceiptLine;
 use App\Models\User;
+use App\Procurement\Locations;
 use App\Procurement\ProcurementWrite;
 use App\Procurement\PurchaseStep;
 use Illuminate\Http\UploadedFile;
@@ -46,6 +47,8 @@ final class T02ReceivePurchase
 
         $result = $this->write->run('po.receive', $actor, $idempotencyKey, $payload, function () use ($actor, $po, $data, $proofs, $lockVersion, $source) {
             $locked = PurchaseStep::lock($actor, $po, Permission::P47, $lockVersion, 'T02');
+            // The goods land where the receiver may receive (P-47 on the location), never another branch's store.
+            Locations::check($actor, $data['location_id'], $locked->branch_id, Permission::P47);
             $byId = $locked->lines->keyBy('id');
             $arrivals = $this->arrivals($data['lines'], $byId);
 

@@ -335,7 +335,7 @@ it('confirms only a complete order: location, date, responsible and lines', func
 
 it('edits a draft only while it is a draft', function () {
     $po = procDraft($this->f, $this->f->inventory, [procVariantLine($this->f)]);
-    $data = ['supplier_id' => $this->f->supplier->id, 'branch_id' => $this->f->org->a->id, 'location_id' => 7, 'expected_on' => now()->addDay()->toDateString(), 'responsible_id' => $this->f->inventory->id, 'notes' => 'ملاحظة',
+    $data = ['supplier_id' => $this->f->supplier->id, 'branch_id' => $this->f->org->a->id, 'location_id' => $this->f->location, 'expected_on' => now()->addDay()->toDateString(), 'responsible_id' => $this->f->inventory->id, 'notes' => 'ملاحظة',
         'lines' => [procVariantLine($this->f, 4_000, 900)]];
     app(UpdateDraftPurchase::class)->handle($this->f->inventory, $po, $data, $po->lock_version, null);
     expect($po->refresh()->notes)->toBe('ملاحظة')->and(procLineOf($po, 1)['quantity'])->toBe(4_000);
@@ -365,7 +365,7 @@ it('scope matrix: receiving needs P-47 in the order\'s branch, buying P-46, cost
 
 it('lists only the orders of the viewer\'s scope', function () {
     $mine = procOrdered($this->f);
-    $other = procDraft($this->f, $this->f->owner, [procVariantLine($this->f)], ['branch_id' => $this->f->org->b->id]);
+    $other = procDraft($this->f, $this->f->owner, [procVariantLine($this->f)], ['branch_id' => $this->f->org->b->id, 'location_id' => null]);
 
     $visible = fn ($user) => PurchaseAccess::scoped(PurchaseOrder::query(), $user)->pluck('id')->all();
     expect($visible($this->f->inventory))->toBe([$mine->id])
@@ -402,7 +402,7 @@ it('hides costs from a member without P-82: not stored, not shown, kept on edit'
     $withCost = procDraft($this->f, $this->f->inventory, [procVariantLine($this->f, 2_000, 700)]);
     $lineId = $withCost->lines->first()->id;
     app(UpdateDraftPurchase::class)->handle($this->f->manager, $withCost, [
-        'supplier_id' => $this->f->supplier->id, 'branch_id' => $this->f->org->a->id, 'location_id' => 7, 'expected_on' => null, 'responsible_id' => null, 'notes' => null,
+        'supplier_id' => $this->f->supplier->id, 'branch_id' => $this->f->org->a->id, 'location_id' => $this->f->location, 'expected_on' => null, 'responsible_id' => null, 'notes' => null,
         'lines' => [[...procVariantLine($this->f, 3_000, 999_999), 'id' => $lineId]],
     ], $withCost->lock_version, null);
     $kept = $withCost->refresh()->lines->first();
@@ -422,4 +422,17 @@ it('stores receipt proofs as private attachments that follow the order\'s scope'
         ->and($files->canDownload($this->f->inventoryB, $file))->toBeFalse()
         ->and($files->canDownload($this->f->sales, $file))->toBeFalse();
     Storage::disk('attachments')->assertExists($file->path);
+});
+
+it('refuses a purchase location outside the purchase branch or the actor\'s grant', function () {
+    $f = $this->f;
+    $storeB = App\Models\Inventory\StockLocation::query()->create(['code' => 'PB1', 'name' => ['ar' => 'مستودع ب', 'en' => 'Store B'], 'branch_id' => $f->org->b->id]);
+
+    // A draft of branch A naming branch B's store.
+    expect(fn () => procDraft($f, $f->inventory, [procVariantLine($f)], ['location_id' => $storeB->id]))->toThrow(ValidationException::class);
+
+    // Receiving a branch-A order into branch B's store: refused, nothing received.
+    $po = procOrdered($f);
+    expect(fn () => procReceive($f, $po, [1 => [1000, 0]], ['location_id' => $storeB->id], actor: $f->inventory))->toThrow(ValidationException::class)
+        ->and($f->stock->calls)->toBe([]);
 });

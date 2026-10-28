@@ -184,10 +184,18 @@ final class AuditLogController extends Controller
 
             return $this->access->can($user, Permission::P94, $subject instanceof ScopedRecord ? $subject : null);
         }
-        if (! $isOrder) {
-            return true;
+        if ($isOrder) {
+            $order = $event->subject_id === null ? null : Order::query()->find($event->subject_id);
+        } else {
+            // A record of an order (return, delivery note, cancellation, …) carries the order's money: same P-37 rule.
+            $class = $event->subject_type === null ? null : Relation::getMorphedModel($event->subject_type) ?? $event->subject_type;
+            $subject = $class !== null && $event->subject_id !== null && is_a($class, Model::class, true) ? $class::query()->find($event->subject_id) : null;
+            $orderId = $subject instanceof Model ? $subject->getAttribute('order_id') : null;
+            if ($orderId === null) {
+                return true;
+            }
+            $order = Order::query()->find((int) $orderId);
         }
-        $order = $event->subject_id === null ? null : Order::query()->find($event->subject_id);
 
         return $this->access->can($user, Permission::P37, $order);
     }

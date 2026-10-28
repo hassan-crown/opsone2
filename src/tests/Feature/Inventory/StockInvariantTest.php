@@ -22,6 +22,7 @@ use App\Support\StaleRecord;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Str;
 
 require_once __DIR__.'/../Returns/ReturnTestHelpers.php';
 require_once __DIR__.'/../Cancellation/CancellationTestHelpers.php';
@@ -66,7 +67,7 @@ function invariantStep(object $s, object $actors, int $op, array &$orders): stri
                 stockReceive(mt_rand(0, 1) ? $s->la : $s->la2, 'ready_variant', $variant, $qty);
                 break;
             case 1:
-                $status = test()->actingAs($actors->owner)->postJson('/stock/adjustments', [
+                $status = test()->actingAs($actors->owner)->postJson('/stock/adjustments', ['idempotency_key' => (string) Str::uuid(), 
                     'location_id' => (mt_rand(0, 1) ? $s->la : $s->la2)->id, 'item_type' => 'ready_variant', 'item_id' => $variant,
                     'direction' => mt_rand(0, 1) ? 'in' : 'out', 'quantity' => $qty, 'reason' => 'جرد عشوائي',
                 ])->status();

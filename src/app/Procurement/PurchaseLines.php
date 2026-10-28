@@ -55,7 +55,8 @@ final class PurchaseLines
         [$name, $unit] = $this->item($type, $id, $field);
 
         $orderId = isset($input['order_id']) && $input['order_id'] !== '' ? (int) $input['order_id'] : null;
-        if ($orderId !== null && ! Order::query()->whereKey($orderId)->exists()) {
+        // Only an order of the purchase's own branch (no cross-branch link, no existence oracle on other branches).
+        if ($orderId !== null && ! Order::query()->whereKey($orderId)->where('branch_id', $po->branch_id)->exists()) {
             throw ValidationException::withMessages([$field.'.order_id' => __('procurement.error.order_missing')]);
         }
 

@@ -15,6 +15,7 @@ import { Icon } from '@/components/opsone/icon';
 import { PageHeader } from '@/components/opsone/page-header';
 import { notify } from '@/components/opsone/toast';
 import { Table, TableWrap, Td, Th } from '@/components/org/data-table';
+import { useIdempotencyKey } from '@/components/procurement/shared';
 import { itemKey, splitKey } from '@/components/stock/item-lines';
 import { Qty, StockTabs, useStockCall } from '@/components/stock/parts';
 import type {
@@ -324,6 +325,7 @@ function AdjustDialog({
 }) {
     const t = useT();
     const call = useStockCall<{ movement: { document_number: string } }>();
+    const { key, renew } = useIdempotencyKey();
     const [form, setForm] = useState({
         location: row
             ? String(row.location.id)
@@ -342,7 +344,11 @@ function AdjustDialog({
             direction: form.direction,
             quantity: form.quantity,
             reason: form.reason,
+            idempotency_key: key,
         });
+        if (!done) {
+            renew();
+        }
         if (done) {
             notify('success', {
                 title: t('stock.adjust.done', {

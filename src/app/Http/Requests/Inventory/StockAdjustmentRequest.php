@@ -20,6 +20,8 @@ class StockAdjustmentRequest extends FormRequest
             'direction' => ['required', 'in:in,out'],
             'quantity' => $this->quantityRule(),
             'reason' => ['required', 'string', 'max:500'],
+            // A double click or a network retry posts the adjustment once (one SA number, one movement).
+            'idempotency_key' => ['required', 'string', 'min:8', 'max:100', 'regex:/^[A-Za-z0-9_\-:.]+$/'],
         ];
     }
 }

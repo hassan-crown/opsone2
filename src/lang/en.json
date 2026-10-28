@@ -3288,6 +3288,7 @@
     "procurement.error.quantity": "Enter a quantity above zero with at most three decimals.",
     "procurement.error.item_unavailable": "This item is not available for purchase.",
     "procurement.error.order_missing": "The linked order was not found.",
+    "procurement.error.location": "Choose an active stock location of this purchase's branch that you may receive into.",
     "procurement.error.supplier_disabled": "This supplier is disabled and cannot be used on a new purchase order.",
     "procurement.error.confirm_incomplete": "Required before the order can be confirmed.",
     "procurement.error.line_unknown": "This line does not belong to the order.",

@@ -13,6 +13,7 @@ use App\Enums\StateMachine;
 use App\Models\Procurement\PurchaseOrder;
 use App\Models\Procurement\Supplier;
 use App\Models\User;
+use App\Procurement\Locations;
 use App\Procurement\ProcurementWrite;
 use App\Procurement\PurchaseLines;
 use App\Support\StaleRecord;
@@ -48,6 +49,7 @@ final class UpdateDraftPurchase
             if (! $supplier->isActive() && $supplier->id !== $fresh->supplier_id) {
                 throw ValidationException::withMessages(['supplier_id' => __('procurement.error.supplier_disabled')]);
             }
+            Locations::check($actor, $data['location_id'] ?? null, (int) $data['branch_id'], Permission::P46);
             $before = ['supplier' => $fresh->supplier_id, 'branch' => $fresh->branch_id, 'lines' => $fresh->lines()->count()];
             $fresh->forceFill([
                 'supplier_id' => $supplier->id,

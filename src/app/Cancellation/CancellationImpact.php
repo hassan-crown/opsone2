@@ -146,6 +146,14 @@ final class CancellationImpact
             'tasks' => array_column($stops['tasks'], 'id'),
             'appointments' => array_column($stops['appointments'], 'id'),
             'stages' => array_column($stops['stages'], 'id'),
+            'change' => $stops['change'],
+            // What stays with the customer is part of the decision too: a material issued or a delivery recorded
+            // between the review and the confirm must make the review stale (409), not slip through.
+            'stays' => [
+                'delivered' => array_map(fn (array $d) => [$d['ref'], $d['delivered_milli']], $impact['stays']['delivered']),
+                'issued' => array_map(fn (array $i) => [$i['number'], $i['unit'], $i['issued_milli']], $impact['stays']['issued']),
+                'stages' => array_column($impact['stays']['stages'], 'id'),
+            ],
             'money' => $settlement['money'],
             'agreement' => $settlement['agreement'] === null ? null : array_diff_key($settlement['agreement'], ['dues' => true])
                 + ['dues' => array_map(fn (array $d) => [$d['id'], $d['amount_after_minor']], $settlement['agreement']['dues'])],

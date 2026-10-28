@@ -28,6 +28,10 @@ final class StockLedger implements StockReceiver
     public function lock(int $locationId, int $stockItemId): StockBalance
     {
         self::assertTransaction();
+        // The location row first (shared), then the balance: disabling a location (FOR UPDATE on its row, then its
+        // balances checked empty) and stock arriving there serialize, and the order location → balance is the one
+        // every writer already follows (adjustments and counts lock the location first).
+        StockLocation::query()->whereKey($locationId)->sharedLock()->value('id');
         $now = now();
         DB::table('stock_balances')->insertOrIgnore([
             'location_id' => $locationId, 'stock_item_id' => $stockItemId, 'on_hand_milli' => 0, 'reserved_milli' => 0,
@@ -79,6 +83,10 @@ final class StockLedger implements StockReceiver
             throw ValidationException::withMessages([$field => __('stock.validation.insufficient', ['available' => Quantity::format(max(0, $balance->availableMilli()))])]);
         }
 
+        // Nothing arrives at a disabled location (checked under the location's shared lock taken by lock()).
+        if ($onHandSign > 0 && StockLocation::query()->whereKey($balance->location_id)->value('status') !== 'active') {
+            throw ValidationException::withMessages(['location_id' => __('stock.validation.location_inactive')]);
+        }
         $item = StockItem::query()->findOrFail($balance->stock_item_id);
         $balance->on_hand_milli = $onHand;
         $balance->reserved_milli = $reserved;

@@ -131,10 +131,11 @@ final class SettlementFollowUps
 
         return LockingTransaction::run(function () use ($actor, $item, $status, $note, $lockVersion) {
             $order = Order::query()->lockForUpdate()->findOrFail($item->order_id);
+            // Authorized before anything is written (the sync below re-reads the sources under this actor's name).
+            Access::authorize($actor, self::permissionFor($item->kind), $order);
             $this->sync($order, $actor);
             $locked = SettlementItem::query()->lockForUpdate()->findOrFail($item->id);
             $locked->setRelation('order', $order);
-            Access::authorize($actor, self::permissionFor($locked->kind), $order);
             if ($lockVersion !== null && $locked->lock_version !== $lockVersion) {
                 throw new StaleRecord($locked->lock_version);
             }

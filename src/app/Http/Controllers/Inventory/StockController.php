@@ -16,6 +16,7 @@ use App\Inventory\StockAccess;
 use App\Inventory\StockItems;
 use App\Inventory\StockPresenter;
 use App\Models\Inventory\StockLocation;
+use App\Support\Idempotency;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -70,13 +71,19 @@ class StockController extends Controller
         return response()->json(['items' => StockPresenter::trackable(trim($q))]);
     }
 
-    public function adjust(StockAdjustmentRequest $request, AdjustStock $adjust): JsonResponse
+    public function adjust(StockAdjustmentRequest $request, AdjustStock $adjust, Idempotency $idempotency): JsonResponse
     {
+        $actor = $this->actor($request);
         $location = StockLocation::query()->findOrFail($request->integer('location_id'));
-        $movement = $adjust->handle($this->actor($request), $location, (string) $request->validated('item_type'), $request->integer('item_id'),
-            (string) $request->validated('direction'), Quantity::parse((string) $request->validated('quantity')), (string) $request->validated('reason'));
+        $payload = $request->safe()->except('idempotency_key');
+        $done = $idempotency->run('stock.adjust', $actor, (string) $request->validated('idempotency_key'), $payload, function () use ($adjust, $actor, $location, $request) {
+            $movement = $adjust->handle($actor, $location, (string) $request->validated('item_type'), $request->integer('item_id'),
+                (string) $request->validated('direction'), Quantity::parse((string) $request->validated('quantity')), (string) $request->validated('reason'));
 
-        return response()->json(['movement' => ['id' => $movement->id, 'document_number' => $movement->document_number, 'on_hand' => Quantity::format($movement->on_hand_after)]], 201);
+            return ['id' => $movement->id, 'document_number' => $movement->document_number, 'on_hand' => Quantity::format($movement->on_hand_after)];
+        });
+
+        return response()->json(['movement' => $done['result']], $done['replayed'] ? 200 : 201);
     }
 
     public function updateItem(StockItemRequest $request, ManageStockSetup $setup): JsonResponse

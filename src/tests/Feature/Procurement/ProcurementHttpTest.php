@@ -49,7 +49,7 @@ it('creates and edits a supplier, validating the VAT number format', function ()
 it('creates, confirms and receives an order through the screens; a repeated receive key changes nothing', function () {
     $this->actingAs($this->f->inventory);
     $this->post(route('purchases.store'), [
-        'supplier_id' => $this->f->supplier->id, 'branch_id' => $this->f->org->a->id, 'location_id' => 7,
+        'supplier_id' => $this->f->supplier->id, 'branch_id' => $this->f->org->a->id, 'location_id' => $this->f->location,
         'expected_on' => now()->addWeek()->toDateString(), 'responsible_id' => $this->f->inventory->id,
         'lines' => [['item_type' => 'ready_variant', 'item_id' => $this->f->variant->id, 'quantity' => '10', 'unit_cost' => '11.50']],
         'idempotency_key' => 'create-key-1',
@@ -64,7 +64,7 @@ it('creates, confirms and receives an order through the screens; a repeated rece
 
     $line = $po->lines()->firstOrFail();
     $body = [
-        'location_id' => 7, 'received_on' => now()->toDateString(), 'reference' => 'DN-1', 'lock_version' => $po->refresh()->lock_version,
+        'location_id' => $this->f->location, 'received_on' => now()->toDateString(), 'reference' => 'DN-1', 'lock_version' => $po->refresh()->lock_version,
         'lines' => [['line_id' => $line->id, 'accepted' => '4', 'rejected' => '1', 'reject_reason' => 'مكسور']],
         'proofs' => [procPdf()],
     ];

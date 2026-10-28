@@ -9,6 +9,7 @@ use App\Access\Access;
 use App\Access\Permission;
 use App\Models\Inventory\StockLocation;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Str;
 
 require_once __DIR__.'/InventoryTestHelpers.php';
 
@@ -77,7 +78,7 @@ it('narrows balances, movements and transfers to the covered locations', functio
 
 it('refuses adjustments, counts and material moves outside the grant', function () {
     stockReceive($this->s->lc, 'material', $this->s->material->id, '5');
-    $this->actingAs($this->s->keeper)->postJson('/stock/adjustments', [
+    $this->actingAs($this->s->keeper)->postJson('/stock/adjustments', ['idempotency_key' => (string) Str::uuid(), 
         'location_id' => $this->s->lc->id, 'item_type' => 'material', 'item_id' => $this->s->material->id,
         'direction' => 'out', 'quantity' => '1', 'reason' => 'خارج النطاق',
     ])->assertForbidden();
