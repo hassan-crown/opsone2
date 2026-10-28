@@ -207,7 +207,7 @@ final class SettlementFollowUps
      */
     public static function returnRefundIds(int $orderId): array
     {
-        return Refund::query()->where('order_id', $orderId)->whereNotNull('order_return_id')->pluck('id')->map(fn ($id) => (int) $id)->values()->all();
+        return array_values(array_map(fn ($id) => (int) $id, Refund::query()->where('order_id', $orderId)->whereNotNull('order_return_id')->pluck('id')->all()));
     }
 
     /**
@@ -217,7 +217,7 @@ final class SettlementFollowUps
     private function syncReturn(SettlementItem $item): bool
     {
         $return = $item->ref_type === 'order_return' ? OrderReturn::query()->find($item->ref_id) : null;
-        $settlement = (int) ($return?->settlement_minor ?? 0);
+        $settlement = $return === null ? 0 : (int) $return->settlement_minor;
         if ($return === null || ! $return->status->holdsEligibility() || $settlement <= 0) {
             $this->markDone($item, 'auto', null, null, SettlementItem::DROPPED);
 
