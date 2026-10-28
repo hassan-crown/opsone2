@@ -1,6 +1,6 @@
 import { Head, Link, router } from '@inertiajs/react';
 import { EyeOff, GitBranch, Pencil, Plus, Trash2 } from 'lucide-react';
-import { useState } from 'react';
+import { lazy, Suspense, useState } from 'react';
 import OrderController from '@/actions/App/Http/Controllers/Orders/OrderController';
 import OrderLineController from '@/actions/App/Http/Controllers/Orders/OrderLineController';
 import CustomerController from '@/actions/App/Http/Controllers/Customers/CustomerController';
@@ -32,6 +32,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
+import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { api } from '@/lib/api';
 import { formatDate } from '@/lib/format';
@@ -45,6 +46,13 @@ type Props = {
     invoiceTypes: string[];
     transferBranches: Option[];
 };
+
+// Loaded on demand: keeps the page's preload `Link` header (one entry per static chunk) within nginx's buffer.
+const OrderStages = lazy(() =>
+    import('@/components/flow/order-stages').then((m) => ({
+        default: m.OrderStages,
+    })),
+);
 
 const EDITABLE = ['in_progress', 'paused', 'draft'];
 
@@ -209,10 +217,29 @@ export default function OrderShow({
                     <TabsTrigger value="overview">
                         {t('orders.tab.overview')}
                     </TabsTrigger>
+                    {order.kind === 'custom' && (
+                        <TabsTrigger value="progress" data-test="tab-progress">
+                            {t('progress.tab')}
+                        </TabsTrigger>
+                    )}
                     <TabsTrigger value="history" data-test="tab-history">
                         {t('orders.tab.history')}
                     </TabsTrigger>
                 </TabsList>
+
+                {order.kind === 'custom' && (
+                    <TabsContent value="progress" className="min-w-0">
+                        <Suspense
+                            fallback={<Skeleton className="h-40 w-full" />}
+                        >
+                            <OrderStages
+                                orderId={order.id}
+                                orderStatus={order.status}
+                                onChanged={() => router.reload()}
+                            />
+                        </Suspense>
+                    </TabsContent>
+                )}
 
                 <TabsContent value="overview" className="min-w-0">
                     <div className="grid grid-cols-1 gap-4 lg:grid-cols-[2fr_1fr]">

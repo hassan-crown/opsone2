@@ -8,6 +8,8 @@ export type ApiResult<T> = {
     stale: boolean;
     /** 403 and other errors carry a server message when there is one. */
     message: string | null;
+    /** The raw JSON of a failed response (e.g. 409 `condition`, FlowCheck `issues`). */
+    body: Record<string, unknown> | null;
 };
 
 function xsrfToken(): string {
@@ -47,6 +49,7 @@ export async function api<T = unknown>(
             errors: {},
             stale: false,
             message: null,
+            body: null,
         };
     }
 
@@ -65,5 +68,6 @@ export async function api<T = unknown>(
         errors: response.status === 422 ? (data?.errors ?? {}) : {},
         stale: response.status === 409 && data?.code === 'stale_version',
         message: response.ok ? null : (data?.message ?? null),
+        body: response.ok ? null : (data as Record<string, unknown> | null),
     };
 }
