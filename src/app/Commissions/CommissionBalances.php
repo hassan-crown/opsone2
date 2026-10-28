@@ -8,7 +8,6 @@ use App\Models\Commissions\CommissionPayout;
 use App\Models\Commissions\CommissionPayoutLine;
 use App\Models\Commissions\OrderSale;
 use Carbon\CarbonInterface;
-use Illuminate\Support\Collection;
 
 /**
  * A member's commission balance (SAL-14, SAL-15), derived on read:
@@ -122,16 +121,5 @@ final class CommissionBalances
         }
 
         return ['lines' => $lines, 'amount_minor' => array_sum(array_column($lines, 'amount_minor')), 'held' => $held];
-    }
-
-    /**
-     * Members with at least one sale in the viewer's scope.
-     *
-     * @param  Collection<int, OrderSale>|null  $visible
-     * @return list<int>
-     */
-    public static function members(?Collection $visible): array
-    {
-        return $visible === null ? [] : array_values(array_unique($visible->pluck('user_id')->map(fn ($id) => (int) $id)->all()));
     }
 }

@@ -1,5 +1,6 @@
 import { Head, Link, router } from '@inertiajs/react';
 import {
+    BadgePercent,
     EyeOff,
     FileSignature,
     GitBranch,
@@ -11,6 +12,7 @@ import {
 import { lazy, Suspense, useState } from 'react';
 import OrderFinanceController from '@/actions/App/Http/Controllers/Finance/OrderFinanceController';
 import AgreementController from '@/actions/App/Http/Controllers/Agreements/AgreementController';
+import OrderSaleController from '@/actions/App/Http/Controllers/Commissions/OrderSaleController';
 import OrderController from '@/actions/App/Http/Controllers/Orders/OrderController';
 import OrderLineController from '@/actions/App/Http/Controllers/Orders/OrderLineController';
 import CustomerController from '@/actions/App/Http/Controllers/Customers/CustomerController';
@@ -183,6 +185,19 @@ export default function OrderShow({
                                 >
                                     <Icon icon={Receipt} />
                                     {t('finance.order.title')}
+                                </Link>
+                            </Button>
+                        )}
+                        {order.can.sale && (
+                            <Button asChild variant="secondary">
+                                <Link
+                                    href={OrderSaleController.show.url(
+                                        order.id,
+                                    )}
+                                    data-test="open-sale"
+                                >
+                                    <Icon icon={BadgePercent} />
+                                    {t('commissions.sale.title')}
                                 </Link>
                             </Button>
                         )}

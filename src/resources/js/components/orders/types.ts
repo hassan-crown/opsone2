@@ -58,7 +58,7 @@ export type OrderDetail = OrderRow & {
     invoice_type: 'tax' | 'simplified' | null;
     related_orders: { id: number; number: string; kind: OrderKind }[];
     lines: OrderLine[];
-    can: { edit: boolean; transfer_branch: boolean };
+    can: { edit: boolean; transfer_branch: boolean; sale: boolean };
 };
 
 export type HistoryEntry = {

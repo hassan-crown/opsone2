@@ -5,7 +5,6 @@ namespace App\Models\Commissions;
 use App\Access\Contracts\ScopedRecord;
 use App\Models\Finance\OrderScoped;
 use App\Models\Order;
-use App\Models\User;
 use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;

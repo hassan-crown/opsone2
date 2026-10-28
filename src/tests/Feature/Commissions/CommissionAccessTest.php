@@ -9,6 +9,7 @@ use App\Actions\Commissions\DecideSaleCorrection;
 use App\Actions\Commissions\RequestSaleCorrection;
 use App\Commissions\CommissionBalances;
 use App\Models\Commissions\CommissionEntry;
+use App\Models\Commissions\CommissionSettings;
 use App\Models\Commissions\OrderSale;
 use App\Models\Commissions\SaleCorrection;
 use App\Models\User;
@@ -143,7 +144,7 @@ it('renders the screens: FinCommissions, the member statement, the sale page and
     $this->actingAs($f->manager)->put('/settings/sales/commissions', ['enabled' => true, 'default_rate_bp' => 100, 'manual_lines_eligible' => true, 'roles' => [], 'members' => []])
         ->assertForbidden();
     $this->actingAs($f->finance)->put('/settings/sales/commissions', [
-        'enabled' => true, 'default_rate_bp' => 250, 'manual_lines_eligible' => false, 'roles' => [], 'members' => [], 'lock_version' => 2,
+        'enabled' => true, 'default_rate_bp' => 250, 'manual_lines_eligible' => false, 'roles' => [], 'members' => [], 'lock_version' => App\Models\Commissions\CommissionSettings::current()->lock_version,
     ])->assertRedirect('/settings/sales');
-    expect(App\Models\Commissions\CommissionSettings::current()->default_rate_bp)->toBe(250);
+    expect(CommissionSettings::current()->default_rate_bp)->toBe(250);
 });

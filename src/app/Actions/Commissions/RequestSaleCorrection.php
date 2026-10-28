@@ -55,8 +55,8 @@ final class RequestSaleCorrection
             $sale->setRelation('order', $locked);
             Access::authorize($actor, $data['kind'] === SaleCorrection::OWNER ? Permission::P98 : Permission::P97, $sale);
 
-            $to = $data['kind'] === SaleCorrection::OWNER ? (int) $data['to_user_id'] : $sale->user_id;
-            $rate = $data['kind'] === SaleCorrection::RATE ? (int) $data['rate_bp'] : $sale->rate_bp;
+            $to = $data['kind'] === SaleCorrection::OWNER ? (int) ($data['to_user_id'] ?? 0) : $sale->user_id;
+            $rate = $data['kind'] === SaleCorrection::RATE ? (int) ($data['rate_bp'] ?? 0) : $sale->rate_bp;
             if ($data['kind'] === SaleCorrection::OWNER) {
                 $active = Membership::query()->where('user_id', $to)->where('status', MembershipStatus::Active->value)->exists();
                 if (! $active) {

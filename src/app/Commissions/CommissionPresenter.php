@@ -72,7 +72,7 @@ final class CommissionPresenter
      */
     public function member(User $viewer, User $member): ?array
     {
-        $visible = SaleScope::apply(OrderSale::query(), $viewer)->where('user_id', $member->id)->pluck('id')->map(fn ($id) => (int) $id)->all();
+        $visible = array_values(SaleScope::apply(OrderSale::query(), $viewer)->where('user_id', $member->id)->pluck('id')->map(fn ($id) => (int) $id)->all());
         $probe = new CommissionPayout(['user_id' => $member->id]);
         $seesPayouts = Access::can($viewer, Permission::P94, $probe);
         if ($visible === [] && ! $seesPayouts) {
@@ -241,6 +241,22 @@ final class CommissionPresenter
                     'correct' => $correct && $p->status === PayoutStatus::Paid,
                 ],
             ])->all());
+    }
+
+    /**
+     * The sale page needs one of P-94, P-97 or P-98 over the sale (before a sale exists: over the order).
+     */
+    public static function canViewSale(User $viewer, Order $order): bool
+    {
+        $sale = SaleOwnership::active($order);
+        $sale?->setRelation('order', $order);
+        foreach ([Permission::P94, Permission::P97, Permission::P98] as $permission) {
+            if (Access::can($viewer, $permission, $sale ?? $order)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public static function canPay(User $viewer, User $member): bool

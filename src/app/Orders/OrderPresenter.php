@@ -4,6 +4,8 @@ namespace App\Orders;
 
 use App\Access\Access;
 use App\Access\Permission;
+use App\Commissions\CommissionPresenter;
+use App\Enums\OrderKind;
 use App\Models\Order;
 use App\Models\OrderLine;
 use App\Models\User;
@@ -64,6 +66,7 @@ final class OrderPresenter
             'can' => [
                 'edit' => Access::can($actor, Permission::P17, $order),
                 'transfer_branch' => Access::can($actor, Permission::P19, $order),
+                'sale' => $order->kind === OrderKind::Custom && CommissionPresenter::canViewSale($actor, $order),
             ],
         ];
     }

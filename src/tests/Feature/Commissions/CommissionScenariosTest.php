@@ -5,9 +5,13 @@
  * numbers, and the accrual rules of SAL-10..13, SAL-19 and INT-06.
  */
 
+use App\Access\Exceptions\InvalidTransition;
+use App\Actions\StateMachines\M33Payout\T01ApprovePayout;
 use App\Commissions\CommissionBalances;
+use App\Commissions\LedgerSettlementHolds;
 use App\Commissions\SettlementHolds;
 use App\Enums\PayoutStatus;
+use App\Finance\MoneyLedger;
 use App\Models\Commissions\CommissionEntry;
 use App\Models\Order;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -81,9 +85,9 @@ it('scenario 11: agreement lowered to products 500 / total 600 with 300 to refun
 
     comReverse($second, $this->f->order);
     app()->forgetInstance(SettlementHolds::class);
-    app()->bind(SettlementHolds::class, App\Commissions\LedgerSettlementHolds::class);
+    app()->bind(SettlementHolds::class, LedgerSettlementHolds::class);
 
-    expect(App\Finance\MoneyLedger::collected($this->f->order->id)->minor)->toBe(30_000)
+    expect(MoneyLedger::collected($this->f->order->id)->minor)->toBe(30_000)
         ->and(comAccrued($this->f->order))->toBe(1_250)
         // The earlier accrual is corrected by a difference, never rewritten.
         ->and(CommissionEntry::query()->orderBy('id')->pluck('amount_minor')->all())->toBe([2_500, -1_250])
@@ -105,9 +109,9 @@ it('scenario 12: a payout then a refund keeps the payout and carries a negative 
         ->and(app(CommissionBalances::class)->summary($this->f->sales->id)['available_minor'])->toBe(-5_000);
     // The available balance is checked again before any other payout.
     $draft = comDraft($this->f->finance, $this->f->sales);
-    comRefused(fn () => app(App\Actions\StateMachines\M33Payout\T01ApprovePayout::class)->handle(
+    comRefused(fn () => app(T01ApprovePayout::class)->handle(
         $this->f->finance, $draft, $draft->lock_version, agrKey(),
-    ), App\Access\Exceptions\InvalidTransition::class, 'nothing_available');
+    ), InvalidTransition::class, 'nothing_available');
 });
 
 it('pins the rate at the agreement: later policy, role or member rate changes never reach the sale (SAL-19)', function () {
@@ -202,5 +206,5 @@ it('holds only the order in settlement: a lowered agreement with money above it 
 
 function MoneyLedgerCredit(Order $order): int
 {
-    return App\Finance\MoneyLedger::credit($order->id)->minor;
+    return MoneyLedger::credit($order->id)->minor;
 }

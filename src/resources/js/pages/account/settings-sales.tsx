@@ -2,6 +2,8 @@ import { Form, Head, router } from '@inertiajs/react';
 import { useState } from 'react';
 import SalesSettingsController from '@/actions/App/Http/Controllers/Agreements/SalesSettingsController';
 import { bpToPercent, percentToBp } from '@/components/agreement/money';
+import { CommissionSettingsSection } from '@/components/commissions/settings';
+import type { CommissionSettingsProps } from '@/components/commissions/settings';
 import Heading from '@/components/heading';
 import {
     CheckboxField,
@@ -36,20 +38,24 @@ type Props = {
     roles: Role[];
     canEdit: boolean;
     canEditLimits: boolean;
+    commissions: CommissionSettingsProps;
+    canEditCommissions: boolean;
 };
 
 type LimitKey = 'custom_bp' | 'ready_bp' | 'approval_bp';
 
 /**
- * SettingsSales (P6a part): VAT and price basis, quote validity, contracts (P-02) and discount limits per role (the
- * owner alone; the owner's own role has none). Commission and ready-link settings arrive with P6d/P8. Changes never
- * re-price documents already sent.
+ * SettingsSales: VAT and price basis, quote validity, contracts (P-02), discount limits per role (the owner alone;
+ * the owner's own role has none) and the commission policy (P-95, P6d). Ready-link settings arrive with P8. Changes
+ * never re-price documents already sent nor a pinned sale.
  */
 export default function SettingsSales({
     settings,
     roles,
     canEdit,
     canEditLimits,
+    commissions,
+    canEditCommissions,
 }: Props) {
     const t = useT();
     const [vat, setVat] = useState(bpToPercent(settings.vat_rate_bp));
@@ -301,6 +307,10 @@ export default function SettingsSales({
                     {t('agreements.settings.no_recalc')}
                 </p>
             </section>
+            <CommissionSettingsSection
+                settings={commissions}
+                canEdit={canEditCommissions}
+            />
         </>
     );
 }

@@ -60,7 +60,7 @@ final class PayoutLock
      */
     public static function orders(int $userId): void
     {
-        $ids = OrderSale::query()->where('user_id', $userId)->distinct()->pluck('order_id')->map(fn ($id) => (int) $id)->all();
+        $ids = array_values(OrderSale::query()->where('user_id', $userId)->distinct()->pluck('order_id')->map(fn ($id) => (int) $id)->all());
         if ($ids !== []) {
             FinanceLock::orders($ids, StateMachine::M33, 'T01');
         }

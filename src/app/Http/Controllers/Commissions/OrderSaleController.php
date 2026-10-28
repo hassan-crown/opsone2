@@ -2,12 +2,9 @@
 
 namespace App\Http\Controllers\Commissions;
 
-use App\Access\Access;
-use App\Access\Permission;
 use App\Actions\Commissions\DecideSaleCorrection;
 use App\Actions\Commissions\RequestSaleCorrection;
 use App\Commissions\CommissionPresenter;
-use App\Commissions\SaleOwnership;
 use App\Enums\OrderKind;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Commissions\CommissionDecisionRequest;
@@ -32,7 +29,7 @@ class OrderSaleController extends Controller
     {
         $viewer = $this->actor($request);
         abort_if($order->kind !== OrderKind::Custom, 404);
-        $this->authorizeView($viewer, $order);
+        abort_unless(CommissionPresenter::canViewSale($viewer, $order), 403);
         $payload = $this->presenter->sale($order, $viewer);
         if ($request->expectsJson() && ! $request->header('X-Inertia')) {
             return response()->json(['sale' => $payload]);
@@ -67,22 +64,6 @@ class OrderSaleController extends Controller
         $decide->cancel($this->actor($request), $correction, $request->lockVersion());
 
         return $this->respond($request, $correction->order);
-    }
-
-    /**
-     * The sale page needs one of P-94, P-97 or P-98 over the sale (before a sale exists: over the order).
-     */
-    private function authorizeView(User $viewer, Order $order): void
-    {
-        $sale = SaleOwnership::active($order);
-        $sale?->setRelation('order', $order);
-        $record = $sale ?? $order;
-        foreach ([Permission::P94, Permission::P97, Permission::P98] as $permission) {
-            if (Access::can($viewer, $permission, $record)) {
-                return;
-            }
-        }
-        abort(403);
     }
 
     /**

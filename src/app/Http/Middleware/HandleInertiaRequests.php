@@ -93,6 +93,7 @@ class HandleInertiaRequests extends Middleware
             'tasks' => Access::can($user, Permission::P24) || Access::can($user, Permission::P22),
             'calendar' => Access::can($user, Permission::P54) || Access::can($user, Permission::P24),
             'finance' => Access::can($user, Permission::P37),
+            'commissions' => Access::can($user, Permission::P94),
         ];
     }
 }

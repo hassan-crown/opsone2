@@ -50,7 +50,7 @@ final class UpdateCommissionSettings
     public function handle(User $actor, array $data, ?int $lockVersion, string $source = TransitionRecorder::SOURCE_WEB): CommissionSettings
     {
         Access::authorize($actor, Permission::P95);
-        /** @var array{enabled: bool, default_rate_bp: int, manual_lines_eligible: bool, roles: list<array{role_template_id: int, rate_bp: int|null}>, members: list<array{user_id: int, rate_bp: int|null}>} $data */
+        /** @var array{enabled: bool, default_rate_bp: int, manual_lines_eligible: bool, roles: list<array<string, int|null>>, members: list<array<string, int|null>>} $data */
         $data = Validator::make($data, self::rules())->validate();
 
         return LockingTransaction::run(function () use ($actor, $data, $lockVersion, $source) {
@@ -67,10 +67,11 @@ final class UpdateCommissionSettings
             foreach ([['roles', 'role_template_id'], ['members', 'user_id']] as [$list, $column]) {
                 foreach ($data[$list] as $row) {
                     $rate = $row['rate_bp'] ?? null;
+                    $id = (int) ($row[$column] ?? 0);
                     if ($rate === null) {
-                        CommissionRate::query()->where($column, $row[$column])->delete();
+                        CommissionRate::query()->where($column, $id)->delete();
                     } else {
-                        CommissionRate::query()->updateOrCreate([$column => $row[$column]], ['rate_bp' => (int) $rate]);
+                        CommissionRate::query()->updateOrCreate([$column => $id], ['rate_bp' => (int) $rate]);
                     }
                 }
             }
