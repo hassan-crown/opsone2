@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Flow;
 
+use App\Workflow\AppointmentBooking;
 use Illuminate\Foundation\Http\FormRequest;
 
 /**
@@ -21,7 +22,7 @@ class OrderProgressRequest extends FormRequest
         $method = $this->route()->getActionMethod();
 
         return match ($method) {
-            'pause' => [...$lock, ...$reason, 'follow_up_user_id' => ['required', 'integer'], 'review_on' => ['nullable', 'date', 'after_or_equal:today']],
+            'pause' => [...$lock, ...$reason, 'follow_up_user_id' => ['required', 'integer'], 'review_on' => ['nullable', 'date', 'after_or_equal:'.AppointmentBooking::today()]],
             'resume' => [...$lock, 'note' => ['nullable', 'string', 'max:1000']],
             'allow', 'rework', 'editUpcoming' => [...$lock, ...$reason, ...($method === 'editUpcoming' ? ['stages' => ['required', 'array', 'max:30']] : [])],
             default => $lock,

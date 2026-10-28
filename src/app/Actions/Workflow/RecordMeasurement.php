@@ -14,6 +14,7 @@ use App\Models\OrderMeasurement;
 use App\Models\Task;
 use App\Models\User;
 use App\Support\LockingTransaction;
+use App\Workflow\AppointmentBooking;
 use App\Workflow\Catalogue\CompletionMode;
 use App\Workflow\WorkflowLock;
 use Illuminate\Auth\Access\AuthorizationException;
@@ -39,7 +40,7 @@ final class RecordMeasurement
             'value' => ['required', 'numeric', 'min:0', 'max:999999999.999', 'decimal:0,3'],
             'unit' => ['required', 'in:'.implode(',', OrderMeasurement::UNITS)],
             'kind' => ['required', 'in:'.implode(',', OrderMeasurement::KINDS)],
-            'measured_on' => ['required', 'date', 'before_or_equal:today'],
+            'measured_on' => ['required', 'date', 'before_or_equal:'.AppointmentBooking::today()],
             'note' => ['nullable', 'string', 'max:1000'],
         ];
     }
@@ -53,7 +54,7 @@ final class RecordMeasurement
 
         return LockingTransaction::run(function () use ($actor, $order, $data, $task, $correcting, $source) {
             $order = WorkflowLock::order($order->id);
-            $this->authorize($actor, $order, $task);
+            $viaTask = $this->authorize($actor, $order, $task);
 
             if (isset($data['order_line_id']) && OrderLine::query()->where('order_id', $order->id)->whereKey($data['order_line_id'])->doesntExist()) {
                 throw ValidationException::withMessages(['order_line_id' => __('workflow.validation.line_invalid')]);
@@ -62,6 +63,10 @@ final class RecordMeasurement
             $values = [...$data, 'order_id' => $order->id, 'task_id' => $task?->id, 'recorded_by' => $actor->id];
             if ($correcting !== null) {
                 $measurement = OrderMeasurement::query()->where('order_id', $order->id)->lockForUpdate()->findOrFail($correcting->id);
+                // Through a task only the measurements of that task's action (its earlier or correction tasks).
+                if ($viaTask && $task !== null && Task::query()->where('order_action_id', $task->order_action_id)->whereKey($measurement->task_id)->doesntExist()) {
+                    throw new AuthorizationException(__('access.denied.no_grant'));
+                }
                 $before = $measurement->only(['location', 'name', 'value', 'unit', 'kind', 'measured_on']);
                 $measurement->fill($values)->save();
                 Audit::record(AuditAction::MeasurementCorrected, $order, $actor, before: $before,
@@ -76,10 +81,13 @@ final class RecordMeasurement
         });
     }
 
-    private function authorize(User $actor, Order $order, ?Task $task): void
+    /**
+     * @return bool whether access comes only through the measurement task
+     */
+    private function authorize(User $actor, Order $order, ?Task $task): bool
     {
         if (Access::can($actor, Permission::P14, $order)) {
-            return;
+            return false;
         }
 
         // Through the measurement task assigned to them (matrix P-14: «الطلب أو المهمة المسندة»).
@@ -87,7 +95,7 @@ final class RecordMeasurement
             && $task->action?->type->completion() === CompletionMode::Measurement) {
             $task->setRelation('order', $order);
             if (Access::can($actor, Permission::P14, $task) && in_array($task->status, [TaskStatus::Assigned, TaskStatus::InProgress, TaskStatus::Waiting], true)) {
-                return;
+                return true;
             }
         }
 

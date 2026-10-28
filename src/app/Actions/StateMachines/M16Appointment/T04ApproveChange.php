@@ -58,7 +58,11 @@ final class T04ApproveChange
             $this->booking->refreshMarkers($members, $start, $end);
             $this->booking->notify($appointment, 'appointment.changed', $members);
             if ($conflicts->isNotEmpty()) {
-                $this->booking->notify($appointment, 'appointment.conflict', [...$members, ...$conflicts->flatMap(fn (Appointment $a) => $a->memberIds())->all()]);
+                // Members of a clashing appointment hear about their own booking: another order may be out of their scope.
+                $this->booking->notify($appointment, 'appointment.conflict', $members);
+                foreach ($conflicts as $clash) {
+                    $this->booking->notify($clash, 'appointment.conflict', array_values(array_diff($clash->memberIds(), $members)));
+                }
             }
 
             return $appointment;

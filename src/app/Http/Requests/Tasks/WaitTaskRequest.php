@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Tasks;
 
+use App\Workflow\AppointmentBooking;
 use Illuminate\Foundation\Http\FormRequest;
 
 /**
@@ -17,7 +18,7 @@ class WaitTaskRequest extends FormRequest
         return [
             'lock_version' => ['nullable', 'integer', 'min:1'],
             'need' => ['required', 'string', 'max:1000'],
-            'follow_up_on' => ['required', 'date', 'after_or_equal:today'],
+            'follow_up_on' => ['required', 'date', 'after_or_equal:'.AppointmentBooking::today()],
         ];
     }
 

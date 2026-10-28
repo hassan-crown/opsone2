@@ -66,6 +66,9 @@ final class T00ProposeAppointment
             $order = Order::query()->lockForUpdate()->findOrFail($order->id);
             $appointment = new Appointment(['order_id' => $order->id, 'created_by' => $actor->id]);
             $appointment->setRelation('order', $order);
+            // The probe's owner is the actor, so an `own` P-54 scope alone would pass on any order: the order itself
+            // must be one the actor can open (P-16).
+            Access::authorize($actor, Permission::P16, $order);
             Access::authorize($actor, Permission::P54, $appointment);
             if ($order->state()->isFinal()) {
                 Transition::refuse(StateMachine::M16, 'T00', 'order_closed');

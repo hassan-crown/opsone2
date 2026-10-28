@@ -9,7 +9,9 @@ use App\Audit\AuditAction;
 use App\Enums\ActionStatus;
 use App\Enums\StateMachine;
 use App\Enums\TaskStatus;
+use App\Models\OrderAction;
 use App\Models\OrderMeasurement;
+use App\Models\StateTransition;
 use App\Models\Task;
 use App\Models\User;
 use App\Support\LockingTransaction;
@@ -44,7 +46,7 @@ final class T05CompleteTask
                 if (($inputs['requires_attachment'] ?? false) === true && $task->attachments()->doesntExist()) {
                     throw ValidationException::withMessages(['attachments' => __('workflow.validation.attachment_required')]);
                 }
-                if ($action->type->completion() === CompletionMode::Measurement && ! self::hasMeasurements($task, $inputs['measurement_kind'] ?? 'final')) {
+                if ($action->type->completion() === CompletionMode::Measurement && ! self::hasMeasurements($task, $action, $inputs['measurement_kind'] ?? 'final')) {
                     throw ValidationException::withMessages(['measurements' => __('workflow.validation.measurements_required')]);
                 }
             }
@@ -68,12 +70,19 @@ final class T05CompleteTask
     }
 
     /**
-     * «تقديري» never satisfies «نهائي»; a final measurement satisfies either.
+     * «تقديري» never satisfies «نهائي»; a final measurement satisfies either. After a rework (M-27-T05) the old
+     * measurements are what was sent back, so only one recorded or corrected since the latest rework counts.
      */
-    private static function hasMeasurements(Task $task, string $kind): bool
+    private static function hasMeasurements(Task $task, OrderAction $action, string $kind): bool
     {
+        $reworkedAt = $action->rework_count > 0
+            ? StateTransition::query()->where('machine', StateMachine::M27->value)->where('transition', 'T05')
+                ->where('subject_type', $action->getMorphClass())->where('subject_id', $action->id)->max('occurred_at')
+            : null;
+
         return OrderMeasurement::query()->where('order_id', $task->order_id)
             ->when($kind === 'final', fn ($q) => $q->where('kind', 'final'))
+            ->when($reworkedAt !== null, fn ($q) => $q->where('updated_at', '>=', $reworkedAt))
             ->exists();
     }
 }

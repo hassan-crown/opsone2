@@ -18,8 +18,8 @@ use App\Http\Requests\Calendar\AppointmentActionRequest;
 use App\Http\Requests\Calendar\ChangeAppointmentRequest;
 use App\Http\Requests\Calendar\StoreAppointmentRequest;
 use App\Models\Appointment;
-use App\Models\Order;
 use App\Models\WorkSettings;
+use App\Orders\OrderAccess;
 use App\Support\LockingTransaction;
 use App\Workflow\AppointmentBooking;
 use App\Workflow\AppointmentConflict;
@@ -41,7 +41,8 @@ class AppointmentController extends Controller
     public function store(StoreAppointmentRequest $request, T00ProposeAppointment $propose, T01SendToCustomer $send, T02ConfirmAppointment $confirm): RedirectResponse
     {
         $data = $request->validated();
-        $order = Order::query()->findOrFail((int) $data['order_id']);
+        abort_unless(Access::can($request->user(), Permission::P54), 403);
+        $order = OrderAccess::visible($request->user())->findOrFail((int) $data['order_id']);
 
         // One transaction: a refused confirmation (policy «block», missing reason) leaves no stray proposal behind.
         $appointment = $this->refusable(fn () => LockingTransaction::run(function () use ($data, $order, $request, $propose, $send, $confirm) {

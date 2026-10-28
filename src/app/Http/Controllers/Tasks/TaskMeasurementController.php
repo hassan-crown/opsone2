@@ -11,6 +11,7 @@ use App\Models\OrderMeasurement;
 use App\Models\Task;
 use App\Models\User;
 use App\Tasks\TaskPresenter;
+use App\Workflow\AppointmentBooking;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -33,7 +34,7 @@ class TaskMeasurementController extends Controller
             'measurements' => TaskPresenter::measurements($task->order),
             'kind' => $task->action->inputs['measurement_kind'] ?? 'final',
             'units' => OrderMeasurement::UNITS,
-            'today' => now()->toDateString(),
+            'today' => AppointmentBooking::today(),
         ]);
     }
 

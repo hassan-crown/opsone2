@@ -18,6 +18,7 @@ use App\Workflow\AppointmentQueries;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -116,10 +117,17 @@ class CalendarController extends Controller
             'exclude' => ['nullable', 'integer'],
         ]);
 
+        $from = CalendarPresenter::parseLocal($data['starts_at']);
+        $to = CalendarPresenter::parseLocal($data['ends_at']);
+        // Same bound as a booking (T00/T03): a wider window is no preview and would load the whole schedule.
+        if ($to->diffInHours($from, true) > 72) {
+            throw ValidationException::withMessages(['ends_at' => __('workflow.validation.duration_too_long')]);
+        }
+
         $clashes = $booking->conflicts(
             array_values(array_map(intval(...), $data['member_ids'])),
-            CalendarPresenter::parseLocal($data['starts_at']),
-            CalendarPresenter::parseLocal($data['ends_at']),
+            $from,
+            $to,
             isset($data['exclude']) ? (int) $data['exclude'] : null,
         );
 

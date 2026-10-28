@@ -157,4 +157,13 @@ final class AppointmentBooking
     {
         return Facility::current()?->timezone ?: (string) config('app.timezone');
     }
+
+    /**
+     * Today in the facility's time zone (`Y-m-d`): the bound for date fields, which the app's UTC «today» misses
+     * around midnight.
+     */
+    public static function today(): string
+    {
+        return now(self::timezone())->toDateString();
+    }
 }

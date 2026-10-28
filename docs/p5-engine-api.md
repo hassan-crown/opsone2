@@ -97,7 +97,7 @@ units; percent 1–100; remaining: null), `required_document {document_type, rev
 | Call | Permission | Notes |
 |---|---|---|
 | `AppointmentQueries::between($user, $from, $to, ?array $memberIds)` | P-54 or booked member (P-24) per row | UTC times; show in `AppointmentBooking::timezone()`. |
-| `T00ProposeAppointment::handle($user, $order, array $data)` | P-54 on the order's appointment | `data: kind (measurement\|installation\|delivery\|visit), starts_at, ends_at? (default one slot), address, latitude?, longitude?, member_ids[1..10], task_id?` → `{appointment, conflicts: [ids]}` (warning only). |
+| `T00ProposeAppointment::handle($user, $order, array $data)` | P-16 on the order **and** P-54 on the order's appointment (an `own` P-54 alone would pass on any order) | `data: kind (measurement\|installation\|delivery\|visit), starts_at, ends_at? (default one slot), address, latitude?, longitude?, member_ids[1..10], task_id?` → `{appointment, conflicts: [ids]}` (warning only). |
 | `T01SendToCustomer::handle($user, $appointment, ?int $lockVersion)` | P-54 | |
 | `T02ConfirmAppointment::handle($user, $appointment, string $method, ?string $conflictReason, ?int $lockVersion)` | P-54 | `method`: `phone\|in_person\|message\|other`. Atomic conflict check (`AppointmentConflict`). |
 | `T03RequestChange::handle($user, $appointment, $startsAt, $endsAt, string $reason, ?int $lockVersion)` / `->discard(...)` | P-54 | Original kept; `{appointment, conflicts}`. |
@@ -110,13 +110,13 @@ units; percent 1–100; remaining: null), `required_document {document_type, rev
 
 | Call | Permission | Notes |
 |---|---|---|
-| `RecordMeasurement::handle($user, $order, array $data, ?Task $task, ?OrderMeasurement $correcting)` | P-14 on the order, or through the assigned open measurement task | `data: order_line_id?, location, name, value (≤3 decimals), unit (mm\|cm\|m\|in\|m2\|pcs), kind (estimated\|final), measured_on (≤ today), note?`; rules in `RecordMeasurement::rules()`. |
+| `RecordMeasurement::handle($user, $order, array $data, ?Task $task, ?OrderMeasurement $correcting)` | P-14 on the order, or through the assigned open measurement task (which may correct only measurements of its own action's tasks) | `data: order_line_id?, location, name, value (≤3 decimals), unit (mm\|cm\|m\|in\|m2\|pcs), kind (estimated\|final), measured_on (≤ today), note?`; rules in `RecordMeasurement::rules()`. |
 | `WorkSettings::current()` | — | Defaults until saved. |
 | `UpdateWorkSettings::handle($user, array $data)` | P-02 | `working_days[1..7], work_starts_at, work_ends_at, appointment_slot_minutes (15..240 set), reminder_from, reminder_until, conflicting_appointments (allow_with_reason\|block)`; rules in `UpdateWorkSettings::rules()`. |
 
 ## For P6/P7 (result owners)
 
 `app(ActionResults::class)->verifyFromSource($order, ActionType $type, ?string $purpose, string $sourceType, int|string $sourceId, ?User $actor)`
-— call inside or after your own transaction once the fact is final (approved document, confirmed collection, accepted
+— call inside or after your own transaction once the fact is final (a source taken back by a rework is ignored if replayed) (approved document, confirmed collection, accepted
 receipt, recorded full delivery). `$purpose` is the action's `reference` / `subject` / `document`. Idempotent; returns
 the matched `OrderAction` or `null` when the order's flow has no such action.

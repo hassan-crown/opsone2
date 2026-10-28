@@ -3,8 +3,10 @@
 namespace App\Workflow;
 
 use App\Enums\ActionStatus;
+use App\Enums\StateMachine;
 use App\Models\Order;
 use App\Models\OrderAction;
+use App\Models\StateTransition;
 use App\Models\User;
 use App\Support\LockingTransaction;
 use App\Workflow\Catalogue\ActionType;
@@ -46,6 +48,11 @@ final class ActionResults
                 return $action;
             }
 
+            // A result taken back by a rework (M-27-T05) is the old content: a replay of it never verifies again.
+            if (self::reworkedAway($action, $source)) {
+                return $action;
+            }
+
             match ($action->status) {
                 ActionStatus::Ready, ActionStatus::AwaitingResult => $this->engine->verify($order, $action, $actor, $source),
                 // Recorded early or under an allowance: keep the truth; it applies when the action opens (T01→T03).
@@ -57,6 +64,21 @@ final class ActionResults
 
             return $action->refresh();
         });
+    }
+
+    /**
+     * @param  array{type: string, id: int|string}  $source
+     */
+    private static function reworkedAway(OrderAction $action, array $source): bool
+    {
+        return StateTransition::query()->where('machine', StateMachine::M27->value)->where('transition', 'T05')
+            ->where('subject_type', $action->getMorphClass())->where('subject_id', $action->id)->get()
+            ->contains(function (StateTransition $t) use ($source) {
+                $previous = $t->context['previous_source'] ?? null;
+
+                return is_array($previous) && ($previous['type'] ?? null) === $source['type']
+                    && (string) ($previous['id'] ?? '') === (string) $source['id'];
+            });
     }
 
     /**
