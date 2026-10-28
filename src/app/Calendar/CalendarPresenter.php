@@ -10,6 +10,7 @@ use App\Organization\OrgPresenter;
 use App\Workflow\AppointmentBooking;
 use Carbon\CarbonImmutable;
 use Carbon\CarbonInterface;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Support\Collection;
 
 /**
@@ -81,7 +82,7 @@ final class CalendarPresenter
      */
     public static function clashes(User $viewer, Collection $clashes): array
     {
-        $clashes->each(fn (Appointment $a) => $a->loadMissing(['order.branch', 'order.customer', 'members']));
+        (new EloquentCollection($clashes->all()))->loadMissing(['order.branch', 'order.customer', 'members']);
         $visible = $clashes->filter(fn (Appointment $a) => self::canSee($viewer, $a))->values();
 
         return [

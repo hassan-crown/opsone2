@@ -83,7 +83,8 @@ final class TaskViews
      */
     public static function execHome(User $user): array
     {
-        $mine = self::sorted(TaskQueries::mine($user))->filter(fn (Task $t) => $t->status !== TaskStatus::Waiting);
+        $all = self::sorted(TaskQueries::mine($user));
+        $mine = $all->filter(fn (Task $t) => $t->status !== TaskStatus::Waiting);
         $endOfToday = now(AppointmentBooking::timezone())->endOfDay();
         $visits = Appointment::query()->whereIn('task_id', $mine->pluck('id'))->whereNotIn('status', ['cancelled', 'done'])
             ->orderBy('starts_at')->get()->groupBy('task_id');
@@ -104,7 +105,7 @@ final class TaskViews
             'today' => array_values($today->map($shape)->all()),
             'upcoming' => array_values($mine->reject(fn (Task $t) => $today->contains('id', $t->id))->take(10)->map($shape)->all()),
             'inbox' => TaskQueries::inbox($user)->count(),
-            'waiting' => TaskQueries::mine($user)->filter(fn (Task $t) => $t->status === TaskStatus::Waiting)->count(),
+            'waiting' => $all->count() - $mine->count(),
         ];
     }
 
@@ -118,16 +119,17 @@ final class TaskViews
         $cards = [];
         $mine = self::sorted(TaskQueries::mine($user));
         $open = $mine->filter(fn (Task $t) => $t->status !== TaskStatus::Waiting);
+        $inbox = TaskQueries::inbox($user);
         $cards['my_tasks'] = [
             'count' => $mine->count(),
             'overdue' => $mine->filter(fn (Task $t) => $t->due_at !== null && $t->due_at->isPast())->count(),
             'waiting' => $mine->count() - $open->count(),
-            'inbox' => TaskQueries::inbox($user)->count(),
+            'inbox' => $inbox->count(),
             'items' => $open->take(3)->map(fn (Task $t) => TaskPresenter::row($t, $user))->values()->all(),
         ];
 
         if (Access::can($user, Permission::P22)) {
-            $unassigned = self::pick(['mine' => collect(), 'inbox' => TaskQueries::inbox($user), 'followed' => TaskQueries::followed($user), 'completed' => collect()], 'all');
+            $unassigned = self::pick(['mine' => collect(), 'inbox' => $inbox, 'followed' => TaskQueries::followed($user), 'completed' => collect()], 'all');
             $cards['department_inbox'] = [
                 'count' => $unassigned->count(),
                 'items' => $unassigned->take(3)->map(fn (Task $t) => TaskPresenter::row($t, $user))->values()->all(),

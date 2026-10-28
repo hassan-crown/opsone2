@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Finance;
 
+use App\Support\PropRows;
 use App\Access\Access;
 use App\Access\Permission;
 use App\Finance\CollectionReminders;
@@ -30,7 +31,7 @@ class FinanceHomeController extends Controller
             return response()->json($list);
         }
 
-        return Inertia::render('finance/index', [...$list, 'can_report' => Access::can($actor, Permission::P60), 'can_invoices' => Access::can($actor, Permission::P44)]);
+        return Inertia::render('finance/index', [...$list, 'items' => PropRows::of($list['items']), 'can_report' => Access::can($actor, Permission::P60), 'can_invoices' => Access::can($actor, Permission::P44)]);
     }
 
     public function previewReminders(ReminderRequest $request, CollectionReminders $reminders): JsonResponse

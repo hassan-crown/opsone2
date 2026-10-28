@@ -9,6 +9,7 @@ use App\Enums\MembershipStatus;
 use App\Enums\TaskStatus;
 use App\Models\Appointment;
 use App\Models\Facility;
+use App\Support\RequestCache;
 use App\Models\Membership;
 use App\Models\Order;
 use App\Models\Task;
@@ -155,7 +156,8 @@ final class AppointmentBooking
 
     public static function timezone(): string
     {
-        return Facility::current()?->timezone ?: (string) config('app.timezone');
+        // Asked per row by calendars and due lists: read once per request (flushed when the facility is saved).
+        return app(RequestCache::class)->remember('facility.timezone', fn () => Facility::current()?->timezone ?: (string) config('app.timezone'));
     }
 
     /**

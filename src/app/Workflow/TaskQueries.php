@@ -7,6 +7,7 @@ use App\Access\Permission;
 use App\Enums\MembershipStatus;
 use App\Enums\TaskStatus;
 use App\Models\Membership;
+use App\Models\Order;
 use App\Models\Task;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
@@ -19,6 +20,11 @@ use Illuminate\Support\Collection;
 final class TaskQueries
 {
     public const LIMIT = 200;
+
+    /**
+     * What a list row (TaskPresenter::row) and the Gate read, loaded once per set instead of once per row.
+     */
+    public const ROW_RELATIONS = ['order.customer', 'action', 'stage', 'department', 'assignee'];
 
     /**
      * @return Collection<int, Task>
@@ -60,9 +66,10 @@ final class TaskQueries
      */
     public static function completed(User $user): Collection
     {
-        return Task::query()->with(['order', 'action'])->where('status', TaskStatus::Completed->value)
+        return Task::query()->with(self::ROW_RELATIONS)->where('status', TaskStatus::Completed->value)
             ->where('completed_by', $user->id)->where('completed_at', '>=', now()->subDays(30))
             ->orderByDesc('completed_at')->limit(self::LIMIT)->get()
+            ->tap(fn ($tasks) => Order::primeAccessDepartments($tasks->pluck('order')))
             ->filter(fn (Task $t) => Access::can($user, Permission::P24, $t))->values();
     }
 
@@ -97,8 +104,9 @@ final class TaskQueries
      */
     private static function visible(User $user, $query): Collection
     {
-        return $query->with(['order', 'action'])->whereIn('status', TaskStatus::open())->orderBy('due_at')->orderBy('id')
+        return $query->with(self::ROW_RELATIONS)->whereIn('status', TaskStatus::open())->orderBy('due_at')->orderBy('id')
             ->limit(self::LIMIT)->get()
+            ->tap(fn ($tasks) => Order::primeAccessDepartments($tasks->pluck('order')))
             ->filter(fn (Task $t) => Access::can($user, Permission::P24, $t))
             ->values();
     }

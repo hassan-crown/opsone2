@@ -7,7 +7,6 @@ use App\Access\Permission;
 use App\Enums\TaskStatus;
 use App\Files\AttachmentService;
 use App\Models\Appointment;
-use App\Models\Department;
 use App\Models\Order;
 use App\Models\OrderLine;
 use App\Models\OrderMeasurement;
@@ -16,6 +15,7 @@ use App\Models\User;
 use App\Organization\OrgPresenter;
 use App\Workflow\Catalogue\CompletionMode;
 use App\Workflow\TaskEligibility;
+use App\Workflow\TaskQueries;
 
 /**
  * Shapes tasks for the P5 task screens. The executor sees the task's own fields only (WF-08): no order money and no
@@ -29,9 +29,15 @@ final class TaskPresenter
      */
     public static function row(Task $task, User $actor): array
     {
-        $task->loadMissing(['order.customer', 'stage', 'action']);
-        $department = $task->department_id === null ? null : Department::query()->find($task->department_id);
-        $assignee = $task->assignee_id === null ? null : User::query()->find($task->assignee_id);
+        // A relation loaded before an assignment changed its key would show the old holder.
+        foreach (['department' => $task->department_id, 'assignee' => $task->assignee_id] as $relation => $key) {
+            if ($task->relationLoaded($relation) && $task->getRelation($relation)?->getKey() !== $key) {
+                $task->unsetRelation($relation);
+            }
+        }
+        $task->loadMissing(TaskQueries::ROW_RELATIONS);
+        $department = $task->department;
+        $assignee = $task->assignee;
 
         return [
             'id' => $task->id,

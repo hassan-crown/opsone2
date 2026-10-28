@@ -26,7 +26,8 @@ class PerfProbeCommand extends Command
     protected $signature = 'perf:probe
         {--runs=15 : Measured runs per page (after two warm-up runs)}
         {--only= : Comma-separated page keys}
-        {--json= : Also write the results to this file}';
+        {--json= : Also write the results to this file}
+        {--top=0 : Print the N most repeated statements of each page (finds N+1)}';
 
     protected $description = 'Measure the hot paths in-process: p50/p95 server time, queries, payload (local/testing only)';
 
@@ -85,9 +86,11 @@ class PerfProbeCommand extends Command
 
         $queries = 0;
         $queryMs = 0.0;
-        DB::listen(function (QueryExecuted $query) use (&$queries, &$queryMs) {
+        $statements = [];
+        DB::listen(function (QueryExecuted $query) use (&$queries, &$queryMs, &$statements) {
             $queries++;
             $queryMs += $query->time;
+            $statements[$query->sql] = ($statements[$query->sql] ?? 0) + 1;
         });
 
         $runs = max(1, (int) $this->option('runs'));
@@ -99,10 +102,17 @@ class PerfProbeCommand extends Command
             $sqlMs = 0.0;
             $bytes = 0;
             $status = 0;
+            $once = [];
+            $firstKb = 0.0;
             for ($i = 0; $i < $runs + 2; $i++) {
                 $queries = 0;
                 $queryMs = 0.0;
+                $statements = [];
                 $request = $this->request($uri, $actor, $page[2] ?? null);
+                if ($once !== []) {
+                    // Later visits: the client already holds the once-props (translations) from the first one.
+                    $request->headers->set('X-Inertia-Except-Once-Props', implode(',', $once));
+                }
                 $start = hrtime(true);
                 $response = $kernel->handle($request);
                 $elapsed = (hrtime(true) - $start) / 1e6;
@@ -114,8 +124,20 @@ class PerfProbeCommand extends Command
                 }
                 $status = $response->getStatusCode();
                 $bytes = strlen((string) $response->getContent());
+                if ($once === [] && $status === 200) {
+                    $firstKb = round($bytes / 1024, 1);
+                    $page0 = json_decode((string) $response->getContent(), true);
+                    $once = is_array($page0) ? array_keys((array) ($page0['onceProps'] ?? [])) : [];
+                }
             }
             sort($times);
+            if ((int) $this->option('top') > 0) {
+                arsort($statements);
+                $this->line("<info>{$key}</info>");
+                foreach (array_slice($statements, 0, (int) $this->option('top'), true) as $sql => $n) {
+                    $this->line(sprintf('%5d × %s', $n, mb_substr($sql, 0, 220)));
+                }
+            }
             $results[$key] = [
                 'uri' => $uri,
                 'status' => $status,
@@ -124,11 +146,12 @@ class PerfProbeCommand extends Command
                 'queries' => $count,
                 'sql_ms' => round($sqlMs / $runs, 1),
                 'kb' => round($bytes / 1024, 1),
+                'first_kb' => $firstKb,
             ];
         }
 
-        $this->table(['page', 'status', 'p50 ms', 'p95 ms', 'queries', 'sql ms', 'KB'], array_map(
-            fn (string $key, array $r) => [$key, $r['status'], $r['p50_ms'], $r['p95_ms'], $r['queries'], $r['sql_ms'], $r['kb']],
+        $this->table(['page', 'status', 'p50 ms', 'p95 ms', 'queries', 'sql ms', 'KB', 'first KB'], array_map(
+            fn (string $key, array $r) => [$key, $r['status'], $r['p50_ms'], $r['p95_ms'], $r['queries'], $r['sql_ms'], $r['kb'], $r['first_kb']],
             array_keys($results), $results,
         ));
         if (is_string($this->option('json')) && $this->option('json') !== '') {

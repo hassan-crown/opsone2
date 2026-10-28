@@ -2,10 +2,10 @@
 
 namespace App\Finance;
 
-use App\Agreements\OrderAgreement;
 use App\Enums\DeliveryStatus;
 use App\Enums\DueEvent;
 use App\Enums\DueStatus;
+use App\Models\Agreements\Agreement;
 use App\Models\Delivery\DeliveryNote;
 use App\Models\Finance\OrderDue;
 use App\Models\Order;
@@ -28,19 +28,35 @@ final class DueCalendar
      */
     public static function dates(Order $order, Collection $dues): array
     {
+        return self::datesFor(collect([$order->id => $order]), collect([$order->id => $dues]));
+    }
+
+    /**
+     * The same dates for many orders with one query per kind of event, not per order (lists, ADR-0027).
+     *
+     * @param  Collection<int, Order>  $orders  keyed by id
+     * @param  Collection<int, Collection<int, OrderDue>>  $dues  keyed by order id
+     * @return array<int, string|null> due id → `Y-m-d`
+     */
+    public static function datesFor(Collection $orders, Collection $dues): array
+    {
         $timezone = AppointmentBooking::timezone();
-        $agreedAt = OrderAgreement::history($order)->first()?->approved_at;
-        $stageStarts = null;
-        $firstDelivery = null;
+        $needs = static fn (DueEvent $event): array => $dues->filter(fn (Collection $d) => $d->contains(fn (OrderDue $due) => $due->due_event === $event))->keys()->all();
+
+        $agreed = self::firstAgreementDates($needs(DueEvent::Agreement), $timezone);
+        $delivered = self::firstDeliveryDates($needs(DueEvent::Delivery));
+        $stages = self::paymentStageStarts($needs(DueEvent::PaymentStage), $timezone);
 
         $dates = [];
-        foreach ($dues as $due) {
-            $dates[$due->id] = match ($due->due_event) {
-                DueEvent::Date => $due->due_date?->toDateString(),
-                DueEvent::Agreement => $agreedAt === null ? null : CarbonImmutable::parse($agreedAt)->setTimezone($timezone)->toDateString(),
-                DueEvent::Delivery => $firstDelivery ??= self::firstDeliveryDate($order),
-                DueEvent::PaymentStage => ($stageStarts ??= self::paymentStageStarts($order))[$due->reference] ?? null,
-            };
+        foreach ($dues as $orderId => $orderDues) {
+            foreach ($orderDues as $due) {
+                $dates[$due->id] = match ($due->due_event) {
+                    DueEvent::Date => $due->due_date?->toDateString(),
+                    DueEvent::Agreement => $agreed[$orderId] ?? null,
+                    DueEvent::Delivery => $delivered[$orderId] ?? null,
+                    DueEvent::PaymentStage => $stages[$orderId][$due->reference] ?? null,
+                };
+            }
         }
 
         return $dates;
@@ -63,30 +79,64 @@ final class DueCalendar
     }
 
     /**
-     * The date of the order's first confirmed delivery note (P7, ADR-0018): later deliveries never move it, so an
-     * «at delivery» due falls due once.
+     * The first agreement's approval day per order (OrderAgreement::history()->first(): the lowest version).
+     *
+     * @param  list<int>  $orderIds
+     * @return array<int, string>
      */
-    private static function firstDeliveryDate(Order $order): ?string
+    private static function firstAgreementDates(array $orderIds, string $timezone): array
     {
-        $note = DeliveryNote::query()->where('order_id', $order->id)->where('status', DeliveryStatus::Confirmed->value)
-            ->orderBy('delivered_on')->orderBy('id')->first();
+        if ($orderIds === []) {
+            return [];
+        }
+        $dates = [];
+        foreach (Agreement::query()->whereIn('order_id', $orderIds)->orderBy('version')->get(['order_id', 'approved_at']) as $agreement) {
+            $dates[$agreement->order_id] ??= CarbonImmutable::parse($agreement->approved_at)->setTimezone($timezone)->toDateString();
+        }
 
-        return $note?->delivered_on?->toDateString();
+        return $dates;
     }
 
     /**
-     * @return array<string, string> payment check reference → the date its stage started
+     * The date of each order's first confirmed delivery note (P7, ADR-0018): later deliveries never move it, so an
+     * «at delivery» due falls due once.
+     *
+     * @param  list<int>  $orderIds
+     * @return array<int, string>
      */
-    private static function paymentStageStarts(Order $order): array
+    private static function firstDeliveryDates(array $orderIds): array
     {
-        $timezone = AppointmentBooking::timezone();
+        if ($orderIds === []) {
+            return [];
+        }
+        $dates = [];
+        $notes = DeliveryNote::query()->whereIn('order_id', $orderIds)->where('status', DeliveryStatus::Confirmed->value)
+            ->orderBy('delivered_on')->orderBy('id')->get(['id', 'order_id', 'delivered_on']);
+        foreach ($notes as $note) {
+            if ($note->delivered_on !== null) {
+                $dates[$note->order_id] ??= $note->delivered_on->toDateString();
+            }
+        }
+
+        return $dates;
+    }
+
+    /**
+     * @param  list<int>  $orderIds
+     * @return array<int, array<string, string>> order id → payment check reference → the date its stage started
+     */
+    private static function paymentStageStarts(array $orderIds, string $timezone): array
+    {
+        if ($orderIds === []) {
+            return [];
+        }
         $starts = [];
-        $actions = OrderAction::query()->with('stage')->where('order_id', $order->id)->where('type', ActionType::PaymentCheck->value)->get();
+        $actions = OrderAction::query()->with('stage')->whereIn('order_id', $orderIds)->where('type', ActionType::PaymentCheck->value)->get();
         foreach ($actions as $action) {
             $reference = (string) ($action->inputs['reference'] ?? '');
             $started = $action->stage->started_at;
             if ($reference !== '' && $started !== null) {
-                $starts[$reference] = CarbonImmutable::parse($started)->setTimezone($timezone)->toDateString();
+                $starts[$action->order_id][$reference] = CarbonImmutable::parse($started)->setTimezone($timezone)->toDateString();
             }
         }
 

@@ -3,6 +3,7 @@
 namespace App\Access;
 
 use App\Models\User;
+use App\Support\RequestCache;
 use Illuminate\Contracts\Session\Session;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -22,6 +23,7 @@ final class SessionRevoker
             'access_version' => DB::raw('access_version + 1'),
             'remember_token' => Str::random(60),
         ]);
+        $this->forgetVersions();
 
         if (config('session.driver') === 'database') {
             DB::connection(config('session.connection'))
@@ -41,6 +43,7 @@ final class SessionRevoker
             'access_version' => DB::raw('access_version + 1'),
             'remember_token' => Str::random(60),
         ]);
+        $this->forgetVersions();
         $current->put('access_version', (int) User::query()->whereKey($user->id)->value('access_version'));
 
         if (config('session.driver') !== 'database') {
@@ -52,5 +55,18 @@ final class SessionRevoker
             ->where('user_id', $user->id)
             ->where('id', '!=', $current->getId())
             ->delete();
+    }
+
+    /**
+     * The Gate caches access versions for a moment (ADR-0027); a revocation in this process is seen at the next check.
+     */
+    private function forgetVersions(): void
+    {
+        if (app()->resolved(Authorizer::class)) {
+            app(Authorizer::class)->flush();
+        }
+        if (app()->resolved(RequestCache::class)) {
+            app(RequestCache::class)->flush();
+        }
     }
 }

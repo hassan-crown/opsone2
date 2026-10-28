@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Tasks;
 
+use App\Support\PropRows;
 use App\Access\Access;
 use App\Access\Permission;
 use App\Enums\OrganizationUnitStatus;
@@ -65,7 +66,7 @@ class TaskController extends Controller
             return response()->json($payload);
         }
 
-        return Inertia::render('tasks/index', $payload + [
+        return Inertia::render('tasks/index', ['tasks' => PropRows::of($rows)] + $payload + [
             'view' => $view,
             'filters' => ['q' => $filters['q'] ?? '', 'status' => $filters['status'] ?? '', 'overdue' => (bool) ($filters['overdue'] ?? false)],
         ]);

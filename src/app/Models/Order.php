@@ -55,6 +55,36 @@ class Order extends Model implements LicensedRecord, ScopedRecord, StatefulRecor
     /** Identity of the order, fixed once written: its number, kind (COM-10: no kind change), customer and creator. */
     private const IMMUTABLE = ['number', 'kind', 'customer_id', 'created_by'];
 
+    /** The active stage's department read for a whole list at once (primeAccessDepartments); false = not primed. */
+    private int|false|null $primedDepartment = false;
+
+    /**
+     * Reads accessDepartmentId() for many orders in one query (a list asks the Gate about every row). For lists only:
+     * the primed value is what the stage was when the list was read.
+     *
+     * @param  iterable<Order>  $orders
+     */
+    public static function primeAccessDepartments(iterable $orders): void
+    {
+        $custom = [];
+        foreach ($orders as $order) {
+            if ($order->exists && $order->kind === OrderKind::Custom && $order->primedDepartment === false) {
+                $custom[$order->id] = $order;
+            }
+        }
+        if ($custom === []) {
+            return;
+        }
+
+        $departments = OrderWorkflow::query()->whereIn('order_workflows.order_id', array_keys($custom))
+            ->join('order_stages', 'order_stages.id', '=', 'order_workflows.active_stage_id')
+            ->pluck('order_stages.follow_up_department_id', 'order_workflows.order_id');
+        foreach ($custom as $id => $order) {
+            $department = $departments[$id] ?? null;
+            $order->primedDepartment = $department === null ? null : (int) $department;
+        }
+    }
+
     protected static function booted(): void
     {
         static::updating(function (self $order) {
@@ -178,6 +208,9 @@ class Order extends Model implements LicensedRecord, ScopedRecord, StatefulRecor
     {
         if (! $this->exists || $this->kind !== OrderKind::Custom) {
             return null;
+        }
+        if ($this->primedDepartment !== false) {
+            return $this->primedDepartment;
         }
 
         $department = OrderStage::query()
