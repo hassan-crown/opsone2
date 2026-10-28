@@ -32,7 +32,9 @@ type Impact = {
     reserved_stock: {
         available: boolean;
         applicable?: boolean;
-        reserved_lines?: number | null;
+        /** P7a: open reservations; they stay at their locations. */
+        reserved_lines?: { number: string }[] | null;
+        outside_target?: number;
     };
 };
 
@@ -234,9 +236,28 @@ export function BranchTransferDialog({
                                             ? t('orders.transfer.stock', {
                                                   n:
                                                       impact.reserved_stock
-                                                          .reserved_lines ?? 0,
+                                                          .reserved_lines
+                                                          ?.length ?? 0,
                                               })
                                             : t('orders.transfer.stock_later')}
+                                        {(impact.reserved_stock
+                                            .outside_target ?? 0) > 0 && (
+                                            <span
+                                                className="block text-caption text-warning-text"
+                                                data-test="stock-outside-target"
+                                            >
+                                                {t(
+                                                    'stock.transfer_impact.outside',
+                                                    {
+                                                        n:
+                                                            impact
+                                                                .reserved_stock
+                                                                .outside_target ??
+                                                            0,
+                                                    },
+                                                )}
+                                            </span>
+                                        )}
                                     </li>
                                 )}
                                 <li>{t('orders.transfer.unchanged')}</li>

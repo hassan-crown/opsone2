@@ -29,6 +29,7 @@ require __DIR__.'/agreements.php';
 require __DIR__.'/finance.php';
 require __DIR__.'/commissions.php';
 require __DIR__.'/finance-refunds.php';
+require __DIR__.'/inventory.php';
 
 if (app()->isLocal()) {
     Route::inertia('_design', 'design')->name('design');

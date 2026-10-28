@@ -8,6 +8,7 @@ use App\Providers\CommissionsServiceProvider;
 use App\Providers\FinanceServiceProvider;
 use App\Providers\FortifyServiceProvider;
 use App\Providers\HelpServiceProvider;
+use App\Providers\InventoryServiceProvider;
 use App\Providers\NotificationsServiceProvider;
 use App\Providers\SettlementServiceProvider;
 use App\Providers\WorkflowServiceProvider;
@@ -24,4 +25,5 @@ return [
     FinanceServiceProvider::class,
     CommissionsServiceProvider::class,
     SettlementServiceProvider::class,
+    InventoryServiceProvider::class,
 ];

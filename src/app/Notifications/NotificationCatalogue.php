@@ -29,6 +29,14 @@ final class NotificationCatalogue
             'body' => 'notifications.type.support_access_requested.body',
             'route' => 'support-access.index',
         ],
+        // P7a: reorder level crossed (alert only); opening re-checks P-48.
+        'stock.low' => [
+            'mandatory' => false,
+            'permission' => Permission::P48,
+            'title' => 'stock.notify.low.title',
+            'body' => 'stock.notify.low.body',
+            'route' => 'stock.index',
+        ],
         'work.assigned' => [
             'mandatory' => false,
             'permission' => null,

@@ -4,6 +4,7 @@ namespace App\Orders;
 
 use App\Customers\CustomerAccess;
 use App\Enums\MembershipStatus;
+use App\Inventory\OrderStock;
 use App\Models\Branch;
 use App\Models\Customer;
 use App\Models\Interest;
@@ -14,8 +15,8 @@ use App\Organization\OrgPresenter;
 
 /**
  * Impact review of a branch transfer (COM-12, Q-29 option a): what the move touches, computed from server facts
- * and shown before the single atomic apply. Appointments (P5) and reserved stock (P7) do not exist yet; they are
- * reported as `available: false` so the screen can show the section and later phases fill it in.
+ * and shown before the single atomic apply. Appointments (P5) are still reported as `available: false`; reserved
+ * stock comes from the inventory domain (P7a): reservations stay at their locations and do not move with the order.
  */
 final class BranchTransferImpact
 {
@@ -32,9 +33,7 @@ final class BranchTransferImpact
             'assignee' => self::assignee($order->assignee, fn (User $u) => OrderAccess::isValidAssignee($u->id, $moved)),
             'open_lines' => $order->activeLines()->count(),
             'appointments' => ['available' => false, 'upcoming' => null],
-            'reserved_stock' => $order->isReady()
-                ? ['available' => false, 'reserved_lines' => null]
-                : ['available' => false, 'applicable' => false],
+            'reserved_stock' => OrderStock::transferImpact($order, $target->id),
         ];
     }
 

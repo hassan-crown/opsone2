@@ -181,6 +181,19 @@ enum AuditAction: string
     case ExternalDocumentAttached = 'external_document.attached';
     case ExternalDocumentAccepted = 'external_document.accepted';
     case ExternalDocumentCorrectionRequested = 'external_document.correction_requested';
+    // P7a inventory (ADR-0017).
+    case StockLocationSaved = 'stock.location_saved';
+    case StockItemUpdated = 'stock.item_updated';
+    case InventorySettingsUpdated = 'stock.settings_updated';
+    case StockAdjusted = 'stock.adjusted';
+    case StockReserved = 'stock.reserved';
+    case StockReleased = 'stock.released';
+    case StockIssued = 'stock.issued';
+    case StockTransferCreated = 'stock.transfer_created';
+    case StockTransferMoved = 'stock.transfer_moved';
+    case StockCountRecorded = 'stock.count_recorded';
+    case ReadyOrderConfirmed = 'order.ready_confirmed';
+    case ReadyOrderCancelled = 'order.ready_cancelled';
 
     public function area(): string
     {
@@ -208,7 +221,9 @@ enum AuditAction: string
             self::CatalogReadyCreated, self::CatalogReadyUpdated, self::CatalogReadyStatusChanged,
             self::CatalogVariantCreated, self::CatalogVariantUpdated, self::CatalogVariantStatusChanged => 'catalog',
             self::OrderCreated, self::OrderUpdated, self::OrderLineAdded, self::OrderLineRemoved,
-            self::OrderBranchTransferred => 'orders',
+            self::OrderBranchTransferred, self::ReadyOrderConfirmed, self::ReadyOrderCancelled => 'orders',
+            self::StockLocationSaved, self::StockItemUpdated, self::InventorySettingsUpdated, self::StockAdjusted, self::StockReserved,
+            self::StockReleased, self::StockIssued, self::StockTransferCreated, self::StockTransferMoved, self::StockCountRecorded => 'stock',
             self::FlowTemplateChosen, self::FlowDraftSaved, self::FlowPublished, self::FlowDraftDiscarded, self::OrderPaused, self::OrderResumed, self::OrderExecutionFinished, self::OrderReopenedForCorrection, self::StageCompleted, self::ActionAllowed, self::ActionReworked, self::ActionNeedChanged, self::UpcomingWorkEdited, self::MeasurementRecorded, self::MeasurementCorrected => 'workflow',
             self::TaskAssigned, self::TaskRouted, self::TaskReassigned, self::TaskClaimed, self::TaskCompleted, self::TaskCancelled, self::TaskReleased => 'tasks',
             self::AppointmentProposed, self::AppointmentSent, self::AppointmentConfirmed, self::AppointmentChangeRequested, self::AppointmentChangeDiscarded, self::AppointmentChanged, self::AppointmentCompleted, self::AppointmentCancelled => 'appointments',

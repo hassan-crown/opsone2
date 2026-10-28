@@ -22,6 +22,9 @@ enum StateMachine: string
     case M16 = 'M-16';
     case M22 = 'M-22';
     case M23 = 'M-23';
+    // P7a inventory (ADR-0017): stock reservation and stock transfer.
+    case M24 = 'M-24';
+    case M25 = 'M-25';
     case M26 = 'M-26';
     case M27 = 'M-27';
     case M33 = 'M-33';

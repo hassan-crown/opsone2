@@ -11,10 +11,12 @@ import {
     ScrollText,
     Workflow,
     Users,
+    Warehouse,
 } from 'lucide-react';
 import CommissionController from '@/actions/App/Http/Controllers/Commissions/CommissionController';
 import CalendarController from '@/actions/App/Http/Controllers/Calendar/CalendarController';
 import CatalogHomeController from '@/actions/App/Http/Controllers/Catalog/CatalogHomeController';
+import StockController from '@/actions/App/Http/Controllers/Inventory/StockController';
 import CustomerController from '@/actions/App/Http/Controllers/Customers/CustomerController';
 import FinanceHomeController from '@/actions/App/Http/Controllers/Finance/FinanceHomeController';
 import FlowController from '@/actions/App/Http/Controllers/Flow/FlowController';
@@ -42,7 +44,8 @@ export type LocalizedNavItem = Omit<NavItem, 'title'> & {
         | 'tasks'
         | 'calendar'
         | 'finance'
-        | 'commissions';
+        | 'commissions'
+        | 'stock';
 };
 
 /** Primary navigation (5–7 items max; settings live in the footer / user menu). */
@@ -101,6 +104,12 @@ export const mainNav: LocalizedNavItem[] = [
         href: CatalogHomeController.url(),
         icon: Package,
         access: 'catalog',
+    },
+    {
+        label: 'stock.nav',
+        href: StockController.index(),
+        icon: Warehouse,
+        access: 'stock',
     },
     {
         label: 'org.nav.branches',
