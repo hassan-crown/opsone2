@@ -110,17 +110,32 @@ function DocumentEditor({
     const t = useT();
 
     return (
-        <SelectField
-            label={t('flow.input.document')}
-            value={str(inputs.document)}
-            disabled={disabled}
-            error={error('document')}
-            onChange={(e) => onChange({ ...inputs, document: e.target.value })}
-            options={[
-                { value: 'quote', label: t('flow.input.document_quote') },
-                { value: 'contract', label: t('flow.input.document_contract') },
-            ]}
-        />
+        <div className="grid gap-3">
+            <SelectField
+                label={t('flow.input.document')}
+                value={str(inputs.document)}
+                disabled={disabled}
+                error={error('document')}
+                onChange={(e) =>
+                    onChange({ ...inputs, document: e.target.value })
+                }
+                options={[
+                    { value: 'quote', label: t('flow.input.document_quote') },
+                    {
+                        value: 'contract',
+                        label: t('flow.input.document_contract'),
+                    },
+                ]}
+            />
+            <ActionNotes
+                title={t('flow.action_notes.on_publish')}
+                notes={[
+                    t('flow.action_notes.doc_discount'),
+                    t('flow.action_notes.doc_not_approval'),
+                    t('flow.action_notes.doc_source'),
+                ]}
+            />
+        </div>
     );
 }
 
@@ -134,18 +149,61 @@ function ApprovalEditor({
     const t = useT();
 
     return (
-        <SelectField
-            label={t('flow.input.subject')}
-            value={str(inputs.subject)}
-            disabled={disabled}
-            error={error('subject')}
-            onChange={(e) => onChange({ ...inputs, subject: e.target.value })}
-            options={[
-                { value: 'design', label: t('flow.input.subject_design') },
-                { value: 'quote', label: t('flow.input.subject_quote') },
-                { value: 'contract', label: t('flow.input.subject_contract') },
-            ]}
-        />
+        <div className="grid gap-3">
+            <SelectField
+                label={t('flow.input.subject')}
+                value={str(inputs.subject)}
+                disabled={disabled}
+                error={error('subject')}
+                onChange={(e) =>
+                    onChange({ ...inputs, subject: e.target.value })
+                }
+                options={[
+                    { value: 'design', label: t('flow.input.subject_design') },
+                    { value: 'quote', label: t('flow.input.subject_quote') },
+                    {
+                        value: 'contract',
+                        label: t('flow.input.subject_contract'),
+                    },
+                ]}
+            />
+            <dl className="grid gap-2 text-body">
+                <div>
+                    <dt className="text-weak">{t('flow.action_notes.who')}</dt>
+                    <dd className="text-strong">
+                        {t('flow.action_notes.who_value')}
+                    </dd>
+                </div>
+                <div>
+                    <dt className="text-weak">
+                        {t('flow.action_notes.after')}
+                    </dt>
+                    <dd className="text-strong">
+                        {inputs.subject === 'design'
+                            ? t('flow.action_notes.after_design')
+                            : t('flow.action_notes.after_document')}
+                    </dd>
+                </div>
+            </dl>
+            <ActionNotes
+                title={t('flow.action_notes.on_publish')}
+                notes={[t('flow.action_notes.appr_document_first')]}
+            />
+        </div>
+    );
+}
+
+/** What the facility should know before publishing an agreement action (FlowAction_doc / FlowAction_appr). */
+function ActionNotes({ title, notes }: { title: string; notes: string[] }) {
+    return (
+        <div className="rounded-md bg-fill p-3">
+            <p className="mb-1 text-label text-strong">{title}</p>
+            <ul className="grid list-disc gap-1 ps-5 text-caption text-weak">
+                {notes.map((note) => (
+                    <li key={note}>{note}</li>
+                ))}
+            </ul>
+        </div>
     );
 }
 

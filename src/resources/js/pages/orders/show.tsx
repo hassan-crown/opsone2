@@ -1,6 +1,18 @@
 import { Head, Link, router } from '@inertiajs/react';
-import { EyeOff, GitBranch, Pencil, Plus, Trash2 } from 'lucide-react';
+import {
+    BadgePercent,
+    EyeOff,
+    FileSignature,
+    GitBranch,
+    Pencil,
+    Plus,
+    Receipt,
+    Trash2,
+} from 'lucide-react';
 import { lazy, Suspense, useState } from 'react';
+import OrderFinanceController from '@/actions/App/Http/Controllers/Finance/OrderFinanceController';
+import AgreementController from '@/actions/App/Http/Controllers/Agreements/AgreementController';
+import OrderSaleController from '@/actions/App/Http/Controllers/Commissions/OrderSaleController';
 import OrderController from '@/actions/App/Http/Controllers/Orders/OrderController';
 import OrderLineController from '@/actions/App/Http/Controllers/Orders/OrderLineController';
 import CustomerController from '@/actions/App/Http/Controllers/Customers/CustomerController';
@@ -150,6 +162,45 @@ export default function OrderShow({
                 description={`${order.customer.name} · ${formatDate(order.created_at, locale)}`}
                 actions={
                     <>
+                        {order.kind === 'custom' && (
+                            <Button asChild variant="secondary">
+                                <Link
+                                    href={AgreementController.show.url(
+                                        order.id,
+                                    )}
+                                    data-test="open-agreement"
+                                >
+                                    <Icon icon={FileSignature} />
+                                    {t('agreements.title')}
+                                </Link>
+                            </Button>
+                        )}
+                        {order.kind === 'custom' && (
+                            <Button asChild variant="secondary">
+                                <Link
+                                    href={OrderFinanceController.show.url(
+                                        order.id,
+                                    )}
+                                    data-test="open-finance"
+                                >
+                                    <Icon icon={Receipt} />
+                                    {t('finance.order.title')}
+                                </Link>
+                            </Button>
+                        )}
+                        {order.can.sale && (
+                            <Button asChild variant="secondary">
+                                <Link
+                                    href={OrderSaleController.show.url(
+                                        order.id,
+                                    )}
+                                    data-test="open-sale"
+                                >
+                                    <Icon icon={BadgePercent} />
+                                    {t('commissions.sale.title')}
+                                </Link>
+                            </Button>
+                        )}
                         {order.can.transfer_branch &&
                             transferBranches.length > 0 && (
                                 <Button

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\AddPreloadLinkHeaders;
 use App\Http\Middleware\EnforceSupportAccess;
 use App\Http\Middleware\EnsureAccessIsCurrent;
 use App\Http\Middleware\HandleAppearance;
@@ -9,7 +10,6 @@ use App\Http\Middleware\ShareLicenseState;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
-use Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets;
 use Illuminate\Http\Request;
 
 return Application::configure(basePath: dirname(__DIR__))
@@ -28,7 +28,7 @@ return Application::configure(basePath: dirname(__DIR__))
             HandleAppearance::class,
             HandleInertiaRequests::class,
             ShareLicenseState::class,
-            AddLinkHeadersForPreloadedAssets::class,
+            AddPreloadLinkHeaders::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

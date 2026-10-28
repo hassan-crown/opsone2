@@ -1,9 +1,11 @@
 <?php
 
 use App\Actions\StateMachines\M01Invitation\T02ExpireInvitation;
+use App\Actions\StateMachines\M08Document\T05ExpireDocuments;
 use App\Actions\StateMachines\M37OwnershipTransfer\T04ExpireOwnershipTransfer;
 use App\Actions\StateMachines\M38SupportAccess\T00RequestSupportAccess;
 use App\Actions\StateMachines\M38SupportAccess\T04ExpireSupportAccess;
+use App\Finance\CollectionReminders;
 use App\Models\Membership;
 use App\Models\OutboxMessage;
 use App\Models\SupportRequest;
@@ -26,6 +28,20 @@ Artisan::command('access:expire', function (T02ExpireInvitation $invitations, T0
 })->purpose('Expire lapsed staff invitations and ownership transfer requests');
 
 Schedule::command('access:expire')->everyFifteenMinutes()->withoutOverlapping();
+
+// Time service for M-08-T05: quotes awaiting the customer past their last valid day expire.
+Artisan::command('agreements:expire-documents', function (T05ExpireDocuments $documents) {
+    $this->info(sprintf('Expired %d document(s).', $documents->handle()));
+})->purpose('Expire quotes whose validity ended without a decision');
+
+Schedule::command('agreements:expire-documents')->dailyAt('00:10')->withoutOverlapping();
+
+// Collection reminders to customers (FIN-11): due soon and overdue, only inside the facility's reminder hours.
+Artisan::command('finance:remind', function (CollectionReminders $reminders) {
+    $this->info(sprintf('Queued %d collection reminder(s).', $reminders->runDue(now())));
+})->purpose('Remind customers of dues soon or overdue (inside the reminder hours)');
+
+Schedule::command('finance:remind')->hourly()->withoutOverlapping();
 
 // Outbox safety net: re-queue messages whose delivery job was lost, and drop delivered ones after 30 days.
 Artisan::command('outbox:process', function (OutboxDeliverer $deliverer) {

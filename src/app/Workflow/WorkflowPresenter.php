@@ -69,7 +69,7 @@ final class WorkflowPresenter
                     'requirement' => $action->requirement,
                     'applies_when' => $action->applies_when,
                     'status' => $action->status->value,
-                    'held' => $action->held_by_action_id !== null,
+                    'held' => ($action->held_by_action_id !== null || $action->held_by_change_id !== null),
                     'allowed_reason' => $action->allowed_reason,
                     'rework_count' => $action->rework_count,
                     'has_source' => $action->source_reference !== null,
@@ -87,13 +87,13 @@ final class WorkflowPresenter
                         'rework' => in_array($action->status, [ActionStatus::Verified, ActionStatus::Allowed], true) && Access::can($viewer, Permission::P27, $action),
                     ],
                 ];
-                if ($stage->id === $workflow->active_stage_id && $action->isRequired() && (self::open($action) || $action->held_by_action_id !== null)) {
+                if ($stage->id === $workflow->active_stage_id && $action->isRequired() && (self::open($action) || ($action->held_by_action_id !== null || $action->held_by_change_id !== null))) {
                     $data['blockers'][] = [
                         'action' => $action->key,
                         'name' => $action->name->get($locale),
                         'type' => $action->type->value,
                         'status' => $action->status->value,
-                        'held' => $action->held_by_action_id !== null,
+                        'held' => ($action->held_by_action_id !== null || $action->held_by_change_id !== null),
                         'responsible_user_id' => self::responsible($tasks->get($action->id)?->last(), $stage),
                     ];
                 }

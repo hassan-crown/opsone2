@@ -39,7 +39,8 @@ final class T02StartTask
     }
 
     /**
-     * The task's action must be available and not held by a rework of something it depends on (WF-11).
+     * The task's action must be available and not held by a rework of something it depends on (WF-11) or by a pending
+     * agreement change (AGR-07).
      */
     public static function ensureActionOpen(Task $task, string $code): void
     {
@@ -49,6 +50,10 @@ final class T02StartTask
         }
         if ($action->held_by_action_id !== null) {
             Transition::refuse(StateMachine::M07, $code, 'held_by_rework');
+        }
+        // A pending agreement change lists this work as affected: it waits for the decision (AGR-07).
+        if ($action->held_by_change_id !== null) {
+            Transition::refuse(StateMachine::M07, $code, 'held_by_agreement_change');
         }
         if (! in_array($action->status, [ActionStatus::Ready, ActionStatus::AwaitingResult], true)) {
             Transition::refuse(StateMachine::M07, $code, 'action_'.$action->status->value);

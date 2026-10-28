@@ -120,6 +120,67 @@ enum AuditAction: string
     case AppointmentCompleted = 'appointment.completed';
     case AppointmentCancelled = 'appointment.cancelled';
     case WorkSettingsUpdated = 'work_settings.updated';
+    case FinanceSettingsUpdated = 'finance_settings.updated';
+    case CashProofPolicyUpdated = 'finance_settings.cash_proof_updated';
+    case DiscountLimitsUpdated = 'discount_limits.updated';
+    case DocumentCreated = 'agreement_document.created';
+    case DocumentDraftUpdated = 'agreement_document.draft_updated';
+    case DocumentSent = 'agreement_document.sent';
+    case DocumentApproved = 'agreement_document.approved';
+    case DocumentChangesRequested = 'agreement_document.changes_requested';
+    case DocumentReplaced = 'agreement_document.replaced';
+    case DocumentExpired = 'agreement_document.expired';
+    case DocumentExtended = 'agreement_document.extended';
+    case DocumentCancelled = 'agreement_document.cancelled';
+    case AgreementActivated = 'agreement.activated';
+    case ChangeCreated = 'agreement_change.created';
+    case ChangeDraftUpdated = 'agreement_change.draft_updated';
+    case ChangePresented = 'agreement_change.presented';
+    case ChangeRevisionRequested = 'agreement_change.revision_requested';
+    case ChangeApplied = 'agreement_change.applied';
+    case ChangeWithdrawn = 'agreement_change.withdrawn';
+    case DiscountRequested = 'discount_decision.requested';
+    case DiscountApproved = 'discount_decision.approved';
+    case DiscountRejected = 'discount_decision.rejected';
+    case DiscountCancelled = 'discount_decision.cancelled';
+    case FinanceScheduleSynced = 'finance.schedule_synced';
+    case FinanceScheduleUpdated = 'finance.schedule_updated';
+    case PaymentRecorded = 'finance.payment_recorded';
+    case PaymentGatewayResult = 'finance.payment_gateway_result';
+    case PaymentReallocated = 'finance.payment_reallocated';
+    case CreditTransferred = 'finance.credit_transferred';
+    case MoneyReversed = 'finance.money_reversed';
+    case ProofSubmitted = 'finance.proof_submitted';
+    case ProofConfirmed = 'finance.proof_confirmed';
+    case ProofCorrectionRequested = 'finance.proof_correction_requested';
+    case ProofCancelled = 'finance.proof_cancelled';
+    case CollectionRemindersSent = 'finance.reminders_sent';
+    case CommissionSettingsUpdated = 'commission.settings_updated';
+    case CommissionPayoutCreated = 'commission.payout_created';
+    case CommissionPayoutReserved = 'commission.payout_reserved';
+    case CommissionPayoutPaid = 'commission.payout_paid';
+    case CommissionPayoutCancelled = 'commission.payout_cancelled';
+    case CommissionPayoutCorrected = 'commission.payout_corrected';
+    case SaleCorrectionRequested = 'commission.sale_correction_requested';
+    case SaleCorrectionApproved = 'commission.sale_correction_approved';
+    case SaleCorrectionRejected = 'commission.sale_correction_rejected';
+    case SaleCorrectionCancelled = 'commission.sale_correction_cancelled';
+    // P6c settlement (ADR-0015).
+    case RefundRequested = 'refund.requested';
+    case RefundStarted = 'refund.started';
+    case RefundExecuted = 'refund.executed';
+    case RefundFailed = 'refund.failed';
+    case RefundCancelled = 'refund.cancelled';
+    case RefundRetried = 'refund.retried';
+    case PaymentCorrected = 'finance.payment_corrected';
+    case DisputeOpened = 'dispute.opened';
+    case DisputeAwaiting = 'dispute.awaiting_external';
+    case DisputeResumed = 'dispute.resumed';
+    case DisputeResolved = 'dispute.resolved';
+    case ExternalDocumentRequested = 'external_document.requested';
+    case ExternalDocumentAttached = 'external_document.attached';
+    case ExternalDocumentAccepted = 'external_document.accepted';
+    case ExternalDocumentCorrectionRequested = 'external_document.correction_requested';
 
     public function area(): string
     {
@@ -151,7 +212,18 @@ enum AuditAction: string
             self::FlowTemplateChosen, self::FlowDraftSaved, self::FlowPublished, self::FlowDraftDiscarded, self::OrderPaused, self::OrderResumed, self::OrderExecutionFinished, self::OrderReopenedForCorrection, self::StageCompleted, self::ActionAllowed, self::ActionReworked, self::ActionNeedChanged, self::UpcomingWorkEdited, self::MeasurementRecorded, self::MeasurementCorrected => 'workflow',
             self::TaskAssigned, self::TaskRouted, self::TaskReassigned, self::TaskClaimed, self::TaskCompleted, self::TaskCancelled, self::TaskReleased => 'tasks',
             self::AppointmentProposed, self::AppointmentSent, self::AppointmentConfirmed, self::AppointmentChangeRequested, self::AppointmentChangeDiscarded, self::AppointmentChanged, self::AppointmentCompleted, self::AppointmentCancelled => 'appointments',
-            self::WorkSettingsUpdated => 'settings',
+            self::WorkSettingsUpdated, self::FinanceSettingsUpdated, self::CashProofPolicyUpdated, self::DiscountLimitsUpdated => 'settings',
+            self::DocumentCreated, self::DocumentDraftUpdated, self::DocumentSent, self::DocumentApproved, self::DocumentChangesRequested,
+            self::DocumentReplaced, self::DocumentExpired, self::DocumentExtended, self::DocumentCancelled, self::AgreementActivated,
+            self::ChangeCreated, self::ChangeDraftUpdated, self::ChangePresented, self::ChangeRevisionRequested, self::ChangeApplied,
+            self::ChangeWithdrawn, self::DiscountRequested, self::DiscountApproved, self::DiscountRejected, self::DiscountCancelled => 'agreement',
+            self::FinanceScheduleSynced, self::FinanceScheduleUpdated, self::PaymentRecorded, self::PaymentGatewayResult,
+            self::PaymentReallocated, self::CreditTransferred, self::MoneyReversed, self::ProofSubmitted, self::ProofConfirmed,
+            self::ProofCorrectionRequested, self::ProofCancelled, self::CollectionRemindersSent => 'finance',
+            self::CommissionSettingsUpdated, self::CommissionPayoutCreated, self::CommissionPayoutReserved, self::CommissionPayoutPaid,
+            self::CommissionPayoutCancelled, self::CommissionPayoutCorrected, self::SaleCorrectionRequested,
+            self::SaleCorrectionApproved, self::SaleCorrectionRejected, self::SaleCorrectionCancelled => 'commissions',
+            self::RefundRequested, self::RefundStarted, self::RefundExecuted, self::RefundFailed, self::RefundCancelled, self::RefundRetried, self::PaymentCorrected, self::DisputeOpened, self::DisputeAwaiting, self::DisputeResumed, self::DisputeResolved, self::ExternalDocumentRequested, self::ExternalDocumentAttached, self::ExternalDocumentAccepted, self::ExternalDocumentCorrectionRequested => 'finance',
         };
     }
 

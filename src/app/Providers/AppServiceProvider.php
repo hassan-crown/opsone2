@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Agreements\CollectedAmounts;
+use App\Agreements\NoCollections;
 use Carbon\CarbonImmutable;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
@@ -18,7 +20,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        // What finance collected per order; P6b binds the real ledger (docs/p6-finance-api.md).
+        $this->app->bindIf(CollectedAmounts::class, NoCollections::class);
     }
 
     /**

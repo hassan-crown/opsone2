@@ -217,7 +217,7 @@ final class StageEngine
      */
     public function dependenciesMet(OrderAction $action, Collection $all): bool
     {
-        if ($action->held_by_action_id !== null) {
+        if ($action->held_by_action_id !== null || $action->held_by_change_id !== null) {
             return false;
         }
 

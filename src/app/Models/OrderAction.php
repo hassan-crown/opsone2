@@ -31,6 +31,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property int|null $assign_id
  * @property ActionStatus $status
  * @property int|null $held_by_action_id
+ * @property int|null $held_by_change_id
  * @property array<string, mixed>|null $source_reference
  * @property CarbonInterface|null $verified_at
  * @property int|null $allowed_by

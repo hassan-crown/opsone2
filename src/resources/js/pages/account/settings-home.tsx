@@ -9,6 +9,7 @@ import {
     Bell,
     Mail,
     Palette,
+    Percent,
     ShieldCheck,
     Store,
     User,
@@ -26,7 +27,7 @@ import { show as plan } from '@/routes/plan';
 import { edit as appearance } from '@/routes/appearance';
 import { edit as profile } from '@/routes/profile';
 import { edit as security } from '@/routes/security';
-import { basic, home, work } from '@/routes/settings';
+import { basic, home, sales, work } from '@/routes/settings';
 import { index as sessions } from '@/routes/sessions';
 import { index as supportAccess } from '@/routes/support-access';
 
@@ -148,6 +149,13 @@ export default function SettingsHome({
             icon: CalendarClock,
             title: t('appointments.work.title'),
             description: t('appointments.work.card'),
+        });
+        facilityCards.push({
+            key: 'sales',
+            href: sales(),
+            icon: Percent,
+            title: t('agreements.settings.title'),
+            description: t('agreements.settings.card'),
         });
     }
     if (can.editProfile) {
