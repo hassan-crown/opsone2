@@ -12,9 +12,10 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('orders/{order}/cancellation', [CancellationController::class, 'show'])->whereNumber('order')->name('orders.cancellation');
-    Route::post('orders/{order}/cancellation/preview', [CancellationController::class, 'preview'])->whereNumber('order')->name('orders.cancellation.preview');
 
     Route::middleware('throttle:records-create')->group(function () {
+        // The review reads every source of the order (stock, purchases, money, agreement): bounded like the writes.
+        Route::post('orders/{order}/cancellation/preview', [CancellationController::class, 'preview'])->whereNumber('order')->name('orders.cancellation.preview');
         Route::post('orders/{order}/cancellation/requests', [CancellationController::class, 'request'])->whereNumber('order')->name('orders.cancellation.request');
         Route::post('orders/{order}/cancellation', [CancellationController::class, 'store'])->whereNumber('order')->name('orders.cancellation.store');
         Route::post('cancellations/{cancellation}/accept', [CancellationController::class, 'accept'])->whereNumber('cancellation')->name('cancellations.accept');
