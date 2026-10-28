@@ -19,6 +19,7 @@ use App\Files\AttachmentService;
 use App\Inventory\Contracts\StockReceiver;
 use App\Models\AuditEvent;
 use App\Models\FinanceSettings;
+use App\Models\Inventory\StockLocation;
 use App\Models\Procurement\PurchaseOrder;
 use App\Models\Procurement\PurchaseReceipt;
 use App\Models\Procurement\Supplier;
@@ -426,7 +427,7 @@ it('stores receipt proofs as private attachments that follow the order\'s scope'
 
 it('refuses a purchase location outside the purchase branch or the actor\'s grant', function () {
     $f = $this->f;
-    $storeB = App\Models\Inventory\StockLocation::query()->create(['code' => 'PB1', 'name' => ['ar' => 'مستودع ب', 'en' => 'Store B'], 'branch_id' => $f->org->b->id]);
+    $storeB = StockLocation::query()->create(['code' => 'PB1', 'name' => ['ar' => 'مستودع ب', 'en' => 'Store B'], 'branch_id' => $f->org->b->id]);
 
     // A draft of branch A naming branch B's store.
     expect(fn () => procDraft($f, $f->inventory, [procVariantLine($f)], ['location_id' => $storeB->id]))->toThrow(ValidationException::class);

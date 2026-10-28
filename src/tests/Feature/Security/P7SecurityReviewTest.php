@@ -5,10 +5,10 @@
  * confirmed finding so it cannot come back.
  */
 
-use App\Enums\MemberGrantEffect;
 use App\Access\Enums\Scope;
 use App\Audit\AuditAction;
 use App\Audit\AuditRecorder;
+use App\Enums\MemberGrantEffect;
 use App\Inventory\MovementKind;
 use App\Inventory\StockItems;
 use App\Inventory\StockLedger;

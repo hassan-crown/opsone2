@@ -14,8 +14,8 @@ use App\Models\Inventory\StockMovement;
 use App\Models\StateTransition;
 use App\Models\UserNotification;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 
 require_once __DIR__.'/InventoryTestHelpers.php';
 
@@ -67,7 +67,7 @@ it('shows available = on hand − reserved and never lets a balance go negative 
     expect(stockBalance($this->s->la, 'ready_variant', $this->s->f->variant->id))->toBe(['on_hand' => '5', 'reserved' => '2', 'available' => '3']);
 
     // An adjustment out cannot take reserved stock.
-    $this->actingAs($this->s->f->org->owner)->postJson('/stock/adjustments', ['idempotency_key' => (string) Str::uuid(), 
+    $this->actingAs($this->s->f->org->owner)->postJson('/stock/adjustments', ['idempotency_key' => (string) Str::uuid(),
         'location_id' => $this->s->la->id, 'item_type' => 'ready_variant', 'item_id' => $this->s->f->variant->id,
         'direction' => 'out', 'quantity' => '4', 'reason' => 'تلف',
     ])->assertUnprocessable()->assertJsonValidationErrors('quantity');
@@ -77,11 +77,11 @@ it('shows available = on hand − reserved and never lets a balance go negative 
 it('records an adjustment with a reason and a gapless SA number, audited', function () {
     stockReceive($this->s->la, 'material', $this->s->material->id, '10');
     $year = now()->year;
-    $first = $this->actingAs($this->s->keeper)->postJson('/stock/adjustments', ['idempotency_key' => (string) Str::uuid(), 
+    $first = $this->actingAs($this->s->keeper)->postJson('/stock/adjustments', ['idempotency_key' => (string) Str::uuid(),
         'location_id' => $this->s->la->id, 'item_type' => 'material', 'item_id' => $this->s->material->id,
         'direction' => 'out', 'quantity' => '1.5', 'reason' => 'قص تالف',
     ])->assertCreated()->json('movement');
-    $second = $this->actingAs($this->s->keeper)->postJson('/stock/adjustments', ['idempotency_key' => (string) Str::uuid(), 
+    $second = $this->actingAs($this->s->keeper)->postJson('/stock/adjustments', ['idempotency_key' => (string) Str::uuid(),
         'location_id' => $this->s->la->id, 'item_type' => 'material', 'item_id' => $this->s->material->id,
         'direction' => 'in', 'quantity' => '0.5', 'reason' => 'وجدنا لفة',
     ])->assertCreated()->json('movement');
@@ -91,7 +91,7 @@ it('records an adjustment with a reason and a gapless SA number, audited', funct
         ->and(stockBalance($this->s->la, 'material', $this->s->material->id)['on_hand'])->toBe('9')
         ->and(AuditEvent::query()->where('action', 'stock.adjusted')->count())->toBe(2);
 
-    $this->actingAs($this->s->keeper)->postJson('/stock/adjustments', ['idempotency_key' => (string) Str::uuid(), 
+    $this->actingAs($this->s->keeper)->postJson('/stock/adjustments', ['idempotency_key' => (string) Str::uuid(),
         'location_id' => $this->s->la->id, 'item_type' => 'material', 'item_id' => $this->s->material->id,
         'direction' => 'out', 'quantity' => '1', 'reason' => '',
     ])->assertUnprocessable();
@@ -125,7 +125,7 @@ it('alerts P-49 holders once when available falls below the reorder level', func
     ])->assertOk();
 
     foreach (['1.5', '0.5'] as $q) {
-        $this->actingAs($this->s->keeper)->postJson('/stock/adjustments', ['idempotency_key' => (string) Str::uuid(), 
+        $this->actingAs($this->s->keeper)->postJson('/stock/adjustments', ['idempotency_key' => (string) Str::uuid(),
             'location_id' => $this->s->la->id, 'item_type' => 'material', 'item_id' => $this->s->material->id,
             'direction' => 'out', 'quantity' => $q, 'reason' => 'استهلاك',
         ])->assertCreated();

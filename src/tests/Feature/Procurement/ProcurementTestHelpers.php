@@ -6,6 +6,7 @@ use App\Actions\StateMachines\M13PurchaseOrder\T02ReceivePurchase;
 use App\Inventory\Contracts\StockReceiver;
 use App\Models\Catalog\CatalogMaterial;
 use App\Models\Catalog\CatalogReadyVariant;
+use App\Models\Inventory\StockLocation;
 use App\Models\MemberGrant;
 use App\Models\Procurement\PurchaseOrder;
 use App\Models\Procurement\PurchaseReceipt;
@@ -15,7 +16,6 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Str;
 use Tests\Support\Org;
 use Tests\Support\RecordingStockReceiver;
-use App\Models\Inventory\StockLocation;
 
 require_once __DIR__.'/../Catalog/CatalogTestHelpers.php';
 
