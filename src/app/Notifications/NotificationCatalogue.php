@@ -37,6 +37,29 @@ final class NotificationCatalogue
             'body' => 'stock.notify.low.body',
             'route' => 'stock.index',
         ],
+        // P7 returns: a request to decide (P-102), accepted goods to receive (P-53), an inspected return to settle
+        // (P-42); opening re-checks the permission on the live return.
+        'return.requested' => [
+            'mandatory' => false,
+            'permission' => Permission::P102,
+            'title' => 'returns.notify.requested.title',
+            'body' => 'returns.notify.requested.body',
+            'route' => null,
+        ],
+        'return.accepted' => [
+            'mandatory' => false,
+            'permission' => Permission::P53,
+            'title' => 'returns.notify.accepted.title',
+            'body' => 'returns.notify.accepted.body',
+            'route' => null,
+        ],
+        'return.inspected' => [
+            'mandatory' => false,
+            'permission' => Permission::P42,
+            'title' => 'returns.notify.inspected.title',
+            'body' => 'returns.notify.inspected.body',
+            'route' => null,
+        ],
         'work.assigned' => [
             'mandatory' => false,
             'permission' => null,

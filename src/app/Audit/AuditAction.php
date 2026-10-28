@@ -209,6 +209,16 @@ enum AuditAction: string
     case DeliveryDrafted = 'delivery.drafted';
     case DeliveryConfirmed = 'delivery.confirmed';
     case DeliveryCancelled = 'delivery.cancelled';
+    // P7 returns (domain 06, M-15).
+    case ReturnRequested = 'return.requested';
+    case ReturnAccepted = 'return.accepted';
+    case ReturnRejected = 'return.rejected';
+    case ReturnReceived = 'return.received';
+    case ReturnInspected = 'return.inspected';
+    case ReturnWithdrawn = 'return.withdrawn';
+    case ReturnCorrected = 'return.corrected';
+    case ReturnRefundRequested = 'return.refund_requested';
+    case ReturnSettingsUpdated = 'return.settings_updated';
 
     public function area(): string
     {
@@ -257,6 +267,8 @@ enum AuditAction: string
             self::PurchaseCreated, self::PurchaseUpdated, self::PurchaseConfirmed, self::PurchaseReceived,
             self::PurchaseAdjusted, self::PurchaseRemainderCancelled => 'procurement',
             self::DeliveryDrafted, self::DeliveryConfirmed, self::DeliveryCancelled => 'delivery',
+            self::ReturnRequested, self::ReturnAccepted, self::ReturnRejected, self::ReturnReceived, self::ReturnInspected,
+            self::ReturnWithdrawn, self::ReturnCorrected, self::ReturnRefundRequested, self::ReturnSettingsUpdated => 'returns',
             self::RefundRequested, self::RefundStarted, self::RefundExecuted, self::RefundFailed, self::RefundCancelled, self::RefundRetried, self::PaymentCorrected, self::DisputeOpened, self::DisputeAwaiting, self::DisputeResumed, self::DisputeResolved, self::ExternalDocumentRequested, self::ExternalDocumentAttached, self::ExternalDocumentAccepted, self::ExternalDocumentCorrectionRequested => 'finance',
         };
     }
