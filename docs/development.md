@@ -23,6 +23,14 @@
 - نهايات الأسطر LF يفرضها `.gitattributes`.
 - على Windows، وضع المستودع داخل نظام ملفات WSL2 أسرع من قرص Windows.
 
+## الاختبارات على MariaDB
+
+- الإنتاج يعمل على MariaDB 11، لذلك يشغّل CI المجموعة الكاملة مرتين: `laravel-tests` على SQLite (في الذاكرة) و`laravel-tests-mariadb` على حاوية خدمة `mariadb:11`. كلاهما يجب أن ينجح قبل الدمج.
+- محليًا (من داخل حاوية `app`، فـ `phpunit.xml` يفرض SQLite ما لم تُمرَّر المتغيرات):
+  `docker exec -e DB_CONNECTION=mysql -e DB_DATABASE=<قاعدة_الاختبار> <app>_local_app php artisan test`
+  — استخدم قاعدة تجريبية فقط: `RefreshDatabase` يعيد بناءها.
+- فروق شائعة بين المحركين: `SUM()` يعيد نصًا على MariaDB (حوّل إلى `(int)` قبل المقارنة الصارمة)، وأوامر DDL (`CREATE/ALTER/DROP TABLE`) تُنهي المعاملة ضمنيًا فتدمّر نقاط الحفظ داخل الاختبارات (استخدم جدولًا `temporary()` في أدوات الاختبار)، وبناء الواجهة (`pnpm run build`) مطلوب لاختبارات Inertia.
+
 ## المنافذ (Ports)
 
 - `start` و`restart` و`pma` و`node-dev` تتحقق قبل التشغيل من أن المنافذ المطلوبة غير مستخدمة على الجهاز.
