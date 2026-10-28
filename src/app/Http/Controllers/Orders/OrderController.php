@@ -14,6 +14,7 @@ use App\Enums\ReadyOrderStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Orders\CreateOrderRequest;
 use App\Http\Requests\Orders\UpdateOrderRequest;
+use App\Delivery\OrderDeliveryPanel;
 use App\Inventory\OrderStockPanel;
 use App\Models\Branch;
 use App\Models\Order;
@@ -228,6 +229,8 @@ class OrderController extends Controller
             'invoiceTypes' => Order::INVOICE_TYPES,
             // P7a: availability, reservations and the stock actions of this order (ADR-0017).
             'stock' => OrderStockPanel::forOrder($order, $actor),
+            // P7 delivery: what is owed, the delivery notes and the record action (ADR-0018).
+            'delivery' => OrderDeliveryPanel::forOrder($order, $actor),
             // Targets for the transfer dialog; the server still checks P-19 over both branches on preview and apply.
             'transferBranches' => $detail['can']['transfer_branch']
                 ? array_values(Branch::query()->where('status', 'active')->whereKeyNot($order->branch_id)->orderBy('id')->get()

@@ -13,7 +13,7 @@ export type FinanceDue = {
     name: string | null;
     name_i18n: { ar?: string | null; en?: string | null };
     basis: 'amount' | 'percent' | 'rest';
-    event: 'agreement' | 'payment_stage' | 'date';
+    event: 'agreement' | 'payment_stage' | 'delivery' | 'date';
     due_date: string | null;
     due_on: string | null;
     status: DueStatus;

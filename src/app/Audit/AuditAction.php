@@ -205,6 +205,10 @@ enum AuditAction: string
     case PurchaseReceived = 'purchase.received';
     case PurchaseAdjusted = 'purchase.adjusted';
     case PurchaseRemainderCancelled = 'purchase.remainder_cancelled';
+    // P7 delivery (domain 06, M-14).
+    case DeliveryDrafted = 'delivery.drafted';
+    case DeliveryConfirmed = 'delivery.confirmed';
+    case DeliveryCancelled = 'delivery.cancelled';
 
     public function area(): string
     {
@@ -252,6 +256,7 @@ enum AuditAction: string
             self::SupplierCreated, self::SupplierUpdated, self::SupplierDisabled, self::SupplierEnabled,
             self::PurchaseCreated, self::PurchaseUpdated, self::PurchaseConfirmed, self::PurchaseReceived,
             self::PurchaseAdjusted, self::PurchaseRemainderCancelled => 'procurement',
+            self::DeliveryDrafted, self::DeliveryConfirmed, self::DeliveryCancelled => 'delivery',
             self::RefundRequested, self::RefundStarted, self::RefundExecuted, self::RefundFailed, self::RefundCancelled, self::RefundRetried, self::PaymentCorrected, self::DisputeOpened, self::DisputeAwaiting, self::DisputeResumed, self::DisputeResolved, self::ExternalDocumentRequested, self::ExternalDocumentAttached, self::ExternalDocumentAccepted, self::ExternalDocumentCorrectionRequested => 'finance',
         };
     }

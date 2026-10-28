@@ -8,6 +8,7 @@ import {
     Inbox,
     LayoutGrid,
     Package,
+    PackageCheck,
     Truck,
     ScrollText,
     Workflow,
@@ -22,6 +23,7 @@ import CustomerController from '@/actions/App/Http/Controllers/Customers/Custome
 import FinanceHomeController from '@/actions/App/Http/Controllers/Finance/FinanceHomeController';
 import FlowController from '@/actions/App/Http/Controllers/Flow/FlowController';
 import TaskController from '@/actions/App/Http/Controllers/Tasks/TaskController';
+import DeliveryController from '@/actions/App/Http/Controllers/Delivery/DeliveryController';
 import PurchaseController from '@/actions/App/Http/Controllers/Procurement/PurchaseController';
 import OrderController from '@/actions/App/Http/Controllers/Orders/OrderController';
 import InterestController from '@/actions/App/Http/Controllers/Customers/InterestController';
@@ -48,7 +50,8 @@ export type LocalizedNavItem = Omit<NavItem, 'title'> & {
         | 'finance'
         | 'commissions'
         | 'stock'
-        | 'procurement';
+        | 'procurement'
+        | 'delivery';
 };
 
 /** Primary navigation (5–7 items max; settings live in the footer / user menu). */
@@ -89,6 +92,12 @@ export const mainNav: LocalizedNavItem[] = [
         href: PurchaseController.index(),
         icon: Truck,
         access: 'procurement',
+    },
+    {
+        label: 'delivery.nav',
+        href: DeliveryController.index(),
+        icon: PackageCheck,
+        access: 'delivery',
     },
     {
         label: 'customers.nav',

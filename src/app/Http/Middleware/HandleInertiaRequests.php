@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use App\Access\Access;
 use App\Access\Permission;
+use App\Delivery\DeliveryAccess;
 use App\Inventory\StockAccess;
 use App\Notifications\NotificationFeed;
 use Illuminate\Http\Request;
@@ -96,6 +97,7 @@ class HandleInertiaRequests extends Middleware
             'finance' => Access::can($user, Permission::P37),
             'commissions' => Access::can($user, Permission::P94),
             'stock' => StockAccess::any($user),
+            'delivery' => DeliveryAccess::any($user),
             'procurement' => Access::can($user, Permission::P45) || Access::can($user, Permission::P46) || Access::can($user, Permission::P47),
         ];
     }

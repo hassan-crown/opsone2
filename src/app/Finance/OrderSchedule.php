@@ -61,7 +61,7 @@ final class OrderSchedule
             'dues.*.reference' => ['required', 'string', 'regex:/^[a-z0-9_]{1,30}$/', 'distinct'],
             'dues.*.basis' => ['required', 'in:amount,percent,rest'],
             'dues.*.value' => ['nullable', 'string', 'max:20'],
-            'dues.*.event' => ['required', 'in:agreement,payment_stage,date'],
+            'dues.*.event' => ['required', 'in:agreement,payment_stage,delivery,date'],
             'dues.*.due_date' => ['nullable', 'required_if:dues.*.event,date', 'date_format:Y-m-d'],
         ];
     }
