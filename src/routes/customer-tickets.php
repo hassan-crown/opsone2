@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Portal\TicketController;
 use App\Http\Middleware\Portal\AuthenticateCustomer;
+use App\Http\Middleware\RefuseCustomerWritesWhenReadOnly;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -12,8 +13,8 @@ use Illuminate\Support\Facades\Route;
 Route::middleware(AuthenticateCustomer::class)->group(function () {
     Route::get('tickets', [TicketController::class, 'index'])->name('tickets.index');
     Route::get('tickets/new', [TicketController::class, 'create'])->name('tickets.create');
-    Route::post('tickets', [TicketController::class, 'store'])->middleware('throttle:portal-write')->name('tickets.store');
+    Route::post('tickets', [TicketController::class, 'store'])->middleware(['throttle:portal-write', RefuseCustomerWritesWhenReadOnly::class])->name('tickets.store');
     Route::get('tickets/{ticket}', [TicketController::class, 'show'])->name('tickets.show');
-    Route::post('tickets/{ticket}/replies', [TicketController::class, 'reply'])->middleware('throttle:portal-write')->name('tickets.reply');
-    Route::post('tickets/{ticket}/close', [TicketController::class, 'close'])->middleware('throttle:portal-write')->name('tickets.close');
+    Route::post('tickets/{ticket}/replies', [TicketController::class, 'reply'])->middleware(['throttle:portal-write', RefuseCustomerWritesWhenReadOnly::class])->name('tickets.reply');
+    Route::post('tickets/{ticket}/close', [TicketController::class, 'close'])->middleware(['throttle:portal-write', RefuseCustomerWritesWhenReadOnly::class])->name('tickets.close');
 });
