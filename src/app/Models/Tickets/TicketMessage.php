@@ -62,7 +62,7 @@ class TicketMessage extends Model implements AttachmentOwner
      */
     public function attachments(): MorphMany
     {
-        return $this->morphMany(Attachment::class, 'attachable');
+        return $this->morphMany(Attachment::class, 'attachable')->chaperone();
     }
 
     public function isPublic(): bool

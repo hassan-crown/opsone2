@@ -17,6 +17,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
@@ -74,8 +75,14 @@ class AppServiceProvider extends ServiceProvider
     {
         Date::use(CarbonImmutable::class);
 
-        // A relation read in a loop without eager loading is an N+1 (ADR-0027): refused outside production.
+        // A relation read in a loop without eager loading is an N+1 (ADR-0027): refused in local and testing, so CI
+        // catches it; dev/stage only log it, since an uncovered screen there must not answer 500 to a tester.
         Model::preventLazyLoading(! app()->isProduction());
+        if (! app()->environment('local', 'testing')) {
+            Model::handleLazyLoadingViolationUsing(fn (Model $model, string $relation) => Log::warning('Lazy loading violation', [
+                'model' => $model::class, 'relation' => $relation,
+            ]));
+        }
 
         DB::prohibitDestructiveCommands(
             app()->isProduction(),

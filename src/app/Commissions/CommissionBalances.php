@@ -28,7 +28,7 @@ final class CommissionBalances
      */
     public function sales(int $userId, ?CarbonInterface $until = null, ?array $saleIds = null): array
     {
-        $sales = OrderSale::query()->with('order')->where('user_id', $userId)
+        $sales = OrderSale::query()->with('order.customer')->where('user_id', $userId)
             ->when($saleIds !== null, fn ($q) => $q->whereIn('id', $saleIds))
             ->orderBy('id')->get();
         if ($sales->isEmpty()) {
