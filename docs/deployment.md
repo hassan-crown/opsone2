@@ -26,3 +26,7 @@
 - التراجع عن الكود وحده ليس كافيًا إذا أصبحت Migration غير متوافقة.
 - يجب وجود إصدار مستقر سابق من الصور/الكود ونسخة DB عند التغييرات الخطرة.
 - للأنظمة الحرجة يوصى بترقية طريقة النشر إلى صور ثابتة (Immutable Images) مع release switching.
+
+## التشغيل لكل منشأة
+
+التجهيز والنسخ والاستعادة وفحص التحديث (`ops:preflight`) والمراقبة (`/health`) والإقفال: `docs/runbook.md` و`docs/decisions/0028-operations.md`. التعديلات المقترحة على `manage.sh` في `docs/proposals/manage-sh-operations.md`.

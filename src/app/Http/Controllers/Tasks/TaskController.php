@@ -11,6 +11,7 @@ use App\Models\Department;
 use App\Models\Task;
 use App\Models\User;
 use App\Organization\OrgPresenter;
+use App\Support\PropRows;
 use App\Tasks\TaskPresenter;
 use App\Tasks\TaskViews;
 use App\Workflow\TaskQueries;
@@ -65,7 +66,7 @@ class TaskController extends Controller
             return response()->json($payload);
         }
 
-        return Inertia::render('tasks/index', $payload + [
+        return Inertia::render('tasks/index', ['tasks' => PropRows::of($rows)] + $payload + [
             'view' => $view,
             'filters' => ['q' => $filters['q'] ?? '', 'status' => $filters['status'] ?? '', 'overdue' => (bool) ($filters['overdue'] ?? false)],
         ]);

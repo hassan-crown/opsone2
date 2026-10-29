@@ -32,7 +32,7 @@ class CustomerController extends Controller
     public function index(Request $request): Response
     {
         $actor = $this->actor($request);
-        abort_unless(Access::can($actor, Permission::P09) || Access::can($actor, Permission::P10), 403);
+        abort_unless(Access::canRead($actor, Permission::P09) || Access::canRead($actor, Permission::P10), 403);
 
         $filters = $request->validate([
             'q' => ['nullable', 'string', 'max:100'],

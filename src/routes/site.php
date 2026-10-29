@@ -4,6 +4,7 @@ use App\Http\Controllers\Site\LeadController;
 use App\Http\Controllers\Site\MediaController;
 use App\Http\Controllers\Site\PublicSiteController;
 use App\Http\Controllers\Site\SeoController;
+use App\Http\Middleware\RefuseCustomerWritesWhenReadOnly;
 use App\Http\Middleware\SiteLocale;
 use Illuminate\Support\Facades\Route;
 
@@ -22,7 +23,7 @@ Route::middleware(SiteLocale::class)->group(function () {
 
     Route::prefix('{locale}')->where(['locale' => 'ar|en'])->group(function () {
         Route::get('/', [PublicSiteController::class, 'show'])->name('site.home');
-        Route::post('contact', [LeadController::class, 'store'])->middleware('throttle:site-lead')->name('site.lead');
+        Route::post('contact', [LeadController::class, 'store'])->middleware(['throttle:site-lead', RefuseCustomerWritesWhenReadOnly::class])->name('site.lead');
         Route::get('{slug}', [PublicSiteController::class, 'show'])->where('slug', '[a-z0-9][a-z0-9-]*')->name('site.page');
     });
 });

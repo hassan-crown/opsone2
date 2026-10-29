@@ -47,6 +47,7 @@ final class OrderPresenter
      */
     public static function detail(Order $order, User $actor): array
     {
+        $order->loadMissing(['customer', 'branch', 'assignee', 'purchaseReference', 'contact']);
         $financials = OrderAccess::canSeeFinancials($actor, $order);
         $siblings = $order->purchase_reference_id === null ? [] : Order::query()
             ->where('purchase_reference_id', $order->purchase_reference_id)->whereKeyNot($order->id)->get()

@@ -152,7 +152,9 @@ it('a task notification link re-checks P-24 on the live task', function () {
     $notification = UserNotification::query()->where('user_id', $executor->id)->where('type', 'task.assigned')->firstOrFail();
     $links = app(NotificationLinks::class);
 
-    expect($links->resolve($executor, $notification))->toBe(route('orders.show', $this->inA->id));
+    // The task's own page: the executor holds the task (P-24) without P-16 on the whole order.
+    expect($links->resolve($executor, $notification))->toBe(route('tasks.show', $this->task->id));
+    $this->actingAs($executor)->get(route('tasks.show', $this->task->id))->assertOk();
 
     app(T06ReassignTask::class)->handle($this->roles['supervisor_d1'], $this->task, $this->roles['supervisor_d1']->id, 'إعادة توزيع');
     expect($links->resolve($executor, $notification))->toBeNull();

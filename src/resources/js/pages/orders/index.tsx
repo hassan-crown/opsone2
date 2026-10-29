@@ -15,6 +15,10 @@ import { Card } from '@/components/ui/card';
 import { formatDate } from '@/lib/format';
 import { useLocale, useT } from '@/lib/i18n';
 import type { TranslationKey } from '@/lib/i18n';
+import {
+    BlockedAction,
+    useLicenseBlock,
+} from '@/components/opsone/blocked-action';
 
 type Filters = {
     q: string;
@@ -45,6 +49,7 @@ export default function OrdersIndex({
     canCreate,
 }: Props) {
     const t = useT();
+    const blocked = useLicenseBlock('orders_create');
     const { locale } = useLocale();
     const { auth } = usePage().props;
     const url = OrderController.index.url();
@@ -83,13 +88,21 @@ export default function OrdersIndex({
                 title={t('orders.title')}
                 description={t('orders.description')}
                 actions={
-                    canCreate && (
-                        <Button asChild data-test="add-order">
-                            <Link href={OrderController.create()}>
-                                <Icon icon={Plus} />
-                                {t('orders.add')}
-                            </Link>
-                        </Button>
+                    blocked ? (
+                        <BlockedAction
+                            label={t('orders.add')}
+                            reason={blocked}
+                            testId="add-order"
+                        />
+                    ) : (
+                        canCreate && (
+                            <Button asChild data-test="add-order">
+                                <Link href={OrderController.create()}>
+                                    <Icon icon={Plus} />
+                                    {t('orders.add')}
+                                </Link>
+                            </Button>
+                        )
                     )
                 }
             />

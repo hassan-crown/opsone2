@@ -10,6 +10,7 @@ use App\Models\Membership;
 use App\Models\Order;
 use App\Models\Task;
 use App\Models\User;
+use App\Support\RequestCache;
 
 /**
  * Who may hold a task (WF-04, WF-07): an active staff member (never a support identity), inside the task's department
@@ -24,8 +25,12 @@ final class TaskEligibility
             return false;
         }
 
-        $user = User::query()->find($userId);
-        $membership = Membership::query()->where('user_id', $userId)->where('status', MembershipStatus::Active)->first();
+        // A list asks this for every row; the member's account and membership are read once per request (flushed
+        // when a membership or user is saved and on any session revocation, ADR-0027).
+        [$user, $membership] = app(RequestCache::class)->remember('task-eligibility:'.$userId, fn () => [
+            User::query()->find($userId),
+            Membership::query()->where('user_id', $userId)->where('status', MembershipStatus::Active)->first(),
+        ]);
 
         if ($user === null || $user->is_support || $membership === null) {
             return false;

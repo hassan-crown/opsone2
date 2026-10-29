@@ -27,10 +27,11 @@ final class ScopedQuery
         string $branchColumn = 'branch_id',
         ?string $ownerColumn = 'created_by',
         ?string $assigneeColumn = 'assignee_id',
+        bool $reading = false,
     ): Builder {
         $grants = [];
         foreach ($permissions as $permission) {
-            array_push($grants, ...Access::grantsFor($user, $permission));
+            array_push($grants, ...Access::grantsFor($user, $permission, $reading));
         }
 
         foreach ($grants as $grant) {

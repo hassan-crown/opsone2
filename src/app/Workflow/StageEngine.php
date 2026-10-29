@@ -7,6 +7,8 @@ use App\Enums\ActionStatus;
 use App\Enums\CustomOrderStatus;
 use App\Enums\StageStatus;
 use App\Enums\StateMachine;
+use App\Finance\CollectionConditions;
+use App\Finance\MoneyLedger;
 use App\Models\FlowVersion;
 use App\Models\Order;
 use App\Models\OrderAction;
@@ -142,6 +144,12 @@ final class StageEngine
                 $this->setStatus($action, ActionStatus::Unavailable, ActionStatus::Ready, 'T01', $actor);
                 $changed = true;
 
+                if ($action->source_reference !== null && ! self::earlyCollectionStillMet($order, $action)) {
+                    // A collection recorded early was refunded or corrected below the check (INT-07): the old
+                    // reference no longer proves it, so the next collection that meets the check verifies it.
+                    $action->forceFill(['source_reference' => null])->save();
+                }
+
                 if ($action->source_reference !== null && $action->type->completion() === CompletionMode::Source) {
                     // The truth was recorded before the stage opened (SRS: early collection/approval stays valid).
                     $this->setStatus($action, ActionStatus::Ready, ActionStatus::Verified, 'T03', $actor, context: ['source' => $action->source_reference]);
@@ -152,6 +160,19 @@ final class StageEngine
         } while ($changed);
 
         $this->syncWaiting($order, $stage, $actor);
+    }
+
+    /**
+     * An early collection result counts when its stage opens only while the money journal still covers the check.
+     */
+    private static function earlyCollectionStillMet(Order $order, OrderAction $action): bool
+    {
+        if (($action->source_reference['type'] ?? null) !== CollectionConditions::SOURCE_TYPE) {
+            return true;
+        }
+        $threshold = CollectionConditions::threshold($order, $action);
+
+        return $threshold !== null && MoneyLedger::collected($order->id)->compare($threshold) >= 0;
     }
 
     /**

@@ -4,10 +4,9 @@ namespace App\Finance;
 
 use App\Access\Permission;
 use App\Access\ScopedQuery;
-use App\Enums\JournalKind;
-use App\Models\Finance\MoneyEntry;
 use App\Models\Order;
 use App\Models\User;
+use App\Reports\CollectionMetrics;
 use App\Workflow\AppointmentBooking;
 use Carbon\CarbonImmutable;
 
@@ -18,7 +17,7 @@ use Carbon\CarbonImmutable;
  */
 final class CollectionReport
 {
-    public const BUCKETS = ['not_overdue', 'd1_7', 'd8_30', 'd30_plus'];
+    public const BUCKETS = CollectionMetrics::BUCKETS;
 
     /**
      * @return array<string, mixed>
@@ -29,48 +28,20 @@ final class CollectionReport
         if ($branchId !== null) {
             $orders->where('orders.branch_id', $branchId);
         }
+        $aging = CollectionMetrics::aging($orders);
         $today = AppointmentBooking::today();
-        $buckets = array_fill_keys(self::BUCKETS, ['amount_minor' => 0, 'count' => 0]);
-        $overdue = [];
-
-        foreach (OpenDues::of(clone $orders) as $row) {
-            if ($row['due_on'] === null) {
-                continue;
-            }
-            $age = $row['due_on'] < $today ? (int) CarbonImmutable::parse($row['due_on'])->diffInDays(CarbonImmutable::parse($today)) : 0;
-            $bucket = match (true) {
-                $age === 0 => 'not_overdue',
-                $age <= 7 => 'd1_7',
-                $age <= 30 => 'd8_30',
-                default => 'd30_plus',
-            };
-            $buckets[$bucket]['amount_minor'] += $row['remaining'];
-            $buckets[$bucket]['count']++;
-            if ($age > 0) {
-                $overdue[] = [
-                    'order' => ['id' => $row['order']->id, 'number' => $row['order']->number],
-                    'customer' => $row['order']->customer->name,
-                    'due' => $row['due']->name->get(),
-                    'amount_minor' => $row['remaining'],
-                    'age_days' => $age,
-                ];
-            }
-        }
-        usort($overdue, fn (array $a, array $b) => $b['age_days'] <=> $a['age_days']);
-
         $monthStart = CarbonImmutable::parse($today)->startOfMonth()->startOfDay();
-        $ids = (clone $orders)->select('orders.id');
-        $month = fn (array $kinds) => (int) MoneyEntry::query()->join('money_journals', 'money_journals.id', '=', 'money_entries.journal_id')
-            ->whereIn('money_journals.kind', $kinds)->where('money_journals.created_at', '>=', $monthStart)
-            ->whereIn('money_entries.order_id', $ids)->sum('money_entries.amount_minor');
-        $collected = $month([JournalKind::Collection->value]);
-        $net = $month([JournalKind::Collection->value, JournalKind::Reversal->value, JournalKind::Transfer->value]);
+        $m = CollectionMetrics::movements($orders, $monthStart, CarbonImmutable::parse($today)->endOfDay());
+        $overdue = array_map(fn (array $o) => [
+            'order' => ['id' => $o['order_id'], 'number' => $o['order']], 'customer' => $o['customer'],
+            'due' => $o['due'], 'amount_minor' => $o['amount_minor'], 'age_days' => $o['age_days'],
+        ], $aging['overdue']);
 
         return [
-            'buckets' => $buckets,
+            'buckets' => $aging['buckets'],
             'overdue' => array_slice($overdue, 0, 100),
-            'overdue_total_minor' => array_sum(array_column($overdue, 'amount_minor')),
-            'month' => ['collected_minor' => $collected, 'corrections_minor' => $net - $collected, 'net_minor' => $net],
+            'overdue_total_minor' => $aging['overdue_minor'],
+            'month' => ['collected_minor' => $m['collected'], 'corrections_minor' => $m['net'] - $m['collected'], 'net_minor' => $m['net']],
         ];
     }
 }

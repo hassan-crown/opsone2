@@ -20,8 +20,10 @@ use Illuminate\Contracts\Auth\Authenticatable;
  * The central Gate. Deny by default; evaluation order:
  * license (capability — of the permission, then of the record — then phase) → active account → scoped grant → record state.
  *
- * Effective grants are memoized per request and keyed by the user's `access_version`, which is read fresh
- * on every check, so a grant change or disable takes effect immediately even inside the same request.
+ * Effective grants are memoized per request and keyed by the user's `access_version`. The version is re-read at
+ * most every VERSION_TTL seconds within one request (ADR-0027: a list of 200 rows made 200 identical lookups); it is
+ * flushed after every handled request and by SessionRevoker, so a grant change or disable made in this process takes
+ * effect at the next check, and one made elsewhere at the next request (or within VERSION_TTL in a long command).
  */
 final class Authorizer
 {
@@ -29,6 +31,13 @@ final class Authorizer
      * @var array<string, array{active: bool, member: bool, grants: list<Grant>}>
      */
     private array $memo = [];
+
+    public const VERSION_TTL = 2.0;
+
+    /**
+     * @var array<int, array{version: int|null, at: float}>
+     */
+    private array $versions = [];
 
     public function __construct(
         private readonly LicenseCapabilities $license,
@@ -52,6 +61,26 @@ final class Authorizer
 
     public function inspect(?Authenticatable $user, Permission|string $permission, ?object $record = null): AccessDecision
     {
+        return $this->evaluate($user, $permission, $record, reading: false);
+    }
+
+    /**
+     * For SHOWING records a permission already lets the user see (a list, a detail page): the same evaluation without
+     * the license phase step, so read-only and wind-down phases keep reading (SUB-12, NFR-16, ADR-0028). Never use it
+     * to authorize a change.
+     */
+    public function inspectForReading(?Authenticatable $user, Permission|string $permission, ?object $record = null): AccessDecision
+    {
+        return $this->evaluate($user, $permission, $record, reading: true);
+    }
+
+    public function canRead(?Authenticatable $user, Permission|string $permission, ?object $record = null): bool
+    {
+        return $this->inspectForReading($user, $permission, $record)->allowed;
+    }
+
+    private function evaluate(?Authenticatable $user, Permission|string $permission, ?object $record, bool $reading): AccessDecision
+    {
         $permission = $permission instanceof Permission ? $permission : Permission::tryFrom($permission);
 
         if ($permission === null) {
@@ -74,7 +103,7 @@ final class Authorizer
         }
 
         // The user's own account (sign-in, password, sessions, notifications) stays open in every license phase.
-        if ($audience === Audience::Staff) {
+        if ($audience === Audience::Staff && ! $reading) {
             $mode = $this->license->mode();
             if ($mode === LicenseMode::ReadOnly && ! $permission->availableReadOnly()) {
                 return AccessDecision::deny(DenyReason::LicenseReadOnly);
@@ -121,9 +150,9 @@ final class Authorizer
      *
      * @return list<Grant>
      */
-    public function grantsFor(User $user, Permission $permission): array
+    public function grantsFor(User $user, Permission $permission, bool $reading = false): array
     {
-        if ($this->inspect($user, $permission)->allowed === false) {
+        if ($this->evaluate($user, $permission, null, $reading)->allowed === false) {
             return [];
         }
 
@@ -143,6 +172,7 @@ final class Authorizer
     public function flush(): void
     {
         $this->memo = [];
+        $this->versions = [];
     }
 
     /**
@@ -150,7 +180,13 @@ final class Authorizer
      */
     private function stateFor(User $user): array
     {
-        $version = User::query()->whereKey($user->id)->value('access_version');
+        $now = microtime(true);
+        $cached = $this->versions[$user->id] ?? null;
+        if ($cached === null || $now - $cached['at'] > self::VERSION_TTL) {
+            $value = User::query()->whereKey($user->id)->value('access_version');
+            $cached = $this->versions[$user->id] = ['version' => $value === null ? null : (int) $value, 'at' => $now];
+        }
+        $version = $cached['version'];
         if ($version === null) {
             return ['active' => false, 'member' => false, 'grants' => []];
         }

@@ -12,19 +12,23 @@ use App\Audit\AuditAction;
 use App\Customers\CustomerAccess;
 use App\Enums\CustomerKind;
 use App\Enums\InterestStatus;
+use App\Enums\OrderKind;
 use App\Enums\StateMachine;
 use App\Models\Customer;
 use App\Models\Interest;
+use App\Models\Order;
 use App\Models\User;
+use App\Orders\OrderAccess;
+use App\Orders\OrderOpener;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
 /**
  * M-03-T02: convert an open interest (P-15), once. The interest is linked to the customer it came from, an existing
  * one (by link, then by mobile or email) or a new one created from its data (which also needs P-09).
- * A second conversion is refused before any write, so no second customer or transition appears (COM-03).
- *
- * TODO(P4 orders): create the minimal made-to-order order and store its reference on the interest.
+ * In the same transaction it opens one made-to-order order for that customer (in progress, no price, the interest's
+ * need as its summary) through the normal order path, and keeps it as the interest's reference (SRS-COM-13).
+ * A second conversion is refused before any write, so no second customer, order or transition appears (COM-03).
  */
 final class T02ConvertInterest
 {
@@ -32,6 +36,7 @@ final class T02ConvertInterest
         private readonly Authorizer $access,
         private readonly TransitionRecorder $transitions,
         private readonly CreateCustomer $createCustomer,
+        private readonly OrderOpener $orders,
     ) {}
 
     public function handle(User $actor, Interest $interest, string $source = TransitionRecorder::SOURCE_WEB): Interest
@@ -50,27 +55,46 @@ final class T02ConvertInterest
 
             $from = $locked->status;
             [$customer, $created] = $this->resolveCustomer($actor, $locked, $source);
+            $order = $this->openOrder($actor, $locked, $customer, $source);
 
             $locked->forceFill([
                 'status' => InterestStatus::Converted,
                 'customer_id' => $customer->id,
                 'converted_customer_id' => $customer->id,
+                'converted_order_id' => $order->id,
                 'converted_at' => now(),
                 'converted_by' => $actor->id,
             ])->save();
 
             $this->transitions->record(
                 StateMachine::M03, 'T02', $locked, $from, InterestStatus::Converted, $actor, $source,
-                context: ['customer_id' => $customer->id, 'customer_created' => $created],
+                context: ['customer_id' => $customer->id, 'customer_created' => $created, 'order_id' => $order->id],
             );
             Audit::record(
                 AuditAction::InterestConverted, $locked, $actor,
-                before: ['status' => $from], after: ['status' => InterestStatus::Converted, 'customer_id' => $customer->id, 'customer_created' => $created],
+                before: ['status' => $from], after: ['status' => InterestStatus::Converted, 'customer_id' => $customer->id, 'customer_created' => $created, 'order_id' => $order->id],
                 source: $source,
             );
 
             return $locked;
         });
+    }
+
+    /**
+     * The minimal custom order: the interest's branch and need, followed by the interest's follower when they may
+     * follow orders there, else by the converting member. P-15 over the branch is re-checked by the opener.
+     */
+    private function openOrder(User $actor, Interest $interest, Customer $customer, string $source): Order
+    {
+        $probe = new Order(['branch_id' => $interest->branch_id, 'customer_id' => $customer->id]);
+        $assignee = $interest->assignee_id !== null && OrderAccess::isValidAssignee($interest->assignee_id, $probe) ? $interest->assignee_id : $actor->id;
+
+        return $this->orders->open($actor, OrderKind::Custom, [
+            'customer_id' => $customer->id,
+            'branch_id' => $interest->branch_id,
+            'assignee_id' => $assignee,
+            'need_summary' => mb_substr($interest->need, 0, 2000),
+        ], null, $source);
     }
 
     /**

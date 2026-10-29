@@ -26,6 +26,10 @@ import {
 import { useT } from '@/lib/i18n';
 import type { TranslationKey } from '@/lib/i18n';
 import { usePage } from '@inertiajs/react';
+import {
+    BlockedAction,
+    useLicenseBlock,
+} from '@/components/opsone/blocked-action';
 
 type Branch = BranchRow & {
     name: string;
@@ -39,6 +43,7 @@ type Props = {
     regions: { id: number; name: string }[];
     usage: Seats;
     canCreate: boolean;
+    canManage: boolean;
 };
 
 export default function Branches({
@@ -46,8 +51,10 @@ export default function Branches({
     regions,
     usage,
     canCreate,
+    canManage,
 }: Props) {
     const t = useT();
+    const blocked = useLicenseBlock('branches_create');
     const { errors } = usePage().props as { errors: Record<string, string> };
     const [editing, setEditing] = useState<BranchRow | null>(null);
     const [formOpen, setFormOpen] = useState(false);
@@ -91,15 +98,23 @@ export default function Branches({
                 title={t('org.branches.title')}
                 description={t('org.branches.description')}
                 actions={
-                    canCreate && (
-                        <Button
-                            type="button"
-                            onClick={() => openForm(null)}
-                            data-test="add-branch"
-                        >
-                            <Icon icon={Plus} />
-                            {t('org.branches.add')}
-                        </Button>
+                    blocked ? (
+                        <BlockedAction
+                            label={t('org.branches.add')}
+                            reason={blocked}
+                            testId="add-branch"
+                        />
+                    ) : (
+                        canCreate && (
+                            <Button
+                                type="button"
+                                onClick={() => openForm(null)}
+                                data-test="add-branch"
+                            >
+                                <Icon icon={Plus} />
+                                {t('org.branches.add')}
+                            </Button>
+                        )
                     )
                 }
             />
@@ -178,53 +193,56 @@ export default function Branches({
                                             </Badge>
                                         </Td>
                                         <Td className="text-end">
-                                            <RowMenu
-                                                label={t(
-                                                    'org.branches.row_actions',
-                                                )}
-                                                items={
-                                                    branch.status === 'active'
-                                                        ? [
-                                                              {
-                                                                  label: t(
-                                                                      'org.branches.edit',
-                                                                  ),
-                                                                  icon: Pencil,
-                                                                  onSelect:
-                                                                      () =>
-                                                                          openForm(
-                                                                              branch,
-                                                                          ),
-                                                              },
-                                                              {
-                                                                  label: t(
-                                                                      'org.branches.disable',
-                                                                  ),
-                                                                  icon: Lock,
-                                                                  danger: true,
-                                                                  separatorBefore: true,
-                                                                  onSelect:
-                                                                      () =>
-                                                                          setDisabling(
-                                                                              branch,
-                                                                          ),
-                                                              },
-                                                          ]
-                                                        : [
-                                                              {
-                                                                  label: t(
-                                                                      'org.branches.reactivate',
-                                                                  ),
-                                                                  icon: RotateCcw,
-                                                                  onSelect:
-                                                                      () =>
-                                                                          reactivate(
-                                                                              branch,
-                                                                          ),
-                                                              },
-                                                          ]
-                                                }
-                                            />
+                                            {canManage && (
+                                                <RowMenu
+                                                    label={t(
+                                                        'org.branches.row_actions',
+                                                    )}
+                                                    items={
+                                                        branch.status ===
+                                                        'active'
+                                                            ? [
+                                                                  {
+                                                                      label: t(
+                                                                          'org.branches.edit',
+                                                                      ),
+                                                                      icon: Pencil,
+                                                                      onSelect:
+                                                                          () =>
+                                                                              openForm(
+                                                                                  branch,
+                                                                              ),
+                                                                  },
+                                                                  {
+                                                                      label: t(
+                                                                          'org.branches.disable',
+                                                                      ),
+                                                                      icon: Lock,
+                                                                      danger: true,
+                                                                      separatorBefore: true,
+                                                                      onSelect:
+                                                                          () =>
+                                                                              setDisabling(
+                                                                                  branch,
+                                                                              ),
+                                                                  },
+                                                              ]
+                                                            : [
+                                                                  {
+                                                                      label: t(
+                                                                          'org.branches.reactivate',
+                                                                      ),
+                                                                      icon: RotateCcw,
+                                                                      onSelect:
+                                                                          () =>
+                                                                              reactivate(
+                                                                                  branch,
+                                                                              ),
+                                                                  },
+                                                              ]
+                                                    }
+                                                />
+                                            )}
                                         </Td>
                                     </tr>
                                 ))}

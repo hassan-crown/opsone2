@@ -40,6 +40,8 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
  * @property-read Order $order
  * @property-read OrderAction|null $action
  * @property-read OrderStage $stage
+ * @property-read Department|null $department
+ * @property-read User|null $assignee
  */
 class Task extends Model implements AttachmentOwner
 {
@@ -73,6 +75,22 @@ class Task extends Model implements AttachmentOwner
     public function stage(): BelongsTo
     {
         return $this->belongsTo(OrderStage::class, 'order_stage_id');
+    }
+
+    /**
+     * @return BelongsTo<Department, $this>
+     */
+    public function department(): BelongsTo
+    {
+        return $this->belongsTo(Department::class);
+    }
+
+    /**
+     * @return BelongsTo<User, $this>
+     */
+    public function assignee(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'assignee_id');
     }
 
     /**

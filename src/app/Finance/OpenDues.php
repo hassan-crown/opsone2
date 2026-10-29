@@ -22,7 +22,11 @@ final class OpenDues
      */
     public static function of(Builder $orders): array
     {
-        $orderIds = (clone $orders)->whereIn('orders.id', OrderDue::query()->whereNull('removed_at')->select('order_id'))
+        // Only orders with money still to collect: paid-up history must not fill the bound (ADR-0027).
+        $open = OrderDue::query()->whereNull('removed_at')
+            ->whereRaw('order_dues.amount_minor > (SELECT COALESCE(SUM(e.amount_minor), 0) FROM money_entries e WHERE e.order_due_id = order_dues.id)')
+            ->select('order_id');
+        $orderIds = (clone $orders)->whereIn('orders.id', $open)
             ->orderBy('orders.id')->limit(self::LIMIT)->pluck('orders.id')->all();
         if ($orderIds === []) {
             return [];
@@ -33,13 +37,14 @@ final class OpenDues
         $allocated = MoneyEntry::query()->whereIn('order_id', $orderIds)->whereNotNull('order_due_id')->groupBy('order_due_id')
             ->selectRaw('order_due_id, SUM(amount_minor) as allocated')->pluck('allocated', 'order_due_id')->all();
 
+        $dates = DueCalendar::datesFor($models, $dues);
+
         $rows = [];
         foreach ($dues as $orderId => $orderDues) {
             $order = $models->get($orderId);
             if ($order === null) {
                 continue;
             }
-            $dates = DueCalendar::dates($order, $orderDues);
             foreach ($orderDues as $due) {
                 $held = (int) ($allocated[$due->id] ?? 0);
                 $remaining = $due->amount_minor - $held;

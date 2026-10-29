@@ -13,6 +13,7 @@ use App\Models\Facility;
 use App\Models\Membership;
 use App\Models\OwnershipTransfer;
 use App\Models\SupportGrant;
+use App\Operations\Closure\ClosureAccess;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -49,6 +50,7 @@ class SettingsHomeController extends Controller
                 'viewPlan' => Access::can($user, Permission::P01),
                 'transferOwnership' => Access::can($user, Permission::P07),
                 'manageSupportAccess' => $canSupport = Access::can($user, Permission::P79),
+                'closure' => ClosureAccess::allows($user),
             ],
             'pendingSupportRequests' => $canSupport ? SupportGrant::query()
                 ->where('status', SupportGrantStatus::Requested->value)

@@ -2,8 +2,11 @@
 
 namespace App\Http\Middleware;
 
+use App\Access\LicenseBlocks;
+use App\Access\LicensedCapabilities;
 use App\Licensing\CurrentLicense;
 use App\Licensing\LicenseStatus;
+use App\Models\User;
 use Closure;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -14,19 +17,26 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class ShareLicenseState
 {
-    public function __construct(private readonly CurrentLicense $license) {}
+    public function __construct(
+        private readonly CurrentLicense $license,
+        private readonly LicensedCapabilities $capabilities,
+        private readonly LicenseBlocks $blocks,
+    ) {}
 
     public function handle(Request $request, Closure $next): Response
     {
-        Inertia::share('license', fn () => $request->user() !== null ? $this->banner() : null);
+        Inertia::share('license', fn () => $request->user() instanceof User ? $this->banner($request->user()) : null);
 
         return $next($request);
     }
 
     /**
-     * @return array{status: string, effective_status: ?string, problem: ?string, days_remaining: ?int, phase_ends_at: ?string, show: bool}
+     * `mode` is what the phase leaves open (full / no_new_work / read_only); `blocked` maps the main add actions the
+     * user holds to the reason they are unavailable (LicenseBlocks), so screens disable them with that reason.
+     *
+     * @return array{status: string, effective_status: ?string, problem: ?string, days_remaining: ?int, phase_ends_at: ?string, show: bool, mode: string, blocked: array<string, string>}
      */
-    private function banner(): array
+    private function banner(User $user): array
     {
         $snapshot = $this->license->snapshot();
         $days = $snapshot->daysRemaining();
@@ -39,6 +49,8 @@ class ShareLicenseState
             'phase_ends_at' => $snapshot->phaseEndsAt()?->toIso8601ZuluString(),
             'show' => $snapshot->status !== LicenseStatus::Active
                 || ($days !== null && $days <= (int) config('license.renewal_notice_days', 14)),
+            'mode' => $this->capabilities->mode()->value,
+            'blocked' => $user->is_support ? [] : $this->blocks->for($user),
         ];
     }
 }

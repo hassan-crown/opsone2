@@ -29,6 +29,10 @@ import { Card } from '@/components/ui/card';
 import { useLocale, useT } from '@/lib/i18n';
 import type { TranslationKey } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
+import {
+    BlockedAction,
+    useLicenseBlock,
+} from '@/components/opsone/blocked-action';
 
 type Member = {
     id: number;
@@ -458,6 +462,7 @@ function InvitationsTable({ invitations }: { invitations: InvitationRow[] }) {
 
 export default function TeamIndex(props: Props) {
     const t = useT();
+    const blocked = useLicenseBlock('team_invite');
 
     return (
         <>
@@ -466,13 +471,21 @@ export default function TeamIndex(props: Props) {
                 title={t('org.team.title')}
                 description={t('org.team.description')}
                 actions={
-                    props.canInvite && (
-                        <Button asChild data-test="invite-button">
-                            <Link href={TeamController.create.url()}>
-                                <Icon icon={Plus} />
-                                {t('org.team.invite')}
-                            </Link>
-                        </Button>
+                    blocked ? (
+                        <BlockedAction
+                            label={t('org.team.invite')}
+                            reason={blocked}
+                            testId="invite-button"
+                        />
+                    ) : (
+                        props.canInvite && (
+                            <Button asChild data-test="invite-button">
+                                <Link href={TeamController.create.url()}>
+                                    <Icon icon={Plus} />
+                                    {t('org.team.invite')}
+                                </Link>
+                            </Button>
+                        )
                     )
                 }
             />

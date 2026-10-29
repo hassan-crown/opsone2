@@ -18,6 +18,7 @@ use App\Models\Inventory\StockTransfer;
 use App\Models\Inventory\StockTransferLine;
 use App\Models\User;
 use App\Organization\OrgPresenter;
+use App\Support\PropRows;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -64,6 +65,7 @@ final class StockPresenter
         $balances = StockBalance::query()->with('item')->whereIn('location_id', $ids)
             ->where(fn ($q) => $q->where('on_hand_milli', '>', 0)->orWhere('reserved_milli', '>', 0)->orWhereIn('stock_item_id', StockItem::query()->whereNotNull('reorder_level_milli')->select('id')))
             ->orderBy('location_id')->orderBy('stock_item_id')->limit(1000)->get();
+        StockItems::preload($balances->pluck('item'));
         $incoming = self::incoming($ids);
         $totals = [];
         foreach (StockBalance::query()->whereIn('stock_item_id', $balances->pluck('stock_item_id')->unique())->get() as $b) {
@@ -100,7 +102,7 @@ final class StockPresenter
         }
 
         return [
-            'balances' => $rows,
+            'balances' => PropRows::of($rows),
             'locations' => $locations->map(fn (StockLocation $l) => self::location($l, $viewer))->values()->all(),
             'filters' => ['location_id' => $locationId, 'q' => $search, 'low' => $lowOnly],
             'units' => StockUnit::values(),
@@ -177,8 +179,11 @@ final class StockPresenter
             $query->where('stock_item_id', $filters['item_id']);
         }
 
+        $movements = $query->get();
+        StockItems::preload($movements->pluck('item'));
+
         return [
-            'movements' => $query->get()->map(fn (StockMovement $m) => [
+            'movements' => PropRows::of($movements->map(fn (StockMovement $m) => [
                 'id' => $m->id,
                 'kind' => $m->kind->value,
                 'location' => ['id' => $m->location_id, 'code' => $m->location->code],
@@ -194,7 +199,7 @@ final class StockPresenter
                 'reason' => $m->reason,
                 'actor' => $m->actor?->name,
                 'occurred_at' => $m->occurred_at->toIso8601String(),
-            ])->all(),
+            ])),
             'locations' => $locations->map(fn (StockLocation $l) => ['id' => $l->id, 'code' => $l->code, 'name' => (string) $l->name->get(app()->getLocale())])->all(),
             'kinds' => array_map(fn (MovementKind $k) => $k->value, MovementKind::cases()),
             'filters' => ['location_id' => $filters['location_id'] ?? null, 'kind' => $filters['kind'] ?? null, 'item_id' => $filters['item_id'] ?? null],

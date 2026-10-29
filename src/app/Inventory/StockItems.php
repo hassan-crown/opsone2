@@ -84,6 +84,32 @@ final class StockItems
     }
 
     /**
+     * Loads the catalog rows of many stock items in two queries, so describe() over a list reads no row of its own.
+     *
+     * @param  iterable<StockItem|null>  $items
+     */
+    public static function preload(iterable $items): void
+    {
+        $byType = [StockItem::READY_VARIANT => [], StockItem::MATERIAL => []];
+        foreach ($items as $item) {
+            if ($item !== null) {
+                $byType[$item->item_type][] = $item;
+            }
+        }
+        $ids = static fn (array $list): array => array_values(array_unique(array_map(fn (StockItem $i) => $i->item_id, $list)));
+        $variants = $byType[StockItem::READY_VARIANT] === [] ? collect()
+            : CatalogReadyVariant::query()->with('product')->whereIn('id', $ids($byType[StockItem::READY_VARIANT]))->get()->keyBy('id');
+        $materials = $byType[StockItem::MATERIAL] === [] ? collect()
+            : CatalogMaterial::query()->whereIn('id', $ids($byType[StockItem::MATERIAL]))->get()->keyBy('id');
+        foreach ($byType[StockItem::READY_VARIANT] as $item) {
+            $item->preloadCatalog($variants->get($item->item_id));
+        }
+        foreach ($byType[StockItem::MATERIAL] as $item) {
+            $item->preloadCatalog($materials->get($item->item_id));
+        }
+    }
+
+    /**
      * Display facts of an item: bilingual name, code (variant) and unit.
      *
      * @return array{id: int, type: string, item_id: int, name: string, code: string|null, unit: string, reorder_level: string|null}

@@ -12,6 +12,7 @@ use App\Models\SupportRequest;
 use App\Models\User;
 use App\Notifications\OutboxDeliverer;
 use App\Notifications\OutboxStatus;
+use App\Reports\Export\ReportExports;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Hash;
@@ -108,3 +109,18 @@ Artisan::command('support:expire', function (T04ExpireSupportAccess $expire) {
 })->purpose('End support grants past their window and lapsed requests (M-38-T04)');
 
 Schedule::command('support:expire')->everyMinute()->withoutOverlapping();
+
+// Operations for this deployment (ADR-0028): daily encrypted backup with retention (Q-54 default), heartbeats for
+// /health, and expiry of facility export files.
+Schedule::command('ops:backup --prune')
+    ->dailyAt((string) config('ops.backup.time', '02:30'))
+    ->when(fn () => (bool) config('ops.backup.enabled'))
+    ->withoutOverlapping(120);
+Schedule::command('ops:heartbeat')->everyMinute();
+Schedule::command('ops:exports-prune')->hourly()->withoutOverlapping();
+
+Artisan::command('reports:purge-exports', function (ReportExports $exports) {
+    $this->info(sprintf('Removed %d expired report export file(s).', $exports->purgeExpired()));
+})->purpose('Delete report export files past their retention (SHR-12)');
+
+Schedule::command('reports:purge-exports')->hourly()->withoutOverlapping();

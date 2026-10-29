@@ -116,7 +116,8 @@ final class AttachmentService
      */
     public function canDownload(User $user, Attachment $attachment): bool
     {
-        $owner = $attachment->attachable;
+        // One explicit read when a file list did not load its owner (no lazy load inside a list, ADR-0027).
+        $owner = $attachment->relationLoaded('attachable') ? $attachment->attachable : $attachment->attachable()->first();
 
         return $owner instanceof AttachmentOwner
             && $this->access->can($user, $owner->attachmentViewPermission(), $owner);

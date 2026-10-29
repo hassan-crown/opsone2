@@ -20,12 +20,13 @@ class WorkflowServiceProvider extends ServiceProvider
         $targets->register(
             (new Task)->getMorphClass(),
             fn (int $id) => Task::query()->with('order')->find($id),
-            fn (object $task) => route('orders.show', ['order' => $task instanceof Task ? $task->order_id : 0]),
+            // The task's own page: an executor may hold the task without P-16 on the whole order.
+            fn (object $task) => route('tasks.show', ['task' => $task instanceof Task ? $task->id : 0]),
         );
         $targets->register(
             (new Appointment)->getMorphClass(),
             fn (int $id) => Appointment::query()->with('order')->find($id),
-            fn (object $appointment) => route('orders.show', ['order' => $appointment instanceof Appointment ? $appointment->order_id : 0]),
+            fn (object $appointment) => route('appointments.show', ['appointment' => $appointment instanceof Appointment ? $appointment->id : 0]),
         );
     }
 }

@@ -1,0 +1,65 @@
+login: 200
+version=fd466dfea9b1dbba1c7c0044d338d690 once=translations.ar.d0c7e5c7efdf96b8
+== /orders
+Complete requests:      300
+Failed requests:        0
+Requests per second:    85.15 [#/sec] (mean)
+Time per request:       234.890 [ms] (mean)
+  50%    219
+  95%    268
+  99%    300
+ 100%    322 (longest request)
+== /orders?status=in_progress&page=20
+Complete requests:      300
+Failed requests:        0
+Requests per second:    54.72 [#/sec] (mean)
+Time per request:       365.526 [ms] (mean)
+  50%    306
+  95%    612
+  99%    749
+ 100%    765 (longest request)
+== /customers
+Complete requests:      300
+Failed requests:        0
+Requests per second:    67.83 [#/sec] (mean)
+Time per request:       294.861 [ms] (mean)
+  50%    270
+  95%    457
+  99%    478
+ 100%    505 (longest request)
+== /tasks
+Complete requests:      300
+Failed requests:        0
+Requests per second:    80.05 [#/sec] (mean)
+Time per request:       249.854 [ms] (mean)
+  50%    236
+  95%    337
+  99%    347
+ 100%    354 (longest request)
+== /calendar
+Complete requests:      300
+Failed requests:        0
+Requests per second:    25.44 [#/sec] (mean)
+Time per request:       786.217 [ms] (mean)
+  50%    761
+  95%    873
+  99%    962
+ 100%    978 (longest request)
+== /finance
+Complete requests:      300
+Failed requests:        0
+Requests per second:    15.94 [#/sec] (mean)
+Time per request:       1254.609 [ms] (mean)
+  50%   1227
+  95%   1320
+  99%   1382
+ 100%   1403 (longest request)
+== /stock
+Complete requests:      300
+Failed requests:        0
+Requests per second:    34.25 [#/sec] (mean)
+Time per request:       583.989 [ms] (mean)
+  50%    556
+  95%    698
+  99%    766
+ 100%    798 (longest request)

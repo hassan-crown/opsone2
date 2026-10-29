@@ -15,6 +15,7 @@ use App\Models\Task;
 use App\Models\User;
 use App\Models\WorkSettings;
 use App\Notifications\Notifier;
+use App\Support\RequestCache;
 use Carbon\CarbonInterface;
 use Illuminate\Support\Collection;
 use Illuminate\Validation\ValidationException;
@@ -155,7 +156,8 @@ final class AppointmentBooking
 
     public static function timezone(): string
     {
-        return Facility::current()?->timezone ?: (string) config('app.timezone');
+        // Asked per row by calendars and due lists: read once per request (flushed when the facility is saved).
+        return app(RequestCache::class)->remember('facility.timezone', fn () => Facility::current()?->timezone ?: (string) config('app.timezone'));
     }
 
     /**

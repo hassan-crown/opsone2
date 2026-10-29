@@ -27,7 +27,8 @@ class BranchController extends OrgController
     public function index(Request $request): Response
     {
         $actor = $this->actor($request);
-        $this->access->authorize($actor, Permission::P03);
+        // Listing survives read-only license phases; every change below still authorizes through the Gate.
+        abort_unless($this->access->canRead($actor, Permission::P03), 403);
 
         $members = DB::table('branch_membership')
             ->join('memberships', 'memberships.id', '=', 'branch_membership.membership_id')
@@ -36,7 +37,7 @@ class BranchController extends OrgController
             ->groupBy('branch_membership.branch_id')->pluck('total', 'branch_id');
 
         $branches = Branch::query()->with('region')->orderBy('id')->get()
-            ->filter(fn (Branch $b) => $this->access->can($actor, Permission::P03, $b))
+            ->filter(fn (Branch $b) => $this->access->canRead($actor, Permission::P03, $b))
             ->map(fn (Branch $b) => [
                 'id' => $b->id,
                 'name_ar' => $b->name_ar,
@@ -54,6 +55,7 @@ class BranchController extends OrgController
             'regions' => Region::query()->orderBy('id')->get()->map(fn ($r) => ['id' => $r->id, 'name' => OrgPresenter::name($r)])->all(),
             'usage' => $this->usage('branches', app(LicenseLimits::class)->activeBranches()),
             'canCreate' => $this->access->can($actor, Permission::P03, new Branch),
+            'canManage' => $this->access->can($actor, Permission::P03),
         ]);
     }
 

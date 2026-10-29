@@ -8,8 +8,10 @@ use App\Delivery\DeliveryAccess;
 use App\Inventory\StockAccess;
 use App\Notifications\NotificationFeed;
 use App\Returns\ReturnAccess;
+use App\Support\TranslationsVersion;
 use App\Tickets\TicketAccess;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 use Inertia\Middleware;
 
 class HandleInertiaRequests extends Middleware
@@ -48,7 +50,8 @@ class HandleInertiaRequests extends Middleware
             'locale' => app()->getLocale(),
             'dir' => SetLocale::direction(app()->getLocale()),
             'locales' => config('app.available_locales'),
-            'translations' => $this->translations(),
+            // ~330 KB of strings: sent once per locale and version, then the client keeps them (ADR-0027).
+            'translations' => Inertia::once(fn () => $this->translations())->as(TranslationsVersion::key('translations')),
             'auth' => [
                 'user' => $request->user(),
             ],
@@ -76,7 +79,7 @@ class HandleInertiaRequests extends Middleware
     }
 
     /**
-     * @return array{team: bool, branches: bool, audit: bool, customers: bool, catalog: bool, orders: bool, flow: bool, tasks: bool, calendar: bool, finance: bool, commissions: bool, procurement: bool}|null
+     * @return array{team: bool, branches: bool, audit: bool, customers: bool, catalog: bool, orders: bool, flow: bool, tasks: bool, calendar: bool, finance: bool, commissions: bool, reports: bool, procurement: bool}|null
      */
     private function orgNav(Request $request): ?array
     {
@@ -98,6 +101,7 @@ class HandleInertiaRequests extends Middleware
             'calendar' => Access::can($user, Permission::P54) || Access::can($user, Permission::P24),
             'finance' => Access::can($user, Permission::P37),
             'commissions' => Access::can($user, Permission::P94),
+            'reports' => Access::can($user, Permission::P60),
             'stock' => StockAccess::any($user),
             'delivery' => DeliveryAccess::any($user),
             'returns' => ReturnAccess::any($user),

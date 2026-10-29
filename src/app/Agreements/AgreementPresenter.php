@@ -49,7 +49,7 @@ final class AgreementPresenter
     {
         $amounts = self::amountsVisible($viewer, $order);
         $agreement = OrderAgreement::current($order);
-        $documents = AgreementDocument::query()->where('order_id', $order->id)->orderByDesc('id')->get();
+        $documents = AgreementDocument::query()->with(['replaces', 'sender'])->where('order_id', $order->id)->orderByDesc('id')->get();
         $change = OrderAgreement::pendingChange($order);
         $lastChange = $change ?? AgreementChange::query()->where('order_id', $order->id)->latest('id')->first();
         $settings = FinanceSettings::current();

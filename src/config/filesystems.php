@@ -48,6 +48,29 @@ return [
             'report' => false,
         ],
 
+        // Encrypted deployment backups (ADR-0028). Private; point OPS_BACKUP_DISK at `backups_s3` for off-server storage.
+        'backups' => [
+            'driver' => 'local',
+            'root' => env('OPS_BACKUP_LOCAL_ROOT', storage_path('app/backups')),
+            'visibility' => 'private',
+            'serve' => false,
+            'throw' => true,
+            'report' => false,
+        ],
+
+        'backups_s3' => [
+            'driver' => 's3',
+            'key' => env('OPS_BACKUP_S3_KEY'),
+            'secret' => env('OPS_BACKUP_S3_SECRET'),
+            'region' => env('OPS_BACKUP_S3_REGION'),
+            'bucket' => env('OPS_BACKUP_S3_BUCKET'),
+            'endpoint' => env('OPS_BACKUP_S3_ENDPOINT'),
+            'use_path_style_endpoint' => (bool) env('OPS_BACKUP_S3_PATH_STYLE', false),
+            'visibility' => 'private',
+            'throw' => true,
+            'report' => false,
+        ],
+
         'public' => [
             'driver' => 'local',
             'root' => storage_path('app/public'),

@@ -12,6 +12,10 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { useT } from '@/lib/i18n';
+import {
+    BlockedAction,
+    useLicenseBlock,
+} from '@/components/opsone/blocked-action';
 
 type Props = {
     customers: CustomerRow[];
@@ -31,6 +35,7 @@ export default function CustomersIndex({
     canCreate,
 }: Props) {
     const t = useT();
+    const blocked = useLicenseBlock('customers_create');
     const url = CustomerController.index.url();
     const filtered = Object.values(filters).some((v) => v !== '');
 
@@ -41,13 +46,21 @@ export default function CustomersIndex({
                 title={t('customers.title')}
                 description={t('customers.description')}
                 actions={
-                    canCreate && (
-                        <Button asChild data-test="add-customer">
-                            <Link href={CustomerController.create()}>
-                                <Icon icon={Plus} />
-                                {t('customers.add')}
-                            </Link>
-                        </Button>
+                    blocked ? (
+                        <BlockedAction
+                            label={t('customers.add')}
+                            reason={blocked}
+                            testId="add-customer"
+                        />
+                    ) : (
+                        canCreate && (
+                            <Button asChild data-test="add-customer">
+                                <Link href={CustomerController.create()}>
+                                    <Icon icon={Plus} />
+                                    {t('customers.add')}
+                                </Link>
+                            </Button>
+                        )
                     )
                 }
             />
