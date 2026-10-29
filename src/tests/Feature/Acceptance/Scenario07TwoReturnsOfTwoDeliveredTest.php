@@ -78,8 +78,8 @@ it('never accepts more than the 2 delivered across two approved returns and neve
                 ['return_in', 1000, "RT-{$this->year}-000001"],
                 ['return_in', 1000, "RT-{$this->year}-000002"],
             ])
-        ->and(DB::table('order_return_lines')->sum('accepted_milli'))->toBe(2000)
-        ->and(DB::table('order_return_lines')->sum('received_milli'))->toBe(2000)
+        ->and((int) DB::table('order_return_lines')->sum('accepted_milli'))->toBe(2000)
+        ->and((int) DB::table('order_return_lines')->sum('received_milli'))->toBe(2000)
         // A return neither creates a replacement delivery nor touches money by itself.
         ->and(DB::table('delivery_notes')->count())->toBe(1)
         ->and(DB::table('refunds')->count())->toBe(0)

@@ -164,7 +164,7 @@ it('runs a custom order from opening without price to delivery on the same singl
     expect(Order::query()->count())->toBe(1)
         ->and(AgreementDocument::query()->where('kind', 'quote')->count())->toBe(1)
         ->and(Agreement::query()->count())->toBe(1)
-        ->and(Payment::query()->where('order_id', $order->id)->sum('amount_minor'))->toBe(2_000_000)
+        ->and((int) Payment::query()->where('order_id', $order->id)->sum('amount_minor'))->toBe(2_000_000)
         ->and(Receipt::query()->orderBy('id')->pluck('number')->all())->toBe(["RC-{$year}-000001", "RC-{$year}-000002"])
         ->and(StateTransition::query()->where('machine', 'M-04')->where('transition', 'T03')->where('subject_id', $order->id)->count())->toBe(1)
         ->and(StateTransition::query()->where('machine', 'M-06')->where('transition', 'T04')->count())->toBe(5)
@@ -279,7 +279,11 @@ function accI02Dues(Order $order): array
  */
 function accI02Audits(Order $order, array $actions): array
 {
-    return AuditEvent::query()->whereIn('action', $actions)
-        ->selectRaw('action, count(*) as n')->groupBy('action')->orderBy('action')->pluck('n', 'action')
+    // Sorted in PHP: MariaDB's collation orders '.' and '_' differently from SQLite.
+    $counts = AuditEvent::query()->whereIn('action', $actions)
+        ->selectRaw('action, count(*) as n')->groupBy('action')->pluck('n', 'action')
         ->map(fn ($n) => (int) $n)->all();
+    ksort($counts, SORT_STRING);
+
+    return $counts;
 }

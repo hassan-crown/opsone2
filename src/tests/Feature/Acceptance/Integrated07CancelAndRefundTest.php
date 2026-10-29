@@ -201,7 +201,7 @@ it('binding «ردان300 و800 من قابل للرد1000»: a pending 300 rese
     expect(MoneyLedger::collected($order->id)->minor)->toBe(20_000)
         ->and(RefundLimits::refundable($payment, $order->id)->minor)->toBe(20_000)
         ->and(Refund::query()->count())->toBe(2)
-        ->and(Refund::query()->where('status', RefundStatus::Executed)->sum('amount_minor'))->toBe(80_000)
+        ->and((int) Refund::query()->where('status', RefundStatus::Executed)->sum('amount_minor'))->toBe(80_000)
         ->and(DB::table('audit_events')->where('action', 'refund.requested')->count())->toBe(2)
         ->and(DB::table('audit_events')->where('action', 'refund.failed')->count())->toBe(1)
         ->and(SettlementFollowUp::query()->where('order_id', $order->id)->count())->toBe(1)

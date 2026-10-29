@@ -124,7 +124,7 @@ it('lets the settlement — not the damage — set the money: a lower agreed set
         ->and(accSBalance($f->location, 'ready_variant', $f->variant)['available'])->toBe(7000);
     accS8Refund($f, $return['id'], '100.01')->assertStatus(409)->assertJsonPath('condition', 'above_settlement');
     accS8Refund($f, $return['id'], '100.00')->assertCreated();
-    expect(DB::table('refunds')->sum('amount_minor'))->toBe(10000);
+    expect((int) DB::table('refunds')->sum('amount_minor'))->toBe(10000);
 });
 
 it('keeps the damaged unit out of available even when the settlement is zero, and asks no refund', function () {

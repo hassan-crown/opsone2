@@ -57,7 +57,7 @@ it('keeps the delivery of 2, releases only the 3 not issued and records no retur
         ])
         // The recorded delivery is untouched.
         ->and(DB::table('delivery_notes')->where('status', 'confirmed')->pluck('number')->all())->toBe(["DN-{$this->year}-000001"])
-        ->and(DB::table('delivery_note_lines')->sum('quantity_milli'))->toBe(2000)
+        ->and((int) DB::table('delivery_note_lines')->sum('quantity_milli'))->toBe(2000)
         // No return of 5 — no return at all, and nothing came back into stock.
         ->and(DB::table('order_returns')->count())->toBe(0)
         ->and(StockMovement::query()->whereIn('kind', ['return_in', 'return_damaged'])->count())->toBe(0)
