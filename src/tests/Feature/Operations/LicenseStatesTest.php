@@ -1,5 +1,7 @@
 <?php
 
+use App\Access\Access;
+use App\Access\Authorizer;
 use App\Access\Exceptions\LicenseLimitReached;
 use App\Access\LicenseLimits;
 use App\Enums\MembershipStatus;
@@ -165,3 +167,13 @@ it('keeps reports and report exports open in every license phase (reading, NFR-1
     expect($export->refresh()->status)->toBe('ready');
     $this->actingAs($owner)->postJson("/reports/exports/{$export->uuid}/link")->assertOk();
 })->with('phases');
+
+it('gives a long-running worker the current scoped Gate after each job (no Authorizer kept by the facade)', function () {
+    $first = Access::getFacadeRoot();
+    expect($first)->toBe(app(Authorizer::class));
+
+    // What a queue worker does between jobs.
+    app()->forgetScopedInstances();
+    expect(Access::getFacadeRoot())->not->toBe($first)
+        ->and(Access::getFacadeRoot())->toBe(app(Authorizer::class));
+});

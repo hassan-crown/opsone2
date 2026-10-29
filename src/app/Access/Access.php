@@ -19,6 +19,12 @@ use Illuminate\Support\Facades\Facade;
  */
 final class Access extends Facade
 {
+    /**
+     * The Authorizer is scoped (per request, per queued job): never keep one across forgetScopedInstances(), or a
+     * long-running worker would decide with the first job's license and grant caches.
+     */
+    protected static $cached = false;
+
     protected static function getFacadeAccessor(): string
     {
         return Authorizer::class;
