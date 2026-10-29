@@ -464,6 +464,7 @@
     "dashboard.description": "من هنا يبدأ يومك.",
     "auth.invite_only": "الدخول للموظفين المدعوين فقط؛ اطلب دعوة من مسؤول المنشأة.",
     "access.session_revoked": "انتهت جلستك لتغير صلاحيات حسابك أو تعطيله. سجّل الدخول مجددًا.",
+    "access.denied.generic": "لا تملك صلاحية هذا الإجراء.",
     "access.denied.unknown_permission": "إجراء غير معروف.",
     "access.denied.audience": "هذا الإجراء غير متاح لحسابك.",
     "access.denied.license": "هذه الميزة غير مشمولة في ترخيص المنشأة.",

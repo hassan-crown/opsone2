@@ -464,6 +464,7 @@
     "dashboard.description": "Here is where your day starts.",
     "auth.invite_only": "Sign-in is for invited staff only; ask your facility administrator for an invitation.",
     "access.session_revoked": "Your session ended because your access changed or your account was disabled. Please sign in again.",
+    "access.denied.generic": "You do not have permission for this action.",
     "access.denied.unknown_permission": "Unknown action.",
     "access.denied.audience": "This action is not available to your account.",
     "access.denied.license": "This feature is not included in the facility license.",
