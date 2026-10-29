@@ -7,6 +7,7 @@ use App\Access\TransitionRecorder;
 use App\Agreements\CustomerActor;
 use App\Audit\Audit;
 use App\Audit\AuditAction;
+use App\Enums\CustomOrderStatus;
 use App\Enums\OrderKind;
 use App\Enums\PaymentMethod;
 use App\Enums\PaymentStatus;
@@ -19,7 +20,9 @@ use App\Finance\PaymentRegistry;
 use App\Models\Facility;
 use App\Models\Finance\Payment;
 use App\Models\Order;
+use App\Models\Settlement\SettlementItem;
 use App\Money\Money;
+use App\Settlement\SettlementFollowUps;
 use App\Support\LockingTransaction;
 use App\Workflow\AppointmentBooking;
 use Illuminate\Auth\Access\AuthorizationException;
@@ -44,6 +47,7 @@ final class GatewayPayments
         private readonly TransitionRecorder $transitions,
         private readonly CollectionNotices $notices,
         private readonly GatewayOutcomes $outcomes,
+        private readonly SettlementFollowUps $settlement,
     ) {}
 
     public static function merchantReference(Payment $payment): string
@@ -181,6 +185,11 @@ final class GatewayPayments
             if ($status === PaymentStatus::Confirmed) {
                 $this->schedule->sync($order, $head, null, self::SOURCE);
                 $this->posting->confirm($payment, $transition, [$order->id => $payment->amount()], [$order->id => $order], [$order->id => $head], null, self::SOURCE, $context);
+                if ($order->kind === OrderKind::Custom && $order->status === CustomOrderStatus::Cancelled->value) {
+                    // INT-08: money that arrives after an accepted cancellation is kept and settled, never restarts
+                    // work; it joins the order's one settlement follow-up as its own refund item (its full amount).
+                    $this->settlement->add($order, SettlementItem::REFUND, self::SOURCE, ['reason' => 'paid_after_cancellation'], $payment->amount_minor, 'payment', $payment->id);
+                }
             } else {
                 $payment->forceFill(['status' => $status, 'lock_version' => $payment->lock_version + 1])->save();
                 $this->transitions->record(StateMachine::M11, $transition, $payment, $from, $status, null, self::SOURCE, null, $context);
