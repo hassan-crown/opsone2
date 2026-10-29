@@ -67,7 +67,7 @@ class PurchaseReceipt extends Model implements AttachmentOwner
      */
     public function attachments(): MorphMany
     {
-        return $this->morphMany(Attachment::class, 'attachable')->chaperone()->orderBy('id');
+        return $this->morphMany(Attachment::class, 'attachable')->orderBy('id');
     }
 
     public function attachmentViewPermission(): Permission

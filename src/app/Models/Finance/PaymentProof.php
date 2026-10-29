@@ -101,7 +101,7 @@ class PaymentProof extends Model implements AttachmentOwner
      */
     public function attachments(): MorphMany
     {
-        return $this->morphMany(Attachment::class, 'attachable')->chaperone();
+        return $this->morphMany(Attachment::class, 'attachable');
     }
 
     public function claimed(): Money

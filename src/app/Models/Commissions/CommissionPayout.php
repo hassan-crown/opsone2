@@ -76,7 +76,7 @@ class CommissionPayout extends Model implements AttachmentOwner
      */
     public function attachments(): MorphMany
     {
-        return $this->morphMany(Attachment::class, 'attachable')->chaperone();
+        return $this->morphMany(Attachment::class, 'attachable');
     }
 
     /** What the payout takes from the member's balance: the corrected amount once M-33-T04 recorded it. */

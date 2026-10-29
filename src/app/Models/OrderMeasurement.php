@@ -46,7 +46,7 @@ class OrderMeasurement extends Model
      */
     public function attachments(): MorphMany
     {
-        return $this->morphMany(Attachment::class, 'attachable')->chaperone();
+        return $this->morphMany(Attachment::class, 'attachable');
     }
 
     protected function casts(): array
