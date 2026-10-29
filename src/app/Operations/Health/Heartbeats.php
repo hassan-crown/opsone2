@@ -22,8 +22,9 @@ final class Heartbeats
 
     public static function age(string $key): ?int
     {
+        // The Redis store keeps numbers unserialized and returns them as strings.
         $at = Cache::get($key);
 
-        return is_int($at) ? max(0, CarbonImmutable::now('UTC')->getTimestamp() - $at) : null;
+        return is_numeric($at) ? max(0, CarbonImmutable::now('UTC')->getTimestamp() - (int) $at) : null;
     }
 }

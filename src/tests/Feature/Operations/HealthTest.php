@@ -44,3 +44,13 @@ it('reports a database failure as one word', function () {
     $this->getJson('/health')->assertStatus(503)->assertJsonPath('checks.database', 'fail')
         ->assertJsonMissingPath('message');
 });
+
+it('reads a heartbeat the Redis store returns as a numeric string (production cache)', function () {
+    // RedisStore keeps integers unserialized, so Cache::get() answers "1730000000", not 1730000000.
+    Cache::forever(Heartbeats::SCHEDULER, (string) now()->getTimestamp());
+    Cache::forever(Heartbeats::QUEUE, (string) now()->getTimestamp());
+
+    expect(Heartbeats::age(Heartbeats::SCHEDULER))->toBeLessThan(5)
+        ->and(Heartbeats::age(Heartbeats::QUEUE))->toBeLessThan(5);
+    $this->getJson('/health')->assertJsonPath('checks.scheduler', 'ok');
+});
