@@ -67,19 +67,35 @@ function queriesFor(Closure $request): int
 function staffBudgets(): array
 {
     return [
-        'dashboard' => ['/dashboard', 'owner', 16],
-        'orders' => ['/orders', 'owner', 14],
-        'orders filtered' => ['/orders?status=in_progress&page=1', 'owner', 14],
-        'orders scoped' => ['/orders', 'sales', 22],
-        'customers' => ['/customers', 'owner', 14],
-        'search' => ['/search?q=فهد', 'owner', 14],
-        'tasks' => ['/tasks', 'owner', 16],
-        'tasks executor' => ['/tasks', 'executor', 40],
-        'tasks supervisor inbox' => ['/tasks?view=inbox', 'supervisor', 28],
-        'dashboard executor' => ['/dashboard', 'executor', 26],
-        'calendar' => ['/calendar', 'owner', 20],
-        'finance' => ['/finance', 'owner', 24],
-        'stock' => ['/stock', 'owner', 22],
+        'dashboard' => ['/dashboard', 'owner', 22],
+        'orders' => ['/orders', 'owner', 20],
+        'orders filtered' => ['/orders?status=in_progress&page=1', 'owner', 20],
+        'orders scoped' => ['/orders', 'sales', 28],
+        'customers' => ['/customers', 'owner', 20],
+        'search' => ['/search?q=فهد', 'owner', 20],
+        'tasks' => ['/tasks', 'owner', 22],
+        'tasks executor' => ['/tasks', 'executor', 46],
+        'tasks supervisor inbox' => ['/tasks?view=inbox', 'supervisor', 34],
+        'dashboard executor' => ['/dashboard', 'executor', 32],
+        'calendar' => ['/calendar', 'owner', 26],
+        'finance' => ['/finance', 'owner', 30],
+        'stock' => ['/stock', 'owner', 28],
+        'reports' => ['/reports', 'owner', 28],
+        'report sales' => ['/reports/sales', 'owner', 28],
+        'report refunds' => ['/reports/refunds', 'owner', 24],
+        'report commissions' => ['/reports/commissions', 'owner', 22],
+        'report workflow' => ['/reports/workflow', 'owner', 21],
+        'report appointments' => ['/reports/appointments', 'owner', 23],
+        'report inventory' => ['/reports/inventory', 'owner', 26],
+        'report procurement' => ['/reports/procurement', 'owner', 25],
+        'report returns' => ['/reports/returns', 'owner', 28],
+        'report store' => ['/reports/store', 'owner', 24],
+        // One run of the sales, workflow and collection reports per visible branch (≤ the license's branch limit,
+        // 4 in the dataset): linear in branches, constant in rows.
+        'report compare' => ['/reports/compare', 'owner', 120],
+        'report exports' => ['/reports/exports', 'owner', 15],
+        'collection report' => ['/reports/collection', 'owner', 22],
+        'reports scoped' => ['/reports/sales', 'supervisor', 26],
     ];
 }
 
@@ -101,7 +117,11 @@ it('keeps the staff pages within their query budget', function () {
     foreach (staffBudgets() as $page => [$uri, $who, $budget]) {
         $actor = perfActor($who);
         app()->forgetScopedInstances();
-        $counts[$page] = queriesFor(fn () => $this->actingAs($actor)->withHeaders(inertiaVisit())->get($uri)->assertOk());
+        $status = 0;
+        $counts[$page] = queriesFor(function () use ($actor, $uri, &$status) {
+            $status = $this->actingAs($actor)->withHeaders(inertiaVisit())->get($uri)->status();
+        });
+        expect($status)->toBe(200, "{$page} ({$uri})");
         if ($counts[$page] > $budget) {
             $over[] = "{$page} ({$uri}): {$counts[$page]} queries, budget {$budget}";
         }

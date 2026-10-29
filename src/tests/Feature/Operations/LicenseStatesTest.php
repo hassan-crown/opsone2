@@ -9,11 +9,13 @@ use App\Licensing\LicenseStatus;
 use App\Models\Branch;
 use App\Models\Invitation;
 use App\Models\Membership;
+use App\Models\ReportExport;
 use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Testing\AssertableInertia as Assert;
 use Tests\Support\LicenseFactory;
 use Tests\Support\Org;
@@ -148,3 +150,18 @@ it('shows nothing blocked to a member who never held the action', function () {
             ->missing('license.blocked.orders_create')
             ->missing('license.blocked.team_invite'));
 });
+
+it('keeps reports and report exports open in every license phase (reading, NFR-16)', function (string $status) {
+    licensePhase($status);
+    Storage::fake('attachments');
+    $owner = $this->org->owner;
+
+    foreach (['/reports', '/reports/sales', '/reports/refunds', '/reports/inventory', '/reports/exports', '/reports/collection'] as $url) {
+        expect($this->actingAs($owner)->get($url)->status())->toBe(200, "{$url} in {$status}");
+    }
+
+    $this->actingAs($owner)->postJson('/reports/exports', ['report' => 'sales'])->assertCreated();
+    $export = ReportExport::query()->latest('id')->firstOrFail();
+    expect($export->refresh()->status)->toBe('ready');
+    $this->actingAs($owner)->postJson("/reports/exports/{$export->uuid}/link")->assertOk();
+})->with('phases');

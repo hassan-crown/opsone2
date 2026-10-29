@@ -44,6 +44,7 @@ final class InventoryReport implements Report
         $names = StockLocation::query()->whereIn('id', $locationIds)->get()->keyBy('id');
 
         $balances = StockBalance::query()->with('item')->whereIn('location_id', $locationIds)->orderBy('location_id')->orderBy('stock_item_id')->get();
+        StockItems::preload($balances->pluck('item'));
         $costs = $s->costsVisible() ? $this->averageCosts() : [];
 
         $availableByItem = [];
