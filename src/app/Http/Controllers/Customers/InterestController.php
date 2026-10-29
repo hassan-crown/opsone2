@@ -23,7 +23,9 @@ use App\Http\Requests\Customers\InterestRequest;
 use App\Models\Branch;
 use App\Models\Customer;
 use App\Models\Interest;
+use App\Models\Order;
 use App\Models\User;
+use App\Orders\OrderAccess;
 use App\Organization\OrgPresenter;
 use App\Search\FulltextMatch;
 use Illuminate\Http\RedirectResponse;
@@ -125,10 +127,13 @@ class InterestController extends Controller
         $customer = $interest->converted_customer_id ?? $interest->customer_id;
         $customer = $customer === null ? null : Customer::query()->find($customer);
 
+        $order = $interest->converted_order_id === null ? null : Order::query()->find($interest->converted_order_id);
+
         return Inertia::render('interests/show', [
             'interest' => CustomerPresenter::interest($interest),
             'customer' => $customer !== null && CustomerAccess::canViewCustomer($actor, $customer)
                 ? ['id' => $customer->id, 'name' => $customer->name] : null,
+            'order' => $order !== null && OrderAccess::canView($actor, $order) ? ['id' => $order->id, 'number' => $order->number] : null,
             'can' => $this->can($actor, $interest),
             'members' => CustomerPresenter::memberOptions(),
         ]);

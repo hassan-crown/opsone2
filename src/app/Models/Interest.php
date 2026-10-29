@@ -32,6 +32,7 @@ use Illuminate\Support\Carbon;
  * @property string|null $close_note
  * @property Carbon|null $closed_at
  * @property int|null $converted_customer_id
+ * @property int|null $converted_order_id
  * @property Carbon|null $converted_at
  * @property int|null $converted_by
  * @property-read Branch $branch

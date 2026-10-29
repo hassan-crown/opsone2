@@ -1455,6 +1455,7 @@
     "interests.form.cancel": "Cancel",
     "interests.detail.back": "Interests",
     "interests.detail.recorded": "Recorded",
+    "interests.detail.order": "Order",
     "interests.detail.customer": "Customer",
     "interests.detail.close_reason": "Closing reason",
     "interests.detail.convert_note": "Converting links this interest to a customer once. Pressing twice or a colleague converting at the same time opens the same customer; no second one is created.",

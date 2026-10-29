@@ -3,6 +3,7 @@ import { Pencil } from 'lucide-react';
 import { useState } from 'react';
 import CustomerController from '@/actions/App/Http/Controllers/Customers/CustomerController';
 import InterestController from '@/actions/App/Http/Controllers/Customers/InterestController';
+import OrderController from '@/actions/App/Http/Controllers/Orders/OrderController';
 import type {
     InterestCan,
     InterestRow,
@@ -31,6 +32,7 @@ import type { TranslationKey } from '@/lib/i18n';
 type Props = {
     interest: InterestRow;
     customer: { id: number; name: string } | null;
+    order: { id: number; number: string } | null;
     can: InterestCan;
     members: Option[];
 };
@@ -55,6 +57,7 @@ const REASONS = [
 export default function InterestShow({
     interest,
     customer,
+    order,
     can,
     members,
 }: Props) {
@@ -200,6 +203,21 @@ export default function InterestShow({
                                     className="text-link hover:underline"
                                 >
                                     {customer.name}
+                                </Link>
+                            </dd>
+                        </div>
+                    )}
+                    {order && (
+                        <div>
+                            <dt className="text-caption text-weak">
+                                {t('interests.detail.order')}
+                            </dt>
+                            <dd>
+                                <Link
+                                    href={OrderController.show(order.id)}
+                                    className="text-link hover:underline"
+                                >
+                                    {order.number}
                                 </Link>
                             </dd>
                         </div>

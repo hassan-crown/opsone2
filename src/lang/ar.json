@@ -1455,6 +1455,7 @@
     "interests.form.cancel": "إلغاء",
     "interests.detail.back": "الاهتمامات",
     "interests.detail.recorded": "سُجل",
+    "interests.detail.order": "الطلب",
     "interests.detail.customer": "العميل",
     "interests.detail.close_reason": "سبب الإغلاق",
     "interests.detail.convert_note": "يُربط الاهتمام بعميل مرة واحدة. لو ضُغط الزر مرتين أو حوّله زميل في الوقت نفسه يُفتح العميل نفسه ولا يُنشأ عميل ثانٍ.",
