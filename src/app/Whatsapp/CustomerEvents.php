@@ -19,7 +19,7 @@ use Illuminate\Support\Facades\URL;
 use Throwable;
 
 /**
- * Turns domain changes into customer notifications (ADR-0029): measurement/installation booked, quote or design ready,
+ * Turns domain changes into customer notifications (ADR-0030): measurement/installation booked, quote or design ready,
  * order completed (with the link to leave feedback in the customer's workspace) and, from the scheduler, the 24-hour
  * reminders. Reacting to the saved models keeps the workflow actions untouched; a failure here is reported and never
  * undoes the business change. The messages themselves are idempotent (see CustomerMessenger).

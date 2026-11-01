@@ -1,7 +1,7 @@
 <?php
 
 /*
-| WhatsApp channel for customer notifications (ADR-0029). Everything here comes from the environment — no
+| WhatsApp channel for customer notifications (ADR-0030). Everything here comes from the environment — no
 | credential is stored in the database, the repository or the UI. The facility only switches the channel on and
 | chooses which events send (integration_settings, key `whatsapp`, no secrets).
 */

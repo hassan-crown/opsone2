@@ -9,7 +9,7 @@ use App\Whatsapp\MessageStatus;
 use App\Whatsapp\WhatsAppEvent;
 
 /**
- * WhatsApp channel for the showcase (ADR-0029): the facility has it on for every event from the start, so the real
+ * WhatsApp channel for the showcase (ADR-0030): the facility has it on for every event from the start, so the real
  * flows queue their customer messages while the clock walks; once the history exists, a deterministic pass gives each
  * message the outcome a real provider would have reported (read / delivered / sent), a few SMS fallbacks, one
  * failure, and a handful of customers who opted out (their messages are SMS). No provider is called.

@@ -6,7 +6,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 /**
- * WhatsApp channel (ADR-0029): the customer's opt-out and the per-customer message log (status only for most staff).
+ * WhatsApp channel (ADR-0030): the customer's opt-out and the per-customer message log (status only for most staff).
  */
 return new #[Expand] class extends Migration
 {

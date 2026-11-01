@@ -1,4 +1,4 @@
-# ADR-0029 — WhatsApp channel for customer notifications
+# ADR-0030 — WhatsApp channel for customer notifications
 
 Status: accepted (product owner request; amends ADR-0007 «WhatsApp is only a `wa.me` link»)
 

@@ -22,7 +22,7 @@ class NotificationsServiceProvider extends ServiceProvider
         $this->app->singleton(NotificationTargets::class);
         // Q-24: the provider is chosen before P8; until then only the development log driver exists.
         $this->app->bind(SmsChannel::class, LogSmsChannel::class);
-        // ADR-0029: the driver comes from WHATSAPP_DRIVER (log | fake | cloud).
+        // ADR-0030: the driver comes from WHATSAPP_DRIVER (log | fake | cloud).
         $this->app->singleton(WhatsAppChannel::class, fn () => match (config('whatsapp.driver')) {
             'cloud' => new CloudApiWhatsAppChannel,
             'fake' => new FakeWhatsAppChannel,

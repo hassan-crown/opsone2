@@ -3,7 +3,7 @@
 namespace App\Whatsapp;
 
 /**
- * The customer events that may go out on WhatsApp (ADR-0029). Each maps to one approved template name and an
+ * The customer events that may go out on WhatsApp (ADR-0030). Each maps to one approved template name and an
  * ordered list of body parameters; `{{1}}…` at Meta correspond to `params()` in this order.
  */
 enum WhatsAppEvent: string

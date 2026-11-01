@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
 /**
- * Meta's WhatsApp webhook (ADR-0029): no session, no CSRF — the body's HMAC signature is the authentication. A body
+ * Meta's WhatsApp webhook (ADR-0030): no session, no CSRF — the body's HMAC signature is the authentication. A body
  * with a missing or wrong signature is refused (403) before it is parsed.
  */
 class WhatsAppWebhookController extends Controller

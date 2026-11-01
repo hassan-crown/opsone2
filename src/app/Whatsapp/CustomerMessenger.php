@@ -12,7 +12,7 @@ use App\Notifications\Outbox;
 use Illuminate\Database\UniqueConstraintViolationException;
 
 /**
- * The one door for customer event notifications (ADR-0029). It decides the channel — WhatsApp when the facility
+ * The one door for customer event notifications (ADR-0030). It decides the channel — WhatsApp when the facility
  * enabled the channel and the event, the driver can send, the customer has not opted out and does not prefer another
  * channel; SMS otherwise — records the message in the customer's log and queues it through the transactional outbox
  * (so it commits with the business change). A repeated call with the same key is a no-op. Call it inside the

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * WhatsApp channel (ADR-0029): dispatch per event through the outbox, consent and preferred channel, SMS fallback,
+ * WhatsApp channel (ADR-0030): dispatch per event through the outbox, consent and preferred channel, SMS fallback,
  * idempotency, the signed webhook, the owner's settings and the staff message log.
  */
 

@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
 /**
- * Consent for WhatsApp messages (ADR-0029): staff with P-10 over the customer record that the customer asked to stop
+ * Consent for WhatsApp messages (ADR-0030): staff with P-10 over the customer record that the customer asked to stop
  * (or to resume). SMS keeps working; only the WhatsApp channel is switched off for this customer.
  */
 class CustomerMessagingController extends Controller

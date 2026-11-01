@@ -37,7 +37,7 @@ class IntegrationsController extends Controller
             'smtp' => $settings->smtpView(),
             'smtpPorts' => UpdateSmtpRequest::PORTS,
             'sms' => ['configured' => $sms->isConfigured(), 'driver' => app()->environment('local', 'testing') ? 'log' : null],
-            // Credentials are environment-only (ADR-0029): the page shows state, never a secret.
+            // Credentials are environment-only (ADR-0030): the page shows state, never a secret.
             'whatsapp' => [
                 'enabled' => $whatsapp->enabled(),
                 'events' => $whatsapp->events(),

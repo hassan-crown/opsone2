@@ -3,7 +3,7 @@
 namespace App\Notifications\Channels\WhatsApp;
 
 /**
- * Outbound WhatsApp (ADR-0029). Template messages only: the provider never receives free text.
+ * Outbound WhatsApp (ADR-0030). Template messages only: the provider never receives free text.
  */
 interface WhatsAppChannel
 {

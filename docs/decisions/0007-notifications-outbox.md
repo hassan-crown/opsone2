@@ -15,5 +15,5 @@ Status: accepted (Q-22, Q-24, Q-26)
 - **Email:** the facility's own SMTP account (`integration_settings`, encrypted, password write-only, enabling needs a
   successful test, connection changes withdraw it); otherwise the application mailer (`log` in development).
 - **SMS:** `SmsChannel` interface with a development log driver; production shows "not configured" and messages are
-  `skipped`, never reported as sent (Q-24). WhatsApp was only a `wa.me` link here; it became an outbox channel in ADR-0029.
+  `skipped`, never reported as sent (Q-24). WhatsApp was only a `wa.me` link here; it became an outbox channel in ADR-0030.
 - **Preferences:** per-user email copy for optional types only; security/account types always email.

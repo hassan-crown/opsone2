@@ -126,7 +126,7 @@ Artisan::command('reports:purge-exports', function (ReportExports $exports) {
 
 Schedule::command('reports:purge-exports')->hourly()->withoutOverlapping();
 
-// WhatsApp/SMS reminders 24 hours before a confirmed measurement or installation (ADR-0029), inside the reminder hours.
+// WhatsApp/SMS reminders 24 hours before a confirmed measurement or installation (ADR-0030), inside the reminder hours.
 Artisan::command('whatsapp:remind', function () {
     $this->info(sprintf('Queued %d appointment reminder(s).', CustomerEvents::remindDue(now())));
 })->purpose('Remind customers 24 hours before a measurement or installation');

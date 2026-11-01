@@ -37,7 +37,7 @@ final class Outbox
     }
 
     /**
-     * A WhatsApp template message (ADR-0029). The payload carries the template, language, ordered parameters, the
+     * A WhatsApp template message (ADR-0030). The payload carries the template, language, ordered parameters, the
      * SMS text to fall back to and the customer log row.
      *
      * @param  array<string, mixed>  $payload
