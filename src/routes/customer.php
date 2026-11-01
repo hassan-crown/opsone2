@@ -7,6 +7,7 @@ use App\Http\Controllers\Portal\DocumentController;
 use App\Http\Controllers\Portal\FileController;
 use App\Http\Controllers\Portal\PaymentController;
 use App\Http\Controllers\Portal\SettingsController;
+use App\Http\Controllers\Portal\SignatureController;
 use App\Http\Controllers\Portal\SignInController;
 use App\Http\Controllers\Portal\WorkspaceController;
 use App\Http\Middleware\Portal\AuthenticateCustomer;
@@ -45,6 +46,12 @@ Route::middleware(AuthenticateCustomer::class)->group(function () {
     Route::get('documents/{document}', [DocumentController::class, 'show'])->name('documents.show');
     Route::post('documents/{document}/approve', [DocumentController::class, 'approve'])->middleware(['throttle:portal-write', RefuseCustomerWritesWhenReadOnly::class])->name('documents.approve');
     Route::post('documents/{document}/changes', [DocumentController::class, 'requestChanges'])->middleware(['throttle:portal-write', RefuseCustomerWritesWhenReadOnly::class])->name('documents.changes');
+
+    // DocSign (ADR-0029): the PDF, a step-up code, the signature; a signing link from staff lands on the document.
+    Route::get('documents/{document}/pdf', [SignatureController::class, 'pdf'])->middleware('throttle:60,1')->name('documents.pdf');
+    Route::post('documents/{document}/sign/code', [SignatureController::class, 'code'])->middleware(['throttle:portal-otp', 'throttle:portal-write', RefuseCustomerWritesWhenReadOnly::class])->name('documents.sign-code');
+    Route::post('documents/{document}/sign', [SignatureController::class, 'store'])->middleware(['throttle:portal-otp', 'throttle:portal-write', RefuseCustomerWritesWhenReadOnly::class])->name('documents.sign');
+    Route::get('sign/{token}', [SignatureController::class, 'open'])->middleware('throttle:30,1')->name('sign-links.open');
 
     Route::get('orders/{order}/pay', [PaymentController::class, 'show'])->name('orders.pay');
     Route::post('orders/{order}/proofs', [PaymentController::class, 'store'])->middleware(['throttle:portal-write', RefuseCustomerWritesWhenReadOnly::class])->name('proofs.store');

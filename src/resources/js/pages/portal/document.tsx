@@ -1,4 +1,5 @@
 import { Form, Head, Link } from '@inertiajs/react';
+import { FileText } from 'lucide-react';
 import { useState } from 'react';
 import { FieldError, TextareaField } from '@/components/opsone/field';
 import {
@@ -8,6 +9,8 @@ import {
     Section,
     StatusBadge,
 } from '@/components/portal/parts';
+import { Icon } from '@/components/opsone/icon';
+import { SignPanel } from '@/components/portal/sign-panel';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Spinner } from '@/components/ui/spinner';
@@ -30,6 +33,11 @@ export default function PortalDocumentPage({
     const [asking, setAsking] = useState(false);
     const c = doc.content;
     const terms = Array.isArray(c.terms) ? c.terms : c.terms ? [c.terms] : [];
+    const signing = doc.signing;
+    const signable = doc.can.decide && !!signing?.signable;
+    const openSign =
+        typeof window !== 'undefined' &&
+        new URLSearchParams(window.location.search).has('sign');
 
     return (
         <>
@@ -75,6 +83,47 @@ export default function PortalDocumentPage({
                             <bdi dir="ltr">{doc.replaced_by.number}</bdi>
                         </Link>
                     </p>
+                </Card>
+            )}
+
+            {signing && (
+                <div className="mb-6 flex flex-wrap gap-x-4 gap-y-2">
+                    {(['ar', 'en'] as const).map((locale) => (
+                        <a
+                            key={locale}
+                            href={signing.pdfs[locale]}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="inline-flex items-center gap-1 text-label text-link underline-offset-4 hover:underline"
+                        >
+                            <Icon icon={FileText} size="sm" />
+                            {t('esign.ui.view_pdf')} ({locale.toUpperCase()})
+                        </a>
+                    ))}
+                </div>
+            )}
+
+            {signing?.signed && (
+                <Card className="mb-6 border-brand">
+                    <p className="text-label font-semibold text-strong">
+                        {t('esign.ui.signed_title')}
+                    </p>
+                    <p className="text-body text-weak">
+                        {t('esign.ui.signed_by', {
+                            name: signing.signed.signer_name,
+                        })}{' '}
+                        <DateText value={signing.signed.signed_at} time />
+                    </p>
+                    <p className="text-caption break-all text-weak" dir="ltr">
+                        SHA-256 {signing.signed.pdf_sha256}
+                    </p>
+                    <div>
+                        <Button asChild variant="outline">
+                            <a href={signing.signed.download_url}>
+                                {t('esign.ui.download_signed')}
+                            </a>
+                        </Button>
+                    </div>
                 </Card>
             )}
 
@@ -212,42 +261,70 @@ export default function PortalDocumentPage({
                 </Card>
             )}
 
+            {signable && signing && (
+                <div className="mb-4">
+                    <SignPanel doc={doc} signing={signing} open={openSign} />
+                </div>
+            )}
+
             {doc.can.decide && (
-                <Card className="sticky bottom-20 md:bottom-4">
-                    <p className="text-body text-weak">
-                        {t('portal.document.approve_note')}
-                    </p>
-                    <Form {...approve.form(doc.id)}>
-                        {({ processing, errors }) => (
-                            <div className="flex flex-col gap-2">
-                                <input
-                                    type="hidden"
-                                    name="content_hash"
-                                    value={doc.content_hash}
-                                />
-                                {errors.transition && (
-                                    <FieldError>{errors.transition}</FieldError>
-                                )}
-                                <div className="flex flex-wrap gap-2">
-                                    <Button type="submit" disabled={processing}>
-                                        {processing && <Spinner />}
-                                        {t('portal.document.approve')}
-                                    </Button>
-                                    {!asking && (
-                                        <Button
-                                            type="button"
-                                            variant="outline"
-                                            onClick={() => setAsking(true)}
-                                        >
-                                            {t(
-                                                'portal.document.request_changes',
-                                            )}
-                                        </Button>
+                <Card
+                    className={signable ? '' : 'sticky bottom-20 md:bottom-4'}
+                >
+                    {!signable && (
+                        <p className="text-body text-weak">
+                            {t('portal.document.approve_note')}
+                        </p>
+                    )}
+                    {signable && !asking && (
+                        <div>
+                            <Button
+                                type="button"
+                                variant="outline"
+                                onClick={() => setAsking(true)}
+                            >
+                                {t('portal.document.request_changes')}
+                            </Button>
+                        </div>
+                    )}
+                    {!signable && (
+                        <Form {...approve.form(doc.id)}>
+                            {({ processing, errors }) => (
+                                <div className="flex flex-col gap-2">
+                                    <input
+                                        type="hidden"
+                                        name="content_hash"
+                                        value={doc.content_hash}
+                                    />
+                                    {errors.transition && (
+                                        <FieldError>
+                                            {errors.transition}
+                                        </FieldError>
                                     )}
+                                    <div className="flex flex-wrap gap-2">
+                                        <Button
+                                            type="submit"
+                                            disabled={processing}
+                                        >
+                                            {processing && <Spinner />}
+                                            {t('portal.document.approve')}
+                                        </Button>
+                                        {!asking && (
+                                            <Button
+                                                type="button"
+                                                variant="outline"
+                                                onClick={() => setAsking(true)}
+                                            >
+                                                {t(
+                                                    'portal.document.request_changes',
+                                                )}
+                                            </Button>
+                                        )}
+                                    </div>
                                 </div>
-                            </div>
-                        )}
-                    </Form>
+                            )}
+                        </Form>
+                    )}
                     {asking && (
                         <Form
                             {...changes.form(doc.id)}

@@ -19,7 +19,7 @@ use Inertia\Middleware;
 final class HandlePortalInertiaRequests extends Middleware
 {
     /** Only the strings the workspace uses travel to the customer (no staff vocabulary). */
-    private const PREFIXES = ['portal.', 'ui.', 'orders.kind.', 'tickets.'];
+    private const PREFIXES = ['portal.', 'ui.', 'orders.kind.', 'tickets.', 'esign.ui.', 'esign.consent.'];
 
     /** Ticket strings of the staff screens stay out of the customer payload. */
     private const EXCLUDED = ['tickets.staff.', 'tickets.notify.'];

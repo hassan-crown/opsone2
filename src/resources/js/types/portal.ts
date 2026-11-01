@@ -122,7 +122,24 @@ export type PortalDocument = PortalDocumentSummary & {
         note: string | null;
     } | null;
     replaced_by: { id: number; number: string } | null;
+    signing: PortalSigning | null;
     can: { decide: boolean };
+};
+
+/** DocSign state of a quote/contract (ADR-0029). */
+export type PortalSigning = {
+    signable: boolean;
+    locale: 'ar' | 'en';
+    pdf_sha256: string | null;
+    pdfs: { ar: string; en: string };
+    destination: string | null;
+    signed: {
+        signer_name: string;
+        signed_at: string;
+        pdf_url: string;
+        download_url: string;
+        pdf_sha256: string;
+    } | null;
 };
 
 export type PortalCancellation = {

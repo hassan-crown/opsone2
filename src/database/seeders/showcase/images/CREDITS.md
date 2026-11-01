@@ -45,3 +45,5 @@ All images are from [Pexels](https://www.pexels.com) and are used under the [Pex
 | pexels-35189706.webp | Rana Matloob Hussain  | https://www.pexels.com/photo/35189706/ | Pexels License |
 | pexels-35505452.webp | Peter Vang            | https://www.pexels.com/photo/35505452/ | Pexels License |
 | pexels-39443630.webp | Alla Nadtochii        | https://www.pexels.com/photo/39443630/ | Pexels License |
+
+`design-1080721.jpg` and `design-534151.jpg` are JPEG copies of the two photos above, used as design images inside the branded quote/contract PDFs (the PHP image reads no WebP).
