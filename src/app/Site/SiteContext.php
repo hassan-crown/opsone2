@@ -78,7 +78,7 @@ final class SiteContext
         $row = $page->localeRow($locale);
 
         // A valid preview browser (SitePreview) reads the draft of the language, else its published copy.
-        $id = $this->preview->pages() ? ($row?->draft_version_id ?? $row?->published_version_id) : $row?->published_version_id;
+        $id = $this->preview->pages() ? ($row->draft_version_id ?? $row->published_version_id) : $row?->published_version_id;
 
         return $id === null ? null : SitePageVersion::query()->find($id);
     }

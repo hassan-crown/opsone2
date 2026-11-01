@@ -18,6 +18,7 @@
 use App\Models\Site\SitePage;
 use App\Models\Site\SiteTheme;
 use App\Models\User;
+use App\Site\Preview\SitePreview;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -88,15 +89,15 @@ it('the editor previews the facility\'s real site pages and store with the draft
     // A signed, expiring link opens the real pages in a private, noindex preview; the same URLs stay default for visitors.
     $link = $this->postJson(route('site.admin.preview-link'), ['locale' => 'en', 'target' => 'about'])->assertOk()->json();
     accPFreshBrowser();
-    $cookie = $this->get($link['url'])->assertRedirect()->getCookie(App\Site\Preview\SitePreview::COOKIE);
-    $this->withCookie(App\Site\Preview\SitePreview::COOKIE, $cookie->getValue());
+    $cookie = $this->get($link['url'])->assertRedirect()->getCookie(SitePreview::COOKIE);
+    $this->withCookie(SitePreview::COOKIE, $cookie->getValue());
 
     $preview = $this->get('/en/about')->assertOk();
     expect($preview->getContent())->toContain(ACC18_BRAND)->toContain('noindex')
         ->and(accP18Html('/ar/store'))->toContain(ACC18_BRAND);
 
     accPFreshBrowser();
-    $this->withCookie(App\Site\Preview\SitePreview::COOKIE, '');
+    $this->withCookie(SitePreview::COOKIE, '');
     expect(accP18Html('/en/about'))->not->toContain(ACC18_BRAND);
 });
 

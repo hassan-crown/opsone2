@@ -22,11 +22,8 @@ final class SiteRenderer
 {
     public function __construct(private readonly SiteContext $site, private readonly LicenseCapabilities $license) {}
 
-    private bool $preview = false;
-
     public function render(SitePage $page, SitePageVersion $version, string $locale, bool $preview = false): View
     {
-        $this->preview = $preview;
         $theme = $this->site->theme();
         $name = $this->site->facilityName($locale);
         $facility = Facility::current();
@@ -79,7 +76,7 @@ final class SiteRenderer
             'siteName' => $name,
             'nav' => $this->site->nav($locale),
             'homePath' => $this->site->path($locale),
-            'switchUrl' => $this->switchUrl($page, $locale, $preview),
+            'switchUrl' => $this->switchUrl($page, $locale),
             'themeCss' => ThemeSettings::css($theme),
             'logo' => $this->mediaUrl($theme['logo'] ?? null),
             'logoDark' => $this->mediaUrl($theme['logo_dark'] ?? null),
@@ -130,7 +127,7 @@ final class SiteRenderer
         return $target === null ? null : $this->site->path($locale, $target);
     }
 
-    private function switchUrl(SitePage $page, string $locale, bool $preview): ?string
+    private function switchUrl(SitePage $page, string $locale): string
     {
         $other = $locale === 'ar' ? 'en' : 'ar';
 

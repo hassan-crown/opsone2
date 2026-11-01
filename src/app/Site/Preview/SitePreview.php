@@ -64,7 +64,7 @@ final class SitePreview
     }
 
     /**
-     * @return array{pages: bool, theme: bool, exp: int}|null  null for a forged, malformed or expired cookie
+     * @return array{pages: bool, theme: bool, exp: int}|null null for a forged, malformed or expired cookie
      */
     public static function read(mixed $cookie): ?array
     {

@@ -25,7 +25,6 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Testing\TestResponse;
 use Inertia\Testing\AssertableInertia as Assert;
@@ -176,21 +175,33 @@ it('serves a ready order from the received stock in partial deliveries with actu
     stockJournalMatches();
 });
 
-it('links a repair note with a follow-up task to a recorded delivery (SRS-FUL-10)', function () {
+it('links a blocking remark to a recorded delivery: no new sale, no stock, and the order cannot close until it is resolved (SRS-FUL-10, M-14-T04)', function () {
     $s = $this->s;
     stockReceive($s->la, 'ready_variant', $s->f->variant->id, '5');
     $order = accI06ConfirmedReadyOrder($this, 2);
     $this->actingAs($this->keeper);
     $noteId = (int) accI06Deliver($this, $order, [deliveryLineId($order) => '2'], 'acc06-dn-repair')->assertOk()->json('note.id');
+    $movements = StockMovement::query()->count();
 
-    // A blocking remark on the recorded delivery opens a linked correction task (M-14-T04); no new sale, no stock.
-    expect(Route::has('deliveries.remarks.store'))->toBeTrue();
-    $this->postJson(route('deliveries.remarks.store', $noteId), ['idempotency_key' => 'acc06-remark-1', 'text' => 'المقبض يحتاج إصلاحًا', 'blocking' => true])
-        ->assertCreated();
-    expect(DB::table('tasks')->where('source_type', 'delivery_note')->where('source_id', $noteId)->count())->toBe(1)
+    // A blocking remark on the recorded delivery: it neither repeats the delivery nor touches the stock or the sale.
+    $this->postJson(route('deliveries.remarks.store', $noteId), ['description' => 'المقبض يحتاج إصلاحًا'])->assertCreated();
+    expect(DB::table('delivery_remarks')->where('delivery_note_id', $noteId)->where('status', 'open')->count())->toBe(1)
         ->and(Order::query()->count())->toBe(1)
-        ->and(StockMovement::query()->where('kind', 'issue_reserved')->count())->toBe(1);
-})->skip('Acceptance gap: repair/correction note linked to a delivery (M-14-T03/T04, SRS-FUL-10) is deferred in ADR-0018 — no route or model');
+        ->and(DeliveryNote::query()->where('status', 'confirmed')->count())->toBe(1)
+        ->and(StockMovement::query()->count())->toBe($movements)
+        ->and($order->refresh()->status)->toBe('delivered');
+
+    // The order cannot close while the remark is open; resolving it lifts exactly that blocker.
+    $owner = $this->s->f->org->owner;
+    $this->actingAs($owner)->postJson(route('orders.close', $order), ['reason' => 'اكتمل التسليم'])
+        ->assertUnprocessable()->assertJsonValidationErrors(['order']);
+    expect($order->refresh()->status)->toBe('delivered');
+
+    $remarkId = (int) DB::table('delivery_remarks')->value('id');
+    $this->actingAs($this->keeper)->postJson(route('deliveries.remarks.resolve', $remarkId), ['resolution' => 'استُبدل المقبض'])->assertOk();
+    $this->postJson(route('deliveries.remarks.resolve', $remarkId), ['resolution' => 'مرة ثانية'])->assertStatus(409);
+    expect(DB::table('delivery_remarks')->where('id', $remarkId)->value('status'))->toBe('resolved');
+})->group('closure');
 
 it('delivers 2 of 5 then cancels the rest: the delivery of 2 stays, only the 3 unissued are released, no return of 5 («تسليم2 من5 ثم إلغاء الباقي»)', function () {
     $s = $this->s;

@@ -65,9 +65,10 @@ export default function ThemeEdit({
         appearance: settings.appearance,
     });
     const [live, setLive] = useState<ThemePreview>(preview);
-    const [link, setLink] = useState<{ url: string; expires_at: string } | null>(
-        null,
-    );
+    const [link, setLink] = useState<{
+        url: string;
+        expires_at: string;
+    } | null>(null);
     const issueLink = async (locale: 'ar' | 'en', target: string) => {
         const res = await api<{ url: string; expires_at: string }>(
             'POST',
@@ -180,7 +181,7 @@ export default function ThemeEdit({
                                     readOnly
                                     onChange={() => undefined}
                                 />
-                                <p className="text-label text-subtle">
+                                <p className="text-subtle text-label">
                                     {t('theme.preview_link.expires', {
                                         at: new Date(
                                             link.expires_at,

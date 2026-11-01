@@ -99,6 +99,9 @@ enum AuditAction: string
     case OrderPaused = 'order.paused';
     case OrderResumed = 'order.resumed';
     case OrderExecutionFinished = 'order.execution_finished';
+    case OrderClosed = 'order.closed';
+    case DeliveryRemarkRecorded = 'delivery.remark_recorded';
+    case DeliveryRemarkResolved = 'delivery.remark_resolved';
     case OrderReopenedForCorrection = 'order.reopened_for_correction';
     case StageCompleted = 'order.stage_completed';
     case ActionAllowed = 'order.action_allowed';
@@ -324,7 +327,7 @@ enum AuditAction: string
             self::OrderBranchTransferred, self::ReadyOrderConfirmed, self::ReadyOrderCancelled => 'orders',
             self::StockLocationSaved, self::StockItemUpdated, self::InventorySettingsUpdated, self::StockAdjusted, self::StockReserved,
             self::StockReleased, self::StockIssued, self::StockTransferCreated, self::StockTransferMoved, self::StockCountRecorded => 'stock',
-            self::FlowTemplateChosen, self::FlowDraftSaved, self::FlowPublished, self::FlowDraftDiscarded, self::OrderPaused, self::OrderResumed, self::OrderExecutionFinished, self::OrderReopenedForCorrection, self::StageCompleted, self::ActionAllowed, self::ActionReworked, self::ActionNeedChanged, self::UpcomingWorkEdited, self::MeasurementRecorded, self::MeasurementCorrected => 'workflow',
+            self::FlowTemplateChosen, self::FlowDraftSaved, self::FlowPublished, self::FlowDraftDiscarded, self::OrderPaused, self::OrderResumed, self::OrderExecutionFinished, self::OrderClosed, self::OrderReopenedForCorrection, self::StageCompleted, self::ActionAllowed, self::ActionReworked, self::ActionNeedChanged, self::UpcomingWorkEdited, self::MeasurementRecorded, self::MeasurementCorrected => 'workflow',
             self::TaskAssigned, self::TaskRouted, self::TaskReassigned, self::TaskClaimed, self::TaskCompleted, self::TaskCancelled, self::TaskReleased => 'tasks',
             self::AppointmentProposed, self::AppointmentSent, self::AppointmentConfirmed, self::AppointmentChangeRequested, self::AppointmentChangeDiscarded, self::AppointmentChanged, self::AppointmentCompleted, self::AppointmentCancelled, self::AppointmentCustomerChangeRequested => 'appointments',
             self::WorkSettingsUpdated, self::FinanceSettingsUpdated, self::CashProofPolicyUpdated, self::DiscountLimitsUpdated => 'settings',
@@ -342,7 +345,7 @@ enum AuditAction: string
             self::SupplierCreated, self::SupplierUpdated, self::SupplierDisabled, self::SupplierEnabled,
             self::PurchaseCreated, self::PurchaseUpdated, self::PurchaseConfirmed, self::PurchaseReceived,
             self::PurchaseAdjusted, self::PurchaseRemainderCancelled => 'procurement',
-            self::DeliveryDrafted, self::DeliveryConfirmed, self::DeliveryCancelled => 'delivery',
+            self::DeliveryDrafted, self::DeliveryConfirmed, self::DeliveryCancelled, self::DeliveryRemarkRecorded, self::DeliveryRemarkResolved => 'delivery',
             self::CancellationRequested, self::CancellationAccepted, self::CancellationRejected, self::CancellationWithdrawn,
             self::SettlementItemResolved, self::SettlementClosed => 'cancellation',
             self::ReturnRequested, self::ReturnAccepted, self::ReturnRejected, self::ReturnReceived, self::ReturnInspected,

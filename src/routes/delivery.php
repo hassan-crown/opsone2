@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Delivery\DeliveryController;
+use App\Http\Controllers\Orders\OrderClosureController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -17,6 +18,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::middleware('throttle:records-create')->group(function () {
         Route::post('orders/{order}/deliveries', [DeliveryController::class, 'store'])->whereNumber('order')->name('deliveries.store');
         Route::post('deliveries/{note}/confirm', [DeliveryController::class, 'confirm'])->whereNumber('note')->name('deliveries.confirm');
+        Route::post('orders/{order}/close', [OrderClosureController::class, 'close'])->whereNumber('order')->name('orders.close');
+        Route::post('deliveries/{note}/remarks', [OrderClosureController::class, 'remark'])->whereNumber('note')->name('deliveries.remarks.store');
+        Route::post('delivery-remarks/{remark}/resolve', [OrderClosureController::class, 'resolveRemark'])->whereNumber('remark')->name('deliveries.remarks.resolve');
         Route::post('deliveries/{note}/cancel', [DeliveryController::class, 'cancel'])->whereNumber('note')->name('deliveries.cancel');
     });
 });

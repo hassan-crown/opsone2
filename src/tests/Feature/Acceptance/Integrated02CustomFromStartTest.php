@@ -33,6 +33,7 @@ use App\Workflow\StageEngine;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Testing\TestResponse;
@@ -174,19 +175,22 @@ it('runs a custom order from opening without price to delivery on the same singl
             'finance.payment_recorded' => 2, 'order.created' => 1, 'order.execution_finished' => 1, 'order.stage_completed' => 5,
         ]);
 
+    // M-04-T07 «إقفال شامل»: money, delivery and remarks are settled, so the order closes with a reason; the agreement stays.
+    $this->actingAs($f->sales)->postJson(route('orders.close', $order), ['reason' => 'تم كل شيء'])->assertForbidden();
+    $this->actingAs($f->manager)->postJson(route('orders.close', $order), ['reason' => ''])->assertUnprocessable();
+    $this->postJson(route('orders.close', $order), ['reason' => 'اكتمل التنفيذ والتحصيل والتسليم'])->assertOk()->assertJsonPath('order.status', 'closed');
+    $this->postJson(route('orders.close', $order), ['reason' => 'مرة ثانية'])->assertStatus(409);
+    expect($order->refresh()->status)->toBe('closed')
+        ->and(Agreement::query()->where('order_id', $order->id)->where('status', 'active')->count())->toBe(1)
+        ->and(StateTransition::query()->where('machine', 'M-04')->where('transition', 'T07')->where('subject_id', $order->id)->count())->toBe(1)
+        ->and(DB::table('order_closures')->where('order_id', $order->id)->where('from_status', 'execution_finished')->value('reason'))->toBe('اكتمل التنفيذ والتحصيل والتسليم')
+        ->and(DB::table('audit_events')->where('action', 'order.closed')->count())->toBe(1);
+
     // The customer sees the same single order, fully paid.
     actingAsCustomer($f->customer);
     $this->get('/portal/orders')->assertOk();
     $this->get("/portal/orders/{$order->id}")->assertOk();
 });
-
-it('closes the custom order comprehensively once execution, money and delivery are settled (M-04-T07)', function () {
-    // The SRS states-and-transitions table defines M-04-T07 «إقفال شامل» (P-18 / P-25) from execution_finished to
-    // closed. No Action, route or screen implements it yet (ADR-0020 «Not in this phase»), so the order of the row above
-    // stays `execution_finished` forever.
-    expect(collect(app('router')->getRoutes()->getRoutes())->contains(fn ($r) => str_contains((string) $r->getName(), 'orders.progress.close')
-        || str_contains($r->uri(), '/close')))->toBeTrue();
-})->skip('Acceptance gap: no M-04-T07 comprehensive closure for a custom order');
 
 it('refuses the order\'s business writes to a member without the permission, without effect', function () {
     $f = $this->f;

@@ -4,10 +4,10 @@ use App\Http\Controllers\Site\LeadController;
 use App\Http\Controllers\Site\MediaController;
 use App\Http\Controllers\Site\PublicSiteController;
 use App\Http\Controllers\Site\SeoController;
+use App\Http\Controllers\Site\SitePreviewController;
 use App\Http\Middleware\RefuseCustomerWritesWhenReadOnly;
 use App\Http\Middleware\SiteLocale;
 use App\Http\Middleware\SitePreviewMode;
-use App\Http\Controllers\Site\SitePreviewController;
 use Illuminate\Support\Facades\Route;
 
 /*

@@ -7,7 +7,6 @@
  */
 
 use App\Models\Interest;
-use App\Models\Site\SitePage;
 use App\Models\Site\SiteTheme;
 use App\Site\Preview\SitePreview;
 use Illuminate\Foundation\Testing\RefreshDatabase;

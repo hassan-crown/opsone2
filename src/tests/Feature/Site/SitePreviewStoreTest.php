@@ -12,11 +12,11 @@ uses(RefreshDatabase::class);
 it('previews the store with the draft theme too (catalogue, product, cart) but never checks out', function () {
     $s = storeFixture(5);
     $owner = $s->f->org->owner;
-    $this->actingAs($owner)->put(route('site.admin.theme.save'), ['brand_color' => PREVIEW_BRAND])->assertSessionHasNoErrors();
+    $this->actingAs($owner)->put(route('site.admin.theme.save'), ['brand_color' => '#1D5FA8'])->assertSessionHasNoErrors();
     $link = $this->actingAs($owner)->postJson(route('site.admin.preview-link'), ['locale' => 'en', 'target' => 'store'])->assertOk()->json();
 
     auth()->logout();
-    expect($this->get('/en/store')->getContent())->not->toContain(PREVIEW_BRAND);
+    expect($this->get('/en/store')->getContent())->not->toContain('#1D5FA8');
 
     auth()->logout();
     $this->flushSession();
@@ -24,7 +24,7 @@ it('previews the store with the draft theme too (catalogue, product, cart) but n
     $this->withCookie(SitePreview::COOKIE, $cookie->getValue());
     foreach (['/en/store', '/en/store/p/'.$s->f->variant->ready_product_id, '/en/store/cart'] as $uri) {
         $r = $this->get($uri)->assertOk();
-        expect($r->getContent())->toContain(PREVIEW_BRAND)->toContain('name="robots" content="noindex, nofollow"');
+        expect($r->getContent())->toContain('#1D5FA8')->toContain('name="robots" content="noindex, nofollow"');
     }
     $this->post('/en/store/checkout')->assertForbidden();
     $this->post('/en/store/checkout/code', [])->assertForbidden();
