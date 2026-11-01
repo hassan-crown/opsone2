@@ -25,7 +25,7 @@ use Illuminate\Support\Facades\Storage;
 final class DocumentSheet
 {
     /** Bump when the PDF layout changes, so unsigned documents get a fresh PDF (signed ones never change). */
-    public const LAYOUT_VERSION = 1;
+    public const LAYOUT_VERSION = 2;
 
     public const DEFAULT_BRAND = '#0E7C72';
 
@@ -56,6 +56,7 @@ final class DocumentSheet
 
     public static function build(AgreementDocument $document, string $locale): self
     {
+        $document->loadMissing('order.customer');
         $order = $document->order;
         $customer = $order->customer;
         $facility = Facility::current();

@@ -4,6 +4,8 @@
     $start = $v['dir'] === 'rtl' ? 'right' : 'left';
     $end = $v['dir'] === 'rtl' ? 'left' : 'right';
     $currency = $t('currency');
+    // Free text takes its own direction (an Arabic term inside the English PDF and the reverse).
+    $dirOf = fn (string $text) => preg_match('/\p{Arabic}/u', $text) === 1 ? 'rtl' : 'ltr';
 @endphp
 <html dir="{{ $v['dir'] }}" lang="{{ $v['locale'] }}">
 <head>
@@ -96,7 +98,7 @@
 
 @if ($v['description'])
     <h2>{{ $t('description') }}</h2>
-    <p>{!! nl2br(e($v['description'])) !!}</p>
+    <p dir="{{ $dirOf($v['description']) }}">{!! nl2br(e($v['description'])) !!}</p>
 @endif
 
 <h2>{{ $t('items') }}</h2>
@@ -172,11 +174,11 @@
 @if ($v['terms'] !== [] || $v['clauses'] !== [])
     <h2>{{ $t('terms') }}</h2>
     @foreach ($v['terms'] as $term)
-        <p>{!! nl2br(e($term)) !!}</p>
+        <p dir="{{ $dirOf($term) }}">{!! nl2br(e($term)) !!}</p>
     @endforeach
     @if ($v['clauses'] !== [])
         <ol>
-            @foreach ($v['clauses'] as $clause)<li>{{ $clause }}</li>@endforeach
+            @foreach ($v['clauses'] as $clause)<li dir="{{ $dirOf($clause) }}">{{ $clause }}</li>@endforeach
         </ol>
     @endif
 @endif

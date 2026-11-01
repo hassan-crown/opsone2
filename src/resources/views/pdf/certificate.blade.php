@@ -31,7 +31,7 @@
     <tr><td class="k">{{ $t('certificate.document') }}</td><td>{{ $t('title.'.$c['kind']) }} — <span dir="ltr">{{ $c['number'] }}</span></td></tr>
     <tr><td class="k">{{ $t('order') }}</td><td><span dir="ltr">{{ $c['order'] }}</span></td></tr>
     <tr><td class="k">{{ $t('certificate.signer') }}</td><td><b>{{ $c['signer_name'] }}</b></td></tr>
-    <tr><td class="k">{{ $t('certificate.account') }}</td><td>{{ $c['customer'] }} — <span dir="ltr">{{ $c['mobile'] }}</span></td></tr>
+    <tr><td class="k">{{ $t('certificate.account') }}</td><td>{{ $c['customer'] }} — <bdo dir="ltr">{{ $c['mobile'] }}</bdo></td></tr>
     <tr><td class="k">{{ $t('certificate.signed_at') }}</td><td><span dir="ltr">{{ $c['signed_at'] }}</span></td></tr>
     <tr><td class="k">{{ $t('certificate.verification') }}</td><td>{{ $t('certificate.otp', ['channel' => $t('certificate.channel.'.$c['otp_channel'])]) }} — <span dir="ltr">{{ $c['otp_reference'] }}</span></td></tr>
     <tr><td class="k">{{ $t('certificate.ip') }}</td><td><span dir="ltr">{{ $c['ip'] ?? '—' }}</span></td></tr>

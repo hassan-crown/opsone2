@@ -255,7 +255,8 @@ export function SignPanel({
             <div className="flex flex-col gap-3 border-t border-stroke-weak pt-3">
                 {signing.destination && (
                     <p className="text-caption text-weak">
-                        {t('esign.ui.code_to', { to: signing.destination })}
+                        {t('esign.ui.code_to', { to: '' })}
+                        <bdi dir="ltr">{signing.destination}</bdi>
                     </p>
                 )}
                 <div>

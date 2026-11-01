@@ -73,6 +73,10 @@ it('seeds a coherent history and keeps the ledger and stock invariants', functio
     // Gapless numbering: receipts follow each other without holes.
     $numbers = DB::table('receipts')->orderBy('id')->pluck('number')->map(fn ($n) => (int) substr((string) $n, -6))->all();
     expect($numbers)->toBe(range(1, count($numbers)));
+
+    // E-signatures (ADR-0029): signed quotes/contracts with their signed PDF, and documents awaiting signature with a live link.
+    expect(DB::table('document_signatures')->whereNotNull('signed_pdf_id')->count())->toBeGreaterThanOrEqual(3)
+        ->and(DB::table('document_sign_links')->whereNull('used_at')->whereNull('revoked_at')->count())->toBeGreaterThanOrEqual(2);
 });
 
 it('refuses to run outside the local and testing environments', function () {

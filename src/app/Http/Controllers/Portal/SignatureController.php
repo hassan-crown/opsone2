@@ -63,7 +63,7 @@ final class SignatureController extends PortalController
         if ($destination === null) {
             throw ValidationException::withMessages(['code' => __('esign.error.no_channel')]);
         }
-        Inertia::flash('toast', ['type' => 'success', 'message' => __('esign.code_sent', ['to' => $destination])]);
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('esign.code_sent', ['to' => "\u{2066}{$destination}\u{2069}"])]);
 
         return redirect()->route('customer.documents.show', ['document' => $record->id, 'sign' => 1]);
     }

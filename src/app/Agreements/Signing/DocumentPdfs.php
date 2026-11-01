@@ -93,6 +93,8 @@ final class DocumentPdfs
      */
     public function signed(DocumentSignature $signature): DocumentPdf
     {
+        // One explicit read of what the PDF needs (no lazy load, ADR-0027), also when the signature came from a list.
+        $signature->loadMissing(['document.order.customer', 'customer', 'pdf.attachment', 'signedPdf.attachment']);
         if ($signature->signed_pdf_id !== null) {
             return $signature->signedPdf ?? throw new LogicException('Signed PDF row missing.');
         }
