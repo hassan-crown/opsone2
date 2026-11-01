@@ -4,7 +4,6 @@ namespace Database\Seeders\ShowcaseKit;
 
 use App\Actions\Site\SitePageWriter;
 use App\Actions\Site\ThemeWriter;
-use App\Files\AttachmentService;
 use App\Models\Site\SitePage;
 use App\Site\Theme\BrandPalette;
 use Carbon\CarbonImmutable;

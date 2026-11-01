@@ -12,6 +12,7 @@ use App\Actions\StateMachines\M03Interest\T03CloseInterest;
 use App\Enums\InterestCloseReason;
 use App\Models\Customer;
 use App\Models\Interest;
+use App\Models\Order;
 use App\Models\User;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Str;
@@ -109,8 +110,8 @@ final class Leads
         if ($p['outcome'] === 'new') {
             return;
         }
-        $this->s->timeline->at($at($p['follow'] + 0.2), $st, 'follow', function (Story $s) use ($sales) {
-            $i = Interest::query()->findOrFail($s->data['interest']);
+        $this->s->timeline->at($at($p['follow'] + 0.2), $st, 'follow', function (Story $s) {
+            $i = Interest::query()->findOrFail($s->int('interest'));
             if ($i->status->value === 'new') {
                 app(T01TakeFollowUp::class)->handle($this->salesFor($this->branchCode($i->branch_id)), $i);
             }
@@ -119,7 +120,7 @@ final class Leads
             return;
         }
         $this->s->timeline->at($at($p['follow'] + $p['resolve']), $st, $p['outcome'], function (Story $s) use ($p) {
-            $i = Interest::query()->findOrFail($s->data['interest']);
+            $i = Interest::query()->findOrFail($s->int('interest'));
             $actor = User::query()->find($i->assignee_id) ?? $this->salesFor($this->branchCode($i->branch_id));
             if ($p['outcome'] === 'lost') {
                 app(T03CloseInterest::class)->handle($actor, $i, InterestCloseReason::from($p['reason']), match ($p['reason']) {
@@ -130,7 +131,7 @@ final class Leads
                 return;
             }
             $converted = app(T02ConvertInterest::class)->handle($actor, $i);
-            $order = \App\Models\Order::query()->findOrFail($converted->converted_order_id);
+            $order = Order::query()->findOrFail($converted->converted_order_id);
             $this->pool[$this->branchCode($i->branch_id)][] = (int) $converted->converted_customer_id;
             $this->s->customOrders->continueOrder($order, $this->branchCode($i->branch_id), []);
         });

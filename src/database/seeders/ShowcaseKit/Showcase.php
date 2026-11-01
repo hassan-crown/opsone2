@@ -87,12 +87,20 @@ final class Showcase
 
     public function info(string $message): void
     {
-        $this->console !== null ? $this->console->info($message) : fwrite(STDERR, $message.PHP_EOL);
+        if ($this->console !== null) {
+            $this->console->info($message);
+        } elseif (! app()->runningUnitTests()) {
+            fwrite(STDERR, $message.PHP_EOL);
+        }
     }
 
     public function warn(string $message): void
     {
-        $this->console !== null ? $this->console->warn($message) : fwrite(STDERR, '! '.$message.PHP_EOL);
+        if ($this->console !== null) {
+            $this->console->warn($message);
+        } elseif (! app()->runningUnitTests()) {
+            fwrite(STDERR, '! '.$message.PHP_EOL);
+        }
     }
 
     public function run(): void

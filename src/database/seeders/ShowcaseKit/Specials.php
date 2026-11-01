@@ -2,6 +2,7 @@
 
 namespace Database\Seeders\ShowcaseKit;
 
+use App\Access\Exceptions\InvalidTransition;
 use App\Actions\StateMachines\M09Change\T00CreateChange;
 use App\Actions\StateMachines\M09Change\T01PresentChange;
 use App\Actions\StateMachines\M09Change\T04ApplyChange;
@@ -13,17 +14,21 @@ use App\Actions\StateMachines\M33Payout\T00CreatePayout;
 use App\Actions\StateMachines\M33Payout\T01ApprovePayout;
 use App\Actions\StateMachines\M34Cancellation\T03RecordAndAcceptCancellation;
 use App\Actions\StateMachines\M39Dispute\T00OpenDispute;
+use App\Actions\StateMachines\M40Document\T01AttachDocument;
 use App\Cancellation\CancellationImpact;
 use App\Cancellation\CancellationInput;
 use App\Finance\FinanceLock;
 use App\Finance\MoneyLedger;
 use App\Models\Agreements\Agreement;
+use App\Models\Agreements\AgreementChange;
 use App\Models\Finance\Payment;
 use App\Models\Finance\Refund;
 use App\Models\Order;
 use App\Money\Money;
 use Carbon\CarbonImmutable;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 
 /**
  * The exceptions of a real business, dated through the six months: agreement changes, a price reduction with refund,
@@ -63,9 +68,9 @@ final class Specials
 
     private function invoices(): void
     {
-        $paid = \Illuminate\Support\Facades\DB::table('payments')->where('status', 'confirmed')->where('created_at', '<', CarbonImmutable::now()->subDay())
+        $paid = DB::table('payments')->where('status', 'confirmed')->where('created_at', '<', CarbonImmutable::now()->subDay())
             ->pluck('order_id')->unique();
-        $done = \Illuminate\Support\Facades\DB::table('external_documents')->pluck('order_id')->all();
+        $done = DB::table('external_documents')->pluck('order_id')->all();
         foreach (Order::query()->where('kind', 'custom')->whereIn('id', $paid)->whereNotIn('id', $done)->orderBy('id')->limit(40)->get() as $order) {
             if ($this->s->rng->chance(12)) {
                 continue; // a few invoices are still being prepared by the accountant
@@ -76,7 +81,7 @@ final class Specials
                 continue;
             }
             $number = 'INV-'.CarbonImmutable::now()->format('Y').'-'.str_pad((string) (1000 + $order->id), 5, '0', STR_PAD_LEFT);
-            app(\App\Actions\StateMachines\M40Document\T01AttachDocument::class)->handle($this->s->users['finance'], $order, null, [
+            app(T01AttachDocument::class)->handle($this->s->users['finance'], $order, null, [
                 'kind' => $order->kind->value === 'custom' ? 'tax_invoice' : 'simplified_invoice', 'event' => 'order', 'source' => 'قيود', 'number' => $number,
                 'issued_on' => CarbonImmutable::now()->toDateString(), 'amount' => Money::of($collected)->toInput(),
             ], Assets::pdf($number.'.pdf', 'Invoice '.$number), null, $this->key());
@@ -92,17 +97,18 @@ final class Specials
      * An in-progress custom order with an active agreement, in one of the given stages, not already touched.
      *
      * @param  list<string>  $stages
+     * @param  list<int>  $skip
      */
     private function pick(array $stages, array $skip = []): ?Order
     {
-        $ids = \Illuminate\Support\Facades\DB::table('order_workflows')
+        $ids = DB::table('order_workflows')
             ->join('order_stages', 'order_stages.id', '=', 'order_workflows.active_stage_id')
             ->whereIn('order_stages.key', $stages)->pluck('order_workflows.order_id');
         foreach (Order::query()->whereIn('id', $ids)->where('kind', 'custom')->where('status', 'in_progress')->orderBy('id')->get() as $order) {
             if (in_array($order->id, $skip, true) || Agreement::query()->where('order_id', $order->id)->where('status', 'active')->doesntExist()) {
                 continue;
             }
-            if (\App\Models\Agreements\AgreementChange::query()->where('order_id', $order->id)->exists()) {
+            if (AgreementChange::query()->where('order_id', $order->id)->exists()) {
                 continue;
             }
 
@@ -126,7 +132,7 @@ final class Specials
         }
         if ($reduce) {
             // The customer drops the installation of the countertop: a price reduction that leaves a settlement.
-            $lines[1]['unit_price'] = Money::of((int) round($lines[1]['unit_price'] * 100 * 0.5))->toInput();
+            $lines[1]['unit_price'] = Money::of((int) round((float) $lines[1]['unit_price'] * 100 * 0.5))->toInput();
         } else {
             $lines[] = ['description' => $increase ? 'إضافة رف جانبي مفتوح وإضاءة LED تحت الخزائن' : 'ترقية المقابض إلى مخفية (G-profile) لكامل المطبخ', 'quantity' => '1', 'unit' => 'unit',
                 'unit_price' => (string) ($increase ? 2300 : 1850), 'commissionable' => true];
@@ -218,7 +224,7 @@ final class Specials
                 ], Assets::pdf('payout-'.$key.'.pdf', 'Payout'));
             } catch (\Throwable $e) {
                 // A member without accrued commission in the period has nothing to pay.
-                if (! $e instanceof \Illuminate\Validation\ValidationException && ! $e instanceof \App\Access\Exceptions\InvalidTransition) {
+                if (! $e instanceof ValidationException && ! $e instanceof InvalidTransition) {
                     throw $e;
                 }
             }

@@ -10,7 +10,6 @@ use App\Actions\Catalog\SetCatalogStatus;
 use App\Catalog\CatalogStatus;
 use App\Models\Catalog\CatalogMaterial;
 use App\Models\Catalog\CatalogProduct;
-use App\Models\Catalog\CatalogReadyProduct;
 use App\Models\Catalog\CatalogReadyVariant;
 use App\Models\Inventory\StockLocation;
 use Carbon\CarbonImmutable;
@@ -135,7 +134,7 @@ final class Catalog
             $this->products[$key] = $product->refresh();
         }
 
-        $pools = array_values(array_merge(...array_values(Assets::KITCHENS)));
+        $pools = array_merge(...array_values(Assets::KITCHENS));
         $i = 0;
         foreach ($this->products as $product) {
             for ($n = 0; $n < 2; $n++) {
@@ -151,7 +150,7 @@ final class Catalog
         $saveVariant = app(SaveVariant::class);
         $publish = app(SetCatalogStatus::class);
 
-        // category => [[ar, en, [[code, ar, en, price SAR]...], image pool]]
+        /** @var array<string, list<array{0: string, 1: string, 2: list<array{0: string, 1: string, 2: string, 3: int}>, 3: list<int>}>> $catalogue category => [[ar, en, [[code, ar, en, price SAR]...], image pool]] */
         $catalogue = [
             'handles' => [
                 ['مقبض بار ألمنيوم', 'Aluminium bar handle', [['HND-BAR-128-BLK', 'أسود مطفي 128 مم', 'Matte black 128 mm', 28], ['HND-BAR-160-STL', 'ستانلس 160 مم', 'Steel 160 mm', 32], ['HND-BAR-224-GLD', 'ذهبي 224 مم', 'Gold 224 mm', 46]], Assets::HANDLES],
@@ -223,7 +222,7 @@ final class Catalog
             }
         }
         // Refresh the variants now that they are published.
-        $this->variants = CatalogReadyVariant::query()->orderBy('id')->get()->all();
+        $this->variants = array_values(CatalogReadyVariant::query()->orderBy('id')->get()->all());
         $this->byCategory = [];
         foreach ($this->variants as $v) {
             $this->byCategory[$this->categoryOf($v->code)][] = $v;

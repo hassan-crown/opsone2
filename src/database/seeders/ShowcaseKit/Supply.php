@@ -2,6 +2,7 @@
 
 namespace Database\Seeders\ShowcaseKit;
 
+use App\Actions\Inventory\ManageStockSetup;
 use App\Actions\Inventory\StockCounts;
 use App\Actions\Procurement\SaveSupplier;
 use App\Actions\StateMachines\M13PurchaseOrder\T00CreatePurchaseOrder;
@@ -13,7 +14,7 @@ use App\Actions\StateMachines\M25Transfer\T01DispatchTransfer;
 use App\Actions\StateMachines\M25Transfer\T02ReceiveTransfer;
 use App\Models\Inventory\StockBalance;
 use App\Models\Inventory\StockItem;
-use App\Models\Inventory\StockLocation;
+use App\Models\Inventory\StockTransfer;
 use App\Models\Procurement\PurchaseOrder;
 use App\Models\Procurement\Supplier;
 use Carbon\CarbonImmutable;
@@ -70,6 +71,9 @@ final class Supply
         }];
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     private function line(string $type, int $id, int $milli, ?int $cost): array
     {
         return ['id' => null, 'item_type' => $type, 'item_id' => $id, 'quantity_milli' => $milli, 'unit_cost_minor' => $cost, 'order_id' => null];
@@ -149,7 +153,7 @@ final class Supply
         // Tracked materials arrive in Riyadh (the workshop).
         $this->s->timeline->at($day->addDays(1)->setTime(11, 0), $story, 'open-materials', function () {
             $m = $this->s->catalog->materials;
-            $setup = app(\App\Actions\Inventory\ManageStockSetup::class);
+            $setup = app(ManageStockSetup::class);
             foreach (['mdf_moisture' => 'sheet', 'mdf_laminate' => 'sheet', 'hinge_hardware' => 'piece', 'slide_hardware' => 'pair', 'edge_banding' => 'meter', 'led_profile' => 'meter'] as $key => $unit) {
                 $setup->updateItem($this->s->users['inventory'], 'material', $m[$key]->id, $unit, 20000);
             }
@@ -162,7 +166,7 @@ final class Supply
         });
         // Showroom display stock moved from the Riyadh warehouse.
         $this->s->timeline->at($day->addDays(5)->setTime(10, 0), $story, 'showroom-transfer', function () {
-            $setup = app(\App\Actions\Inventory\ManageStockSetup::class);
+            $setup = app(ManageStockSetup::class);
             foreach ($this->s->catalog->variants as $variant) {
                 $setup->updateItem($this->s->users['inventory'], 'ready_variant', $variant->id, 'piece', 8000);
             }
@@ -202,7 +206,7 @@ final class Supply
                     $at = $at->addDay();
                 }
                 $this->s->timeline->at($at, $st, 'receive', function (Story $st) use ($branch, $mode, $late) {
-                    $po = PurchaseOrder::query()->findOrFail($st->data['po']);
+                    $po = PurchaseOrder::query()->findOrFail($st->int('po'));
                     if ($mode === 'full') {
                         $this->receive($branch, $po);
                     } elseif ($mode === 'reject') {
@@ -216,7 +220,7 @@ final class Supply
                             $next = $next->addDay();
                         }
                         $this->s->timeline->at($next, $st, 'receive-rest', function (Story $st) use ($branch, $mode) {
-                            $po = PurchaseOrder::query()->findOrFail($st->data['po']);
+                            $po = PurchaseOrder::query()->findOrFail($st->int('po'));
                             if ($mode === 'cancel') {
                                 app(T03CancelRemainder::class)->handle($this->s->users['inventory'], $po, 'المورد لم يتمكن من توريد باقي الكمية؛ أُلغي المتبقي.', $po->lock_version, $this->key());
 
@@ -260,7 +264,7 @@ final class Supply
                 $t = app(T01DispatchTransfer::class)->handle($inv, $t->refresh(), $t->lock_version);
                 $st->data['transfer'] = $t->id;
                 $this->s->timeline->at(CarbonImmutable::now()->addDay()->setTime(14, 0), $st, 'receive', function (Story $st) {
-                    $t = \App\Models\Inventory\StockTransfer::query()->findOrFail($st->data['transfer']);
+                    $t = StockTransfer::query()->findOrFail($st->int('transfer'));
                     app(T02ReceiveTransfer::class)->handle($this->s->users['inventory'], $t, $t->lock_version);
                 });
             });

@@ -14,4 +14,9 @@ final class Story
     public array $data = [];
 
     public function __construct(public readonly string $name) {}
+
+    public function int(string $key): int
+    {
+        return (int) ($this->data[$key] ?? 0);
+    }
 }

@@ -3,6 +3,7 @@
 namespace Database\Seeders\ShowcaseKit;
 
 use App\Files\AttachmentService;
+use App\Files\Contracts\AttachmentOwner;
 use App\Models\Attachment;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
@@ -55,7 +56,7 @@ final class Assets
     /**
      * Attaches a photo to a record through the attachments service; null when images are off.
      */
-    public function attach(User $actor, Model $owner, int $pexelsId, ?string $purpose = 'image'): ?Attachment
+    public function attach(User $actor, Model&AttachmentOwner $owner, int $pexelsId, ?string $purpose = 'image'): ?Attachment
     {
         $file = $this->image($pexelsId);
 

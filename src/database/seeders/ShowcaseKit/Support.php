@@ -2,7 +2,6 @@
 
 namespace Database\Seeders\ShowcaseKit;
 
-use App\Actions\StateMachines\M21Ticket\AssignTicket;
 use App\Actions\StateMachines\M21Ticket\ReplyToTicket;
 use App\Actions\StateMachines\M21Ticket\T01TakeTicket;
 use App\Actions\StateMachines\M21Ticket\T02RequestInformation;
@@ -64,6 +63,9 @@ final class Support
         }
     }
 
+    /**
+     * @param  array{0: string, 1: string, 2: string, 3: string, 4: string}  $topic
+     */
     private function open(Story $st, array $topic, string $fate): void
     {
         [$type, $subject, $body, $reply, $resolution] = $topic;
@@ -81,7 +83,7 @@ final class Support
             return;
         }
         $this->s->timeline->at($at(3), $st, 'take', function (Story $st) {
-            $ticket = Ticket::query()->findOrFail($st->data['ticket']);
+            $ticket = Ticket::query()->findOrFail($st->int('ticket'));
             $agent = $this->agent($ticket);
             app(T01TakeTicket::class)->handle($agent, $ticket);
             app(ReplyToTicket::class)->handle($agent, $ticket->refresh(), TicketMessage::PUBLIC, $st->data['reply']);
@@ -92,31 +94,31 @@ final class Support
         }
         if ($fate === 'awaiting') {
             $this->s->timeline->at($at(20), $st, 'ask', function (Story $st) {
-                $ticket = Ticket::query()->findOrFail($st->data['ticket']);
+                $ticket = Ticket::query()->findOrFail($st->int('ticket'));
                 app(T02RequestInformation::class)->handle($this->agent($ticket), $ticket, 'هل يمكنكم إرسال صورة واضحة للمشكلة ورقم الطلب؟');
             });
 
             return;
         }
         $this->s->timeline->at($at(30), $st, 'customer-reply', function (Story $st) {
-            $ticket = Ticket::query()->findOrFail($st->data['ticket']);
+            $ticket = Ticket::query()->findOrFail($st->int('ticket'));
             app(CustomerTickets::class)->reply($st->data['customer'], $ticket, 'شكرًا لكم، المعلومات كما في الطلب، ننتظر تواصل الفني.');
         });
         $this->s->timeline->at($at(52), $st, 'resolve', function (Story $st) {
-            $ticket = Ticket::query()->findOrFail($st->data['ticket']);
+            $ticket = Ticket::query()->findOrFail($st->int('ticket'));
             app(T04ResolveTicket::class)->handle($this->agent($ticket), $ticket, $st->data['resolution']);
         });
         if ($fate === 'resolved') {
             return;
         }
         $this->s->timeline->at($at(52 + 72), $st, 'close', function (Story $st) {
-            $ticket = Ticket::query()->findOrFail($st->data['ticket']);
+            $ticket = Ticket::query()->findOrFail($st->int('ticket'));
             app(T05CloseTicket::class)->handle($this->agent($ticket), $ticket);
         });
         if ($fate === 'reopened') {
             $this->s->timeline->at($at(52 + 72 + 48), $st, 'reopen', function (Story $st) {
-                $ticket = Ticket::query()->findOrFail($st->data['ticket']);
-                app(T06ReopenTicket::class)->handle($this->agent($ticket), $ticket, "ملاحظة إضافية من العميل بعد الإغلاق.");
+                $ticket = Ticket::query()->findOrFail($st->int('ticket'));
+                app(T06ReopenTicket::class)->handle($this->agent($ticket), $ticket, 'ملاحظة إضافية من العميل بعد الإغلاق.');
                 app(ReplyToTicket::class)->handle($this->agent($ticket), $ticket->refresh(), TicketMessage::PUBLIC, 'أُعيد فتح البلاغ بناءً على ملاحظتكم الإضافية، وسنوافيكم خلال يوم عمل.');
             });
         }

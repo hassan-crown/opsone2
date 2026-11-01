@@ -13,6 +13,7 @@ use Throwable;
  */
 final class Timeline
 {
+    /** @var \SplPriorityQueue<array{int, int}, array{int, string, Closure, Story}> */
     private \SplPriorityQueue $queue;
 
     private int $seq = 0;
@@ -43,7 +44,9 @@ final class Timeline
     public function run(?Closure $progress = null): void
     {
         while (! $this->queue->isEmpty()) {
-            [$ts, $label, $step, $story] = $this->queue->extract();
+            /** @var array{int, string, Closure, Story} $event */
+            $event = $this->queue->extract();
+            [$ts, $label, $step, $story] = $event;
             if ($ts > $this->end->getTimestamp()) {
                 continue;
             }
@@ -61,7 +64,7 @@ final class Timeline
                 $where = '';
                 foreach ($e->getTrace() as $frame) {
                     if (isset($frame['class']) && str_starts_with($frame['class'], 'App\\Actions')) {
-                        $where = ' @'.class_basename($frame['class'] ?? '').'::'.($frame['function'] ?? '');
+                        $where = ' @'.class_basename($frame['class']).'::'.$frame['function'];
                         break;
                     }
                 }

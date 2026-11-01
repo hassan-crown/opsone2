@@ -27,6 +27,9 @@ class ShowcaseSeeder extends Seeder
 
     public bool $trace = false;
 
+    /** @var list<string> stories that stopped early (reported, never fatal) */
+    public array $failures = [];
+
     public function run(): void
     {
         if (! app()->environment('local', 'testing')) {
@@ -40,6 +43,7 @@ class ShowcaseSeeder extends Seeder
         try {
             $showcase->run();
         } finally {
+            $this->failures = $showcase->timeline->failures;
             $showcase->finish();
         }
     }

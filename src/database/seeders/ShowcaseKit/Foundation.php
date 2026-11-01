@@ -4,6 +4,7 @@ namespace Database\Seeders\ShowcaseKit;
 
 use App\Access\TransitionRecorder;
 use App\Actions\Commissions\UpdateCommissionSettings;
+use App\Actions\Inventory\ManageStockSetup;
 use App\Actions\Organization\CreateBranch;
 use App\Actions\Organization\EstablishOwner;
 use App\Actions\Organization\UpdateFacilityProfile;
@@ -84,7 +85,7 @@ final class Foundation
 
     private function staff(): void
     {
-        $b = fn (string ...$codes) => array_map(fn (string $c) => $this->s->branches[$c]->id, $codes);
+        $b = fn (string ...$codes) => array_values(array_map(fn (string $c) => $this->s->branches[$c]->id, $codes));
         $d = $this->s->departments;
 
         // key => [name, email local part, role, department, branch codes, job title]
@@ -132,7 +133,7 @@ final class Foundation
             ['role_template_id' => $template('manager'), 'custom_bp' => 1000, 'ready_bp' => 1000, 'approval_bp' => 1500],
         ]]);
 
-        app(\App\Actions\Inventory\ManageStockSetup::class)->updateSettings($owner, ['piece', 'sheet', 'pair', 'meter', 'set', 'box', 'square_meter', 'linear_meter', 'roll', 'kilogram', 'liter'], true);
+        app(ManageStockSetup::class)->updateSettings($owner, ['piece', 'sheet', 'pair', 'meter', 'set', 'box', 'square_meter', 'linear_meter', 'roll', 'kilogram', 'liter'], true);
 
         app(UpdateWorkSettings::class)->handle($owner, [
             'working_days' => [7, 1, 2, 3, 4], 'work_starts_at' => '08:00', 'work_ends_at' => '17:00',

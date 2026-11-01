@@ -2,6 +2,7 @@
 
 namespace Database\Seeders\ShowcaseKit;
 
+use App\Access\Exceptions\InvalidTransition;
 use App\Actions\Orders\CreateOrders;
 use App\Actions\Orders\ManageOrderLines;
 use App\Actions\Orders\UpdateOrder;
@@ -26,21 +27,24 @@ use App\Actions\StateMachines\M26Decision\T00RequestDiscount;
 use App\Actions\StateMachines\M26Decision\T01ApproveDiscount;
 use App\Actions\Workflow\RecordMeasurement;
 use App\Agreements\CustomerActor;
+use App\Agreements\CustomerDecisions;
 use App\Enums\TaskStatus;
 use App\Files\AttachmentService;
 use App\Finance\CustomerProofs;
+use App\Finance\MoneyLedger;
 use App\Inventory\Quantity;
 use App\Models\Agreements\Agreement;
 use App\Models\Agreements\AgreementDocument;
+use App\Models\Agreements\DiscountDecision;
+use App\Models\Appointment;
 use App\Models\Customer;
-use App\Money\Money;
 use App\Models\Finance\PaymentProof;
 use App\Models\Order;
 use App\Models\OrderLine;
 use App\Models\Task;
 use App\Models\User;
+use App\Money\Money;
 use App\Workflow\StageEngine;
-use App\Workflow\TaskEligibility;
 use App\Workflow\TaskQueries;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Str;
@@ -121,6 +125,8 @@ final class CustomOrders
         $this->step($st, $at($d + 0.4, 12), 'measure-appt', fn () => $this->bookVisit($st, 'measurement', $visitDay));
         $d = $visitDay + 0.6;
         $this->step($st, $at($d, 15), 'measure', fn () => $this->doMeasure($st));
+        $d += 0.1;
+        $this->step($st, $at($d, 16), 'site-photos', fn () => $this->sitePhotos($st));
         $d += 0.3;
         $this->step($st, $at($d, 13), 'stage-measure', fn () => $this->completeStage($st, 'measure'));
         // Design
@@ -170,6 +176,7 @@ final class CustomOrders
         $this->step($st, $at($d, 10), 'final-payment', fn () => $this->payFinal($st));
         $d += 0.2;
         $this->step($st, $at($d, 12), 'delivery', fn () => $this->deliver($st));
+        $this->step($st, $at($d + 0.05, 12), 'tax-invoice', fn () => $this->taxInvoice($st));
         $this->step($st, $at($d + 0.1, 13), 'stage-install', fn () => $this->completeStage($st, 'install'));
     }
 
@@ -207,7 +214,7 @@ final class CustomOrders
 
     private function order(Story $st): Order
     {
-        return Order::query()->findOrFail($st->data['order']);
+        return Order::query()->findOrFail($st->int('order'));
     }
 
     private function salesOf(string $branch): User
@@ -275,8 +282,10 @@ final class CustomOrders
         }
         $task->setRelation('order', $order);
         $eligible = TaskQueries::eligibleFor($this->s->users['owner'], $task);
-        $pick = $this->s->rng->pick($eligible);
-        $userId = (int) ($pick['user_id'] ?? throw new \RuntimeException('nobody eligible for '.$actionKey));
+        if ($eligible === []) {
+            throw new \RuntimeException('nobody eligible for '.$actionKey);
+        }
+        $userId = (int) $this->s->rng->pick($eligible)['user_id'];
         // Department inbox work is handed out by the department supervisor (production) or the branch manager.
         $assigner = in_array($actionKey, ['manufacturing', 'quality_check'], true) ? $this->s->users['sup_prod'] : $this->manager($st);
         app(T01AssignTask::class)->handle($assigner, $task, $userId, null);
@@ -288,6 +297,33 @@ final class CustomOrders
         $task = $this->openTask($order, $actionKey) ?? throw new \RuntimeException("no open task {$actionKey}");
         $actor = User::query()->findOrFail($task->assignee_id ?? $this->sales($st)->id);
         app(T05CompleteTask::class)->handle($actor, $task->refresh(), null);
+    }
+
+    private function sitePhotos(Story $st): void
+    {
+        $task = $this->openTask($this->order($st), 'site_photos');
+        if ($task === null) {
+            return;
+        }
+        $actor = User::query()->findOrFail($task->assignee_id ?? $this->sales($st)->id);
+        $pool = array_merge(...array_values(Assets::KITCHENS));
+        $file = $this->s->assets->image($this->s->rng->pick($pool));
+        if ($file !== null) {
+            app(AttachmentService::class)->store($actor, $task, $file, 'site_photos');
+        }
+        app(T05CompleteTask::class)->handle($actor, $task->refresh(), 'صور الموقع قبل التنفيذ.');
+    }
+
+    private function taxInvoice(Story $st): void
+    {
+        $order = $this->order($st);
+        $task = $this->openTask($order, 'tax_invoice');
+        if ($task === null) {
+            return;
+        }
+        $actor = User::query()->findOrFail($task->assignee_id ?? $this->sales($st)->id);
+        app(AttachmentService::class)->store($actor, $task, Assets::pdf('tax-invoice-'.$order->number.'.pdf', 'Tax invoice '.$order->number), 'tax_invoice');
+        app(T05CompleteTask::class)->handle($actor, $task->refresh(), 'أُرفقت الفاتورة الضريبية الصادرة من النظام المحاسبي.');
     }
 
     private function doTaskNamed(Story $st, string $actionKey): void
@@ -310,11 +346,9 @@ final class CustomOrders
             return;
         }
         $actor = User::query()->findOrFail($task->assignee_id);
-        $pool = array_values(array_merge(...array_values(Assets::KITCHENS)));
-        $file = $this->s->assets->image($this->s->rng->pick($pool));
-        if ($file !== null) {
-            app(AttachmentService::class)->store($actor, $task, $file, 'design');
-        }
+        $pool = array_merge(...array_values(Assets::KITCHENS));
+        $file = $this->s->assets->image($this->s->rng->pick($pool)) ?? Assets::pdf('design-render-'.$order->number.'.pdf', 'Render');
+        app(AttachmentService::class)->store($actor, $task, $file, 'design');
         app(T05CompleteTask::class)->handle($actor, $task->refresh(), 'التصميم النهائي بعد ملاحظات العميل.');
     }
 
@@ -341,11 +375,11 @@ final class CustomOrders
 
             return;
         }
-        $appointment = app(T02ConfirmAppointment::class)->handle($sales, \App\Models\Appointment::query()->with('order')->findOrFail($appointment->id), 'phone', 'تنسيق مع فنيين آخرين في اليوم نفسه');
+        $appointment = app(T02ConfirmAppointment::class)->handle($sales, Appointment::query()->with('order')->findOrFail($appointment->id), 'phone', 'تنسيق مع فنيين آخرين في اليوم نفسه');
         $st->data['appt_'.$kind] = $appointment->id;
         if ($start->lessThanOrEqualTo($this->s->end)) {
             $this->s->timeline->at($start->addHours(3), $st, 'visit-'.$kind, function () use ($st, $kind, $tech) {
-                $appt = \App\Models\Appointment::query()->findOrFail($st->data['appt_'.$kind]);
+                $appt = Appointment::query()->findOrFail($st->int('appt_'.$kind));
                 app(T05CompleteVisit::class)->handle($tech, $appt, $kind === 'measurement' ? 'تمت المعاينة وأُخذت القياسات.' : 'تم التركيب وسُلّم الموقع نظيفًا.', false);
             });
         }
@@ -376,7 +410,7 @@ final class CustomOrders
         $order = $this->order($st);
         $stage = app(StageEngine::class)->activeStage($order);
         if ($stage === null || $stage->key !== $key) {
-            throw new \RuntimeException("active stage is ".($stage?->key ?? 'none').", wanted {$key}");
+            throw new \RuntimeException('active stage is '.($stage === null ? 'none' : $stage->key).", wanted {$key}");
         }
         app(T04CompleteStage::class)->handle($this->manager($st), $stage, null);
     }
@@ -385,7 +419,7 @@ final class CustomOrders
     {
         $order = $this->order($st);
         $task = $this->openTask($order, 'design');
-        $designer = User::query()->findOrFail($task?->assignee_id ?? $this->sales($st)->id);
+        $designer = User::query()->findOrFail($task->assignee_id ?? $this->sales($st)->id);
         $doc = app(T00UploadDesign::class)->handle($designer, $order, Assets::pdf('kitchen-design-'.$order->number.'.pdf', 'Design '.$order->number), 'تصميم المطبخ — النسخة الأولى مع المناظير ثلاثية الأبعاد', [], null, $this->key());
         $sales = $this->sales($st);
         $doc = app(T01SendDocument::class)->handle($sales, $doc->refresh(), null, $doc->lock_version, $this->key());
@@ -395,9 +429,9 @@ final class CustomOrders
     private function approveDesign(Story $st): void
     {
         $order = $this->order($st);
-        $doc = AgreementDocument::query()->findOrFail($st->data['design_doc']);
+        $doc = AgreementDocument::query()->findOrFail($st->int('design_doc'));
         if ($st->data['viaPortal']) {
-            app(\App\Agreements\CustomerDecisions::class)->approveDocument($this->customerActor($order), $doc, (string) $doc->content_hash);
+            app(CustomerDecisions::class)->approveDocument($this->customerActor($order), $doc, (string) $doc->content_hash);
 
             return;
         }
@@ -443,7 +477,7 @@ final class CustomOrders
             try {
                 $decision = app(T00RequestDiscount::class)->handle($sales, $quote->refresh(), 'العميل يقارن بعرض منافس ويرغب بإتمام الاتفاق هذا الأسبوع.', $quote->lock_version, $this->key());
                 $st->data['decision'] = $decision->id;
-            } catch (\App\Access\Exceptions\InvalidTransition) {
+            } catch (InvalidTransition) {
                 // within the sales limit
             }
         }
@@ -451,9 +485,9 @@ final class CustomOrders
 
     private function sendQuote(Story $st): void
     {
-        $quote = AgreementDocument::query()->findOrFail($st->data['quote_doc']);
+        $quote = AgreementDocument::query()->findOrFail($st->int('quote_doc'));
         if (isset($st->data['decision'])) {
-            $decision = \App\Models\Agreements\DiscountDecision::query()->findOrFail($st->data['decision']);
+            $decision = DiscountDecision::query()->findOrFail($st->int('decision'));
             $approver = (int) $st->data['discount'] > 10 ? $this->s->users['gm'] : $this->manager($st);
             app(T01ApproveDiscount::class)->handle($approver, $decision, true, 'مقبول ضمن سياسة الخصم للمشاريع.', $decision->lock_version, $this->key());
             $quote->refresh();
@@ -464,9 +498,9 @@ final class CustomOrders
     private function approveQuote(Story $st): void
     {
         $order = $this->order($st);
-        $doc = AgreementDocument::query()->findOrFail($st->data['quote_doc']);
+        $doc = AgreementDocument::query()->findOrFail($st->int('quote_doc'));
         if ($st->data['viaPortal']) {
-            app(\App\Agreements\CustomerDecisions::class)->approveDocument($this->customerActor($order), $doc, (string) $doc->content_hash);
+            app(CustomerDecisions::class)->approveDocument($this->customerActor($order), $doc, (string) $doc->content_hash);
 
             return;
         }
@@ -521,7 +555,7 @@ final class CustomOrders
 
     private function confirmProof(Story $st): void
     {
-        $proof = PaymentProof::query()->findOrFail($st->data['proof']);
+        $proof = PaymentProof::query()->findOrFail($st->int('proof'));
         app(T01ConfirmProof::class)->handle($this->finance($st), $proof, [
             'amount' => $proof->claimed()->toInput(), 'paid_on' => $proof->paid_on->toDateString(),
         ], $proof->lock_version, $this->key());
@@ -538,7 +572,7 @@ final class CustomOrders
 
     private function remaining(Order $order): int
     {
-        $collected = (int) app(\App\Finance\MoneyLedger::class)->collected($order->id)->jsonSerialize();
+        $collected = (int) app(MoneyLedger::class)->collected($order->id)->jsonSerialize();
 
         return max(0, $this->agreementTotal($order) - $collected);
     }

@@ -34,7 +34,7 @@ final class Rng
     }
 
     /**
-     * @param  array<string, int>  $weights
+     * @param  array<int|string, int>  $weights
      */
     public function weighted(array $weights): string
     {
@@ -62,6 +62,6 @@ final class Rng
             [$list[$i], $list[$j]] = [$list[$j], $list[$i]];
         }
 
-        return $list;
+        return array_values($list);
     }
 }

@@ -9,13 +9,13 @@ use App\Models\Customer;
 use App\Models\Order;
 use App\Models\OrderLine;
 use App\Models\Store\StoreCheckout;
-use App\Models\Store\StoreLink;
 use App\Store\CouponAdmin;
 use App\Store\StoreCheckouts;
 use App\Store\StoreLinks;
 use App\Store\StoreSetup;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 
 /**
  * The online store: launch and seasonal coupons, cart links issued by sales, and online checkouts paid through a
@@ -117,7 +117,7 @@ final class Storefront
         $rng = $this->s->rng;
         $lines = [];
         foreach (array_slice($rng->shuffle($this->s->catalog->variants), 0, $rng->int(1, 3)) as $variant) {
-            $lines[$variant->id] = $rng->weighted(['1' => 55, '2' => 30, '3' => 15]) + 0;
+            $lines[$variant->id] = (int) $rng->weighted(['1' => 55, '2' => 30, '3' => 15]);
         }
 
         return $lines;
@@ -143,7 +143,7 @@ final class Storefront
         $coupon = $mode === 'link' ? null : $this->couponFor($now);
         try {
             $result = app(StoreCheckouts::class)->start($customer, $link === null ? $lines : [], $link, $coupon, (string) Str::uuid(), $returnUrl);
-        } catch (\Illuminate\Validation\ValidationException) {
+        } catch (ValidationException) {
             // The basket is below the coupon's minimum: the buyer pays the full price.
             $result = app(StoreCheckouts::class)->start($customer, $link === null ? $lines : [], $link, null, (string) Str::uuid(), $returnUrl);
         }
@@ -152,7 +152,7 @@ final class Storefront
         $st->data['checkout'] = $checkout->id;
         if ($mode === 'abandoned') {
             $this->s->timeline->at($now->addMinutes(45), $st, 'expire', function (Story $st) {
-                $checkout = StoreCheckout::query()->findOrFail($st->data['checkout']);
+                $checkout = StoreCheckout::query()->findOrFail($st->int('checkout'));
                 FakeMoyasar::expire($checkout);
                 app(StoreCheckouts::class)->expireDue();
             });
@@ -160,13 +160,13 @@ final class Storefront
             return;
         }
         $this->s->timeline->at(CarbonImmutable::now()->addMinutes($this->s->rng->int(3, 20)), $st, 'pay', function (Story $st) {
-            $checkout = StoreCheckout::query()->findOrFail($st->data['checkout']);
+            $checkout = StoreCheckout::query()->findOrFail($st->int('checkout'));
             FakeMoyasar::pay($checkout);
             app(StoreCheckouts::class)->applyProviderResult($checkout->refresh());
             $st->data['order'] = $checkout->refresh()->order_id;
         });
         $this->s->timeline->at(CarbonImmutable::now()->addDays($this->s->rng->int(1, 3))->setTime(12, 0), $st, 'pickup', function (Story $st) {
-            $order = Order::query()->findOrFail($st->data['order']);
+            $order = Order::query()->findOrFail($st->int('order'));
             $keeper = $this->s->users['inventory'];
             $lines = [];
             foreach (OrderLine::query()->where('order_id', $order->id)->whereNull('removed_at')->get() as $line) {

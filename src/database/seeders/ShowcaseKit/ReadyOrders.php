@@ -15,15 +15,15 @@ use App\Actions\StateMachines\M15Return\T01ReceiveReturn;
 use App\Actions\StateMachines\M15Return\T05AcceptReturn;
 use App\Finance\FinanceLock;
 use App\Inventory\Quantity;
+use App\Models\Customer;
 use App\Models\Finance\Payment;
 use App\Models\Finance\Refund;
 use App\Models\Inventory\StockBalance;
 use App\Models\Inventory\StockItem;
 use App\Models\Order;
-use App\Money\Money;
 use App\Models\OrderLine;
-use App\Models\Returns\OrderReturn;
 use App\Models\User;
+use App\Money\Money;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Str;
 
@@ -119,12 +119,12 @@ final class ReadyOrders
         $now = CarbonImmutable::now();
         $app = fn (int $minutes) => $now->addMinutes($minutes);
         $this->s->timeline->at($app(10), $st, 'confirm', function (Story $st) use ($sales) {
-            $order = Order::query()->findOrFail($st->data['order']);
+            $order = Order::query()->findOrFail($st->int('order'));
             app(T01ConfirmReadyOrder::class)->handle($sales, $order, $st->data['location']);
         });
         if ($p['outcome'] === 'cancel_full') {
             $this->s->timeline->at($app(60 * 20), $st, 'cancel', function (Story $st) {
-                $order = Order::query()->findOrFail($st->data['order']);
+                $order = Order::query()->findOrFail($st->int('order'));
                 app(T09CancelReadyRemainder::class)->handle($this->s->users['gm'], $order, 'العميل غيّر رأيه قبل الاستلام ولم يُدفع شيء.', $order->lock_version);
             });
 
@@ -141,7 +141,7 @@ final class ReadyOrders
 
         if ($partial) {
             $this->s->timeline->at($app(60 * 24 * 2 + 600), $st, 'cancel-rest', function (Story $st) {
-                $order = Order::query()->findOrFail($st->data['order']);
+                $order = Order::query()->findOrFail($st->int('order'));
                 app(T09CancelReadyRemainder::class)->handle($this->s->users['gm'], $order, 'تعذر استلام باقي القطع؛ ألغي الجزء غير المسلَّم.', $order->lock_version);
                 $this->refundUnits($st, 'استرداد قيمة القطع الملغاة.', 0.4);
             });
@@ -153,7 +153,7 @@ final class ReadyOrders
 
     private function pay(Story $st): void
     {
-        $order = Order::query()->findOrFail($st->data['order']);
+        $order = Order::query()->findOrFail($st->int('order'));
         $amount = Money::of((int) $order->total_minor);
         app(T01RecordPayment::class)->handle($this->s->users['finance'], $order, [
             'amount' => $amount->toInput(), 'method' => $st->data['method'], 'paid_on' => CarbonImmutable::now()->toDateString(),
@@ -164,7 +164,7 @@ final class ReadyOrders
 
     private function deliver(Story $st, bool $partial): void
     {
-        $order = Order::query()->findOrFail($st->data['order']);
+        $order = Order::query()->findOrFail($st->int('order'));
         $keeper = $this->s->users['inventory'];
         $lines = [];
         foreach (OrderLine::query()->where('order_id', $order->id)->whereNull('removed_at')->get() as $i => $line) {
@@ -179,7 +179,7 @@ final class ReadyOrders
         }
         $note = app(T00CreateDraft::class)->handle($keeper, $order, $lines, null, $this->key());
         app(T01ConfirmDelivery::class)->handle($keeper, $note->refresh(), [
-            'delivered_on' => CarbonImmutable::now()->toDateString(), 'receiver_name' => \App\Models\Customer::query()->findOrFail($order->customer_id)->name,
+            'delivered_on' => CarbonImmutable::now()->toDateString(), 'receiver_name' => Customer::query()->findOrFail($order->customer_id)->name,
             'note' => 'استلام من المعرض.',
         ], [Assets::pdf('dn-'.$order->number.'.pdf', 'Handover')], null, $this->key());
     }
@@ -189,7 +189,7 @@ final class ReadyOrders
      */
     private function refundUnits(Story $st, string $reason, float $share): void
     {
-        $order = Order::query()->findOrFail($st->data['order'])->refresh();
+        $order = Order::query()->findOrFail($st->int('order'))->refresh();
         $payment = Payment::query()->where('order_id', $order->id)->orderBy('id')->first();
         if ($payment === null) {
             return;
@@ -201,7 +201,7 @@ final class ReadyOrders
         ], FinanceLock::versionOf($order), $this->key());
         $st->data['refund'] = $refund->id;
         $this->s->timeline->at(CarbonImmutable::now()->addHours(30), $st, 'refund-pay', function (Story $st) {
-            $refund = Refund::query()->findOrFail($st->data['refund']);
+            $refund = Refund::query()->findOrFail($st->int('refund'));
             app(T02ConfirmRefund::class)->handle($this->s->users['finance'], $refund, ['reference' => 'TRX'.$this->s->rng->int(10000000, 99999999)],
                 Assets::pdf('refund-proof.pdf', 'Refund'), $refund->lock_version, $this->key());
         });
@@ -209,7 +209,7 @@ final class ReadyOrders
 
     private function returnGoods(Story $st): void
     {
-        $order = Order::query()->findOrFail($st->data['order']);
+        $order = Order::query()->findOrFail($st->int('order'));
         $line = OrderLine::query()->where('order_id', $order->id)->whereNull('removed_at')->first();
         $manager = $this->s->users['gm'];
         $keeper = $this->s->users['inventory'];

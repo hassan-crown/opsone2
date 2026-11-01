@@ -25,8 +25,6 @@ final class People
 
     private int $mobile = 10_000_000;
 
-    private int $used = 0;
-
     public function __construct(private readonly Rng $rng) {}
 
     public function mobile(): string
