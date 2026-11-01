@@ -5,6 +5,7 @@ use App\Actions\StateMachines\M08Document\T05ExpireDocuments;
 use App\Actions\StateMachines\M37OwnershipTransfer\T04ExpireOwnershipTransfer;
 use App\Actions\StateMachines\M38SupportAccess\T00RequestSupportAccess;
 use App\Actions\StateMachines\M38SupportAccess\T04ExpireSupportAccess;
+use App\EInvoicing\MissingInvoices;
 use App\Finance\CollectionReminders;
 use App\Models\Membership;
 use App\Models\OutboxMessage;
@@ -60,6 +61,14 @@ Artisan::command('outbox:prune', function () {
 
 Schedule::command('outbox:process')->everyMinute()->withoutOverlapping();
 Schedule::command('outbox:prune')->daily();
+
+// ZATCA e-invoicing (ADR-0032): invoices the payment listener could not issue (blocked or failed) are retried.
+Artisan::command('einvoicing:sweep', function (MissingInvoices $missing) {
+    $result = $missing->sweep();
+    $this->info(sprintf('Issued %d e-invoice(s); blocked: %s.', $result['issued'], json_encode($result['blocked'])));
+})->purpose('Issue tax invoices missing for paid orders');
+
+Schedule::command('einvoicing:sweep')->hourly()->withoutOverlapping();
 
 // OpsOne support access (M-38). Until the central app exists, OpsOne operations use these from the server shell.
 Artisan::command('support:identity {email} {name}', function (string $email, string $name) {

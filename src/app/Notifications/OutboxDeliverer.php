@@ -2,6 +2,7 @@
 
 namespace App\Notifications;
 
+use App\EInvoicing\EInvoiceSubmitter;
 use App\Jobs\DeliverOutboxMessage;
 use App\Models\CustomerMessage;
 use App\Models\OutboxMessage;
@@ -32,6 +33,7 @@ final class OutboxDeliverer
         private readonly EmailChannel $email,
         private readonly SmsChannel $sms,
         private readonly WhatsAppDelivery $whatsapp,
+        private readonly EInvoiceSubmitter $einvoices,
     ) {}
 
     public function deliver(int $id): void
@@ -43,7 +45,10 @@ final class OutboxDeliverer
         }
 
         try {
-            if ($message->channel === OutboxChannel::Whatsapp) {
+            if ($message->channel === OutboxChannel::Zatca) {
+                // Settled (reported, cleared, rejected or failed) on the invoice itself; a retryable failure throws.
+                $this->einvoices->deliver($message);
+            } elseif ($message->channel === OutboxChannel::Whatsapp) {
                 // Whether it was sent or fell back to SMS, this row is done; a retryable failure throws.
                 $this->whatsapp->deliver($message);
             } elseif ($message->channel === OutboxChannel::Sms) {
@@ -119,8 +124,11 @@ final class OutboxDeliverer
     {
         $dead = $message->attempts >= self::MAX_ATTEMPTS;
         if ($dead) {
-            // A WhatsApp message that could not be delivered still reaches the customer, by SMS.
-            if ($message->channel === OutboxChannel::Whatsapp) {
+            // A WhatsApp message that could not be delivered still reaches the customer, by SMS; an e-invoice is
+            // marked failed for the owner to retry.
+            if ($message->channel === OutboxChannel::Zatca) {
+                $this->einvoices->exhausted($message);
+            } elseif ($message->channel === OutboxChannel::Whatsapp) {
                 $this->whatsapp->fallback($message, 'whatsapp_retries_exhausted');
             } else {
                 $this->follow($message, MessageStatus::Failed, 'delivery_failed');

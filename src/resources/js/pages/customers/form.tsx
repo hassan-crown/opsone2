@@ -1,7 +1,11 @@
 import { Form, Head, Link } from '@inertiajs/react';
 import { useState } from 'react';
 import CustomerController from '@/actions/App/Http/Controllers/Customers/CustomerController';
-import type { CustomerDetail, Option } from '@/components/customers/types';
+import type {
+    CustomerDetail,
+    NationalAddress,
+    Option,
+} from '@/components/customers/types';
 import {
     CheckboxField,
     SelectField,
@@ -20,6 +24,18 @@ type Props = {
 };
 
 /** Create (CustomerNew / CustomerNewCompany) and edit a customer. Laravel validation is the source of truth. */
+/** Saudi national address parts (standard tax invoices); numeric ones are written left to right. */
+const NATIONAL_ADDRESS: ReadonlyArray<
+    readonly [keyof NationalAddress, boolean]
+> = [
+    ['street', false],
+    ['building_number', true],
+    ['additional_number', true],
+    ['district', false],
+    ['city', false],
+    ['postal_code', true],
+];
+
 export default function CustomerForm({ customer, branches, members }: Props) {
     const t = useT();
     const editing = customer !== null;
@@ -234,6 +250,42 @@ export default function CustomerForm({ customer, branches, members }: Props) {
                                     error={errors.office_phone}
                                     optional
                                 />
+                                <div>
+                                    <h3 className="text-body font-semibold text-strong">
+                                        {t('customers.form.national_address')}
+                                    </h3>
+                                    <p className="text-caption text-weak">
+                                        {t(
+                                            'customers.form.national_address_hint',
+                                        )}
+                                    </p>
+                                </div>
+                                <div className="grid gap-4 sm:grid-cols-2">
+                                    {NATIONAL_ADDRESS.map(([key, numeric]) => (
+                                        <TextField
+                                            key={key}
+                                            label={t(
+                                                `customers.form.address.${key}`,
+                                            )}
+                                            name={`national_address[${key}]`}
+                                            dir={numeric ? 'ltr' : undefined}
+                                            inputMode={
+                                                numeric ? 'numeric' : undefined
+                                            }
+                                            defaultValue={
+                                                customer?.national_address?.[
+                                                    key
+                                                ] ?? ''
+                                            }
+                                            error={
+                                                errors[
+                                                    `national_address.${key}`
+                                                ]
+                                            }
+                                            optional
+                                        />
+                                    ))}
+                                </div>
                             </Card>
                         )}
                         <div className="flex flex-wrap gap-2">

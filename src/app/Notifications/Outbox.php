@@ -48,6 +48,15 @@ final class Outbox
     }
 
     /**
+     * Reporting or clearance of one signed e-invoice with ZATCA (ADR-0032). The key carries the invoice UUID (and the
+     * retry number when the owner retries a failed submission), so the same submission is never queued twice.
+     */
+    public function enqueueEInvoice(int $invoiceId, string $idempotencyKey): ?OutboxMessage
+    {
+        return $this->enqueue(OutboxChannel::Zatca, 'zatca', 'submission', ['e_invoice_id' => $invoiceId], $idempotencyKey);
+    }
+
+    /**
      * @param  array<string, mixed>  $payload
      */
     private function enqueue(OutboxChannel $channel, string $to, string $kind, array $payload, string $key): ?OutboxMessage

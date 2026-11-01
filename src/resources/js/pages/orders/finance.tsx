@@ -27,6 +27,8 @@ import { PageHeader } from '@/components/opsone/page-header';
 import { notify } from '@/components/opsone/toast';
 import { KindBadge, StatusBadge } from '@/components/orders/status';
 import type { OrderRow } from '@/components/orders/types';
+import { OrderEInvoices } from '@/components/einvoicing/order-einvoices';
+import type { OrderEInvoice } from '@/components/einvoicing/order-einvoices';
 import { SettlementCard } from '@/components/settlement/settlement-card';
 import type { SettlementPayload } from '@/components/settlement/types';
 import { Alert, AlertBody, AlertTitle } from '@/components/ui/alert';
@@ -47,6 +49,7 @@ type Props = {
     finance: FinancePayload;
     settlement: SettlementPayload;
     today: string;
+    einvoices: OrderEInvoice[];
 };
 
 type Open =
@@ -85,6 +88,7 @@ export default function OrderFinance({
     order,
     finance,
     settlement,
+    einvoices,
     today,
 }: Props) {
     const t = useT();
@@ -630,6 +634,7 @@ export default function OrderFinance({
                             setSettled(next.settlement);
                         }}
                     />
+                    <OrderEInvoices invoices={einvoices} />
                     <Card data-test="conditions">
                         <CardHeader>
                             <CardTitle>

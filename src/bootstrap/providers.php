@@ -6,6 +6,7 @@ use App\Providers\AppServiceProvider;
 use App\Providers\CancellationServiceProvider;
 use App\Providers\CatalogServiceProvider;
 use App\Providers\CommissionsServiceProvider;
+use App\Providers\EInvoicingServiceProvider;
 use App\Providers\FinanceServiceProvider;
 use App\Providers\FortifyServiceProvider;
 use App\Providers\HelpServiceProvider;
@@ -33,6 +34,7 @@ return [
     SettlementServiceProvider::class,
     InventoryServiceProvider::class,
     CancellationServiceProvider::class,
+    EInvoicingServiceProvider::class,
     ReturnsServiceProvider::class,
     PortalServiceProvider::class,
     StoreServiceProvider::class,
