@@ -2,6 +2,7 @@ import { Head, Link, router, usePage } from '@inertiajs/react';
 import { Check, Pencil, Plus, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import CustomerContactController from '@/actions/App/Http/Controllers/Customers/CustomerContactController';
+import CustomerMessagingController from '@/actions/App/Http/Controllers/Customers/CustomerMessagingController';
 import CustomerController from '@/actions/App/Http/Controllers/Customers/CustomerController';
 import InterestController from '@/actions/App/Http/Controllers/Customers/InterestController';
 import PortalInviteController from '@/actions/App/Http/Controllers/Customers/PortalInviteController';
@@ -27,7 +28,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
-import { formatDate } from '@/lib/format';
+import { formatDate, formatDateTime } from '@/lib/format';
 import { useLocale, useT } from '@/lib/i18n';
 import type { TranslationKey } from '@/lib/i18n';
 
@@ -37,7 +38,35 @@ type Props = {
     contacts: Contact[];
     interests: InterestRow[];
     can: { edit: boolean };
+    messaging: Messaging;
 };
+
+type MessageRow = {
+    id: number;
+    event: string;
+    channel: 'whatsapp' | 'sms';
+    fell_back: boolean;
+    status: 'queued' | 'sent' | 'delivered' | 'read' | 'failed';
+    error: string | null;
+    at: string;
+    body: string | null;
+};
+
+type Messaging = {
+    opt_out: boolean;
+    opt_out_source: string | null;
+    preferred_channel: string | null;
+    messages: MessageRow[];
+    body_hidden: boolean;
+};
+
+const STATUS_VARIANT = {
+    queued: 'neutral',
+    sent: 'info',
+    delivered: 'success',
+    read: 'success',
+    failed: 'danger',
+} as const;
 
 function Fact({
     label,
@@ -61,6 +90,7 @@ export default function CustomerShow({
     contacts,
     interests,
     can,
+    messaging,
 }: Props) {
     const t = useT();
     const { locale } = useLocale();
@@ -276,6 +306,95 @@ export default function CustomerShow({
                             )}
                         </Card>
                     )}
+                    <Card data-test="messages-card">
+                        <div className="flex flex-wrap items-center justify-between gap-2">
+                            <h2 className="text-heading text-strong">
+                                {t('customers.messages.title')}
+                            </h2>
+                            {can.edit && (
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    onClick={() =>
+                                        router.put(
+                                            CustomerMessagingController.url(
+                                                customer.id,
+                                            ),
+                                            {
+                                                whatsapp_opt_out:
+                                                    !messaging.opt_out,
+                                            },
+                                            { preserveScroll: true },
+                                        )
+                                    }
+                                    data-test="toggle-whatsapp"
+                                >
+                                    {messaging.opt_out
+                                        ? t('customers.messages.opt_in')
+                                        : t('customers.messages.opt_out')}
+                                </Button>
+                            )}
+                        </div>
+                        {messaging.opt_out && (
+                            <p className="text-body text-weak">
+                                {t('customers.messages.opted_out', {
+                                    source: t(
+                                        `customers.messages.source.${messaging.opt_out_source === 'customer' ? 'customer' : 'staff'}` as TranslationKey,
+                                    ),
+                                })}
+                            </p>
+                        )}
+                        {messaging.body_hidden && (
+                            <p className="text-caption text-weak">
+                                {t('customers.messages.hidden')}
+                            </p>
+                        )}
+                        {messaging.messages.length === 0 ? (
+                            <p className="text-weak">
+                                {t('customers.messages.empty')}
+                            </p>
+                        ) : (
+                            <ul className="grid gap-3">
+                                {messaging.messages.map((m) => (
+                                    <li
+                                        key={m.id}
+                                        className="grid gap-1 border-b border-stroke-weak pb-3 last:border-0"
+                                    >
+                                        <div className="flex flex-wrap items-center justify-between gap-2">
+                                            <span className="font-semibold text-strong">
+                                                {t(
+                                                    `whatsapp.event_name.${m.event}` as TranslationKey,
+                                                )}
+                                            </span>
+                                            <Badge
+                                                variant={
+                                                    STATUS_VARIANT[m.status]
+                                                }
+                                            >
+                                                {t(
+                                                    `customers.messages.status.${m.status}` as TranslationKey,
+                                                )}
+                                            </Badge>
+                                        </div>
+                                        <p className="text-caption text-weak">
+                                            {t(
+                                                `customers.messages.channel.${m.channel}` as TranslationKey,
+                                            )}
+                                            {m.fell_back &&
+                                                ` · ${t('customers.messages.fallback')}`}
+                                            {' · '}
+                                            {formatDateTime(m.at, locale)}
+                                        </p>
+                                        {m.body && (
+                                            <p className="text-body">
+                                                {m.body}
+                                            </p>
+                                        )}
+                                    </li>
+                                ))}
+                            </ul>
+                        )}
+                    </Card>
                     <Card data-test="interests-card">
                         <h2 className="text-heading text-strong">
                             {t('customers.profile.interests')}

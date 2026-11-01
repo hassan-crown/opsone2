@@ -28,6 +28,9 @@ final class CustomerOtp
 
     public const ACTIVATION = 'activation';
 
+    /** A fresh code a signed-in customer enters to confirm a sensitive action (signing a document, ADR-0029). */
+    public const STEP_UP = 'step_up';
+
     public const DIGITS = 6;
 
     public const TTL_MINUTES = 5;
@@ -163,6 +166,93 @@ final class CustomerOtp
     }
 
     /**
+     * Sends a step-up code to a signed-in customer for one subject (`document:{id}`). Same caps as sign-in codes on the
+     * account's mobile and the address; a newer step-up code for the subject replaces the open one. Returns the masked
+     * destination, or null when the account has nowhere to receive a code.
+     */
+    public function issueStepUp(Customer $customer, string $subject, ?string $ip): ?string
+    {
+        $hash = self::identifierHash($customer->mobile);
+        $limits = [
+            "portal-otp:cooldown:{$hash}:{$subject}" => [1, self::RESEND_COOLDOWN],
+            "portal-otp:send:{$hash}" => [self::SENDS_PER_IDENTIFIER, self::WINDOW],
+            'portal-otp:send-ip:'.($ip ?? 'none') => [self::SENDS_PER_IP, self::WINDOW],
+        ];
+        $this->ensureNotLocked($hash, $ip);
+        foreach ($limits as $key => [$max]) {
+            if (RateLimiter::tooManyAttempts($key, $max)) {
+                throw new OtpThrottled(RateLimiter::availableIn($key));
+            }
+        }
+        $channel = $this->channelFor($customer, $customer->mobile);
+        if ($channel === null) {
+            return null;
+        }
+        foreach ($limits as $key => [, $decay]) {
+            RateLimiter::hit($key, $decay);
+        }
+
+        $code = self::code();
+        DB::transaction(function () use ($customer, $hash, $subject, $channel, $code, $ip) {
+            CustomerOtpChallenge::query()->where('customer_id', $customer->id)->where('purpose', self::STEP_UP)->where('subject', $subject)
+                ->whereNull('consumed_at')->update(['consumed_at' => now()]);
+            $challenge = CustomerOtpChallenge::query()->create([
+                'customer_id' => $customer->id,
+                'identifier_hash' => $hash,
+                'purpose' => self::STEP_UP,
+                'subject' => $subject,
+                'channel' => $channel,
+                'code_hash' => self::codeHash($hash, $code),
+                'expires_at' => now()->addMinutes(self::TTL_MINUTES),
+                'ip' => $ip,
+            ]);
+            $this->send($customer, $customer->mobile, $channel, $code, "portal-otp:{$challenge->id}", self::STEP_UP);
+        });
+
+        return $channel === 'sms' ? self::maskMobile($customer->mobile) : self::maskEmail((string) $customer->email);
+    }
+
+    /**
+     * Checks a step-up code for the customer and subject and consumes it (in its own transaction: a code works once,
+     * even when the action it confirms is refused afterwards). Returns the consumed challenge — the OTP reference a
+     * signature keeps — or null for a wrong, expired, used or foreign code. Throws OtpThrottled while locked.
+     */
+    public function verifyStepUp(Customer $customer, string $subject, string $code, ?string $ip): ?CustomerOtpChallenge
+    {
+        $hash = self::identifierHash($customer->mobile);
+        $this->ensureNotLocked($hash, $ip);
+
+        $challenge = DB::transaction(function () use ($customer, $subject, $code) {
+            $challenge = CustomerOtpChallenge::query()->where('customer_id', $customer->id)->where('purpose', self::STEP_UP)
+                ->where('subject', $subject)->whereNull('consumed_at')->where('expires_at', '>', now())->latest('id')->lockForUpdate()->first();
+            if ($challenge === null) {
+                return null;
+            }
+            if (preg_match('/^\d{'.self::DIGITS.'}$/', $code) !== 1 || ! hash_equals($challenge->code_hash, self::codeHash($challenge->identifier_hash, $code))) {
+                $challenge->attempts++;
+                if ($challenge->attempts >= self::MAX_ATTEMPTS) {
+                    $challenge->consumed_at = now();
+                }
+                $challenge->save();
+
+                return null;
+            }
+            $challenge->forceFill(['consumed_at' => now()])->save();
+
+            return $challenge;
+        });
+
+        if ($challenge === null) {
+            $this->fail($customer->mobile, $hash, $ip);
+
+            return null;
+        }
+        RateLimiter::clear("portal-otp:fail:{$hash}");
+
+        return $challenge;
+    }
+
+    /**
      * Where a code for this account would go, as a masked hint for the activation page, or null if nowhere.
      */
     public function destinationHint(Customer $customer): ?string
@@ -207,20 +297,21 @@ final class CustomerOtp
         return $email !== '' && ($identifier === $customer->mobile || $identifier === $email) ? 'email' : null;
     }
 
-    private function send(Customer $customer, string $identifier, string $channel, string $code, string $key): void
+    private function send(Customer $customer, string $identifier, string $channel, string $code, string $key, string $purpose = self::LOGIN): void
     {
         $locale = app()->getLocale();
         $facility = Facility::current();
         $name = $facility === null ? config('app.name') : ($locale === 'en' && $facility->name_en !== null ? $facility->name_en : $facility->name_ar);
         $params = ['code' => $code, 'facility' => $name, 'minutes' => self::TTL_MINUTES];
 
+        $prefix = $purpose === self::STEP_UP ? 'esign.otp' : 'portal.otp';
         if ($channel === 'sms') {
-            $this->outbox->enqueueSms($customer->mobile, __('portal.otp.sms', $params, $locale), "{$key}:sms");
+            $this->outbox->enqueueSms($customer->mobile, __("{$prefix}.sms", $params, $locale), "{$key}:sms");
 
             return;
         }
-        $this->outbox->enqueueMail((string) $customer->email, __('portal.otp.mail_subject', $params, $locale), [
-            __('portal.otp.mail_line', $params, $locale),
+        $this->outbox->enqueueMail((string) $customer->email, __("{$prefix}.mail_subject", $params, $locale), [
+            __("{$prefix}.mail_line", $params, $locale),
             __('portal.otp.mail_warning', $params, $locale),
         ], null, $locale, "{$key}:mail");
     }

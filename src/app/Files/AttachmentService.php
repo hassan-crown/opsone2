@@ -49,6 +49,50 @@ final class AttachmentService
         return $this->persist(null, $owner, $file, $purpose);
     }
 
+    /**
+     * A file the application produced itself (a generated PDF, a signature image, ADR-0029): no upload to check, so
+     * the caller — the service that already authorized the action on the owner — passes the bytes and their type.
+     * Same private disk, random name, quota and audit as an upload. Call inside the caller's transaction.
+     */
+    public function storeGenerated(Model&AttachmentOwner $owner, string $bytes, string $name, string $extension, string $mime, string $purpose, ?User $actor = null): Attachment
+    {
+        $disk = (string) config('attachments.disk');
+        $uuid = (string) Str::uuid();
+        $path = now()->format('Y/m').'/'.$uuid.'.'.$extension;
+        Storage::disk($disk)->put($path, $bytes);
+
+        try {
+            return DB::transaction(function () use ($owner, $bytes, $name, $extension, $mime, $purpose, $actor, $disk, $uuid, $path) {
+                $size = strlen($bytes);
+                $this->limits->reserveStorage($size);
+                $attachment = Attachment::query()->create([
+                    'uuid' => $uuid,
+                    'attachable_type' => $owner->getMorphClass(),
+                    'attachable_id' => $owner->getKey(),
+                    'purpose' => $purpose,
+                    'disk' => $disk,
+                    'path' => $path,
+                    'original_name' => self::safeName($name, $extension),
+                    'extension' => $extension,
+                    'mime' => $mime,
+                    'size_bytes' => $size,
+                    'sha256' => hash('sha256', $bytes),
+                    'uploaded_by_user_id' => $actor?->id,
+                ]);
+                Audit::record(AuditAction::AttachmentUploaded, $owner, $actor, after: [
+                    'attachment' => $attachment->uuid, 'name' => $attachment->original_name, 'mime' => $mime,
+                    'size_bytes' => $size, 'purpose' => $purpose, 'generated' => true,
+                ], source: $actor === null ? 'customer' : TransitionRecorder::SOURCE_WEB);
+
+                return $attachment;
+            });
+        } catch (Throwable $e) {
+            Storage::disk($disk)->delete($path);
+
+            throw $e;
+        }
+    }
+
     private function persist(?User $actor, Model&AttachmentOwner $owner, UploadedFile $file, ?string $purpose): Attachment
     {
         Validator::make(['file' => $file], ['file' => ['required', new AllowedAttachment]])->validate();

@@ -28,9 +28,23 @@ final class Outbox
         ], $idempotencyKey);
     }
 
-    public function enqueueSms(string $to, string $text, string $idempotencyKey): ?OutboxMessage
+    /**
+     * @param  int|null  $customerMessageId  the customer log row whose status follows this delivery
+     */
+    public function enqueueSms(string $to, string $text, string $idempotencyKey, ?int $customerMessageId = null): ?OutboxMessage
     {
-        return $this->enqueue(OutboxChannel::Sms, $to, 'text', ['text' => $text], $idempotencyKey);
+        return $this->enqueue(OutboxChannel::Sms, $to, 'text', ['text' => $text, 'customer_message_id' => $customerMessageId], $idempotencyKey);
+    }
+
+    /**
+     * A WhatsApp template message (ADR-0030). The payload carries the template, language, ordered parameters, the
+     * SMS text to fall back to and the customer log row.
+     *
+     * @param  array<string, mixed>  $payload
+     */
+    public function enqueueWhatsApp(string $to, array $payload, string $idempotencyKey): ?OutboxMessage
+    {
+        return $this->enqueue(OutboxChannel::Whatsapp, $to, 'template', $payload, $idempotencyKey);
     }
 
     /**

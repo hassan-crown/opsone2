@@ -17,6 +17,7 @@ use App\Models\Interest;
 use App\Models\User;
 use App\Organization\OrgPresenter;
 use App\Search\FulltextMatch;
+use App\Whatsapp\CustomerMessagePresenter;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -112,6 +113,7 @@ class CustomerController extends Controller
                 : [],
             'interests' => $interests->map(fn (Interest $i) => CustomerPresenter::interest($i))->all(),
             'can' => ['edit' => Access::can($actor, Permission::P10, $customer)],
+            'messaging' => CustomerMessagePresenter::panel($customer, CustomerAccess::canSeeSensitive($actor, $customer)),
         ]);
     }
 

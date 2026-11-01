@@ -11,6 +11,7 @@ use App\Actions\StateMachines\M07Task\T01AssignTask;
 use App\Actions\StateMachines\M07Task\T02StartTask;
 use App\Actions\StateMachines\M07Task\T05CompleteTask;
 use App\Actions\StateMachines\M08Document\T00CreateQuote;
+use App\Actions\StateMachines\M08Document\T00PrepareContract;
 use App\Actions\StateMachines\M08Document\T00UploadDesign;
 use App\Actions\StateMachines\M08Document\T01SendDocument;
 use App\Actions\StateMachines\M08Document\T02RecordExternalApproval;
@@ -47,6 +48,7 @@ use App\Money\Money;
 use App\Workflow\StageEngine;
 use App\Workflow\TaskQueries;
 use Carbon\CarbonImmutable;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Str;
 
 /**
@@ -115,7 +117,8 @@ final class CustomOrders
         foreach (['viaPortal', 'proofByCustomer', 'deposit'] as $flag) {
             ${$flag} = $opts[$flag] ?? ${$flag};
         }
-        $st->data += compact('product', 'length', 'mult', 'discount', 'viaPortal', 'proofByCustomer', 'deposit') + ['branch' => $branch, 'stopAfter' => $opts['stopAfter'] ?? null, 'unconfirmed' => $opts['unconfirmed'] ?? []];
+        $st->data += compact('product', 'length', 'mult', 'discount', 'viaPortal', 'proofByCustomer', 'deposit') + ['branch' => $branch, 'stopAfter' => $opts['stopAfter'] ?? null, 'unconfirmed' => $opts['unconfirmed'] ?? [],
+            'esign' => $opts['esign'] ?? null, 'contract' => $opts['contract'] ?? null, 'signer' => $opts['signer'] ?? null];
 
         $this->step($st, $at(0.02), 'lines', fn () => $this->setupLines($st));
         // Needs and measurement
@@ -420,7 +423,15 @@ final class CustomOrders
         $order = $this->order($st);
         $task = $this->openTask($order, 'design');
         $designer = User::query()->findOrFail($task->assignee_id ?? $this->sales($st)->id);
-        $doc = app(T00UploadDesign::class)->handle($designer, $order, Assets::pdf('kitchen-design-'.$order->number.'.pdf', 'Design '.$order->number), 'تصميم المطبخ — النسخة الأولى مع المناظير ثلاثية الأبعاد', [], null, $this->key());
+        // Stories that show the e-signed documents carry real design renders (JPEG): the quote PDF shows them.
+        $renders = ($st->data['esign'] ?? null) !== null && $this->s->assets->enabled()
+            ? [Assets::dir().'/design-1080721.jpg', Assets::dir().'/design-534151.jpg'] : [];
+        $file = $renders === [] ? Assets::pdf('kitchen-design-'.$order->number.'.pdf', 'Design '.$order->number)
+            : new UploadedFile($renders[0], 'kitchen-design-'.$order->number.'.jpg', 'image/jpeg', null, true);
+        $doc = app(T00UploadDesign::class)->handle($designer, $order, $file, 'تصميم المطبخ — النسخة الأولى مع المناظير ثلاثية الأبعاد', [], null, $this->key());
+        if (isset($renders[1])) {
+            app(AttachmentService::class)->store($designer, $doc, new UploadedFile($renders[1], 'kitchen-island-'.$order->number.'.jpg', 'image/jpeg', null, true));
+        }
         $sales = $this->sales($st);
         $doc = app(T01SendDocument::class)->handle($sales, $doc->refresh(), null, $doc->lock_version, $this->key());
         $st->data['design_doc'] = $doc->id;
@@ -492,13 +503,24 @@ final class CustomOrders
             app(T01ApproveDiscount::class)->handle($approver, $decision, true, 'مقبول ضمن سياسة الخصم للمشاريع.', $decision->lock_version, $this->key());
             $quote->refresh();
         }
-        $quote = app(T01SendDocument::class)->handle($this->sales($st), $quote->refresh(), null, $quote->lock_version, $this->key());
+        // A quote waiting for the e-signature stays valid past the showcase's «today».
+        $validity = ($st->data['esign'] ?? null) !== null ? 30 : null;
+        $quote = app(T01SendDocument::class)->handle($this->sales($st), $quote->refresh(), $validity, $quote->lock_version, $this->key());
+        if (($st->data['esign'] ?? null) !== null) {
+            (new Signatures)->sendLink($this->sales($st), $quote);
+        }
     }
 
     private function approveQuote(Story $st): void
     {
         $order = $this->order($st);
         $doc = AgreementDocument::query()->findOrFail($st->int('quote_doc'));
+        if (($st->data['esign'] ?? null) === 'signed') {
+            (new Signatures)->sign($doc, $this->signer($st, $order));
+            $this->contract($st, $order);
+
+            return;
+        }
         if ($st->data['viaPortal']) {
             app(CustomerDecisions::class)->approveDocument($this->customerActor($order), $doc, (string) $doc->content_hash);
 
@@ -509,6 +531,30 @@ final class CustomOrders
             'note' => 'اعتماد العرض والتوقيع', 'content_hash' => (string) $doc->content_hash,
         ], Assets::pdf('quote-approval.pdf', 'Signed quote'), $doc->lock_version, $this->key());
         $st->data['agreement'] = Agreement::query()->where('order_id', $order->id)->where('status', 'active')->value('id');
+    }
+
+    /**
+     * The contract built from the agreement (Q-36 c), sent with a signing link and, for `contract: signed`, signed.
+     */
+    private function contract(Story $st, Order $order): void
+    {
+        $mode = $st->data['contract'] ?? null;
+        if ($mode === null) {
+            return;
+        }
+        $contract = app(T00PrepareContract::class)->handle($this->manager($st), $order->refresh(), null,
+            'يلتزم الطرف الأول بضمان الهيكل والمفصلات خمس سنوات من تاريخ التركيب، ويلتزم الطرف الثاني بتجهيز الموقع قبل موعد التركيب.', $this->key());
+        $contract = app(T01SendDocument::class)->handle($this->sales($st), $contract->refresh(), null, $contract->lock_version, $this->key());
+        $signatures = new Signatures;
+        $signatures->sendLink($this->sales($st), $contract);
+        if ($mode === 'signed') {
+            $signatures->sign($contract, $this->signer($st, $order));
+        }
+    }
+
+    private function signer(Story $st, Order $order): string
+    {
+        return (string) ($st->data['signer'] ?? Customer::query()->whereKey($order->customer_id)->value('name'));
     }
 
     private function agreementTotal(Order $order): int

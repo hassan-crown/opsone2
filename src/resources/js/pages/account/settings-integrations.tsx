@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
 import { formatDateTime } from '@/lib/format';
 import { useLocale, useT } from '@/lib/i18n';
+import type { TranslationKey } from '@/lib/i18n';
 import { edit } from '@/routes/integrations';
 import { home } from '@/routes/settings';
 
@@ -26,8 +27,17 @@ type Smtp = {
     test_ok: boolean | null;
 };
 
+type Whatsapp = {
+    enabled: boolean;
+    events: string[];
+    allEvents: string[];
+    driver: string;
+    configured: boolean;
+};
+
 type Props = {
     smtp: Smtp;
+    whatsapp: Whatsapp;
     smtpPorts: number[];
     sms: { configured: boolean; driver: 'log' | null };
     fallbackMailer: string;
@@ -74,11 +84,29 @@ export default function SettingsIntegrations({
     smtp,
     smtpPorts,
     sms,
+    whatsapp,
     fallbackMailer,
 }: Props) {
     const t = useT();
     const { locale } = useLocale();
     const [busy, setBusy] = useState<string | null>(null);
+
+    const [waEnabled, setWaEnabled] = useState(whatsapp.enabled);
+    const [waEvents, setWaEvents] = useState<string[]>(whatsapp.events);
+    const toggleEvent = (event: string) =>
+        setWaEvents((current) =>
+            current.includes(event)
+                ? current.filter((e) => e !== event)
+                : [...current, event],
+        );
+    const saveWhatsapp = () => {
+        setBusy('whatsapp');
+        router.put(
+            IntegrationsController.updateWhatsapp.url(),
+            { enabled: waEnabled, events: waEvents },
+            { preserveScroll: true, onFinish: () => setBusy(null) },
+        );
+    };
 
     const post = (key: string, url: string) => {
         setBusy(key);
@@ -291,6 +319,77 @@ export default function SettingsIntegrations({
                             </div>
                         </div>
                     )}
+                </section>
+
+                <section
+                    className="space-y-4 border-t border-stroke-weak pt-8"
+                    data-test="whatsapp-section"
+                >
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                        <div>
+                            <h2 className="text-subtitle text-strong">
+                                {t('integrations.whatsapp.title')}
+                            </h2>
+                            <p className="text-body text-weak">
+                                {t('integrations.whatsapp.description')}
+                            </p>
+                        </div>
+                        <Badge
+                            variant={whatsapp.configured ? 'info' : 'warning'}
+                        >
+                            {whatsapp.configured
+                                ? t('integrations.whatsapp.status.configured')
+                                : t(
+                                      'integrations.whatsapp.status.not_configured',
+                                  )}
+                        </Badge>
+                    </div>
+                    <p className="text-caption text-weak" dir="ltr">
+                        {t('integrations.whatsapp.driver', {
+                            driver: whatsapp.driver,
+                        })}
+                    </p>
+                    <label className="flex items-center gap-2 text-body text-strong">
+                        <input
+                            type="checkbox"
+                            checked={waEnabled}
+                            onChange={(e) => setWaEnabled(e.target.checked)}
+                            data-test="whatsapp-enabled"
+                        />
+                        {t('integrations.whatsapp.enable')}
+                    </label>
+                    <fieldset
+                        className="grid gap-2 sm:grid-cols-2"
+                        disabled={!waEnabled}
+                    >
+                        <legend className="mb-1 text-body font-semibold text-strong">
+                            {t('integrations.whatsapp.events')}
+                        </legend>
+                        {whatsapp.allEvents.map((event) => (
+                            <label
+                                key={event}
+                                className="flex items-center gap-2 text-body"
+                            >
+                                <input
+                                    type="checkbox"
+                                    checked={waEvents.includes(event)}
+                                    onChange={() => toggleEvent(event)}
+                                />
+                                {t(
+                                    `whatsapp.event_name.${event}` as TranslationKey,
+                                )}
+                            </label>
+                        ))}
+                    </fieldset>
+                    <Button
+                        type="button"
+                        loading={busy === 'whatsapp'}
+                        onClick={saveWhatsapp}
+                        data-test="save-whatsapp"
+                    >
+                        {busy === 'whatsapp' && <Spinner />}
+                        {t('integrations.whatsapp.save')}
+                    </Button>
                 </section>
 
                 <section className="space-y-3 border-t border-stroke-weak pt-8">

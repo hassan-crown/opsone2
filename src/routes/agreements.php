@@ -4,6 +4,7 @@ use App\Http\Controllers\Agreements\AgreementController;
 use App\Http\Controllers\Agreements\ChangeController;
 use App\Http\Controllers\Agreements\DiscountDecisionController;
 use App\Http\Controllers\Agreements\DocumentController;
+use App\Http\Controllers\Agreements\DocumentPdfController;
 use App\Http\Controllers\Agreements\SalesSettingsController;
 use Illuminate\Support\Facades\Route;
 
@@ -27,6 +28,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('documents/{document}/extend', [DocumentController::class, 'extend'])->whereNumber('document')->name('documents.extend');
         Route::post('documents/{document}/cancel', [DocumentController::class, 'cancel'])->whereNumber('document')->name('documents.cancel');
         Route::post('documents/{document}/discount-requests', [DocumentController::class, 'requestDiscount'])->whereNumber('document')->name('documents.discount-requests');
+        Route::post('documents/{document}/sign-link', [DocumentController::class, 'sendSignLink'])->whereNumber('document')->name('documents.sign-link');
+        Route::post('documents/{document}/sign-link/revoke', [DocumentController::class, 'revokeSignLinks'])->whereNumber('document')->name('documents.sign-link.revoke');
 
         Route::put('changes/{change}', [ChangeController::class, 'update'])->whereNumber('change')->name('changes.update');
         Route::post('changes/{change}/present', [ChangeController::class, 'present'])->whereNumber('change')->name('changes.present');
@@ -40,6 +43,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('decisions/{decision}/cancel', [DiscountDecisionController::class, 'cancel'])->whereNumber('decision')->name('decisions.cancel');
     });
     Route::get('agreement/decisions/{decision}', [DiscountDecisionController::class, 'show'])->whereNumber('decision')->name('agreement.decisions.show');
+    // Branded PDF of a quote/contract (ADR-0029): preview for a draft, the stored PDF once sent, the signed PDF once signed.
+    Route::get('agreement/documents/{document}/pdf', DocumentPdfController::class)->whereNumber('document')->middleware('throttle:60,1')->name('agreement.documents.pdf');
 
     Route::get('settings/sales', [SalesSettingsController::class, 'edit'])->name('settings.sales');
     Route::put('settings/sales', [SalesSettingsController::class, 'update'])->middleware('throttle:records-create')->name('settings.sales.update');

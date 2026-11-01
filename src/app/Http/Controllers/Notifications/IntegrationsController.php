@@ -6,11 +6,15 @@ use App\Access\Access;
 use App\Access\Permission;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Notifications\UpdateSmtpRequest;
+use App\Http\Requests\Notifications\UpdateWhatsappRequest;
 use App\Integrations\FacilityMail;
 use App\Integrations\IntegrationSettings;
 use App\Mail\OrgMessage;
 use App\Models\User;
 use App\Notifications\Channels\SmsChannel;
+use App\Notifications\Channels\WhatsApp\WhatsAppChannel;
+use App\Whatsapp\WhatsAppEvent;
+use App\Whatsapp\WhatsAppSettings;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -25,7 +29,7 @@ use Throwable;
  */
 class IntegrationsController extends Controller
 {
-    public function edit(Request $request, IntegrationSettings $settings, SmsChannel $sms): Response
+    public function edit(Request $request, IntegrationSettings $settings, SmsChannel $sms, WhatsAppSettings $whatsapp, WhatsAppChannel $channel): Response
     {
         $this->authorizeManage($request);
 
@@ -33,6 +37,14 @@ class IntegrationsController extends Controller
             'smtp' => $settings->smtpView(),
             'smtpPorts' => UpdateSmtpRequest::PORTS,
             'sms' => ['configured' => $sms->isConfigured(), 'driver' => app()->environment('local', 'testing') ? 'log' : null],
+            // Credentials are environment-only (ADR-0030): the page shows state, never a secret.
+            'whatsapp' => [
+                'enabled' => $whatsapp->enabled(),
+                'events' => $whatsapp->events(),
+                'allEvents' => WhatsAppEvent::values(),
+                'driver' => (string) config('whatsapp.driver'),
+                'configured' => $channel->isConfigured(),
+            ],
             'fallbackMailer' => config('mail.default'),
         ]);
     }
@@ -75,6 +87,15 @@ class IntegrationsController extends Controller
             Log::warning('SMTP test failed', ['exception' => $e::class]);
             Inertia::flash('toast', ['type' => 'error', 'message' => __('integrations.smtp.test_failed')]);
         }
+
+        return back();
+    }
+
+    public function updateWhatsapp(UpdateWhatsappRequest $request, WhatsAppSettings $settings): RedirectResponse
+    {
+        $settings->save($request->user(), $request->boolean('enabled'), array_values((array) $request->validated('events')));
+
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('integrations.whatsapp.saved')]);
 
         return back();
     }

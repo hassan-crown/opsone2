@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Customers\CustomerContactController;
 use App\Http\Controllers\Customers\CustomerController;
+use App\Http\Controllers\Customers\CustomerMessagingController;
 use App\Http\Controllers\Customers\InterestController;
 use App\Http\Controllers\Customers\PortalInviteController;
 use Illuminate\Support\Facades\Route;
@@ -19,6 +20,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('customers/{customer}/edit', [CustomerController::class, 'edit'])->whereNumber('customer')->name('customers.edit');
     Route::put('customers/{customer}', [CustomerController::class, 'update'])->whereNumber('customer')->name('customers.update');
     // P8: the customer's workspace activation link (ADR-0022).
+    Route::put('customers/{customer}/messaging', CustomerMessagingController::class)->whereNumber('customer')->name('customers.messaging');
     Route::post('customers/{customer}/portal-invite', PortalInviteController::class)->whereNumber('customer')->middleware('throttle:records-create')->name('customers.portal-invite');
 
     Route::post('customers/{customer}/contacts', [CustomerContactController::class, 'store'])->whereNumber('customer')->middleware('throttle:records-create')->name('customers.contacts.store');

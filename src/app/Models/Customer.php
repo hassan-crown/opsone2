@@ -34,6 +34,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property int|null $assignee_id
  * @property int|null $created_by
  * @property ContactChannel|null $preferred_channel
+ * @property CarbonInterface|null $whatsapp_opt_out_at
+ * @property string|null $whatsapp_opt_out_source
  * @property string|null $internal_notes
  * @property string|null $commercial_registration
  * @property string|null $vat_number
@@ -129,6 +131,7 @@ class Customer extends Model implements AuthenticatableContract, ScopedRecord
             'email_verified_at' => 'datetime',
             'portal_session_version' => 'integer',
             'portal_last_login_at' => 'datetime',
+            'whatsapp_opt_out_at' => 'datetime',
         ];
     }
 }

@@ -10,6 +10,7 @@ use App\Actions\StateMachines\M08Document\T08CancelDocument;
 use App\Actions\StateMachines\M08Document\UpdateDocumentDraft;
 use App\Actions\StateMachines\M26Decision\T00RequestDiscount;
 use App\Agreements\AgreementPresenter;
+use App\Agreements\Signing\SignLinks;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Agreements\ExtendRequest;
 use App\Http\Requests\Agreements\ExternalApprovalRequest;
@@ -78,6 +79,23 @@ class DocumentController extends Controller
         $decision = $requestDiscount->handle($this->actor($request), $document, (string) $request->validated('reason'), $request->lockVersion(), $request->key());
 
         return $this->respond($request, $document, ['decision_id' => $decision->id], 201);
+    }
+
+    /**
+     * Sends the customer a signing link (P-30, ADR-0029); a newer link revokes the previous ones.
+     */
+    public function sendSignLink(Request $request, AgreementDocument $document, SignLinks $links): JsonResponse
+    {
+        $links->send($this->actor($request), $document);
+
+        return $this->respond($request, $document);
+    }
+
+    public function revokeSignLinks(Request $request, AgreementDocument $document, SignLinks $links): JsonResponse
+    {
+        $links->revoke($this->actor($request), $document);
+
+        return $this->respond($request, $document);
     }
 
     /**

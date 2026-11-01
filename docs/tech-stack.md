@@ -47,6 +47,8 @@
 | laravel/passkeys | v0.2.1 |
 | laravel/wayfinder | v0.1.23 |
 | laravel/tinker | v3.0.2 |
+| mpdf/mpdf | v8.3.1 (branded quote/contract PDFs, Arabic shaping; GPL-2.0 — see ADR-0029) |
+| setasign/fpdi | v2.6.9 (with mPDF: certificate page appended to the signed PDF) |
 | laravel/chisel | v0.1.1 (kit installer; `install:features` already run and removed from composer scripts) |
 | pestphp/pest (dev) | v5.3.0 |
 | pestphp/pest-plugin-laravel (dev) | v5.0.1 |

@@ -3,6 +3,9 @@
 namespace App\Portal;
 
 use App\Agreements\OrderAgreement;
+use App\Agreements\Signing\DocumentPdfs;
+use App\Agreements\Signing\DocumentSheet;
+use App\Agreements\Signing\ESignature;
 use App\Enums\AgreementStatus;
 use App\Enums\AppointmentStatus;
 use App\Enums\CancellationStatus;
@@ -17,6 +20,7 @@ use App\Finance\MoneyLedger;
 use App\Models\Agreements\Agreement;
 use App\Models\Agreements\AgreementDocument;
 use App\Models\Agreements\CustomerDecision;
+use App\Models\Agreements\DocumentSignature;
 use App\Models\Appointment;
 use App\Models\Attachment;
 use App\Models\Cancellation\OrderCancellation;
@@ -177,15 +181,50 @@ final class PortalPresenter
             'content' => $safe,
             'content_hash' => $document->content_hash,
             'valid_until' => $document->valid_until?->toDateString(),
-            'files' => array_values($document->attachments()->get()->map(fn (Attachment $a) => self::file($customer, $a))->all()),
+            'files' => array_values(DocumentPdfs::ownFiles($document)->map(fn (Attachment $a) => self::file($customer, $a))->all()),
+            'signing' => self::signing($customer, $document),
             'decision' => $decision === null ? null : [
                 'decision' => $decision->decision, 'decided_at' => $decision->decided_at->toIso8601String(),
-                'by_customer' => $decision->method === CustomerDecision::METHOD_ACCOUNT, 'note' => $decision->note,
+                'by_customer' => in_array($decision->method, [CustomerDecision::METHOD_ACCOUNT, CustomerDecision::METHOD_SIGNATURE], true), 'note' => $decision->note,
             ],
             'replaced_by' => $replacement === null ? null : ['id' => $replacement->id, 'number' => $replacement->number],
             'can' => [
                 'decide' => $document->status === DocumentStatus::AwaitingCustomer
                     && ($document->valid_until === null || ! $document->valid_until->copy()->endOfDay()->isPast()),
+            ],
+        ];
+    }
+
+    /**
+     * DocSign state (ADR-0029): the PDF links, whether the customer can sign now and, for that, the hash of the exact
+     * PDF in the workspace language (the signature is bound to it); the signature once signed. Null when the document
+     * has no generated PDF (a design, an uploaded contract file).
+     *
+     * @return array<string, mixed>|null
+     */
+    private static function signing(Customer $customer, AgreementDocument $document): ?array
+    {
+        if (! DocumentSheet::supports($document)) {
+            return null;
+        }
+        $signature = DocumentSignature::query()->where('agreement_document_id', $document->id)->first();
+        $signable = $signature === null && ESignature::signable($document);
+        $locale = DocumentPdfs::locale(app()->getLocale());
+        $pdf = $signable ? app(DocumentPdfs::class)->current($document, $locale) : null;
+        $url = fn (string $l, array $extra = []) => route('customer.documents.pdf', ['document' => $document->id, 'locale' => $l, ...$extra]);
+
+        return [
+            'signable' => $signable,
+            'locale' => $locale,
+            'pdf_sha256' => $pdf?->sha256,
+            'pdfs' => ['ar' => $url('ar'), 'en' => $url('en')],
+            'destination' => $signable ? app(CustomerOtp::class)->destinationHint($customer) : null,
+            'signed' => $signature === null ? null : [
+                'signer_name' => $signature->signer_name,
+                'signed_at' => $signature->signed_at->toIso8601String(),
+                'pdf_url' => $url($signature->locale),
+                'download_url' => $url($signature->locale, ['download' => 1]),
+                'pdf_sha256' => $signature->pdf_sha256,
             ],
         ];
     }
