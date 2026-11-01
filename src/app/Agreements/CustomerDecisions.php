@@ -6,8 +6,10 @@ use App\Models\Agreements\Agreement;
 use App\Models\Agreements\AgreementChange;
 use App\Models\Agreements\AgreementDocument;
 use App\Models\Agreements\CustomerDecision;
+use App\Models\Order;
 use App\Support\LockingTransaction;
 use Carbon\CarbonInterface;
+use Closure;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Validation\ValidationException;
 
@@ -26,14 +28,23 @@ final class CustomerDecisions
         private readonly ChangeApplication $changes,
     ) {}
 
-    public function approveDocument(CustomerActor $customer, AgreementDocument $document, string $contentHash): CustomerDecision
+    /**
+     * @param  (Closure(Order, AgreementDocument, CustomerDecision): void)|null  $within  more writes of the same decision
+     *                                                                                    in its transaction (the e-signature record, ADR-0029)
+     */
+    public function approveDocument(CustomerActor $customer, AgreementDocument $document, string $contentHash, string $method = CustomerDecision::METHOD_ACCOUNT, ?Closure $within = null): CustomerDecision
     {
-        return LockingTransaction::run(function () use ($customer, $document, $contentHash) {
+        return LockingTransaction::run(function () use ($customer, $document, $contentHash, $method, $within) {
             [$order, $document] = AgreementLock::document($document, null, 'T02');
             self::ensureOwn($customer, $order->customer_id);
             DocumentApproval::ensureDecidable($document, $contentHash, 'T02');
 
-            return $this->documents->approve($order, $document, self::how($customer, null), null, self::SOURCE);
+            $decision = $this->documents->approve($order, $document, ['method' => $method] + self::how($customer, null), null, self::SOURCE);
+            if ($within !== null) {
+                $within($order, $document, $decision);
+            }
+
+            return $decision;
         });
     }
 

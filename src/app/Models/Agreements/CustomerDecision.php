@@ -45,6 +45,9 @@ class CustomerDecision extends Model implements AttachmentOwner
 
     public const METHOD_EXTERNAL = 'external';
 
+    /** From the customer's own account with a drawn signature and a step-up code (ADR-0029). */
+    public const METHOD_SIGNATURE = 'e_signature';
+
     public const CHANNELS = ['phone', 'message', 'paper', 'in_person', 'email', 'other'];
 
     protected $guarded = ['id'];

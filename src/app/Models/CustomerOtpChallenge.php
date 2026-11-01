@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int|null $customer_id null for a store checkout code to a mobile with no account yet (ADR-0023)
  * @property string $identifier_hash
  * @property string $purpose
+ * @property string|null $subject what a step-up code authorizes (`document:{id}`), null for sign-in codes
  * @property string $channel
  * @property string $code_hash
  * @property int $attempts

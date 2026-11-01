@@ -135,6 +135,9 @@ enum AuditAction: string
     case DocumentExpired = 'agreement_document.expired';
     case DocumentExtended = 'agreement_document.extended';
     case DocumentCancelled = 'agreement_document.cancelled';
+    case DocumentSigned = 'agreement_document.signed';
+    case DocumentSignLinkSent = 'agreement_document.sign_link_sent';
+    case DocumentSignLinksRevoked = 'agreement_document.sign_links_revoked';
     case AgreementActivated = 'agreement.activated';
     case ChangeCreated = 'agreement_change.created';
     case ChangeDraftUpdated = 'agreement_change.draft_updated';
@@ -326,6 +329,7 @@ enum AuditAction: string
             self::WorkSettingsUpdated, self::FinanceSettingsUpdated, self::CashProofPolicyUpdated, self::DiscountLimitsUpdated => 'settings',
             self::DocumentCreated, self::DocumentDraftUpdated, self::DocumentSent, self::DocumentApproved, self::DocumentChangesRequested,
             self::DocumentReplaced, self::DocumentExpired, self::DocumentExtended, self::DocumentCancelled, self::AgreementActivated,
+            self::DocumentSigned, self::DocumentSignLinkSent, self::DocumentSignLinksRevoked,
             self::ChangeCreated, self::ChangeDraftUpdated, self::ChangePresented, self::ChangeRevisionRequested, self::ChangeApplied,
             self::ChangeWithdrawn, self::DiscountRequested, self::DiscountApproved, self::DiscountRejected, self::DiscountCancelled => 'agreement',
             self::FinanceScheduleSynced, self::FinanceScheduleUpdated, self::PaymentRecorded, self::PaymentGatewayResult,

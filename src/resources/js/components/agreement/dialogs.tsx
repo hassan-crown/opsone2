@@ -897,7 +897,9 @@ export function DecisionText({
                             ),
                             date,
                         })
-                      : t('agreements.decision.account', { date })}
+                      : decision.method === 'e_signature'
+                        ? t('agreements.decision.esign', { date })
+                        : t('agreements.decision.account', { date })}
             </p>
             {decision.note && <p className="text-weak">{decision.note}</p>}
             {decision.evidence.map((file) =>
