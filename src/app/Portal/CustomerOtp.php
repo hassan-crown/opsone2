@@ -11,6 +11,7 @@ use App\Models\Facility;
 use App\Notifications\Channels\SmsChannel;
 use App\Notifications\Outbox;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\RateLimiter;
 
 /**
@@ -77,6 +78,31 @@ final class CustomerOtp
     }
 
     /**
+     * The fixed demo code, or null when it is unset, malformed or the environment is not a demo one (PORTAL_DEMO_OTP).
+     */
+    public static function demoCode(): ?string
+    {
+        $code = config('portal.demo_otp');
+        if (! is_string($code) || preg_match('/^\d{'.self::DIGITS.'}$/', $code) !== 1) {
+            return null;
+        }
+
+        return app()->environment((array) config('portal.demo_otp_environments')) ? $code : null;
+    }
+
+    private static function isDemoCode(string $code): bool
+    {
+        $demo = self::demoCode();
+
+        return $demo !== null && hash_equals($demo, $code);
+    }
+
+    private static function logDemoUse(string $purpose, int $customerId): void
+    {
+        Log::info('Portal demo OTP used.', ['purpose' => $purpose, 'customer_id' => $customerId]);
+    }
+
+    /**
      * Sends a new code when the identifier belongs to an account with workspace login enabled. Throws OtpThrottled
      * (for any identifier) when the caps are reached.
      */
@@ -126,20 +152,21 @@ final class CustomerOtp
      * Checks a code. Returns the account and the channel the code went to, or null for any wrong, expired, used or
      * unknown code (the caller answers the same generic error). Throws OtpThrottled while locked.
      *
-     * @return array{customer: Customer, channel: string}|null
+     * @return array{customer: Customer, channel: string, demo: bool}|null
      */
     public function verify(string $identifier, string $code, ?string $ip): ?array
     {
         $hash = self::identifierHash($identifier);
         $this->ensureNotLocked($hash, $ip);
 
-        $result = DB::transaction(function () use ($hash, $code) {
+        $demo = self::isDemoCode($code);
+        $result = DB::transaction(function () use ($hash, $code, $demo) {
             $challenge = CustomerOtpChallenge::query()->where('identifier_hash', $hash)->whereIn('purpose', [self::LOGIN, self::ACTIVATION])
                 ->whereNull('consumed_at')->where('expires_at', '>', now())->latest('id')->lockForUpdate()->first();
             if ($challenge === null) {
                 return null;
             }
-            if (preg_match('/^\d{'.self::DIGITS.'}$/', $code) !== 1 || ! hash_equals($challenge->code_hash, self::codeHash($hash, $code))) {
+            if (! $demo && (preg_match('/^\d{'.self::DIGITS.'}$/', $code) !== 1 || ! hash_equals($challenge->code_hash, self::codeHash($hash, $code)))) {
                 $challenge->attempts++;
                 if ($challenge->attempts >= self::MAX_ATTEMPTS) {
                     $challenge->consumed_at = now();
@@ -152,7 +179,7 @@ final class CustomerOtp
             $challenge->forceFill(['consumed_at' => now()])->save();
             $customer = Customer::query()->whereKey($challenge->customer_id)->where('portal_login_enabled', true)->first();
 
-            return $customer === null ? null : ['customer' => $customer, 'channel' => $challenge->channel];
+            return $customer === null ? null : ['customer' => $customer, 'channel' => $challenge->channel, 'demo' => $demo];
         });
 
         if ($result === null) {
@@ -161,6 +188,9 @@ final class CustomerOtp
             return null;
         }
         RateLimiter::clear("portal-otp:fail:{$hash}");
+        if ($result['demo']) {
+            self::logDemoUse(self::LOGIN, $result['customer']->id);
+        }
 
         return $result;
     }
@@ -222,13 +252,14 @@ final class CustomerOtp
         $hash = self::identifierHash($customer->mobile);
         $this->ensureNotLocked($hash, $ip);
 
-        $challenge = DB::transaction(function () use ($customer, $subject, $code) {
+        $demo = self::isDemoCode($code);
+        $challenge = DB::transaction(function () use ($customer, $subject, $code, $demo) {
             $challenge = CustomerOtpChallenge::query()->where('customer_id', $customer->id)->where('purpose', self::STEP_UP)
                 ->where('subject', $subject)->whereNull('consumed_at')->where('expires_at', '>', now())->latest('id')->lockForUpdate()->first();
             if ($challenge === null) {
                 return null;
             }
-            if (preg_match('/^\d{'.self::DIGITS.'}$/', $code) !== 1 || ! hash_equals($challenge->code_hash, self::codeHash($challenge->identifier_hash, $code))) {
+            if (! $demo && (preg_match('/^\d{'.self::DIGITS.'}$/', $code) !== 1 || ! hash_equals($challenge->code_hash, self::codeHash($challenge->identifier_hash, $code)))) {
                 $challenge->attempts++;
                 if ($challenge->attempts >= self::MAX_ATTEMPTS) {
                     $challenge->consumed_at = now();
@@ -248,6 +279,11 @@ final class CustomerOtp
             return null;
         }
         RateLimiter::clear("portal-otp:fail:{$hash}");
+        if ($demo) {
+            // Not persisted: lets the caller's audit record that the fixed demo code was used.
+            $challenge->setAttribute('demo_used', true);
+            self::logDemoUse(self::STEP_UP, $customer->id);
+        }
 
         return $challenge;
     }

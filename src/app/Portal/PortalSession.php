@@ -43,12 +43,12 @@ final class PortalSession
         return $customer instanceof Customer ? $customer : null;
     }
 
-    public static function signIn(Request $request, Customer $customer, string $channel): void
+    public static function signIn(Request $request, Customer $customer, string $channel, bool $demo = false): void
     {
         $request->session()->regenerate(true);
         $request->session()->regenerateToken();
 
-        DB::transaction(function () use ($customer, $channel, $request) {
+        DB::transaction(function () use ($customer, $channel, $request, $demo) {
             $first = $customer->portal_activated_at === null;
             $customer->forceFill([
                 'portal_activated_at' => $customer->portal_activated_at ?? now(),
@@ -56,7 +56,7 @@ final class PortalSession
                 'email_verified_at' => $channel === 'email' ? ($customer->email_verified_at ?? now()) : $customer->email_verified_at,
             ])->save();
             Audit::record(AuditAction::PortalSignedIn, $customer, null, after: [
-                'channel' => $channel, 'first' => $first, 'ip' => $request->ip(),
+                'channel' => $channel, 'first' => $first, 'ip' => $request->ip(), ...($demo ? ['demo_code' => true] : []),
             ], source: self::SOURCE, label: $customer->name);
         });
 
