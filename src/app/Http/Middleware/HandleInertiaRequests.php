@@ -7,6 +7,7 @@ use App\Access\Permission;
 use App\Delivery\DeliveryAccess;
 use App\Inventory\StockAccess;
 use App\Notifications\NotificationFeed;
+use App\Reports\Dashboard\ExecutiveDashboard;
 use App\Returns\ReturnAccess;
 use App\Support\TranslationsVersion;
 use App\Tickets\TicketAccess;
@@ -79,7 +80,7 @@ class HandleInertiaRequests extends Middleware
     }
 
     /**
-     * @return array{team: bool, branches: bool, audit: bool, customers: bool, catalog: bool, orders: bool, flow: bool, tasks: bool, calendar: bool, finance: bool, commissions: bool, reports: bool, procurement: bool}|null
+     * @return array{team: bool, branches: bool, audit: bool, customers: bool, catalog: bool, orders: bool, flow: bool, tasks: bool, calendar: bool, finance: bool, commissions: bool, reports: bool, executive: bool, procurement: bool}|null
      */
     private function orgNav(Request $request): ?array
     {
@@ -102,6 +103,7 @@ class HandleInertiaRequests extends Middleware
             'finance' => Access::can($user, Permission::P37),
             'commissions' => Access::can($user, Permission::P94),
             'reports' => Access::can($user, Permission::P60),
+            'executive' => ExecutiveDashboard::canView($user),
             'stock' => StockAccess::any($user),
             'delivery' => DeliveryAccess::any($user),
             'returns' => ReturnAccess::any($user),

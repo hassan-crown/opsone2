@@ -50,6 +50,10 @@ final class WorkflowReport implements Report
         $byKind = $done->groupBy('kind')->map->count()->sortKeys()->all();
         $r->chart('completed_by_kind', 'bar', 'count', Support::enumPoints($byKind));
 
+        if (! $s->tables) {
+            return $r;
+        }
+
         $rows = (clone $overdue)->with('order')->orderBy('due_at')->limit(ReportResult::ROW_CAP + 1)->get()->map(fn (Task $t) => [
             'order' => $t->order->number, 'task' => $t->title->get(), 'kind' => Support::v($t->kind), 'status' => Support::v($t->status),
             'due_on' => Support::date($t->due_at), 'days_overdue' => (int) $t->due_at->diffInDays(CarbonImmutable::now(), true),

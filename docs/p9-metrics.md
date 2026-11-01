@@ -147,6 +147,20 @@ before launch. No hard-coded hex values in chart code.
 | `appointments.no_show` | count | none | — | appointments | Those flagged no_show. |
 | `appointments.cancelled` | count | none | — | appointments | Cancelled appointments starting in range. |
 
+### `dashboard` (owner dashboard, `GET /executive`, ADR-0031)
+
+The dashboard also shows `sales.agreed_gross_minor`, `collection.collected_minor`, `collection.open_minor`,
+`collection.overdue_minor`, `sales.orders_created`, `sales.open_orders` and `workflow.tasks_overdue` exactly as defined above
+(same code, summary-only run). These are the figures P9 did not have:
+
+| Metric | Kind | VAT | Grant | Sources | Formula |
+|---|---|---|---|---|---|
+| `dashboard.avg_order_minor` | money | gross | P-37 | agreements | sales.agreed_gross_minor ÷ number of orders in that same set, rounded half up. |
+| `dashboard.interests_created` | count | none | — | interests | Interests (branch in scope) created in range. |
+| `dashboard.interest_conversion_percent` | percent | none | — | interests | Of the interests created in range, the share now converted × 100, one decimal; 0 when none. |
+| `dashboard.orders_late` | count | none | — | order_stages, orders | Active orders whose in-progress stage started more than its target days ago. |
+| `dashboard.installations_next_14d` | count | none | — | appointments | Non-cancelled installations from today through the 14th following day, independent of the range. |
+
 ### `inventory`
 
 | Metric | Kind | VAT | Grant | Sources | Formula |

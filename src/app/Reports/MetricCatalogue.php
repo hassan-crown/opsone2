@@ -58,6 +58,12 @@ final class MetricCatalogue
         'appointments.no_show' => ['kind' => 'count', 'vat' => 'none', 'grant' => null, 'sources' => 'appointments', 'formula' => 'Those flagged no_show.'],
         'appointments.cancelled' => ['kind' => 'count', 'vat' => 'none', 'grant' => null, 'sources' => 'appointments', 'formula' => 'Cancelled appointments starting in range.'],
 
+        'dashboard.avg_order_minor' => ['kind' => 'money', 'vat' => 'gross', 'grant' => 'P-37', 'sources' => 'agreements', 'formula' => 'sales.agreed_gross_minor ÷ number of orders in that same set, rounded half up (the orders the sum covers, never another count).'],
+        'dashboard.interests_created' => ['kind' => 'count', 'vat' => 'none', 'grant' => null, 'sources' => 'interests', 'formula' => 'Interests (branch in scope) created in range.'],
+        'dashboard.interest_conversion_percent' => ['kind' => 'percent', 'vat' => 'none', 'grant' => null, 'sources' => 'interests', 'formula' => 'Of the interests created in range, the share that has been converted (converted_at set, whenever it happened) × 100, one decimal; 0 when none were created.'],
+        'dashboard.orders_late' => ['kind' => 'count', 'vat' => 'none', 'grant' => null, 'sources' => 'order_stages, orders', 'formula' => 'Active orders whose in-progress stage started more than its target days ago (a stage without target days is never late).'],
+        'dashboard.installations_next_14d' => ['kind' => 'count', 'vat' => 'none', 'grant' => null, 'sources' => 'appointments', 'formula' => 'Non-cancelled installation appointments starting from the start of today through the end of the 14th following day (facility time zone), independent of the range.'],
+
         'inventory.items_in_stock' => ['kind' => 'count', 'vat' => 'none', 'grant' => null, 'sources' => 'stock_balances', 'formula' => 'Item/location balances with on_hand > 0.'],
         'inventory.below_reorder' => ['kind' => 'count', 'vat' => 'none', 'grant' => null, 'sources' => 'stock_balances, stock_items', 'formula' => 'Items whose available (on_hand − reserved, all in-scope locations) is below the reorder level.'],
         'inventory.valuation_minor' => ['kind' => 'money', 'vat' => 'net', 'grant' => 'P-82', 'sources' => 'stock_balances, purchase_order_lines', 'formula' => 'Σ on_hand × weighted average net cost per unit (accepted purchase lines, VAT excluded); items never purchased are unvalued.'],

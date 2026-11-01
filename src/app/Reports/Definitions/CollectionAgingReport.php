@@ -49,6 +49,10 @@ final class CollectionAgingReport implements Report
         $days = CollectionMetrics::netByDay($orders, $s->start(), $s->end());
         $r->chart('net_by_day', 'line', 'money', array_map(fn ($d, $v) => ['label' => $d, 'value' => $v], array_keys($days), array_values($days)));
 
+        if (! $s->tables) {
+            return $r;
+        }
+
         $rows = array_map(fn (array $o) => [
             'order' => $o['order'], 'customer' => $o['customer'], 'due' => $o['due'], 'due_on' => $o['due_on'],
             'amount_minor' => $o['amount_minor'], 'age_days' => $o['age_days'], 'bucket' => $o['bucket'],
