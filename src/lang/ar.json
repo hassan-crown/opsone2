@@ -5125,5 +5125,17 @@
     "whatsapp.event_name.receipt_approved": "اعتماد الإيصال",
     "whatsapp.event_name.installation_scheduled": "تحديد موعد التركيب",
     "whatsapp.event_name.installation_reminder": "تذكير بالتركيب (قبل 24 ساعة)",
-    "whatsapp.event_name.order_completed": "اكتمال الطلب + رابط التقييم"
+    "whatsapp.event_name.order_completed": "اكتمال الطلب + رابط التقييم",
+    "site.preview.read_only": "هذه معاينة للقراءة فقط لتغييرات غير منشورة.",
+    "site.preview.exit": "إنهاء المعاينة",
+    "site.preview.banner": "معاينة خاصة لتغييرات غير منشورة — لا تظهر للزوار ولا تُفهرس",
+    "audit.action.site_preview.link_issued": "أُصدر رابط معاينة",
+    "theme.preview_link.title": "معاينة على الموقع الحقيقي",
+    "theme.preview_link.hint": "ينشئ رابطًا خاصًا ينتهي بمرور الوقت. من يفتحه يرى ثيمك غير المنشور وصفحات المسودة على الموقع الفعلي (غير مفهرس وللقراءة فقط). الزوار لا يرونها أبدًا.",
+    "theme.preview_link.ar_home": "الرئيسية — العربية",
+    "theme.preview_link.en_home": "الرئيسية — الإنجليزية",
+    "theme.preview_link.ar_store": "المتجر — العربية",
+    "theme.preview_link.en_store": "المتجر — الإنجليزية",
+    "theme.preview_link.url": "رابط المعاينة",
+    "theme.preview_link.expires": "ينتهي: :at"
 }

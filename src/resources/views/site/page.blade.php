@@ -45,7 +45,7 @@
     <a href="#main" class="sr-only focus:not-sr-only focus:absolute focus:start-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-brand focus:px-4 focus:py-2 focus:text-on-brand">{{ __('site.public.skip') }}</a>
 
     @if ($preview)
-        <div role="status" class="bg-highlight text-on-highlight px-4 py-2 text-center text-label">{{ __('site.public.preview') }}</div>
+        <div role="status" class="bg-highlight text-on-highlight px-4 py-2 text-center text-label">{{ __('site.public.preview') }}@if ($previewExit) — <a class="underline" href="{{ $previewExit }}">{{ __('site.preview.exit') }}</a>@endif</div>
     @endif
 
     <header class="border-b border-stroke-weak bg-surface">

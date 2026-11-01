@@ -65,6 +65,17 @@ export default function ThemeEdit({
         appearance: settings.appearance,
     });
     const [live, setLive] = useState<ThemePreview>(preview);
+    const [link, setLink] = useState<{ url: string; expires_at: string } | null>(
+        null,
+    );
+    const issueLink = async (locale: 'ar' | 'en', target: string) => {
+        const res = await api<{ url: string; expires_at: string }>(
+            'POST',
+            '/site-admin/preview-link',
+            { locale, target },
+        );
+        if (res.ok && res.data) setLink(res.data);
+    };
     const files = useRef<Record<string, HTMLInputElement | null>>({});
     const color = form.data.brand_color || defaultColor;
 
@@ -139,6 +150,48 @@ export default function ThemeEdit({
                 }
             />
             <SiteNav active="theme" tabs={tabs} />
+
+            {can.edit && (
+                <Alert className="mb-4" data-test="theme-preview-link">
+                    <AlertTitle>{t('theme.preview_link.title')}</AlertTitle>
+                    <AlertDescription>
+                        <p>{t('theme.preview_link.hint')}</p>
+                        <div className="mt-2 flex flex-wrap gap-2">
+                            {(['ar', 'en'] as const).flatMap((l) =>
+                                (['home', 'store'] as const).map((target) => (
+                                    <Button
+                                        key={`${l}-${target}`}
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => issueLink(l, target)}
+                                    >
+                                        {t(
+                                            `theme.preview_link.${l}_${target}` as TranslationKey,
+                                        )}
+                                    </Button>
+                                )),
+                            )}
+                        </div>
+                        {link && (
+                            <div className="mt-3">
+                                <TextField
+                                    label={t('theme.preview_link.url')}
+                                    value={link.url}
+                                    readOnly
+                                    onChange={() => undefined}
+                                />
+                                <p className="text-label text-subtle">
+                                    {t('theme.preview_link.expires', {
+                                        at: new Date(
+                                            link.expires_at,
+                                        ).toLocaleString(),
+                                    })}
+                                </p>
+                            </div>
+                        )}
+                    </AlertDescription>
+                </Alert>
+            )}
 
             {Object.values(errors).length > 0 && (
                 <Alert variant="destructive" className="mb-4" role="alert">

@@ -5,6 +5,7 @@ namespace App\Store;
 use App\Models\Facility;
 use App\Money\Money;
 use App\Portal\PortalSession;
+use App\Site\Preview\SitePreview;
 use App\Site\SiteContext;
 use App\Site\Theme\ThemeSettings;
 use Illuminate\Contracts\View\View;
@@ -15,7 +16,7 @@ use Illuminate\Contracts\View\View;
  */
 final class StoreView
 {
-    public function __construct(private readonly SiteContext $site, private readonly Cart $cart) {}
+    public function __construct(private readonly SiteContext $site, private readonly Cart $cart, private readonly SitePreview $preview) {}
 
     /**
      * @param  view-string  $view
@@ -39,7 +40,9 @@ final class StoreView
             'dir' => $locale === 'ar' ? 'rtl' : 'ltr',
             'otherLocale' => $other,
             'title' => $title.' | '.$name,
-            'robots' => $index ? 'index, follow' : 'noindex, nofollow',
+            'robots' => $index && ! $this->preview->active() ? 'index, follow' : 'noindex, nofollow',
+            'preview' => $this->preview->active(),
+            'previewExit' => $this->preview->active() ? route('site.preview.exit') : null,
             'siteName' => $name,
             'nav' => $this->site->nav($locale),
             'homePath' => $this->site->path($locale),

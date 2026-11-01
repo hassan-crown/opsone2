@@ -6,6 +6,7 @@ use App\Access\Contracts\LicenseCapabilities;
 use App\Models\Facility;
 use App\Models\Site\SitePage;
 use App\Models\Site\SitePageVersion;
+use App\Site\Preview\SitePreview;
 use App\Site\Sections\SectionCatalogue;
 use App\Site\Theme\ThemeSettings;
 use Illuminate\Contracts\Encryption\DecryptException;
@@ -68,6 +69,7 @@ final class SiteRenderer
             'version' => $version,
             'sections' => $sections,
             'preview' => $preview,
+            'previewExit' => $preview && request()->cookie(SitePreview::COOKIE) !== null ? route('site.preview.exit') : null,
             'seo' => [
                 'title' => $title, 'description' => Str::limit(strip_tags($description), 200),
                 'canonical' => $this->site->url($locale, $page), 'alternates' => $alternates,
@@ -109,7 +111,7 @@ final class SiteRenderer
 
     private function mediaUrl(?string $uuid): ?string
     {
-        return $uuid === null ? null : route($this->preview ? 'site.admin.media' : 'site.media', ['attachment' => $uuid]);
+        return $uuid === null ? null : route('site.media', ['attachment' => $uuid]);
     }
 
     private function linkUrl(?string $link, string $locale): ?string
@@ -131,9 +133,6 @@ final class SiteRenderer
     private function switchUrl(SitePage $page, string $locale, bool $preview): ?string
     {
         $other = $locale === 'ar' ? 'en' : 'ar';
-        if ($preview) {
-            return null;
-        }
 
         return in_array($other, $this->site->publishedLocales($page), true) ? $this->site->path($other, $page) : $this->site->path($other);
     }

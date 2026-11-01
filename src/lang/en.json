@@ -5125,5 +5125,17 @@
     "whatsapp.event_name.receipt_approved": "Receipt approved",
     "whatsapp.event_name.installation_scheduled": "Installation scheduled",
     "whatsapp.event_name.installation_reminder": "Installation reminder (24 h)",
-    "whatsapp.event_name.order_completed": "Order completed + feedback link"
+    "whatsapp.event_name.order_completed": "Order completed + feedback link",
+    "site.preview.read_only": "This is a read-only preview of unpublished changes.",
+    "site.preview.exit": "Exit preview",
+    "site.preview.banner": "Private preview of unpublished changes — not visible to visitors and not indexed",
+    "audit.action.site_preview.link_issued": "Preview link issued",
+    "theme.preview_link.title": "Preview on the real site",
+    "theme.preview_link.hint": "Creates a private link that expires. Whoever opens it sees your unpublished theme and draft pages on the real site (not indexed, read only). Visitors never see them.",
+    "theme.preview_link.ar_home": "Home — Arabic",
+    "theme.preview_link.en_home": "Home — English",
+    "theme.preview_link.ar_store": "Store — Arabic",
+    "theme.preview_link.en_store": "Store — English",
+    "theme.preview_link.url": "Preview link",
+    "theme.preview_link.expires": "Expires: :at"
 }

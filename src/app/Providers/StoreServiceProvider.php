@@ -6,6 +6,7 @@ use App\Finance\Gateway\GatewayOutcomes;
 use App\Finance\Gateway\GatewayRegistry;
 use App\Finance\Gateway\Moyasar\MoyasarGateway;
 use App\Http\Middleware\SiteLocale;
+use App\Http\Middleware\SitePreviewMode;
 use App\Models\Store\StoreLink;
 use App\Notifications\NotificationTargets;
 use App\Store\StoreCatalogue;
@@ -70,7 +71,7 @@ final class StoreServiceProvider extends ServiceProvider
      */
     public static function publicMiddleware(): array
     {
-        return ['customer', SiteLocale::class];
+        return ['customer', SiteLocale::class, SitePreviewMode::class];
     }
 
     public static function checkouts(): StoreCheckouts

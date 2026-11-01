@@ -265,6 +265,7 @@ enum AuditAction: string
     case SiteThemeApplied = 'site_theme.applied';
     case SiteThemeDraftDiscarded = 'site_theme.draft_discarded';
     case SiteThemeRestored = 'site_theme.restored';
+    case SitePreviewLinkIssued = 'site_preview.link_issued';
     case SiteDomainRequested = 'site_domain.requested';
     case SiteDomainVerified = 'site_domain.verified';
     case SiteDomainRemoved = 'site_domain.removed';
@@ -294,7 +295,7 @@ enum AuditAction: string
         return match ($this) {
             self::ReportExportRequested, self::ReportExportGenerated, self::ReportExportFailed, self::ReportExportDownloaded, self::ReportExportPurged => 'reports',
             self::StoreSettingsUpdated, self::PaymentGatewaySettingsSaved, self::StoreCheckoutStarted, self::StoreCheckoutPaid, self::StoreCheckoutReleased, self::StoreCheckoutNeedsAttention, self::StoreLinkIssued, self::StoreLinkCancelled, self::StoreLinkUsed, self::CouponCreated, self::CouponUpdated, self::CouponPaused, self::CouponResumed => 'store',
-            self::SitePageCreated, self::SitePageDraftSaved, self::SitePagePublished, self::SitePageUnpublished, self::SitePageDraftDiscarded, self::SitePageArchived, self::SitePageRestored, self::SiteThemeDraftSaved, self::SiteThemeApplied, self::SiteThemeDraftDiscarded, self::SiteThemeRestored, self::SiteDomainRequested, self::SiteDomainVerified, self::SiteDomainRemoved => 'site',
+            self::SitePageCreated, self::SitePageDraftSaved, self::SitePagePublished, self::SitePageUnpublished, self::SitePageDraftDiscarded, self::SitePageArchived, self::SitePageRestored, self::SiteThemeDraftSaved, self::SiteThemeApplied, self::SiteThemeDraftDiscarded, self::SiteThemeRestored, self::SitePreviewLinkIssued, self::SiteDomainRequested, self::SiteDomainVerified, self::SiteDomainRemoved => 'site',
             self::InvitationCreated, self::InvitationAccepted, self::InvitationCancelled, self::InvitationRenewed,
             self::OwnerInvitationCreated, self::OwnerEstablished,
             self::MembershipDisabled, self::MembershipReactivated, self::MembershipAccessUpdated => 'team',

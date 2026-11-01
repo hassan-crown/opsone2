@@ -32,6 +32,7 @@ class AppServiceProvider extends ServiceProvider
         // What finance collected per order; P6b binds the real ledger (docs/p6-finance-api.md).
         $this->app->bindIf(CollectedAmounts::class, NoCollections::class);
         $this->app->scoped(RequestCache::class);
+        $this->app->scoped(\App\Site\Preview\SitePreview::class);
     }
 
     /**

@@ -9,6 +9,7 @@ use App\Models\Site\SitePage;
 use App\Models\Site\SitePageLocale;
 use App\Models\Site\SitePageVersion;
 use App\Models\Site\SiteTheme;
+use App\Site\Preview\SitePreview;
 use App\Site\Theme\ThemeSettings;
 
 /**
@@ -18,6 +19,8 @@ use App\Site\Theme\ThemeSettings;
 final class SiteContext
 {
     public const LOCALES = ['ar', 'en'];
+
+    public function __construct(private readonly SitePreview $preview) {}
 
     public function defaultLocale(): string
     {
@@ -74,7 +77,10 @@ final class SiteContext
         /** @var SitePageLocale|null $row */
         $row = $page->localeRow($locale);
 
-        return $row?->published_version_id === null ? null : SitePageVersion::query()->find($row->published_version_id);
+        // A valid preview browser (SitePreview) reads the draft of the language, else its published copy.
+        $id = $this->preview->pages() ? ($row?->draft_version_id ?? $row?->published_version_id) : $row?->published_version_id;
+
+        return $id === null ? null : SitePageVersion::query()->find($id);
     }
 
     /**
@@ -110,7 +116,9 @@ final class SiteContext
      */
     public function theme(): array
     {
-        return ThemeSettings::published(SiteTheme::current());
+        $theme = SiteTheme::current();
+
+        return $this->preview->theme() ? ThemeSettings::editing($theme) : ThemeSettings::published($theme);
     }
 
     /**
@@ -118,6 +126,12 @@ final class SiteContext
      */
     public function isPublicMedia(Attachment $attachment): bool
     {
+        // A preview browser also sees the drafts' files (page images, theme logos) it was granted.
+        $owner = $attachment->attachable;
+        if (($this->preview->pages() && $owner instanceof SitePage) || ($this->preview->theme() && $owner instanceof SiteTheme)) {
+            return true;
+        }
+
         $theme = ThemeSettings::published();
         if (in_array($attachment->uuid, array_filter([$theme['logo'], $theme['logo_dark'], $theme['favicon']]), true)) {
             return true;
