@@ -43,7 +43,7 @@ it('seeds a coherent history and keeps the ledger and stock invariants', functio
         ->and(Order::query()->where('kind', 'custom')->count())->toBeGreaterThan(3)
         ->and(Order::query()->where('kind', 'ready')->count())->toBeGreaterThan(3)
         ->and(DB::table('payments')->count())->toBeGreaterThan(5)
-        ->and(DB::table('site_pages')->whereNotNull('published_at')->count() + DB::table('site_page_locales')->count())->toBeGreaterThan(0);
+        ->and(DB::table('site_page_locales')->whereNotNull('published_version_id')->count())->toBeGreaterThanOrEqual(10);
 
     // Money: every journal sums to what its kind allows; a reversal negates the journal it names.
     foreach (DB::table('money_journals')->get() as $j) {
