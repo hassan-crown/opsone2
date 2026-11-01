@@ -4,6 +4,9 @@ namespace App\Agreements;
 
 use App\Access\Access;
 use App\Access\Permission;
+use App\Agreements\Signing\DocumentPdfs;
+use App\Agreements\Signing\DocumentSheet;
+use App\Agreements\Signing\SignLinks;
 use App\Enums\ChangeStatus;
 use App\Enums\DocumentKind;
 use App\Enums\DocumentStatus;
@@ -14,6 +17,7 @@ use App\Models\Agreements\AgreementChange;
 use App\Models\Agreements\AgreementDocument;
 use App\Models\Agreements\CustomerDecision;
 use App\Models\Agreements\DiscountDecision;
+use App\Models\Agreements\DocumentSignature;
 use App\Models\Attachment;
 use App\Models\FinanceSettings;
 use App\Models\Order;
@@ -201,7 +205,8 @@ final class AgreementPresenter
             'content' => $amounts ? $document->content : self::withoutAmounts($document->content),
             'content_hash' => $document->content_hash,
             'lock_version' => $document->lock_version,
-            'files' => self::files($document->attachments()->get()->all(), $viewer),
+            'files' => self::files(DocumentPdfs::ownFiles($document)->all(), $viewer),
+            'esign' => self::esign($document, $order, $amounts, $p(Permission::P30)),
             'decision' => $decision === null ? null : self::decisionInfo($decision, $viewer),
             'can' => [
                 'edit' => $status === DocumentStatus::Draft && $prepare,
@@ -217,6 +222,44 @@ final class AgreementPresenter
                 'request_discount' => ($discount['state'] ?? null) === DiscountCheck::NEEDS_DECISION && $p(Permission::P29),
             ],
         ] + ($amounts ? ['discount' => self::discount($discount)] : []);
+    }
+
+    /**
+     * Branded PDF and e-signature state of a quote/contract (ADR-0029); null for a design or an uploaded contract.
+     *
+     * @return array<string, mixed>|null
+     */
+    private static function esign(AgreementDocument $document, Order $order, bool $amounts, bool $canSend): ?array
+    {
+        if (! DocumentSheet::supports($document)) {
+            return null;
+        }
+        $signature = DocumentSignature::query()->where('agreement_document_id', $document->id)->first();
+        $link = $signature === null ? SignLinks::live($document) : null;
+        $awaiting = $document->status === DocumentStatus::AwaitingCustomer && $signature === null;
+
+        return [
+            'pdf_url' => $amounts ? route('agreement.documents.pdf', $document->id) : null,
+            'signature' => $signature === null ? null : [
+                'signer_name' => $signature->signer_name,
+                'signed_at' => $signature->signed_at->toIso8601String(),
+                'locale' => $signature->locale,
+                'ip' => $signature->ip,
+                'otp_channel' => $signature->otp_channel,
+                'otp_reference' => 'OTP-'.$signature->otp_challenge_id,
+                'pdf_sha256' => $signature->pdf_sha256,
+                'via_link' => $signature->sign_link_id !== null,
+            ],
+            'link' => $link === null ? null : [
+                'sent_at' => $link->created_at->toIso8601String(),
+                'expires_at' => $link->expires_at->toIso8601String(),
+                'channel' => $link->channel,
+            ],
+            'can' => [
+                'send_link' => $awaiting && $canSend && $order->customer->portal_login_enabled,
+                'revoke_link' => $link !== null && $canSend,
+            ],
+        ];
     }
 
     /**

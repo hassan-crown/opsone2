@@ -43,7 +43,7 @@ export type FileRef = { uuid: string; name: string; url: string | null };
 
 export type CustomerDecisionInfo = {
     decision: 'approved' | 'changes_requested';
-    method: 'customer_account' | 'external';
+    method: 'customer_account' | 'external' | 'e_signature';
     channel: string | null;
     decided_at: string;
     recorded_by: string | null;
@@ -77,6 +77,23 @@ export type DiscountState = {
 
 export type DocumentKind = 'quote' | 'design' | 'contract';
 
+export type DocumentEsign = {
+    /** Null without the amounts (the PDF shows them). */
+    pdf_url: string | null;
+    signature: {
+        signer_name: string;
+        signed_at: string;
+        locale: 'ar' | 'en';
+        ip: string | null;
+        otp_channel: string;
+        otp_reference: string;
+        pdf_sha256: string;
+        via_link: boolean;
+    } | null;
+    link: { sent_at: string; expires_at: string; channel: string } | null;
+    can: { send_link: boolean; revoke_link: boolean };
+};
+
 export type AgreementDocument = {
     id: number;
     kind: DocumentKind;
@@ -94,6 +111,8 @@ export type AgreementDocument = {
     lock_version: number;
     files: FileRef[];
     decision: CustomerDecisionInfo | null;
+    /** Branded PDF and e-signature (ADR-0029); null for a design or an uploaded contract. */
+    esign: DocumentEsign | null;
     /** Present only with amounts visible. */
     discount?: DiscountState | null;
     can: {

@@ -24,6 +24,7 @@ import {
     ReasonDialog,
     SendDialog,
 } from '@/components/agreement/dialogs';
+import { EsignBlock } from '@/components/agreement/esign';
 import { newKey, toMajor } from '@/components/agreement/money';
 import { PricedEditor } from '@/components/agreement/priced-editor';
 import {
@@ -428,6 +429,7 @@ export default function OrderAgreement({
                                         amounts={amounts}
                                         onOpen={setOpen}
                                         onRevise={revise}
+                                        onDone={done}
                                     />
                                 ))}
                                 {payload.contracts_enabled &&
@@ -971,11 +973,13 @@ function DocumentRow({
     amounts,
     onOpen,
     onRevise,
+    onDone,
 }: {
     document: AgreementDocument;
     amounts: boolean;
     onOpen: (open: Open) => void;
     onRevise: (document: AgreementDocument) => void;
+    onDone: (next: AgreementPayload, message?: string) => void;
 }) {
     const t = useT();
     const { locale } = useLocale();
@@ -1028,6 +1032,7 @@ function DocumentRow({
                     <Amount value={toMajor(total)} strong />
                 </p>
             )}
+            <EsignBlock document={d} onDone={onDone} />
             {d.discount?.state === 'needs_decision' && (
                 <p className="text-caption text-warning-text">
                     {t('agreements.discount.needs_decision_short')}
