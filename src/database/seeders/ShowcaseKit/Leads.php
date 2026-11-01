@@ -76,7 +76,7 @@ final class Leads
             // Outcome mix: the older the lead the more settled it is.
             $outcome = $age < 4 ? $rng->weighted(['new' => 70, 'following' => 30])
                 : ($age < 12 ? $rng->weighted(['new' => 15, 'following' => 35, 'convert' => 35, 'lost' => 15])
-                    : $rng->weighted(['convert' => 40, 'lost' => 33, 'following' => 17, 'new' => 10]));
+                    : $rng->weighted(['convert' => 34, 'lost' => 36, 'following' => 17, 'new' => 10]));
             $story = new Story('interest-'.$i);
             $plan = ['channel' => $channel, 'branch' => $branch, 'name' => $name, 'mobile' => $mobile, 'need' => $need, 'outcome' => $outcome,
                 'follow' => $rng->int(0, 1), 'resolve' => $rng->int(2, 12), 'reason' => $rng->weighted(['price' => 35, 'competitor' => 20, 'no_reply' => 25, 'later' => 15, 'other' => 5]),

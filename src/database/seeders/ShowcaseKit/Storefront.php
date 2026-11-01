@@ -92,7 +92,7 @@ final class Storefront
     private function buyer(): Customer
     {
         $rng = $this->s->rng;
-        if ($rng->chance(55)) {
+        if ($rng->chance(35)) {
             [$name] = $this->s->people->person();
             $customer = Customer::query()->create([
                 'kind' => 'person', 'name' => $name, 'mobile' => $this->s->people->mobile(), 'email' => 'shop'.$rng->int(1, 99999999).'@mail-demo.test',

@@ -49,7 +49,7 @@ final class ReadyOrders
             $branch = $rng->weighted(['RUH' => 52, 'JED' => 28, 'DMM' => 20]);
             $variant = $rng->weighted(['normal' => 80, 'cancel_full' => 4, 'cancel_part' => 4, 'return_good' => 6, 'return_damaged' => 3, 'no_delivery' => 3]);
             $plan = ['branch' => $branch, 'outcome' => $variant, 'method' => $rng->weighted(['transfer' => 40, 'card' => 38, 'cash' => 22]),
-                'lines' => $rng->int(1, 4), 'newCustomer' => $rng->chance(40)];
+                'lines' => $rng->int(1, 4), 'newCustomer' => $rng->chance(22)];
             $story = new Story('ready-'.$i);
             $this->s->timeline->at($when, $story, 'sale', fn (Story $st) => $this->sale($st, $plan));
         }

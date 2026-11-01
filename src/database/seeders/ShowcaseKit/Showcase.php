@@ -39,6 +39,14 @@ final class Showcase
 
     public Storefront $store;
 
+    public Specials $specials;
+
+    public Support $support;
+
+    public Site $site;
+
+    public Portal $portal;
+
     /** @var array<string, User> */
     public array $users = [];
 
@@ -66,6 +74,10 @@ final class Showcase
         $this->supply = new Supply($this);
         $this->ready = new ReadyOrders($this);
         $this->store = new Storefront($this);
+        $this->specials = new Specials($this);
+        $this->support = new Support($this);
+        $this->site = new Site($this);
+        $this->portal = new Portal($this);
     }
 
     public function n(int $full): int
@@ -93,12 +105,17 @@ final class Showcase
         $this->info('Catalogue…');
         $this->catalog->run();
         $this->store->setup();
+        $this->info('Public site…');
+        $this->site->run();
         $this->info('Procurement and stock…');
         $this->supply->run();
         $this->info('Leads and custom orders…');
         $this->leads->run();
         $this->ready->run();
         $this->store->run();
+        $this->specials->run();
+        $this->support->run();
+        $this->portal->run();
         $this->timeline->run();
         foreach ($this->timeline->failures as $failure) {
             $this->warn($failure);

@@ -108,7 +108,10 @@ final class CustomOrders
 
         $at = fn (float $days, int $hour = 10) => $now->addMinutes((int) ($days * 1440))->setTime($hour, $rng->int(0, 5) * 10);
         $d = 0.0;
-        $st->data += compact('product', 'length', 'mult', 'discount', 'viaPortal', 'proofByCustomer', 'deposit') + ['branch' => $branch];
+        foreach (['viaPortal', 'proofByCustomer', 'deposit'] as $flag) {
+            ${$flag} = $opts[$flag] ?? ${$flag};
+        }
+        $st->data += compact('product', 'length', 'mult', 'discount', 'viaPortal', 'proofByCustomer', 'deposit') + ['branch' => $branch, 'stopAfter' => $opts['stopAfter'] ?? null, 'unconfirmed' => $opts['unconfirmed'] ?? []];
 
         $this->step($st, $at(0.02), 'lines', fn () => $this->setupLines($st));
         // Needs and measurement
@@ -172,6 +175,12 @@ final class CustomOrders
 
     private function step(Story $st, CarbonImmutable $when, string $label, \Closure $fn): void
     {
+        if ($st->data['_stopped'] ?? false) {
+            return;
+        }
+        if (($st->data['stopAfter'] ?? null) === $label) {
+            $st->data['_stopped'] = true; // the story is deliberately left here (customer workspace showcase)
+        }
         // Working days only (Friday and Saturday are the weekend), and never before the previous step of the story.
         while (! in_array($when->dayOfWeek, self::WORK_DAYS, true)) {
             $when = $when->addDay();
@@ -184,7 +193,14 @@ final class CustomOrders
             }
         }
         $st->data['_last'] = $when;
-        $this->s->timeline->at($when, $st, $label, fn () => $fn());
+        $this->s->timeline->at($when, $st, $label, function () use ($st, $fn) {
+            if (isset($st->data['order']) && Order::query()->whereKey($st->data['order'])->value('status') === 'cancelled') {
+                $st->alive = false; // cancelled by management: the rest of its plan no longer applies
+
+                return;
+            }
+            $fn();
+        });
     }
 
     // ---------------------------------------------------------------- helpers
@@ -320,6 +336,11 @@ final class CustomOrders
         ]);
         $appointment = $res['appointment'];
         $appointment = app(T01SendToCustomer::class)->handle($sales, $appointment);
+        if (in_array($kind, $st->data['unconfirmed'] ?? [], true)) {
+            $st->data['appt_'.$kind] = $appointment->id;
+
+            return;
+        }
         $appointment = app(T02ConfirmAppointment::class)->handle($sales, \App\Models\Appointment::query()->with('order')->findOrFail($appointment->id), 'phone', 'تنسيق مع فنيين آخرين في اليوم نفسه');
         $st->data['appt_'.$kind] = $appointment->id;
         if ($start->lessThanOrEqualTo($this->s->end)) {
