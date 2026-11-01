@@ -15,6 +15,9 @@ use App\Money\Money;
 use App\Notifications\NotificationCatalogue;
 use App\Notifications\Notifier;
 use App\Notifications\Outbox;
+use App\Whatsapp\CustomerMessenger;
+use App\Whatsapp\WhatsAppEvent;
+use Illuminate\Support\Facades\URL;
 
 /**
  * Finance messages, all through the transactional outbox (they commit or roll back with the money change; a failed
@@ -32,6 +35,7 @@ final class CollectionNotices
     public function __construct(
         private readonly Outbox $outbox,
         private readonly Notifier $notifier,
+        private readonly CustomerMessenger $messenger,
     ) {}
 
     public static function define(): void
@@ -52,7 +56,7 @@ final class CollectionNotices
     {
         $customer = $order->customer;
         $params = ['number' => $receipt->number, 'amount' => $receipt->amount()->toInput(), 'order' => $order->number];
-        $this->toCustomer($customer, 'finance.message.receipt', $params, "receipt:{$receipt->id}");
+        $this->toCustomer($customer, 'finance.message.receipt', $params, "receipt:{$receipt->id}", WhatsAppEvent::ReceiptApproved, $order);
 
         $assignee = $order->assignee;
         if ($assignee !== null && $assignee->id !== $actor?->id) {
@@ -95,7 +99,7 @@ final class CollectionNotices
     {
         return $this->toCustomer($order->customer, "finance.message.due_{$kind}", [
             'order' => $order->number, 'amount' => $remaining->toInput(), 'due' => (string) $due->name->get(self::locale($order->customer)),
-        ], "due:{$due->id}:{$kind}:{$period}");
+        ], "due:{$due->id}:{$kind}:{$period}", WhatsAppEvent::PaymentDue, $order);
     }
 
     /**
@@ -114,16 +118,30 @@ final class CollectionNotices
     /**
      * @param  array<string, string>  $params
      */
-    private function toCustomer(Customer $customer, string $key, array $params, string $idempotency): bool
+    private function toCustomer(Customer $customer, string $key, array $params, string $idempotency, ?WhatsAppEvent $event = null, ?Order $order = null): bool
     {
         $locale = self::locale($customer);
         $text = __($key, $params, $locale);
-        $sent = $this->outbox->enqueueSms($customer->mobile, $text, "{$idempotency}:sms") !== null;
+        // Receipts and due reminders ride the customer's channel (WhatsApp, SMS as the fallback); the other notices stay SMS.
+        $sent = $event === null
+            ? $this->outbox->enqueueSms($customer->mobile, $text, "{$idempotency}:sms") !== null
+            : $this->messenger->send($customer, $event, $this->whatsappParams($event, $params, $order), $idempotency, $order, $text) !== null;
         if ($customer->email !== null && $customer->email !== '') {
             $sent = $this->outbox->enqueueMail($customer->email, __('finance.message.subject', ['facility' => self::facilityName($locale)], $locale), [$text], null, $locale, "{$idempotency}:mail") !== null || $sent;
         }
 
         return $sent;
+    }
+
+    /**
+     * @param  array<string, string>  $params
+     * @return array<string, string>
+     */
+    private function whatsappParams(WhatsAppEvent $event, array $params, ?Order $order): array
+    {
+        return $event === WhatsAppEvent::PaymentDue && $order !== null
+            ? [...$params, 'link' => URL::route('customer.orders.pay', ['order' => $order->id])]
+            : $params;
     }
 
     private static function locale(Customer $customer): string

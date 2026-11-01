@@ -43,6 +43,9 @@ enum AuditAction: string
     case SmtpSettingsTested = 'integrations.smtp_tested';
     case SmtpEnabled = 'integrations.smtp_enabled';
     case SmtpDisabled = 'integrations.smtp_disabled';
+    case WhatsappSettingsSaved = 'integrations.whatsapp_saved';
+    case CustomerWhatsappOptOut = 'customers.whatsapp_opt_out';
+    case CustomerWhatsappOptIn = 'customers.whatsapp_opt_in';
 
     case SupportRequestSubmitted = 'support.request_submitted';
     case SupportAccessRequested = 'support_access.requested';
@@ -303,12 +306,13 @@ enum AuditAction: string
             self::LicenseInstalled => 'license',
             self::BackupCreated, self::BackupRestored, self::FacilityExportRequested, self::FacilityExportDownloaded => 'operations',
             self::AttachmentUploaded, self::AttachmentDownloaded => 'files',
-            self::SmtpSettingsSaved, self::SmtpSettingsTested, self::SmtpEnabled, self::SmtpDisabled => 'integrations',
+            self::SmtpSettingsSaved, self::SmtpSettingsTested, self::SmtpEnabled, self::SmtpDisabled, self::WhatsappSettingsSaved => 'integrations',
             self::SupportRequestSubmitted, self::SupportAccessRequested, self::SupportAccessGranted,
             self::SupportAccessRejected, self::SupportAccessRevoked, self::SupportAccessExpired,
             self::SupportSignedIn, self::SupportViewed => 'support',
             self::CustomerCreated, self::CustomerUpdated, self::CustomerContactAdded, self::CustomerContactUpdated,
-            self::CustomerContactPrimaryChanged, self::CustomerContactRemoved, self::CustomerBranchTransferred => 'customers',
+            self::CustomerContactPrimaryChanged, self::CustomerContactRemoved, self::CustomerBranchTransferred,
+            self::CustomerWhatsappOptOut, self::CustomerWhatsappOptIn => 'customers',
             self::InterestCreated, self::InterestUpdated, self::InterestFollowed, self::InterestConverted,
             self::InterestClosed, self::InterestReopened => 'interests',
             self::CatalogProductCreated, self::CatalogProductUpdated, self::CatalogProductDisabled, self::CatalogProductEnabled,

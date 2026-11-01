@@ -47,6 +47,8 @@ final class Showcase
 
     public Portal $portal;
 
+    public Messaging $messaging;
+
     /** @var array<string, User> */
     public array $users = [];
 
@@ -78,6 +80,7 @@ final class Showcase
         $this->support = new Support($this);
         $this->site = new Site($this);
         $this->portal = new Portal($this);
+        $this->messaging = new Messaging;
     }
 
     public function n(int $full): int
@@ -110,6 +113,7 @@ final class Showcase
 
         $this->info('Organisation…');
         (new Foundation($this))->run();
+        $this->messaging->enable();
         $this->info('Catalogue…');
         $this->catalog->run();
         $this->store->setup();
@@ -125,6 +129,7 @@ final class Showcase
         $this->support->run();
         $this->portal->run();
         $this->timeline->run();
+        $this->messaging->settle();
         foreach ($this->timeline->failures as $failure) {
             $this->warn($failure);
         }

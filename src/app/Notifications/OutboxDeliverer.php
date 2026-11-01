@@ -3,9 +3,12 @@
 namespace App\Notifications;
 
 use App\Jobs\DeliverOutboxMessage;
+use App\Models\CustomerMessage;
 use App\Models\OutboxMessage;
 use App\Notifications\Channels\EmailChannel;
 use App\Notifications\Channels\SmsChannel;
+use App\Whatsapp\MessageStatus;
+use App\Whatsapp\WhatsAppDelivery;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Throwable;
@@ -28,6 +31,7 @@ final class OutboxDeliverer
     public function __construct(
         private readonly EmailChannel $email,
         private readonly SmsChannel $sms,
+        private readonly WhatsAppDelivery $whatsapp,
     ) {}
 
     public function deliver(int $id): void
@@ -39,13 +43,18 @@ final class OutboxDeliverer
         }
 
         try {
-            if ($message->channel === OutboxChannel::Sms) {
+            if ($message->channel === OutboxChannel::Whatsapp) {
+                // Whether it was sent or fell back to SMS, this row is done; a retryable failure throws.
+                $this->whatsapp->deliver($message);
+            } elseif ($message->channel === OutboxChannel::Sms) {
                 if (! $this->sms->isConfigured()) {
+                    $this->follow($message, MessageStatus::Failed, 'sms_not_configured');
                     $message->forceFill(['status' => OutboxStatus::Skipped, 'payload' => null, 'claimed_at' => null, 'last_error' => 'sms_not_configured'])->save();
 
                     return;
                 }
                 $this->sms->send($message->recipient, (string) ($message->payload['text'] ?? ''));
+                $this->follow($message, MessageStatus::Sent);
             } else {
                 $this->email->send($message);
             }
@@ -109,6 +118,14 @@ final class OutboxDeliverer
     private function fail(OutboxMessage $message, Throwable $e): void
     {
         $dead = $message->attempts >= self::MAX_ATTEMPTS;
+        if ($dead) {
+            // A WhatsApp message that could not be delivered still reaches the customer, by SMS.
+            if ($message->channel === OutboxChannel::Whatsapp) {
+                $this->whatsapp->fallback($message, 'whatsapp_retries_exhausted');
+            } else {
+                $this->follow($message, MessageStatus::Failed, 'delivery_failed');
+            }
+        }
         $delay = self::BACKOFF[min($message->attempts, count(self::BACKOFF)) - 1];
 
         $message->forceFill([
@@ -123,6 +140,17 @@ final class OutboxDeliverer
 
         if (! $dead) {
             DeliverOutboxMessage::dispatch($message->id)->delay(now()->addSeconds($delay));
+        }
+    }
+
+    /**
+     * Mirrors an SMS delivery into the customer's message log.
+     */
+    private function follow(OutboxMessage $message, MessageStatus $status, ?string $error = null): void
+    {
+        $id = $message->payload['customer_message_id'] ?? null;
+        if (is_int($id)) {
+            CustomerMessage::query()->find($id)?->advance($status, $error);
         }
     }
 

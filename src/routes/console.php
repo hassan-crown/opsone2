@@ -13,6 +13,7 @@ use App\Models\User;
 use App\Notifications\OutboxDeliverer;
 use App\Notifications\OutboxStatus;
 use App\Reports\Export\ReportExports;
+use App\Whatsapp\CustomerEvents;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Hash;
@@ -124,3 +125,10 @@ Artisan::command('reports:purge-exports', function (ReportExports $exports) {
 })->purpose('Delete report export files past their retention (SHR-12)');
 
 Schedule::command('reports:purge-exports')->hourly()->withoutOverlapping();
+
+// WhatsApp/SMS reminders 24 hours before a confirmed measurement or installation (ADR-0030), inside the reminder hours.
+Artisan::command('whatsapp:remind', function () {
+    $this->info(sprintf('Queued %d appointment reminder(s).', CustomerEvents::remindDue(now())));
+})->purpose('Remind customers 24 hours before a measurement or installation');
+
+Schedule::command('whatsapp:remind')->hourly()->withoutOverlapping();

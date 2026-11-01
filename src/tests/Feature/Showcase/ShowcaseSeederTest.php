@@ -70,6 +70,13 @@ it('seeds a coherent history and keeps the ledger and stock invariants', functio
             ->and((int) $b->reserved_milli)->toBeGreaterThanOrEqual(0);
     }
 
+    // Customer messages: a WhatsApp history with outcomes, SMS for the opted-out, nothing left queued.
+    $statuses = DB::table('customer_messages')->where('channel', 'whatsapp')->distinct()->pluck('status')->all();
+    expect(DB::table('customer_messages')->count())->toBeGreaterThan(5)
+        ->and($statuses)->toContain('read')
+        ->and(DB::table('customer_messages')->where('status', 'queued')->count())->toBe(0)
+        ->and(DB::table('customer_messages as m')->join('customers as c', 'c.id', '=', 'm.customer_id')->whereNotNull('c.whatsapp_opt_out_at')->where('m.channel', 'whatsapp')->count())->toBe(0);
+
     // Gapless numbering: receipts follow each other without holes.
     $numbers = DB::table('receipts')->orderBy('id')->pluck('number')->map(fn ($n) => (int) substr((string) $n, -6))->all();
     expect($numbers)->toBe(range(1, count($numbers)));
