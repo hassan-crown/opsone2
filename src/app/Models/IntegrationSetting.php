@@ -25,6 +25,8 @@ class IntegrationSetting extends Model
 
     public const SMS = 'sms';
 
+    public const WHATSAPP = 'whatsapp';
+
     protected $guarded = [];
 
     protected function casts(): array

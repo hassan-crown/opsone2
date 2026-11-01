@@ -3,6 +3,9 @@
 use App\Http\Controllers\Notifications\IntegrationsController;
 use App\Http\Controllers\Notifications\NotificationController;
 use App\Http\Controllers\Notifications\NotificationPreferenceController;
+use App\Http\Controllers\Notifications\WhatsAppWebhookController;
+use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
+use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -25,4 +28,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->name('integrations.smtp.test');
     Route::post('settings/integrations/smtp/enable', [IntegrationsController::class, 'enableSmtp'])->name('integrations.smtp.enable');
     Route::post('settings/integrations/smtp/disable', [IntegrationsController::class, 'disableSmtp'])->name('integrations.smtp.disable');
+    Route::put('settings/integrations/whatsapp', [IntegrationsController::class, 'updateWhatsapp'])->name('integrations.whatsapp.update');
+});
+
+// WhatsApp (Meta) webhook (ADR-0029): no session and no CSRF — the body's HMAC signature (GET: the verify token) is the proof.
+Route::withoutMiddleware([ValidateCsrfToken::class, PreventRequestForgery::class])->middleware('throttle:120,1')->group(function () {
+    Route::get('webhooks/whatsapp', [WhatsAppWebhookController::class, 'verify'])->name('webhooks.whatsapp.verify');
+    Route::post('webhooks/whatsapp', [WhatsAppWebhookController::class, 'receive'])->name('webhooks.whatsapp');
 });

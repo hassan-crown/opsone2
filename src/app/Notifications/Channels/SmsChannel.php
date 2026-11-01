@@ -4,7 +4,7 @@ namespace App\Notifications\Channels;
 
 /**
  * Outbound SMS (Q-24). The provider is chosen later; until a real driver is bound the log driver serves
- * development only and production reports "not configured". WhatsApp is never a channel — only a wa.me link.
+ * development only and production reports "not configured". WhatsApp is a separate channel (ADR-0029) whose fallback is SMS.
  */
 interface SmsChannel
 {
