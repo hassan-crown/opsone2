@@ -4,6 +4,7 @@ use App\Http\Middleware\HandleInertiaRequests;
 use App\Models\Customer;
 use App\Models\Order;
 use App\Models\User;
+use App\Portal\PortalAccess;
 use App\Portal\PortalSession;
 use Database\Seeders\DemoSeeder;
 use Database\Seeders\FacilitySeeder;
@@ -174,7 +175,8 @@ it('keeps the customer workspace and the store within their query budget', funct
         ->where('customers.portal_login_enabled', true)->groupBy('orders.customer_id')
         ->orderByRaw('COUNT(*) DESC')->value('orders.customer_id');
     $customer = Customer::query()->findOrFail($customerId);
-    $order = Order::query()->where('customer_id', $customer->id)->orderByDesc('id')->firstOrFail();
+    // The portal hides a ready-goods draft staff are still preparing (404): pick an order the customer can open.
+    $order = PortalAccess::orders($customer)->orderByDesc('orders.id')->firstOrFail();
 
     foreach (['/portal' => 22, '/portal/orders' => 10, "/portal/orders/{$order->id}" => 24] as $uri => $budget) {
         Auth::guard(PortalSession::GUARD)->setUser($customer);
