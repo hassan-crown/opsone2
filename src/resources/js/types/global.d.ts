@@ -41,6 +41,8 @@ declare module '@inertiajs/core' {
                 tickets: boolean;
                 /** P-60/P-61/P-62: needs the `reports` key in HandleInertiaRequests::orgNav(). */
                 reports?: boolean;
+                /** P-60 ∧ P-37 (owner / managers): the owner dashboard. */
+                executive?: boolean;
             } | null;
             [key: string]: unknown;
         };

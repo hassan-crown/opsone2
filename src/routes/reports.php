@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Reports\ExecutiveDashboardController;
 use App\Http\Controllers\Reports\ReportExportController;
 use App\Http\Controllers\Reports\ReportsController;
 use Illuminate\Support\Facades\Route;
@@ -9,6 +10,8 @@ use Illuminate\Support\Facades\Route;
 | (`reports/collection`, routes/finance.php) stays the collection report's page; its numbers come from the same
 | metrics layer. Contract: docs/p9-metrics.md.
 */
+
+Route::middleware(['auth', 'verified'])->get('executive', ExecutiveDashboardController::class)->name('executive');
 
 Route::middleware(['auth', 'verified'])->prefix('reports')->group(function () {
     Route::get('/', [ReportsController::class, 'index'])->name('reports.index');

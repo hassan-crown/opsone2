@@ -19,6 +19,7 @@ import {
     Globe,
     ShoppingBag,
     BarChart3,
+    Gauge,
 } from 'lucide-react';
 import CommissionController from '@/actions/App/Http/Controllers/Commissions/CommissionController';
 import CalendarController from '@/actions/App/Http/Controllers/Calendar/CalendarController';
@@ -33,6 +34,7 @@ import TaskController from '@/actions/App/Http/Controllers/Tasks/TaskController'
 import DeliveryController from '@/actions/App/Http/Controllers/Delivery/DeliveryController';
 import TicketController from '@/actions/App/Http/Controllers/Tickets/TicketController';
 import ReturnController from '@/actions/App/Http/Controllers/Returns/ReturnController';
+import ExecutiveDashboardController from '@/actions/App/Http/Controllers/Reports/ExecutiveDashboardController';
 import ReportsController from '@/actions/App/Http/Controllers/Reports/ReportsController';
 import PurchaseController from '@/actions/App/Http/Controllers/Procurement/PurchaseController';
 import OrderController from '@/actions/App/Http/Controllers/Orders/OrderController';
@@ -66,12 +68,19 @@ export type LocalizedNavItem = Omit<NavItem, 'title'> & {
         | 'site'
         | 'store'
         | 'tickets'
-        | 'reports';
+        | 'reports'
+        | 'executive';
 };
 
 /** Primary navigation (5–7 items max; settings live in the footer / user menu). */
 export const mainNav: LocalizedNavItem[] = [
     { label: 'nav.dashboard', href: dashboard(), icon: LayoutGrid },
+    {
+        label: 'executive.nav',
+        href: ExecutiveDashboardController.url(),
+        icon: Gauge,
+        access: 'executive',
+    },
     {
         label: 'orders.nav',
         href: OrderController.index(),

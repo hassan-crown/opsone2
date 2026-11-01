@@ -23,12 +23,14 @@ final class ReportScope
 {
     /**
      * @param  list<int>  $branchIds  empty = every branch the viewer may see
+     * @param  bool  $tables  false = summary only (metrics and charts): the dashboard needs no row listing
      */
     public function __construct(
         public readonly User $viewer,
         public readonly string $from,
         public readonly string $to,
         public readonly array $branchIds = [],
+        public readonly bool $tables = true,
     ) {
         // Branch names are memoized per run only (a long-lived queue worker must never serve stale names).
         Definitions\Support::flush();

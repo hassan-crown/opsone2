@@ -48,8 +48,7 @@ final class SalesReport implements Report
         $interests = $s->branchFilter(ScopedQuery::apply(Interest::query(), $s->viewer, [Permission::P60], 'branch_id', null, null), 'interests.branch_id')
             ->whereBetween('converted_at', [$start, $end])->count();
 
-        $firstApproved = DB::table('agreements')->select('order_id')->groupBy('order_id')
-            ->havingRaw('MIN(approved_at) >= ? AND MIN(approved_at) <= ?', [$start, $end]);
+        $firstApproved = self::firstApproved($start, $end);
         $approvedCount = (clone $orders)->whereIn('orders.id', $firstApproved)->count();
 
         $money = $this->agreed($s, $firstApproved);
@@ -71,6 +70,10 @@ final class SalesReport implements Report
             ->selectRaw('orders.status as s, COUNT(*) as c')->pluck('c', 's')->map(fn ($c) => (int) $c)->all();
         $r->chart('pipeline', 'bar', 'count', Support::enumPoints($byStatus));
 
+        if (! $s->tables) {
+            return $r;
+        }
+
         $list = (clone $created)->orderBy('orders.id')->limit(ReportResult::ROW_CAP + 1)->get();
         $values = $this->agreedByOrder($s, array_values(array_map('intval', $list->pluck('id')->all())));
         $rows = [];
@@ -91,19 +94,31 @@ final class SalesReport implements Report
     }
 
     /**
-     * @return array{gross: int, net: int, vat: int}
+     * Orders whose FIRST agreement version was approved in [start, end] (app-time strings): the "sale booked" set.
      */
-    private function agreed(ReportScope $s, Builder $firstApproved): array
+    public static function firstApproved(string $start, string $end): Builder
+    {
+        return DB::table('agreements')->select('order_id')->groupBy('order_id')
+            ->havingRaw('MIN(approved_at) >= ? AND MIN(approved_at) <= ?', [$start, $end]);
+    }
+
+    /**
+     * The booked-value figures over one first-approved set; `count` is the number of orders summed (the average's
+     * denominator, so the dashboard's average order value uses exactly the orders the sum covers).
+     *
+     * @return array{gross: int, net: int, vat: int, count: int}
+     */
+    public function agreed(ReportScope $s, Builder $firstApproved): array
     {
         if (! $s->amountsVisible()) {
-            return ['gross' => 0, 'net' => 0, 'vat' => 0];
+            return ['gross' => 0, 'net' => 0, 'vat' => 0, 'count' => 0];
         }
         $row = Agreement::query()->where('status', 'active')
             ->whereIn('order_id', Support::orderIds($s->moneyOrders())->where('orders.status', '!=', 'cancelled'))
             ->whereIn('order_id', $firstApproved)
-            ->selectRaw('COALESCE(SUM(total_minor),0) as g, COALESCE(SUM(net_minor),0) as n, COALESCE(SUM(vat_minor),0) as v')->toBase()->first();
+            ->selectRaw('COALESCE(SUM(total_minor),0) as g, COALESCE(SUM(net_minor),0) as n, COALESCE(SUM(vat_minor),0) as v, COUNT(*) as c')->toBase()->first();
 
-        return ['gross' => (int) $row?->g, 'net' => (int) $row?->n, 'vat' => (int) $row?->v];
+        return ['gross' => (int) $row?->g, 'net' => (int) $row?->n, 'vat' => (int) $row?->v, 'count' => (int) $row?->c];
     }
 
     /**
