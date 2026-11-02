@@ -8,6 +8,7 @@ use App\Agreements\NoCollections;
 use App\Models\Facility;
 use App\Models\Membership;
 use App\Models\User;
+use App\Site\Preview\SitePreview;
 use App\Support\RequestCache;
 use Carbon\CarbonImmutable;
 use Illuminate\Cache\RateLimiting\Limit;
@@ -32,6 +33,7 @@ class AppServiceProvider extends ServiceProvider
         // What finance collected per order; P6b binds the real ledger (docs/p6-finance-api.md).
         $this->app->bindIf(CollectedAmounts::class, NoCollections::class);
         $this->app->scoped(RequestCache::class);
+        $this->app->scoped(SitePreview::class);
     }
 
     /**

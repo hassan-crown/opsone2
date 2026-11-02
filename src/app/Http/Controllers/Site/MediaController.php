@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Attachment;
 use App\Models\Site\SitePage;
 use App\Models\Site\SiteTheme;
+use App\Site\Preview\SitePreview;
 use App\Site\SiteContext;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -22,13 +23,13 @@ final class MediaController extends Controller
 {
     private const SERVED = ['image/png', 'image/webp'];
 
-    public function __construct(private readonly SiteContext $site, private readonly Authorizer $access) {}
+    public function __construct(private readonly SiteContext $site, private readonly Authorizer $access, private readonly SitePreview $preview) {}
 
     public function public(Attachment $attachment): StreamedResponse
     {
         abort_unless($this->isSiteFile($attachment) && $this->site->isPublicMedia($attachment), 404);
 
-        return $this->stream($attachment, 'public, max-age=86400');
+        return $this->stream($attachment, $this->preview->active() ? 'private, no-store' : 'public, max-age=86400');
     }
 
     public function admin(Request $request, Attachment $attachment): StreamedResponse

@@ -18,6 +18,7 @@
 use App\Models\Site\SitePage;
 use App\Models\Site\SiteTheme;
 use App\Models\User;
+use App\Site\Preview\SitePreview;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -81,13 +82,24 @@ it('a draft is previewed only by its editor, as site styling: visitors, the stor
     $this->get(route('site.admin.theme.edit'))->assertForbidden();
 });
 
-it('the editor previews the facility\'s real site pages with the draft before applying (THM-04)', function () {
+it('the editor previews the facility\'s real site pages and store with the draft before applying (THM-04)', function () {
     accPStaff($this->owner);
     $this->put(route('site.admin.theme.save'), ['brand_color' => ACC18_BRAND])->assertSessionHasNoErrors();
 
-    // Expected: a private preview of the site pages (here the page preview the editor already uses) styled by the draft.
-    expect(accP18Html("/site-admin/pages/{$this->page->id}/preview/en"))->toContain(ACC18_BRAND);
-})->skip('Acceptance gap: no draft-theme preview of real site pages (page preview renders the published theme only)');
+    // A signed, expiring link opens the real pages in a private, noindex preview; the same URLs stay default for visitors.
+    $link = $this->postJson(route('site.admin.preview-link'), ['locale' => 'en', 'target' => 'about'])->assertOk()->json();
+    accPFreshBrowser();
+    $cookie = $this->get($link['url'])->assertRedirect()->getCookie(SitePreview::COOKIE);
+    $this->withCookie(SitePreview::COOKIE, $cookie->getValue());
+
+    $preview = $this->get('/en/about')->assertOk();
+    expect($preview->getContent())->toContain(ACC18_BRAND)->toContain('noindex')
+        ->and(accP18Html('/ar/store'))->toContain(ACC18_BRAND);
+
+    accPFreshBrowser();
+    $this->withCookie(SitePreview::COOKIE, '');
+    expect(accP18Html('/en/about'))->not->toContain(ACC18_BRAND);
+});
 
 it('applying reflects on the site and the store, and changes no price, access, route or personal preference', function () {
     $before = accP18Untouchable($this);

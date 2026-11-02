@@ -31,6 +31,8 @@ import { OrderCancelCard } from '@/components/cancellation/order-cancel-card';
 import type { OrderCancellation } from '@/components/cancellation/order-cancel-card';
 import { OrderDeliveryCard } from '@/components/delivery/order-delivery-card';
 import type { OrderDelivery } from '@/components/delivery/order-delivery-card';
+import { OrderClosureCard } from '@/components/orders/order-closure-card';
+import type { OrderClosure } from '@/components/orders/order-closure-card';
 import { OrderStockCard } from '@/components/stock/order-stock-card';
 import type { OrderStock } from '@/components/stock/types';
 import { toPayload } from '@/components/orders/types';
@@ -65,6 +67,7 @@ type Props = {
     transferBranches: Option[];
     stock?: OrderStock;
     delivery?: OrderDelivery | null;
+    closure?: OrderClosure | null;
     cancellation?: OrderCancellation | null;
 };
 
@@ -101,6 +104,7 @@ export default function OrderShow({
     transferBranches,
     stock,
     delivery,
+    closure,
     cancellation,
 }: Props) {
     const t = useT();
@@ -559,6 +563,12 @@ export default function OrderShow({
                                 <OrderDeliveryCard
                                     orderId={order.id}
                                     delivery={delivery}
+                                />
+                            )}
+                            {closure && (
+                                <OrderClosureCard
+                                    orderId={order.id}
+                                    closure={closure}
                                 />
                             )}
                             {cancellation && (

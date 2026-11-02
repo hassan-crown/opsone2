@@ -3,6 +3,7 @@
 use App\Http\Controllers\Site\DomainController;
 use App\Http\Controllers\Site\MediaController;
 use App\Http\Controllers\Site\SitePageController;
+use App\Http\Controllers\Site\SitePreviewController;
 use App\Http\Controllers\Site\ThemeController;
 use Illuminate\Support\Facades\Route;
 
@@ -24,6 +25,7 @@ Route::middleware(['auth', 'verified'])->prefix('site-admin')->name('site.admin.
     Route::post('pages/{page}/archive', [SitePageController::class, 'archive'])->name('pages.archive');
     Route::post('pages/{page}/restore', [SitePageController::class, 'restore'])->name('pages.restore');
     Route::post('pages/{page}/images', [SitePageController::class, 'image'])->middleware('throttle:30,1')->name('pages.images');
+    Route::post('preview-link', [SitePreviewController::class, 'issue'])->middleware('throttle:20,1')->name('preview-link');
     Route::get('pages/{page}/preview/{locale}', [SitePageController::class, 'preview'])->where('locale', 'ar|en')->name('pages.preview');
 
     Route::get('theme', [ThemeController::class, 'edit'])->name('theme.edit');
