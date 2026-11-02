@@ -134,6 +134,7 @@ final class ESignature
                     Audit::record(AuditAction::DocumentSigned, $order, null, after: [
                         'document' => $locked->number, 'signature' => $signature->id, 'pdf_sha256' => $pdf->sha256,
                         'content_hash' => $locked->content_hash, 'otp' => 'OTP-'.$challenge->id, 'link' => $liveLink !== null,
+                        ...($challenge->getAttribute('demo_used') === true ? ['demo_code' => true] : []),
                     ], source: PortalSession::SOURCE, label: $order->number);
                 });
         } catch (InvalidTransition $e) {

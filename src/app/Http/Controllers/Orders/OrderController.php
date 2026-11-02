@@ -22,6 +22,7 @@ use App\Models\Order;
 use App\Models\StateTransition;
 use App\Models\User;
 use App\Orders\OrderAccess;
+use App\Orders\OrderClosurePanel;
 use App\Orders\OrderPicker;
 use App\Orders\OrderPresenter;
 use App\Organization\OrgPresenter;
@@ -232,6 +233,8 @@ class OrderController extends Controller
             'stock' => OrderStockPanel::forOrder($order, $actor),
             // P7 delivery: what is owed, the delivery notes and the record action (ADR-0018).
             'delivery' => OrderDeliveryPanel::forOrder($order, $actor),
+            // M-04-T07 / M-05-T10 closure and the blocking delivery remarks (M-14-T04).
+            'closure' => OrderClosurePanel::forOrder($order, $actor),
             // P7 cancellation: the CancelReview entry point and the settlement follow-up state (ADR-0020).
             'cancellation' => OrderCancellationPanel::forOrder($order, $actor),
             // Targets for the transfer dialog; the server still checks P-19 over both branches on preview and apply.

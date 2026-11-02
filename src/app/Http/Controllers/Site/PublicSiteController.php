@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Site;
 
 use App\Http\Controllers\Controller;
+use App\Site\Preview\SitePreview;
 use App\Site\SiteContext;
 use App\Site\SiteRenderer;
 use Illuminate\Contracts\View\View;
@@ -15,7 +16,7 @@ use Illuminate\Http\RedirectResponse;
  */
 final class PublicSiteController extends Controller
 {
-    public function __construct(private readonly SiteContext $site, private readonly SiteRenderer $renderer) {}
+    public function __construct(private readonly SiteContext $site, private readonly SiteRenderer $renderer, private readonly SitePreview $preview) {}
 
     /** `/` — the home page in the facility's default language (canonical points at `/{locale}`). */
     public function root(): View|RedirectResponse
@@ -40,6 +41,6 @@ final class PublicSiteController extends Controller
             return redirect($this->site->path($other, $page));
         }
 
-        return $this->renderer->render($page, $version, $locale);
+        return $this->renderer->render($page, $version, $locale, preview: $this->preview->active());
     }
 }

@@ -10,6 +10,7 @@ use App\Http\Requests\Site\PageRequest;
 use App\Http\Requests\Site\PublishRequest;
 use App\Models\Site\SitePage;
 use App\Models\Site\SitePageVersion;
+use App\Site\Preview\SitePreview;
 use App\Site\Sections\SectionCatalogue;
 use App\Site\SiteContext;
 use App\Site\SiteRenderer;
@@ -169,6 +170,8 @@ final class SitePageController extends SiteAdminController
         $id = $row->draft_version_id ?? $row?->published_version_id;
         abort_if($id === null || $page->isSystem(), 404);
         app()->setLocale($locale);
+        // The editor sees what a preview link shows: the drafts, and the draft theme when they may edit it.
+        app(SitePreview::class)->activate(['pages' => true, 'theme' => $this->access->can($actor, Permission::P100), 'exp' => time() + 3600]);
 
         return $renderer->render($page, SitePageVersion::query()->findOrFail($id), $locale, preview: true);
     }

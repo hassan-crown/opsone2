@@ -74,7 +74,7 @@ final class SignInController extends Controller
         }
 
         $request->session()->forget(self::SESSION_KEY);
-        PortalSession::signIn($request, $result['customer'], $result['channel']);
+        PortalSession::signIn($request, $result['customer'], $result['channel'], $result['demo']);
 
         return redirect()->intended(route('customer.home'));
     }

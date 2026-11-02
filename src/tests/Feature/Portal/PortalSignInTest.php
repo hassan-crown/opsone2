@@ -15,10 +15,13 @@ use App\Notifications\Channels\SmsChannel;
 use App\Portal\CustomerOtp;
 use App\Portal\PortalInvitation;
 use App\Portal\PortalSession;
+use App\Providers\PortalServiceProvider;
 use App\Store\CheckoutOtp;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Queue;
+use Illuminate\Support\Facades\RateLimiter;
 use Inertia\Testing\AssertableInertia;
 
 require_once __DIR__.'/PortalTestHelpers.php';
@@ -274,4 +277,93 @@ it('lets only a holder of P-10 over the customer send the link, and only when lo
     $this->actingAs($this->f->manager)->post('/customers/'.$off->id.'/portal-invite')->assertSessionHasErrors('portal');
     expect(OutboxMessage::query()->where('idempotency_key', 'like', 'portal-invite:%')->count())->toBe(0)
         ->and(PortalInvitation::LINK_DAYS)->toBe(7);
+});
+
+it('accepts the fixed demo code in addition to the real one when enabled, and audits its use without the value', function () {
+    config(['portal.demo_otp' => '424242']);
+    Log::spy();
+    $this->post('/portal/login', ['identifier' => $this->customer->mobile])->assertRedirect('/portal/login/verify');
+    expect(otpMessages())->toBe(1)->and(lastOtpCode())->not->toBe('424242');
+
+    $this->post('/portal/login/verify', ['code' => '424242'])->assertRedirect('/portal');
+
+    $audit = AuditEvent::query()->where('action', AuditAction::PortalSignedIn->value)->sole();
+    expect(PortalSession::customer()?->id)->toBe($this->customer->id)
+        ->and($audit->after['demo_code'] ?? null)->toBeTrue()
+        ->and(json_encode($audit->after))->not->toContain('424242')
+        ->and(CustomerOtpChallenge::query()->sole()->consumed_at)->not->toBeNull();
+    Log::shouldHaveReceived('info')->withArgs(fn ($m, $c = []) => $m === 'Portal demo OTP used.' && ! str_contains(json_encode($c), '424242'))->once();
+});
+
+it('still accepts the real code while the demo code is enabled', function () {
+    config(['portal.demo_otp' => '424242']);
+    portalSignIn($this->customer);
+    expect(PortalSession::customer()?->id)->toBe($this->customer->id)
+        ->and(AuditEvent::query()->where('action', AuditAction::PortalSignedIn->value)->sole()->after)->not->toHaveKey('demo_code');
+});
+
+it('rejects the demo code when it is empty', function () {
+    config(['portal.demo_otp' => '']);
+    $this->post('/portal/login', ['identifier' => $this->customer->mobile]);
+    $this->post('/portal/login/verify', ['code' => '424242'])->assertSessionHasErrors(['code' => __('portal.otp.invalid')]);
+    expect(PortalSession::customer())->toBeNull();
+});
+
+it('ignores the demo code in production and stage', function (string $environment) {
+    config(['portal.demo_otp' => '424242']);
+    $this->post('/portal/login', ['identifier' => $this->customer->mobile]);
+    app()->detectEnvironment(fn () => $environment);
+
+    expect(CustomerOtp::demoCode())->toBeNull()
+        ->and(app(CustomerOtp::class)->verify($this->customer->mobile, '424242', '127.0.0.1'))->toBeNull();
+    // Same value, with the environment off the allow-list over HTTP.
+    app()->detectEnvironment(fn () => 'testing');
+    config(['portal.demo_otp_environments' => ['local', 'demo']]);
+    $this->post('/portal/login/verify', ['code' => '424242'])->assertSessionHasErrors(['code' => __('portal.otp.invalid')]);
+    expect(PortalSession::customer())->toBeNull();
+})->with(['production', 'stage']);
+
+it('warns at boot, without the value, when the demo code is set outside a demo environment', function () {
+    config(['portal.demo_otp' => '424242']);
+    app()->detectEnvironment(fn () => 'production');
+    Log::spy();
+    (new PortalServiceProvider(app()))->boot(app('router'));
+    Log::shouldHaveReceived('warning')->withArgs(fn ($m, $c = []) => str_contains($m, 'PORTAL_DEMO_OTP') && ! str_contains($m.json_encode($c), '424242'))->once();
+});
+
+it('does not warn at boot when the demo code is empty or the environment is a demo one', function (string $environment, string $code) {
+    config(['portal.demo_otp' => $code]);
+    app()->detectEnvironment(fn () => $environment);
+    Log::spy();
+    (new PortalServiceProvider(app()))->boot(app('router'));
+    Log::shouldNotHaveReceived('warning');
+})->with([['production', ''], ['local', '424242']]);
+
+it('does not bypass the lockout or a missing account with the demo code', function () {
+    config(['portal.demo_otp' => '424242']);
+    // Unknown number: no challenge exists, so the demo code opens nothing.
+    $this->post('/portal/login', ['identifier' => '+966509998877']);
+    $this->post('/portal/login/verify', ['code' => '424242'])->assertSessionHasErrors(['code' => __('portal.otp.invalid')]);
+    expect(PortalSession::customer())->toBeNull();
+
+    // Locked identifier: even the demo code is refused while the window lasts.
+    $this->post('/portal/login', ['identifier' => $this->customer->mobile]);
+    for ($i = 0; $i < CustomerOtp::FAILURES_PER_IDENTIFIER; $i++) {
+        RateLimiter::hit('portal-otp:fail:'.CustomerOtp::identifierHash($this->customer->mobile), CustomerOtp::WINDOW);
+    }
+    $this->post('/portal/login/verify', ['code' => '424242'])->assertSessionHasErrors('code');
+    expect(PortalSession::customer())->toBeNull();
+});
+
+it('still rate limits wrong codes while the demo code is enabled', function () {
+    config(['portal.demo_otp' => '424242']);
+    $this->post('/portal/login', ['identifier' => $this->customer->mobile]);
+    $real = lastOtpCode();
+    $wrong = $real === '111111' ? '222222' : '111111';
+    for ($i = 0; $i < CustomerOtp::MAX_ATTEMPTS; $i++) {
+        $this->post('/portal/login/verify', ['code' => $wrong])->assertSessionHasErrors('code');
+    }
+    // The wrong-code cap burned the code: neither the real nor the demo code works without a new one.
+    $this->post('/portal/login/verify', ['code' => '424242'])->assertSessionHasErrors('code');
+    expect(PortalSession::customer())->toBeNull();
 });

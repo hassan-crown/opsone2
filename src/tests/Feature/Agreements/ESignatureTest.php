@@ -294,3 +294,31 @@ it('answers an expired or revoked signing link with an expiry page', function ()
     $this->get("/portal/sign/{$token}")->assertStatus(410);
     $this->get('/portal/sign/'.str_repeat('x', 48))->assertNotFound();
 });
+
+it('accepts the fixed demo code for the step-up when enabled, auditing its use without the value', function () {
+    config(['portal.demo_otp' => '424242']);
+    actingAsCustomer($this->f->a);
+    $form = esignForm($this->quote, ['code' => '424242']);
+
+    expect($form['code'])->not->toBe(lastOtpCode());
+    $this->post("/portal/documents/{$this->quote->id}/sign", $form)->assertSessionHasNoErrors();
+
+    $audit = AuditEvent::query()->where('action', 'agreement_document.signed')->latest('id')->firstOrFail();
+    expect($this->quote->refresh()->status)->toBe(DocumentStatus::Approved)
+        ->and($audit->after['demo_code'] ?? null)->toBeTrue()
+        ->and(json_encode($audit->after))->not->toContain('424242');
+});
+
+it('refuses the demo code for the step-up when it is not configured or the environment is production', function () {
+    actingAsCustomer($this->f->a);
+    $form = esignForm($this->quote, ['code' => '424242']);
+    $url = "/portal/documents/{$this->quote->id}/sign";
+
+    config(['portal.demo_otp' => '']);
+    $this->from($url)->post($url, $form)->assertSessionHasErrors('code');
+
+    // Same value, but the current environment (testing) is not on the allow-list, as in production.
+    config(['portal.demo_otp' => '424242', 'portal.demo_otp_environments' => ['local', 'demo']]);
+    $this->from($url)->post($url, $form)->assertSessionHasErrors('code');
+    expect(DocumentSignature::query()->count())->toBe(0);
+});
