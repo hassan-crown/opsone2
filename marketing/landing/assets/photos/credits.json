@@ -1,0 +1,72 @@
+[
+  {
+    "file": "marketing/landing/assets/photos/kitchen-cabinet-installation.jpg",
+    "media": "image",
+    "ref": "commons:64355760",
+    "title": "Kitchen cabinet installation",
+    "creator": "Akpeski",
+    "creatorUrl": null,
+    "date": "2016-06-25",
+    "license": "CC BY-SA 4.0",
+    "licenseCode": "by-sa",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "creditRequired": true,
+    "page": "https://commons.wikimedia.org/wiki/File:Kitchen_cabinet_installation.jpg",
+    "via": "Wikimedia Commons",
+    "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d5/Kitchen_cabinet_installation.jpg/1920px-Kitchen_cabinet_installation.jpg",
+    "width": 1920,
+    "height": 3413,
+    "bytes": 1264889,
+    "credit": "\"Kitchen cabinet installation\" by Akpeski, CC BY-SA 4.0, via Wikimedia Commons",
+    "notes": [
+      "Share-alike: an altered version (recoloured, combined with other pictures) must be shared under the same licence."
+    ],
+    "saved": "2026-11-02T04:47:30.491Z"
+  },
+  {
+    "file": "marketing/landing/assets/photos/carpentry-workshop-full-of-machines-and-wood.jpg",
+    "media": "image",
+    "ref": "commons:201834427",
+    "title": "Carpentry workshop full of machines and wood",
+    "creator": "Shixart1985",
+    "creatorUrl": null,
+    "date": "2021-02-18",
+    "license": "CC BY 2.0",
+    "licenseCode": "by",
+    "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+    "creditRequired": true,
+    "page": "https://commons.wikimedia.org/wiki/File:Carpentry_workshop_full_of_machines_and_wood.jpg",
+    "via": "Wikimedia Commons",
+    "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/6b/Carpentry_workshop_full_of_machines_and_wood.jpg/1920px-Carpentry_workshop_full_of_machines_and_wood.jpg",
+    "width": 1920,
+    "height": 2876,
+    "bytes": 1258654,
+    "credit": "\"Carpentry workshop full of machines and wood\" by Shixart1985, CC BY 2.0, via Wikimedia Commons",
+    "notes": [],
+    "saved": "2026-11-02T04:47:32.288Z"
+  },
+  {
+    "file": "marketing/landing/assets/photos/aluminium-window-detail.jpg",
+    "media": "image",
+    "ref": "commons:47182472",
+    "title": "Aluminium window detail",
+    "creator": "ProfDEH",
+    "creatorUrl": null,
+    "date": "2016-02-25",
+    "license": "CC BY-SA 3.0",
+    "licenseCode": "by-sa",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+    "creditRequired": true,
+    "page": "https://commons.wikimedia.org/wiki/File:Aluminium_window_detail.png",
+    "via": "Wikimedia Commons",
+    "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/40/Aluminium_window_detail.png/1920px-Aluminium_window_detail.png",
+    "width": 1920,
+    "height": 1838,
+    "bytes": 770765,
+    "credit": "\"Aluminium window detail\" by ProfDEH, CC BY-SA 3.0, via Wikimedia Commons",
+    "notes": [
+      "Share-alike: an altered version (recoloured, combined with other pictures) must be shared under the same licence."
+    ],
+    "saved": "2026-11-02T04:49:36.894Z"
+  }
+]
