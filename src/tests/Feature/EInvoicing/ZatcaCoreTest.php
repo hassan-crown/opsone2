@@ -18,7 +18,7 @@ use App\Money\VatCalculator;
 use Illuminate\Support\Facades\Http;
 
 /*
-| ZATCA building blocks (ADR-0032), no database: TLV QR, UBL 2.1 XML against the bundled OASIS XSD, the invoice hash,
+| ZATCA building blocks (ADR-0033), no database: TLV QR, UBL 2.1 XML against the bundled OASIS XSD, the invoice hash,
 | ECDSA secp256k1 + XAdES signing and its verification, the CSR.
 */
 

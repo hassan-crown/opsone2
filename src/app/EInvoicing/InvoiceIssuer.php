@@ -28,7 +28,7 @@ use Carbon\CarbonImmutable;
 use Illuminate\Support\Str;
 
 /**
- * Issues ZATCA documents (ADR-0032) — the only writer of `e_invoices`. In one transaction under the order lock: the
+ * Issues ZATCA documents (ADR-0033) — the only writer of `e_invoices`. In one transaction under the order lock: the
  * gapless number (INV/CRN/DBN-YYYY-000001), a UUID, the next ICV of the device's chain and the previous document's
  * hash (PIH), the UBL XML and its hash, the signature and phase 2 QR once a device is onboarded (else the phase 1 QR),
  * the audit entries and — when signed — the outbox message that reports or clears it. Nothing is ever updated

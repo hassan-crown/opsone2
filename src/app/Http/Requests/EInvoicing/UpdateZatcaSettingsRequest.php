@@ -10,7 +10,7 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
 /**
- * The seller's tax profile (ADR-0032). Lengths keep each QR value within one TLV length byte (Arabic is 2 bytes a
+ * The seller's tax profile (ADR-0033). Lengths keep each QR value within one TLV length byte (Arabic is 2 bytes a
  * letter); the address follows the Saudi national address (4-digit building, 5-digit postal code).
  */
 class UpdateZatcaSettingsRequest extends FormRequest

@@ -4,7 +4,7 @@ use App\Http\Controllers\EInvoicing\EInvoicingController;
 use Illuminate\Support\Facades\Route;
 
 /*
-| ZATCA e-invoicing (ADR-0032): the owner's settings, onboarding, submission list with retry, manual notes; document
+| ZATCA e-invoicing (ADR-0033): the owner's settings, onboarding, submission list with retry, manual notes; document
 | PDF/XML for the owner and P-37 on the order. Every route authorizes server-side (ZatcaAccess).
 */
 

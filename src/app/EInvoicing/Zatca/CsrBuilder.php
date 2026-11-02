@@ -5,7 +5,7 @@ namespace App\EInvoicing\Zatca;
 use RuntimeException;
 
 /**
- * Key pair and certificate signing request of an EGS unit per ZATCA's onboarding spec (ADR-0032): an EC key on
+ * Key pair and certificate signing request of an EGS unit per ZATCA's onboarding spec (ADR-0033): an EC key on
  * secp256k1 and a CSR with C=SA, OU (branch), O (legal name), CN (EGS common name), the certificate template name
  * extension (TSTZATCA- / PREZATCA- / ZATCA-Code-Signing by environment) and the subject alternative name holding the
  * EGS serial (SN), VAT number (UID), invoice types (title, "1100" = standard and simplified), registered address and

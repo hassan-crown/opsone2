@@ -7,7 +7,7 @@ use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Support\Facades\Http;
 
 /**
- * The real Fatoora gateway (simulation or production base URL, ADR-0032). Bounded: connect and total timeouts from
+ * The real Fatoora gateway (simulation or production base URL, ADR-0033). Bounded: connect and total timeouts from
  * config, no in-request retry (the outbox owns retries and their backoff). Bodies carry the Base64 invoice; nothing
  * here logs a request, a credential or a response body.
  */

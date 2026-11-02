@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
 
 /**
- * ZATCA e-invoicing (ADR-0032): automatic invoices on confirmed payments and credit notes on executed refunds.
+ * ZATCA e-invoicing (ADR-0033): automatic invoices on confirmed payments and credit notes on executed refunds.
  */
 class EInvoicingServiceProvider extends ServiceProvider
 {

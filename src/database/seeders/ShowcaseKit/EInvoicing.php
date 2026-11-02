@@ -18,7 +18,7 @@ use App\Notifications\OutboxStatus;
 use Carbon\CarbonImmutable;
 
 /**
- * ZATCA e-invoicing for the showcase (ADR-0032), on the in-process `fake` gateway only (no ZATCA call, no real CSID):
+ * ZATCA e-invoicing for the showcase (ADR-0033), on the in-process `fake` gateway only (no ZATCA call, no real CSID):
  * the tax profile is on from the first historical day, so the real flows issue phase 1 invoices on first payments and
  * credit notes on executed refunds while the clock walks; on 1 August the owner onboards the EGS device and every later
  * document is signed and reported/cleared. Afterwards most VAT-registered customers get their national address (their

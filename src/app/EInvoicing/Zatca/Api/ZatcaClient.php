@@ -3,7 +3,7 @@
 namespace App\EInvoicing\Zatca\Api;
 
 /**
- * The Fatoora API (ADR-0032): onboarding (compliance CSID with the portal OTP, compliance checks, production CSID)
+ * The Fatoora API (ADR-0033): onboarding (compliance CSID with the portal OTP, compliance checks, production CSID)
  * and submission (reporting for simplified, clearance for standard). Every call returns ZATCA's status and body;
  * transport errors, 429 and 5xx throw ZatcaUnavailable so the outbox retries with backoff.
  */

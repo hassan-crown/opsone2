@@ -6,7 +6,7 @@ use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * The seller's tax profile for ZATCA e-invoicing (ADR-0032): legal name, VAT number, commercial registration, national
+ * The seller's tax profile for ZATCA e-invoicing (ADR-0033): legal name, VAT number, commercial registration, national
  * address, the CSR's branch and industry, the environment and whether invoices are issued at all. One row; current()
  * returns an unsaved default before the owner saves it.
  *

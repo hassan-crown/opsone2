@@ -1,4 +1,4 @@
-# ZATCA resources (ADR-0032)
+# ZATCA resources (ADR-0033)
 
 `xsd/` holds the OASIS **UBL 2.1** schemas (OS release, 4 Nov 2013, `http://docs.oasis-open.org/ubl/os-UBL-2.1/xsd/`):
 `maindoc/UBL-Invoice-2.1.xsd` and the `common/` modules it imports (CCTS, CBC/CAC/EXT, data types, signature

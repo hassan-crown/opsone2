@@ -13,7 +13,7 @@ use App\Store\CheckoutStatus;
 use Illuminate\Support\Collection;
 
 /**
- * The priced lines a tax invoice of an order carries (ADR-0032), taken from the record that fixed the price — never
+ * The priced lines a tax invoice of an order carries (ADR-0033), taken from the record that fixed the price — never
  * recomputed differently: a made-to-order order's active agreement version (its lines already hold the per-line
  * net/VAT/gross of Q-34/Q-35), a store order's paid checkout (coupon included), else a ready order's own lines priced
  * with the facility VAT setting. Totals are sums of the rounded lines (the single rounding policy).

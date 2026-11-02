@@ -34,7 +34,7 @@ export type CustomerDetail = CustomerRow & {
     national_address?: NationalAddress | null;
 };
 
-/** Saudi national address of an organization (standard tax invoices, ADR-0032). */
+/** Saudi national address of an organization (standard tax invoices, ADR-0033). */
 export type NationalAddress = {
     street: string | null;
     building_number: string | null;

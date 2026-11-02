@@ -289,7 +289,7 @@ enum AuditAction: string
     case FacilityExportRequested = 'ops.export_requested';
     case FacilityExportDownloaded = 'ops.export_downloaded';
 
-    // ZATCA e-invoicing (ADR-0032)
+    // ZATCA e-invoicing (ADR-0033)
     case EInvoiceIssued = 'einvoice.issued';
     case EInvoiceSigned = 'einvoice.signed';
     case EInvoiceSubmitted = 'einvoice.submitted';

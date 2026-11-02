@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
 /**
- * Saves the seller's tax profile and switches (ADR-0032): `lock_version` against concurrent edits, enabling only with a
+ * Saves the seller's tax profile and switches (ADR-0033): `lock_version` against concurrent edits, enabling only with a
  * complete profile (and the first enable time remembered: invoices are owed for payments from then on), and an
  * environment change retires the live device (its CSID belongs to the old environment).
  */

@@ -8,7 +8,7 @@ use OpenSSLAsymmetricKey;
 use RuntimeException;
 
 /**
- * An in-process stand-in for the Fatoora gateway (tests, local and demo data; ADR-0032). It behaves like ZATCA where
+ * An in-process stand-in for the Fatoora gateway (tests, local and demo data; ADR-0033). It behaves like ZATCA where
  * it matters: the CSR is signed by a throw-away test CA into a CSID (any 6-digit OTP except 000000), submissions are
  * checked for a valid hash and signature (400 with an error otherwise), standard invoices come back "cleared" with the
  * same XML. Tests can queue raw outcomes with `queue()`, consumed one per call: 503/429 throw (retries), 4xx answer

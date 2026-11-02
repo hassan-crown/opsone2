@@ -25,7 +25,7 @@ use Illuminate\Support\Str;
 use InvalidArgumentException;
 
 /**
- * EGS onboarding with ZATCA (ADR-0032), owner-driven:
+ * EGS onboarding with ZATCA (ADR-0033), owner-driven:
  *
  * 1. `start(otp)`: a fresh secp256k1 key and CSR (the key encrypted at rest), the compliance CSID requested with the
  *    OTP the owner got from the Fatoora portal; any previous live device is retired first.

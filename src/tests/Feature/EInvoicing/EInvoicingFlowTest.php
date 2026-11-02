@@ -1,7 +1,7 @@
 <?php
 
 /*
-| ZATCA e-invoicing flows (ADR-0032) on the finance fixture: automatic invoices on the first confirmed payment (phase 1
+| ZATCA e-invoicing flows (ADR-0033) on the finance fixture: automatic invoices on the first confirmed payment (phase 1
 | before onboarding, signed + reported/cleared after), the hash chain, credit notes from refunds, idempotent
 | submission, retries, rejection, immutability, the owner's control panel and its authorization.
 */

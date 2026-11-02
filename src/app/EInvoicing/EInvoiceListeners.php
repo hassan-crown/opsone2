@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Log;
 use Throwable;
 
 /**
- * Automatic documents (ADR-0032), after the money change committed: the first confirmed payment of an order issues its
+ * Automatic documents (ADR-0033), after the money change committed: the first confirmed payment of an order issues its
  * tax invoice; an executed refund on an invoiced order issues a credit note for the refunded amount (capped at what is
  * still credited). Both are idempotent (one invoice per order, one credit note per refund) and never break the money
  * flow: a blocked or failed issue is logged without personal data and picked up by `einvoicing:sweep` or the owner.

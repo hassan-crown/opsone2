@@ -54,7 +54,7 @@ final class CustomerData
     }
 
     /**
-     * The Saudi national address of an organization (standard tax invoices, ADR-0032): trimmed parts, null when empty.
+     * The Saudi national address of an organization (standard tax invoices, ADR-0033): trimmed parts, null when empty.
      *
      * @return array<string, string|null>|null
      */

@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use LogicException;
 
 /**
- * An onboarded EGS unit (ADR-0032): its key pair and CSR, the compliance CSID (with the compliance checks it ran) and
+ * An onboarded EGS unit (ADR-0033): its key pair and CSR, the compliance CSID (with the compliance checks it ran) and
  * the production CSID that signs invoices. The private key and every CSID secret are encrypted with APP_KEY and hidden
  * from serialization; they never reach a payload, the audit log or the application log.
  *

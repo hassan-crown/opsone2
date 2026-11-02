@@ -5,7 +5,7 @@ namespace App\EInvoicing\Zatca;
 use App\Models\EInvoicing\EInvoice;
 
 /**
- * The QR content of an e-invoice (ADR-0032). Phase 1: seller name, VAT number, timestamp, total with VAT and VAT
+ * The QR content of an e-invoice (ADR-0033). Phase 1: seller name, VAT number, timestamp, total with VAT and VAT
  * (tags 1–5). Phase 2 adds the invoice hash (6), the ECDSA signature (7), the public key (8) and, on simplified
  * invoices, the CSID certificate's signature (9). Hash and signature travel as their Base64 text.
  */

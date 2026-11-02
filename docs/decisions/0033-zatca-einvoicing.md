@@ -1,4 +1,4 @@
-# ADR-0032: ZATCA (Fatoora) e-invoicing
+# ADR-0033: ZATCA (Fatoora) e-invoicing
 
 - Status: accepted (2026-11-01) — engineering decision; the invoice trigger (§3) is a reversible default awaiting the
   product owner (open question Q-63).

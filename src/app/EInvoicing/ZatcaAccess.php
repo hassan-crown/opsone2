@@ -10,7 +10,7 @@ use App\Models\Order;
 use App\Models\User;
 
 /**
- * Who may do what with e-invoicing (ADR-0032). The tax profile, onboarding, retries and manual notes are the facility
+ * Who may do what with e-invoicing (ADR-0033). The tax profile, onboarding, retries and manual notes are the facility
  * owner's (owner membership AND P-02 through the Gate, so a support identity or a disabled owner never does). A
  * document's PDF/XML is also open to whoever sees the order's money (P-37 on that order).
  */

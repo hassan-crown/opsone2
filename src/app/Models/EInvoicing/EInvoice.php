@@ -14,7 +14,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use LogicException;
 
 /**
- * A ZATCA tax invoice, credit note or debit note (ADR-0032). Immutable once issued: its number, UUID, parties, lines,
+ * A ZATCA tax invoice, credit note or debit note (ADR-0033). Immutable once issued: its number, UUID, parties, lines,
  * amounts, chain position (ICV, previous hash, hash) and XML never change — a correction is a credit or debit note
  * referencing it. Only the submission outcome (status, attempts, ZATCA's response and the cleared XML) moves.
  *

@@ -1,7 +1,7 @@
 <?php
 
 /*
-| ZATCA (Fatoora) e-invoicing (ADR-0032). No credential lives here or in the repository: CSIDs are obtained by the
+| ZATCA (Fatoora) e-invoicing (ADR-0033). No credential lives here or in the repository: CSIDs are obtained by the
 | owner's onboarding (portal OTP) and stored encrypted in the database. The environment only limits which ZATCA
 | environments the owner may choose and where the gateway is.
 */

@@ -14,7 +14,7 @@ use BaconQrCode\Writer;
 use Illuminate\Support\Facades\Storage;
 
 /**
- * The e-invoice PDF (ADR-0032), Arabic first with the English labels beside them, through the mPDF pipeline of
+ * The e-invoice PDF (ADR-0033), Arabic first with the English labels beside them, through the mPDF pipeline of
  * ADR-0029. Rendered on demand from the immutable invoice row (never stored): the seller and buyer as frozen, the
  * lines and VAT breakdown, the note's reference and reason, and the QR — ZATCA's QR from the cleared XML for a cleared
  * standard invoice, else the invoice's own (phase 2 once signed, phase 1 before onboarding).

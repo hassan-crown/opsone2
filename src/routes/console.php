@@ -62,7 +62,7 @@ Artisan::command('outbox:prune', function () {
 Schedule::command('outbox:process')->everyMinute()->withoutOverlapping();
 Schedule::command('outbox:prune')->daily();
 
-// ZATCA e-invoicing (ADR-0032): invoices the payment listener could not issue (blocked or failed) are retried.
+// ZATCA e-invoicing (ADR-0033): invoices the payment listener could not issue (blocked or failed) are retried.
 Artisan::command('einvoicing:sweep', function (MissingInvoices $missing) {
     $result = $missing->sweep();
     $this->info(sprintf('Issued %d e-invoice(s); blocked: %s.', $result['issued'], json_encode($result['blocked'])));

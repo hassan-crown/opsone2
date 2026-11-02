@@ -48,7 +48,7 @@ final class Outbox
     }
 
     /**
-     * Reporting or clearance of one signed e-invoice with ZATCA (ADR-0032). The key carries the invoice UUID (and the
+     * Reporting or clearance of one signed e-invoice with ZATCA (ADR-0033). The key carries the invoice UUID (and the
      * retry number when the owner retries a failed submission), so the same submission is never queued twice.
      */
     public function enqueueEInvoice(int $invoiceId, string $idempotencyKey): ?OutboxMessage

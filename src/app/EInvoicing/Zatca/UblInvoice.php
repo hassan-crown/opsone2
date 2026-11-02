@@ -7,7 +7,7 @@ use DOMDocument;
 use DOMElement;
 
 /**
- * UBL 2.1 XML of an e-invoice per the ZATCA XML implementation standard (ADR-0032): `Invoice` root for invoices,
+ * UBL 2.1 XML of an e-invoice per the ZATCA XML implementation standard (ADR-0033): `Invoice` root for invoices,
  * credit notes (381) and debit notes (383), ICV and PIH references, the QR reference (simplified only, filled after
  * signing) and the `cac:Signature` marker, seller and buyer parties, supply date, payment means (with the reason of a
  * note), the two TaxTotals (document VAT, then the standard-rated breakdown), monetary totals and lines.

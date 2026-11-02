@@ -33,7 +33,7 @@ use RuntimeException;
 use Throwable;
 
 /**
- * SettingsEInvoicing (ADR-0032), the owner's control panel for ZATCA: seller tax profile, environment and switch,
+ * SettingsEInvoicing (ADR-0033), the owner's control panel for ZATCA: seller tax profile, environment and switch,
  * device onboarding (OTP → compliance CSID → checks → production CSID), the per-document submission list with retry,
  * missing invoices and manual credit/debit notes. PDF/XML downloads are also open to P-37 on the order. Secrets
  * (private key, CSID secrets) never reach a response.

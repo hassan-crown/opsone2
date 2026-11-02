@@ -6,7 +6,7 @@ use InvalidArgumentException;
 use OpenSSLAsymmetricKey;
 
 /**
- * Enveloped XAdES signature of a ZATCA invoice (ADR-0032), ECDSA secp256k1 with SHA-256:
+ * Enveloped XAdES signature of a ZATCA invoice (ADR-0033), ECDSA secp256k1 with SHA-256:
  *
  * 1. invoice digest = InvoiceHasher::hash (Base64 of the binary SHA-256 of the canonical invoice);
  * 2. SignatureValue = ECDSA-SHA256 over that binary digest (DER, Base64);

@@ -8,7 +8,7 @@ use DOMXPath;
 use InvalidArgumentException;
 
 /**
- * The invoice hash ZATCA chains and signs (ADR-0032): drop `ext:UBLExtensions`, `cac:Signature` and the QR
+ * The invoice hash ZATCA chains and signs (ADR-0033): drop `ext:UBLExtensions`, `cac:Signature` and the QR
  * `AdditionalDocumentReference`, canonicalize, SHA-256, Base64 of the binary digest. The hash of "0" (hex, Base64)
  * starts every chain.
  */

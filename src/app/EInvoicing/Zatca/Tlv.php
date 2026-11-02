@@ -5,7 +5,7 @@ namespace App\EInvoicing\Zatca;
 use InvalidArgumentException;
 
 /**
- * The ZATCA QR payload (ADR-0032): tag-length-value records, one byte tag and one byte length, Base64 of the whole.
+ * The ZATCA QR payload (ADR-0033): tag-length-value records, one byte tag and one byte length, Base64 of the whole.
  * Phase 1 carries tags 1–5 (seller name, VAT number, timestamp, total with VAT, VAT); phase 2 adds 6 invoice hash,
  * 7 ECDSA signature, 8 public key and 9 (simplified invoices) the signature of the CSID certificate.
  */

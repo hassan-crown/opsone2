@@ -6,7 +6,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 /**
- * ZATCA (Fatoora) e-invoicing (ADR-0032): the seller's tax profile, the onboarded EGS devices (CSR, encrypted key and
+ * ZATCA (Fatoora) e-invoicing (ADR-0033): the seller's tax profile, the onboarded EGS devices (CSR, encrypted key and
  * CSIDs), the issued invoices / credit notes / debit notes (immutable, hash-chained) and the buyer's national address.
  */
 return new #[Expand] class extends Migration

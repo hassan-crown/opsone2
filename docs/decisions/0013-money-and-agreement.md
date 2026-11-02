@@ -20,7 +20,7 @@ facility); Q-34 a, Q-36 c, Q-40 a as reversible defaults
   spread a document discount over its lines (so VAT stays per line) and, later, collections over dues.
 - **VAT (Q-35 a, decided by the product owner 2026-10-28; `App\Money\VatCalculator`)**: rate per facility in basis points (default 1500 = 15%), entered prices
   VAT-inclusive (default) or exclusive, computed per line on the discounted line amount: inclusive
-  `vat = amount × r / (1 + r)`, exclusive `vat = amount × r`, both half-up. The tax invoice stays external (BR-20) — superseded by ADR-0032 when the facility switches ZATCA
+  `vat = amount × r / (1 + r)`, exclusive `vat = amount × r`, both half-up. The tax invoice stays external (BR-20) — superseded by ADR-0033 when the facility switches ZATCA
   e-invoicing on.
 - **Facility settings**: `finance_settings` (one row, defaults until saved; `lock_version`): `vat_rate_bp`,
   `prices_include_vat`, `quote_validity_days` (14), `contracts_enabled` (true). Edited with P-02 in `SettingsSales`;

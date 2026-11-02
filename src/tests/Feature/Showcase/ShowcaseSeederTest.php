@@ -80,7 +80,7 @@ it('seeds a coherent history and keeps the ledger and stock invariants', functio
         ->and(DB::table('customer_messages')->where('status', 'queued')->count())->toBe(0)
         ->and(DB::table('customer_messages as m')->join('customers as c', 'c.id', '=', 'm.customer_id')->whereNotNull('c.whatsapp_opt_out_at')->where('m.channel', 'whatsapp')->count())->toBe(0);
 
-    // ZATCA e-invoicing (ADR-0032): invoices on first payments, notes, phase 1 then a signed chain after onboarding.
+    // ZATCA e-invoicing (ADR-0033): invoices on first payments, notes, phase 1 then a signed chain after onboarding.
     $einvoices = EInvoice::query()->orderBy('id')->get();
     expect($einvoices->where('kind', 'invoice')->count())->toBeGreaterThan(3)
         ->and($einvoices->where('kind', 'credit_note')->count())->toBeGreaterThanOrEqual(2)

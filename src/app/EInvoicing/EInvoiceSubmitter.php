@@ -16,7 +16,7 @@ use App\Notifications\Outbox;
 use Illuminate\Support\Facades\DB;
 
 /**
- * Sends one signed e-invoice to ZATCA from the outbox (ADR-0032): clearance for standard invoices (the cleared XML
+ * Sends one signed e-invoice to ZATCA from the outbox (ADR-0033): clearance for standard invoices (the cleared XML
  * ZATCA returns is kept), reporting for simplified ones. Idempotent: only a `pending` invoice is sent, under its row
  * lock, so a replayed or duplicated outbox message changes nothing. 200/202 settle it (202 = with warnings); 303 on
  * clearance means clearance is switched off, so it is reported instead; 400 rejects it for good (corrected by a new

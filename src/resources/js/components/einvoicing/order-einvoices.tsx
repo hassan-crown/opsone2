@@ -11,7 +11,7 @@ import { formatAmount } from '@/lib/format';
 import { useLocale, useT } from '@/lib/i18n';
 import type { TranslationKey } from '@/lib/i18n';
 
-/** One ZATCA document of the order (ADR-0032), shown to whoever sees the order's money. */
+/** One ZATCA document of the order (ADR-0033), shown to whoever sees the order's money. */
 export type OrderEInvoice = {
     id: number;
     number: string;

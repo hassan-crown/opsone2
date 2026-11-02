@@ -9,7 +9,7 @@ use App\Models\Order;
 use App\Models\User;
 
 /**
- * The order's ZATCA documents for its finance tab (ADR-0032): only for whoever sees the order's money (P-37), else
+ * The order's ZATCA documents for its finance tab (ADR-0033): only for whoever sees the order's money (P-37), else
  * nothing at all (amounts are never hidden field by field here).
  */
 final class EInvoicePresenter

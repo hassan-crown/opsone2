@@ -64,7 +64,7 @@ class CustomerRequest extends FormRequest
             'commercial_registration' => $organization ? ['nullable', new SaudiCommercialRegistration] : ['prohibited'],
             'vat_number' => $organization ? ['nullable', new SaudiVatNumber] : ['prohibited'],
             'office_phone' => $organization ? ['nullable', new PhoneNumber(false)] : ['prohibited'],
-            // Saudi national address, needed for standard (B2B) tax invoices (ADR-0032).
+            // Saudi national address, needed for standard (B2B) tax invoices (ADR-0033).
             'national_address' => $organization ? ['nullable', 'array:'.implode(',', CustomerData::ADDRESS_PARTS)] : ['prohibited'],
             'national_address.street' => ['nullable', 'string', 'max:120'],
             'national_address.building_number' => ['nullable', 'regex:/^\d{4}$/'],

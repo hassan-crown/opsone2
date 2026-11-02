@@ -11,7 +11,7 @@ use App\Models\Order;
 use Illuminate\Support\Collection;
 
 /**
- * Orders paid since e-invoicing was switched on that still have no tax invoice (ADR-0032): the payment listener was
+ * Orders paid since e-invoicing was switched on that still have no tax invoice (ADR-0033): the payment listener was
  * blocked (buyer address missing, no priced content) or failed. The settings page lists them; `einvoicing:sweep`
  * (hourly) retries them.
  */
