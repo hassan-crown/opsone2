@@ -14,25 +14,25 @@ use Illuminate\Support\Str;
 
 /**
  * Installation visits walked through the field app (ADR-0036): the booked technician arrives (location shared most of
- * the time), takes before and after photos from the showcase kitchens, records a remark now and then (a few blocking:
- * a missing part, a scratched panel, extra work), has the customer sign on the phone and finishes — the finish runs
- * the engine exactly as the screen does. Most blocking remarks are resolved by the branch manager a day or two
- * later; a couple stay open so the order page and the closure card show them.
+ * the time), takes before and after photos from the showcase kitchens, records a remark now and then (a missing part,
+ * a scratched panel, extra work — each blocks the order's closure until resolved), has the customer sign on the phone
+ * and finishes — the finish runs the engine exactly as the screen does. Most remarks are resolved by the branch manager
+ * a day or two later; a few stay open so the order page and the closure card show them.
  */
 final class Installations
 {
     private const REMARKS = [
-        ['missing_part', true, 'ينقص مفصلان للباب العلوي الأيسر، سيُحضران في زيارة قصيرة.'],
-        ['damage', true, 'خدش خفيف في لوح الرخام عند الزاوية، يحتاج استبدال القطعة.'],
-        ['extra_work', true, 'طلب العميل رفًا إضافيًا فوق الثلاجة بعد التركيب.'],
-        ['other', false, 'لون مقبض الدرج يختلف قليلًا عن العينة، والعميل موافق.'],
-        ['other', false, 'العميل طلب ترك الكراتين لاستعمالها لاحقًا.'],
+        ['missing_part', 'ينقص مفصلان للباب العلوي الأيسر، سيُحضران في زيارة قصيرة.'],
+        ['damage', 'خدش خفيف في لوح الرخام عند الزاوية، يحتاج استبدال القطعة.'],
+        ['extra_work', 'طلب العميل رفًا إضافيًا فوق الثلاجة بعد التركيب.'],
+        ['other', 'لون مقبض الدرج يختلف قليلًا عن العينة؛ يُعرض البديل على العميل.'],
     ];
 
     private const RESOLUTIONS = [
         'missing_part' => 'رُكّبت المفصلات في زيارة متابعة.',
         'damage' => 'استُبدل لوح الرخام دون تكلفة على العميل.',
         'extra_work' => 'سُعّر الرف كإضافة واعتمدها العميل.',
+        'other' => 'وافق العميل على المقبض الحالي بعد عرض البديل.',
     ];
 
     public function __construct(private readonly Showcase $s) {}
@@ -60,7 +60,7 @@ final class Installations
 
         if ($remark !== null) {
             $this->s->timeline->at($arrive->addMinutes(50), $st, 'field-remark', function () use ($appointmentId, $tech, $remark) {
-                app(InstallationRemarks::class)->record($tech, $this->visit($appointmentId), $remark[0], $remark[2], $remark[1]);
+                app(InstallationRemarks::class)->record($tech, $this->visit($appointmentId), $remark[0], $remark[1]);
             });
         }
 
@@ -76,7 +76,7 @@ final class Installations
             app(FieldVisits::class)->finish($tech, $this->visit($appointmentId), 'تم التركيب وسُلّم الموقع نظيفًا.');
         });
 
-        if ($remark !== null && $remark[1] && $rng->chance(75)) {
+        if ($remark !== null && $rng->chance(80)) {
             $this->s->timeline->at($finish->addDays($rng->int(1, 3))->setTime(11, 0), $st, 'field-resolve', function () use ($appointmentId, $st) {
                 $remark = InstallationRemark::query()->where('installation_visit_id', $this->visit($appointmentId)->id)->where('status', InstallationRemark::OPEN)->first();
                 $manager = $this->s->users[['RUH' => 'gm', 'JED' => 'mgr_jed', 'DMM' => 'mgr_dmm'][$st->data['branch']]];

@@ -29,6 +29,9 @@ Route::middleware(['auth', 'verified'])->prefix('field')->name('field.')->group(
     Route::post('visits/{appointment}/photos', [FieldVisitController::class, 'photo'])->whereNumber('appointment')->middleware('throttle:60,1')->name('visits.photos');
 });
 
+Route::middleware(['auth', 'verified'])->get('orders/{order}/installation-remarks', [InstallationRemarkController::class, 'index'])
+    ->whereNumber('order')->name('installation-remarks.index');
+
 Route::middleware(['auth', 'verified', 'throttle:records-create'])->group(function () {
     Route::post('installation-remarks/{remark}/resolve', [InstallationRemarkController::class, 'resolve'])->whereNumber('remark')->name('installation-remarks.resolve');
 });

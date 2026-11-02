@@ -107,8 +107,9 @@ before launch. No hard-coded hex values in chart code.
 | `collection.transfers_minor` | money | gross | P-37 | money_entries, money_journals | Sum of entries of transfer journals in range, on in-scope orders. |
 | `collection.refunded_minor` | money | gross | P-37 | money_entries, money_journals | Sum of entries of refund journals in range (negative: money that left). |
 | `collection.net_minor` | money | gross | P-37 | money_entries, money_journals | Sum of every entry in range = collected + corrections + transfers + refunded. |
+| `collection.written_off_minor` | money | gross | P-37 | debt_write_offs, debt_write_off_entries | Net debt written off in range (write-offs minus their reversals, ADR-0035); never part of collected or net. |
 | `collection.overdue_minor` | money | gross | P-37 | order_dues, money_entries | Remaining (due − allocated) of dues whose derived date is before today. |
-| `collection.open_minor` | money | gross | P-37 | order_dues, money_entries | Remaining of all open dues (aged or not). |
+| `collection.open_minor` | money | gross | P-37 | order_dues, money_entries, debt_write_off_entries | Remaining of all open dues (aged or not), after write-offs. |
 
 ### `refunds`
 
@@ -160,7 +161,7 @@ The dashboard also shows `sales.agreed_gross_minor`, `collection.collected_minor
 | `dashboard.interest_conversion_percent` | percent | none | — | interests | Of the interests created in range, the share now converted × 100, one decimal; 0 when none. |
 | `dashboard.orders_late` | count | none | — | order_stages, orders | Active orders whose in-progress stage started more than its target days ago. |
 | `dashboard.installations_next_14d` | count | none | — | appointments | Non-cancelled installations from today through the 14th following day, independent of the range. |
-| `dashboard.installation_first_visit_percent` | percent | none | — | installation_visits | Of the installation visits finished in range, the share that was the order's first installation visit and finished without a blocking remark × 100, one decimal; absent when none finished. Also per team (ADR-0036). |
+| `dashboard.installation_first_visit_percent` | percent | none | — | installation_visits | Of the installation visits finished in range, the share that was the order's first installation visit and finished without a remark × 100, one decimal; absent when none finished. Also per team (ADR-0036). |
 | `dashboard.installation_avg_minutes` | count | none | — | installation_visits | Average minutes from arrival to finish of the installation visits finished in range, rounded half up; absent when none finished. Also per team (ADR-0036). |
 
 ### `inventory`

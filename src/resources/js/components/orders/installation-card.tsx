@@ -82,7 +82,7 @@ function ResolveRemark({ remark }: { remark: InstallationRemark }) {
 
 /**
  * The installation card of the order page (ADR-0036): each visit's status, actual arrival and duration, the
- * before/after photos, the customer's acceptance signature and the remarks (blocking ones resolved one by one).
+ * before/after photos, the customer's acceptance signature and the remarks (each blocks the closure until it is resolved on its own).
  */
 export function InstallationCard({
     installation,
@@ -207,6 +207,20 @@ export function InstallationCard({
                                         <p className="m-0 text-body">
                                             {r.description}
                                         </p>
+                                        {(r.recorded_by || r.follow_up) && (
+                                            <p className="m-0 text-caption text-weak">
+                                                {t(
+                                                    'installation.remark.people',
+                                                    {
+                                                        by:
+                                                            r.recorded_by ??
+                                                            '—',
+                                                        follow:
+                                                            r.follow_up ?? '—',
+                                                    },
+                                                )}
+                                            </p>
+                                        )}
                                         {r.resolution && (
                                             <p className="m-0 text-caption text-weak">
                                                 {t(

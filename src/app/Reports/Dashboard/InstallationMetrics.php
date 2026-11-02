@@ -13,8 +13,8 @@ use Illuminate\Support\Facades\DB;
  * Installation figures of the owner dashboard (ADR-0036, `dashboard.installation_*` in MetricCatalogue): over the
  * installation visits FINISHED in the range on orders in the viewer's scope —
  *
- * - first-visit completion: the visit is the order's first installation visit and it finished without a blocking
- *   remark (status `finished`); share × 100, one decimal;
+ * - first-visit completion: the visit is the order's first installation visit and it finished without a remark
+ *   (status `finished`); share × 100, one decimal;
  * - average duration: arrival → finish in whole minutes, rounded half up;
  * - per team: the same two numbers by the department of the installation task the appointment serves, else of the
  *   member who finished it («no team» when neither has one).

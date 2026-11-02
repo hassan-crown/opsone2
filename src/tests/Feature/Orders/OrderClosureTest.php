@@ -107,3 +107,40 @@ it('shows the closure card with the blockers to the closer and none to a member 
     $this->actingAs($this->d->s->f->sales)->get(route('orders.show', $this->order))
         ->assertInertia(fn ($p) => $p->where('closure.can_close', false));
 });
+
+it('holds several remarks on one order, each resolved on its own with who, when and how; closure waits for all (ADR-0035)', function () {
+    $keeper = $this->d->keeper;
+    $ids = [];
+    foreach (['خدش في الواجهة', 'نقص مسمار تثبيت', 'تغليف ممزق'] as $text) {
+        $ids[] = $this->actingAs($keeper)->postJson(route('deliveries.remarks.store', $this->note), ['description' => $text])->assertCreated()->json('remark.id');
+    }
+    expect(DeliveryRemark::query()->where('order_id', $this->order->id)->count())->toBe(3);
+
+    // The 422 names every unresolved remark, and so does the order page.
+    closeOrder($this, $this->d->owner)->assertUnprocessable()
+        ->assertJsonPath('errors.order.0', __('order.closure.blocker.remark_open', ['count' => 3]))
+        ->assertJsonCount(4, 'errors.order');
+    $this->actingAs($this->d->owner)->get(route('orders.show', $this->order))
+        ->assertInertia(fn ($p) => $p->has('closure.blockers.0.items', 3)->where('closure.blockers.0.items.0.id', $ids[0])->has('closure.remarks', 3));
+
+    // Resolving one keeps the others open and records who, when and the resolution note.
+    $this->actingAs($keeper)->postJson(route('deliveries.remarks.resolve', $ids[1]), ['resolution' => 'أُرسل المسمار'])->assertOk()
+        ->assertJsonPath('remark.status', 'resolved')->assertJsonPath('remark.resolved_by', $keeper->name)->assertJsonPath('remark.resolution', 'أُرسل المسمار');
+    $resolved = DeliveryRemark::query()->findOrFail($ids[1]);
+    expect($resolved->resolved_by)->toBe($keeper->id)->and($resolved->resolved_at)->not->toBeNull()
+        ->and(DeliveryRemark::query()->whereIn('id', [$ids[0], $ids[2]])->pluck('status')->unique()->all())->toBe(['open'])
+        ->and(OrderClosure::blockers($this->order->refresh())[0]['details']['count'])->toBe(2);
+    $this->actingAs($keeper)->postJson(route('deliveries.remarks.resolve', $ids[1]), ['resolution' => 'مرة ثانية'])->assertStatus(409);
+
+    // The JSON list (the contract other clients read) puts open remarks first.
+    $this->actingAs($keeper)->getJson(route('deliveries.remarks.index', $this->order))->assertOk()
+        ->assertJsonPath('remarks.0.status', 'open')->assertJsonPath('remarks.2.status', 'resolved')->assertJsonPath('remarks.2.resolution', 'أُرسل المسمار');
+    $this->actingAs($this->d->s->f->sales)->getJson(route('deliveries.remarks.index', $this->order))->assertForbidden();
+
+    foreach ([$ids[0], $ids[2]] as $id) {
+        $this->actingAs($keeper)->postJson(route('deliveries.remarks.resolve', $id), ['resolution' => 'عولجت'])->assertOk();
+    }
+    expect(blockerKeys($this->order))->toBe([]);
+    closeOrder($this, $this->d->owner)->assertOk();
+    expect(DB::table('audit_events')->where('action', 'delivery.remark_resolved')->count())->toBe(3);
+});

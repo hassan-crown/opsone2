@@ -56,23 +56,27 @@ final class ThemeSettings
     /**
      * A `<style>` body that overrides the brand roles on the site surface only. Empty for the default theme.
      *
+     * The staff administration never receives it (Q-03 a, ADR-0035): it keeps OpsOne's own logo, colours and fonts.
+     * `$scope` narrows it to another facility-facing surface — the customer portal passes `[data-brand='facility']`
+     * and `fonts: false` (colours only; the portal keeps the panel's type).
+     *
      * @param  array<string, mixed>  $settings
      */
-    public static function css(array $settings): string
+    public static function css(array $settings, string $scope = "[data-surface='site']", bool $fonts = true): string
     {
         $css = '';
         $font = self::FONTS[$settings['font'] ?? ''] ?? null;
-        if ($font !== null && ($settings['font'] ?? 'plex-arabic') !== 'plex-arabic') {
-            $css .= "[data-surface='site']{--font-sans:{$font};font-family:{$font}}";
+        if ($fonts && $font !== null && ($settings['font'] ?? 'plex-arabic') !== 'plex-arabic') {
+            $css .= "{$scope}{--font-sans:{$font};font-family:{$font}}";
         }
         $palette = $settings['palette'] ?? null;
         if (! is_array($palette)) {
             return $css;
         }
         $selectors = [
-            'light' => "[data-surface='site']",
-            'dark' => ".dark [data-surface='site'],[data-theme='dark'] [data-surface='site']",
-            'contrast' => "[data-theme='contrast'] [data-surface='site']",
+            'light' => $scope,
+            'dark' => ".dark {$scope},[data-theme='dark'] {$scope}",
+            'contrast' => "[data-theme='contrast'] {$scope}",
         ];
         foreach ($selectors as $mode => $selector) {
             $vars = '';

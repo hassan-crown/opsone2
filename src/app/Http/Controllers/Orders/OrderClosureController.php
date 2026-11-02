@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers\Orders;
 
+use App\Access\Access;
+use App\Access\Permission;
 use App\Actions\StateMachines\M14Delivery\T04RecordRemark;
+use App\Delivery\DeliveryRemarks;
 use App\Http\Controllers\Controller;
 use App\Models\Delivery\DeliveryNote;
 use App\Models\Delivery\DeliveryRemark;
@@ -29,12 +32,20 @@ final class OrderClosureController extends Controller
         return $this->answer($request, $order, ['order' => ['number' => $done->number, 'status' => $done->status]], __('order.closure.closed'));
     }
 
+    /** Every remark of the order, open first (P-52 on the order); the JSON contract other clients read. */
+    public function remarks(Request $request, Order $order): JsonResponse
+    {
+        Access::authorize($this->actor($request), Permission::P52, $order);
+
+        return response()->json(['remarks' => DeliveryRemarks::forOrder($order)]);
+    }
+
     public function remark(Request $request, DeliveryNote $note, T04RecordRemark $remarks): RedirectResponse|JsonResponse
     {
         $data = $request->validate(['description' => ['required', 'string', 'min:3', 'max:2000']]);
         $remark = $remarks->handle($this->actor($request), $note, $data['description']);
 
-        return $this->answer($request, $note->order, ['remark' => ['id' => $remark->id, 'status' => $remark->status]], __('delivery.remark.recorded'), 201);
+        return $this->answer($request, $note->order, ['remark' => DeliveryRemarks::row($remark->refresh())], __('delivery.remark.recorded'), 201);
     }
 
     public function resolveRemark(Request $request, DeliveryRemark $remark, T04RecordRemark $remarks): RedirectResponse|JsonResponse
@@ -42,7 +53,7 @@ final class OrderClosureController extends Controller
         $data = $request->validate(['resolution' => ['required', 'string', 'min:3', 'max:2000'], 'lock_version' => ['nullable', 'integer']]);
         $done = $remarks->resolve($this->actor($request), $remark, $data['resolution'], isset($data['lock_version']) ? (int) $data['lock_version'] : null);
 
-        return $this->answer($request, $remark->order, ['remark' => ['id' => $done->id, 'status' => $done->status]], __('delivery.remark.resolved'));
+        return $this->answer($request, $remark->order, ['remark' => DeliveryRemarks::row($done->refresh())], __('delivery.remark.resolved'));
     }
 
     /**

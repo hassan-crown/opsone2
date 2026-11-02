@@ -16,7 +16,6 @@ class RemarkRequest extends FormRequest
         return [
             'kind' => ['required', Rule::in(InstallationRemark::KINDS)],
             'description' => ['required', 'string', 'min:3', 'max:2000'],
-            'blocking' => ['required', 'boolean'],
         ];
     }
 }

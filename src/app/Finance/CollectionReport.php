@@ -41,7 +41,7 @@ final class CollectionReport
             'buckets' => $aging['buckets'],
             'overdue' => array_slice($overdue, 0, 100),
             'overdue_total_minor' => $aging['overdue_minor'],
-            'month' => ['collected_minor' => $m['collected'], 'corrections_minor' => $m['net'] - $m['collected'], 'net_minor' => $m['net']],
+            'month' => ['collected_minor' => $m['collected'], 'corrections_minor' => $m['net'] - $m['collected'], 'net_minor' => $m['net'], 'written_off_minor' => $m['written_off']],
         ];
     }
 }

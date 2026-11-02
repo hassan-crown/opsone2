@@ -49,7 +49,7 @@ class FieldVisitController extends Controller
     public function remark(RemarkRequest $request, Appointment $appointment, InstallationRemarks $remarks): RedirectResponse
     {
         $remarks->record($this->user($request), $this->visit($request, $appointment), (string) $request->input('kind'),
-            (string) $request->input('description'), $request->boolean('blocking'));
+            (string) $request->input('description'));
         Inertia::flash('toast', ['type' => 'success', 'message' => __('installation.flash.remark')]);
 
         return back();

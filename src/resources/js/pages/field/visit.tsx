@@ -264,7 +264,6 @@ export default function FieldVisit({ visit }: Props) {
     const remark = useForm({
         kind: 'missing_part' as RemarkKind,
         description: '',
-        blocking: true,
     });
     const sign = useForm({
         signer_name: '',
@@ -563,14 +562,9 @@ export default function FieldVisit({ visit }: Props) {
                                 error={remark.errors.description}
                                 required
                             />
-                            <CheckboxField
-                                label={t('field.remark.blocking')}
-                                hint={t('field.remark.blocking_hint')}
-                                checked={remark.data.blocking}
-                                onChange={(e) =>
-                                    remark.setData('blocking', e.target.checked)
-                                }
-                            />
+                            <p className="m-0 text-caption text-weak">
+                                {t('field.remark.blocking_hint')}
+                            </p>
                             <Button
                                 type="submit"
                                 variant="secondary"

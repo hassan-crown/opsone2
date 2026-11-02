@@ -37,7 +37,7 @@ final class InstallationPanel
         }
         $visitIds = $appointments->pluck('installationVisit.id')->filter()->values()->all();
         $photos = InstallationPhoto::query()->whereIn('installation_visit_id', $visitIds)->with('attachment')->orderBy('id')->get()->groupBy('installation_visit_id');
-        $remarks = InstallationRemark::query()->whereIn('installation_visit_id', $visitIds)->orderBy('id')->get()->groupBy('installation_visit_id');
+        $remarks = InstallationRemark::query()->whereIn('installation_visit_id', $visitIds)->with(['creator:id,name', 'resolver:id,name', 'followUp:id,name'])->orderBy('id')->get()->groupBy('installation_visit_id');
 
         return [
             'can_resolve' => Access::can($viewer, Permission::P52, $order),

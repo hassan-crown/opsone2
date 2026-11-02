@@ -73,7 +73,7 @@ final class FieldPresenter
     {
         $visit = $a->installationVisit;
         $photos = $visit === null ? collect() : InstallationPhoto::query()->where('installation_visit_id', $visit->id)->with('attachment')->orderBy('id')->get();
-        $remarks = $visit === null ? collect() : InstallationRemark::query()->where('installation_visit_id', $visit->id)->orderBy('id')->get();
+        $remarks = $visit === null ? collect() : InstallationRemark::query()->where('installation_visit_id', $visit->id)->with(['creator:id,name', 'resolver:id,name', 'followUp:id,name'])->orderBy('id')->get();
         $signature = $visit?->signature_attachment_id === null ? null : $visit->signature()->first();
 
         return self::row($a) + [
@@ -104,11 +104,7 @@ final class FieldPresenter
      */
     public static function remark(InstallationRemark $r): array
     {
-        return [
-            'id' => $r->id, 'kind' => $r->kind, 'description' => $r->description, 'blocking' => $r->blocking,
-            'status' => $r->status, 'resolution' => $r->resolution, 'lock_version' => $r->lock_version,
-            'created_at' => CalendarPresenter::local($r->created_at)->format('Y-m-d H:i'),
-        ];
+        return InstallationRemarks::row($r) + ['created_at' => CalendarPresenter::local($r->created_at)->format('Y-m-d H:i')];
     }
 
     public static function lineName(OrderLine $line): string

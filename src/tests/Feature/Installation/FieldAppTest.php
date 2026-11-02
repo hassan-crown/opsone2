@@ -172,34 +172,43 @@ it('sends the customer a workspace link and accepts the signature there, only fo
         ->and(AuditEvent::query()->where('action', 'installation.signed')->value('source'))->toBe('customer');
 });
 
-it('records remarks; a blocking one notifies the order owner and blocks closure until resolved one by one', function () {
+it('records remarks on the delivery-remark model: each notifies the order owner and blocks closure until resolved on its own', function () {
     $this->actingAs($this->tech)->post($this->base.'/arrive');
-    $this->actingAs($this->tech)->post($this->base.'/remarks', ['kind' => 'other', 'description' => 'لون المقبض مختلف قليلاً', 'blocking' => false])->assertRedirect();
-    $this->actingAs($this->tech)->post($this->base.'/remarks', ['kind' => 'missing_part', 'description' => 'ينقص مفصلان للباب العلوي', 'blocking' => true])->assertRedirect();
-    $this->actingAs($this->tech)->post($this->base.'/remarks', ['kind' => 'damage', 'description' => 'خدش في لوح الرخام', 'blocking' => true])->assertRedirect();
+    $this->actingAs($this->tech)->post($this->base.'/remarks', ['kind' => 'other', 'description' => 'لون المقبض مختلف قليلاً'])->assertRedirect();
+    $this->actingAs($this->tech)->post($this->base.'/remarks', ['kind' => 'missing_part', 'description' => 'ينقص مفصلان للباب العلوي'])->assertRedirect();
+    $this->actingAs($this->tech)->post($this->base.'/remarks', ['kind' => 'damage', 'description' => 'خدش في لوح الرخام'])->assertRedirect();
 
     $order = $this->f->order->refresh();
     $open = InstallationRemark::query()->where('status', 'open')->orderBy('id')->get();
-    expect(InstallationRemark::query()->where('status', 'noted')->count())->toBe(1)
-        ->and($open)->toHaveCount(2)
+    $blocker = fn () => collect(OrderClosure::blockers($order->refresh()))->firstWhere('key', 'installation_remark_open');
+    expect($open)->toHaveCount(3)
         ->and($open[0]->follow_up_user_id)->toBe($order->assignee_id)
-        ->and(UserNotification::query()->where('user_id', $order->assignee_id)->where('type', 'installation.remark_blocking')->count())->toBe(2)
-        ->and(collect(OrderClosure::blockers($order))->firstWhere('key', 'installation_remark_open')['details'])->toBe(['count' => 2]);
+        ->and(UserNotification::query()->where('user_id', $order->assignee_id)->where('type', 'installation.remark_blocking')->count())->toBe(3)
+        ->and($blocker()['details'])->toBe(['count' => 3])
+        ->and(array_column($blocker()['items'], 'id'))->toBe($open->pluck('id')->all());
+
+    // The read contract mirrors GET /orders/{order}/delivery-remarks (P-52 on the order).
+    $this->actingAs($this->owner)->getJson('/orders/'.$order->id.'/installation-remarks')->assertOk()
+        ->assertJsonCount(3, 'remarks')
+        ->assertJsonStructure(['remarks' => [['id', 'installation_visit_id', 'kind', 'description', 'status', 'recorded_by', 'recorded_at', 'follow_up', 'resolution', 'resolved_by', 'resolved_at', 'lock_version']]]);
+    $this->actingAs($this->other)->getJson('/orders/'.$order->id.'/installation-remarks')->assertForbidden();
 
     // The technician cannot resolve (no P-52 over this order); the owner resolves each remark on its own.
     $this->actingAs($this->tech)->post('/installation-remarks/'.$open[0]->id.'/resolve', ['resolution' => 'تمت المعالجة'])->assertForbidden();
-    $this->actingAs($this->owner)->post('/installation-remarks/'.$open[0]->id.'/resolve', ['resolution' => 'وصلت المفصلات وركبت'])->assertRedirect();
-    expect(collect(OrderClosure::blockers($order))->firstWhere('key', 'installation_remark_open')['details'])->toBe(['count' => 1]);
+    $this->actingAs($this->owner)->postJson('/installation-remarks/'.$open[0]->id.'/resolve', ['resolution' => 'وافق العميل على اللون'])->assertOk()
+        ->assertJsonPath('remark.status', 'resolved')->assertJsonPath('remark.resolved_by', $this->owner->name);
+    expect($blocker()['details'])->toBe(['count' => 2]);
     $this->actingAs($this->owner)->postJson('/installation-remarks/'.$open[0]->id.'/resolve', ['resolution' => 'مرة أخرى'])->assertStatus(409);
-    $this->actingAs($this->owner)->post('/installation-remarks/'.$open[1]->id.'/resolve', ['resolution' => 'استبدل اللوح'])->assertRedirect();
-    expect(collect(OrderClosure::blockers($order))->firstWhere('key', 'installation_remark_open'))->toBeNull();
+    $this->actingAs($this->owner)->post('/installation-remarks/'.$open[1]->id.'/resolve', ['resolution' => 'وصلت المفصلات وركبت'])->assertRedirect();
+    $this->actingAs($this->owner)->post('/installation-remarks/'.$open[2]->id.'/resolve', ['resolution' => 'استبدل اللوح'])->assertRedirect();
+    expect($blocker())->toBeNull();
 });
 
 it('finishes through the engine: visit done, task completed, action verified; the stage waits for its manager', function () {
     $this->actingAs($this->tech)->post($this->base.'/arrive');
     $this->actingAs($this->tech)->postJson($this->base.'/photos', installPhotoForm('before'))->assertCreated();
     $this->actingAs($this->tech)->postJson($this->base.'/photos', installPhotoForm('after'))->assertCreated();
-    $this->actingAs($this->tech)->post($this->base.'/remarks', ['kind' => 'extra_work', 'description' => 'طلب العميل رفاً إضافياً', 'blocking' => true]);
+    $this->actingAs($this->tech)->post($this->base.'/remarks', ['kind' => 'extra_work', 'description' => 'طلب العميل رفاً إضافياً']);
     $this->actingAs($this->tech)->post($this->base.'/signature', installSignatureForm());
     settleOtherInstallWork($this->f, $this->f->order);
 
@@ -296,7 +305,7 @@ it('reports first-visit completion and average duration per team on the owner da
     $this->actingAs($this->tech)->postJson($this->base.'/photos', installPhotoForm('before'))->assertCreated();
     $this->travel(120)->minutes();
     $this->actingAs($this->tech)->postJson($this->base.'/photos', installPhotoForm('after'))->assertCreated();
-    $this->actingAs($this->tech)->post($this->base.'/remarks', ['kind' => 'missing_part', 'description' => 'ينقص مقبض', 'blocking' => true]);
+    $this->actingAs($this->tech)->post($this->base.'/remarks', ['kind' => 'missing_part', 'description' => 'ينقص مقبض']);
     $this->actingAs($this->tech)->post($this->base.'/signature', installSignatureForm());
     $this->actingAs($this->tech)->post($this->base.'/finish')->assertRedirect('/field');
 

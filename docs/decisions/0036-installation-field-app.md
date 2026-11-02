@@ -3,7 +3,7 @@
 - Status: accepted (2026-11-02). Product owner approved a **minimal** field system: an installable web app (PWA) now,
   wrapped as a store app later.
 - Builds on: ADR-0012 (workflow engine), ADR-0007 (outbox), ADR-0006 (private attachments, audit), ADR-0029 (e-signature),
-  ADR-0030 (WhatsApp), ADR-0031 (owner dashboard), ADR-0032 (delivery remarks and order closure), ADR-0005 (access).
+  ADR-0030 (WhatsApp), ADR-0031 (owner dashboard), ADR-0032 / ADR-0035 (delivery remarks, order closure), ADR-0005 (access).
 - Code: `App\Installation`, `App\Models\Installation`, `App\Http\Controllers\Field`, `routes/field.php`,
   `resources/js/pages/field`, `public/field-sw.js`, `public/field-icons`. Tests: `tests/Feature/Installation`.
 
@@ -25,13 +25,17 @@
    «after»). Captured with `<input capture>`, compressed on the device (longest edge 1600 px, JPEG ~75 %), stored as
    **private attachments owned by the visit** (`InstallationVisit` is an `AttachmentOwner`; view/upload = P-24 over the
    appointment). Each upload carries a device `client_uuid` (unique) so a retry after a lost response returns the stored photo.
-3. **Remarks** (`POST …/remarks`): kind `missing_part | damage | extra_work | other`, description, blocking yes/no. Reuses the
-   delivery-remark concept of ADR-0032 in its own table `installation_remarks`: a **blocking** remark is `open` with a
-   follow-up person (the order's follower, else its responsible person — `TaskEligibility::followerOf`), who gets the mandatory
-   in-app notification `installation.remark_blocking` (target = the order page); it **blocks the order's closure**
-   (`OrderClosure::blockers` → `installation_remark_open`) until resolved. Each remark is resolved on its own
-   (`POST /installation-remarks/{id}/resolve`, P-52 over the order). A non-blocking remark is `noted` only.
-   The delivery-remark code is untouched; the only edit to the closure is one additional blocker.
+3. **Remarks** (`POST …/remarks`): kind `missing_part | damage | extra_work | other` and a description. They follow the
+   **multi-remark model of the delivery remarks** (ADR-0032 / ADR-0035 §3) in their own table `installation_remarks`
+   (a delivery remark needs a confirmed delivery note; an installation remark hangs on the visit): an order holds any number,
+   **every remark is `open` and blocks the order's closure** (`OrderClosure::blockers` → `installation_remark_open` with
+   `details.count` and `items[{id, note, description}]`, one line each in the 422) until it is **resolved on its own**
+   (`POST /installation-remarks/{id}/resolve`, `resolution` 3..2000, `lock_version?`, P-52 over the order; resolving twice →
+   409 `remark_resolved`). The follow-up person is the order's follower, else its responsible person
+   (`TaskEligibility::followerOf`), notified in-app (`installation.remark_blocking`, mandatory, target = the order page).
+   Read contract like the delivery one: `GET /orders/{order}/installation-remarks` (P-52) → `{remarks: [row]}`, open first
+   (oldest first) then resolved (latest first); `InstallationRemarks::row()` = the keys of `DeliveryRemarks::row()` without
+   the note, plus `installation_visit_id` and `kind`. The delivery-remark code is untouched.
 4. **Customer acceptance signature**: either on the phone (`POST …/signature`: typed name + drawn PNG + consent) or by a link
    (`POST …/signature-link`) to the customer's workspace (`/portal/installations/{visit}`; the customer signs in as usual —
    `PortalAccess::installationVisit` scopes it to their own orders, foreign = 404). Sent by SMS/email through the outbox,
@@ -46,7 +50,7 @@
    open in the stage **and the technician holds P-25** over it (Q-30 a). Otherwise the stage waits for its manager as usual.
    When the stage completion finishes the order (M-04-T03), the existing ADR-0030 event `order_completed` is raised by the
    order observer — no new WhatsApp template. Any refusal by the engine refuses the whole finish (no bypass).
-   Status: `finished`, or `finished_with_remarks` when a blocking remark was recorded on the visit.
+   Status: `finished`, or `finished_with_remarks` when the visit recorded any remark.
 
 ### Manager side
 - `InstallationStatus`: not started (no visit row) / in progress / finished / finished with remarks — on every calendar row
@@ -56,7 +60,7 @@
 - Owner dashboard (ADR-0031): `dashboard.installation_first_visit_percent` and `dashboard.installation_avg_minutes`
   (registered in `MetricCatalogue`, defined in `docs/p9-metrics.md`) over visits **finished in range** on orders in the
   viewer's scope, plus the same per team (`installation_teams`: department of the appointment's task, else of the finishing
-  member). First-visit = the order's first installation visit **and** finished without a blocking remark. Absent when no visit
+  member). First-visit = the order's first installation visit **and** finished without a remark. Absent when no visit
   finished in range (never a misleading 0).
 
 ### PWA

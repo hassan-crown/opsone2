@@ -256,7 +256,7 @@ final class FieldVisits
                 throw new FieldRefused('signature_missing');
             }
 
-            $remarks = InstallationRemark::query()->where('installation_visit_id', $locked->id)->where('blocking', true)->exists();
+            $remarks = InstallationRemark::query()->where('installation_visit_id', $locked->id)->exists();
             $locked->forceFill([
                 'status' => $remarks ? InstallationStatus::FinishedWithRemarks : InstallationStatus::Finished,
                 'finished_at' => now(), 'finished_by' => $actor->id, 'finish_note' => $note === '' ? null : $note,

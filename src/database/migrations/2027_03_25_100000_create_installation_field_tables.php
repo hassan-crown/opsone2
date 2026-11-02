@@ -56,8 +56,8 @@ return new #[Expand] class extends Migration
             $table->index(['installation_visit_id', 'phase']);
         });
 
-        // A remark from site. A blocking one waits with a follow-up person and keeps the order from closing until it is
-        // resolved, like a delivery remark (ADR-0032); a non-blocking one is a note only.
+        // A remark from site, on the delivery remarks' model (ADR-0032/0035): it waits with a follow-up person and keeps the
+        // order from closing until it is resolved on its own.
         Schema::create('installation_remarks', function (Blueprint $table) {
             $table->id();
             $table->foreignId('installation_visit_id')->constrained('installation_visits')->restrictOnDelete();
@@ -65,8 +65,7 @@ return new #[Expand] class extends Migration
             // missing_part | damage | extra_work | other
             $table->string('kind', 16);
             $table->text('description');
-            $table->boolean('blocking')->default(false);
-            // open | resolved | noted (non-blocking)
+            // open | resolved
             $table->string('status', 16);
             $table->foreignId('follow_up_user_id')->nullable()->constrained('users')->nullOnDelete();
             $table->foreignId('created_by')->nullable()->constrained('users')->nullOnDelete();

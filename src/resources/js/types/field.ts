@@ -26,9 +26,11 @@ export type InstallationRemark = {
     id: number;
     kind: RemarkKind;
     description: string;
-    blocking: boolean;
-    status: 'open' | 'resolved' | 'noted';
+    status: 'open' | 'resolved';
+    recorded_by: string | null;
+    follow_up: string | null;
     resolution: string | null;
+    resolved_by: string | null;
     lock_version: number;
     created_at: string;
 };

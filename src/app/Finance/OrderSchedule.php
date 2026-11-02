@@ -79,6 +79,7 @@ final class OrderSchedule
         $value = $agreement->total();
         $dues = Allocator::openDues($order->id);
         $before = self::summary($dues);
+        self::refuseWhileWrittenOff($order);
         if ($dues->isEmpty() && $head->agreement_id === null) {
             foreach (self::TEMPLATES[self::DEFAULT_TEMPLATE] as $position => $row) {
                 OrderDue::query()->create([
@@ -116,6 +117,7 @@ final class OrderSchedule
      */
     public function replace(Order $order, Agreement $agreement, array $rows, User $actor, string $source): void
     {
+        self::refuseWhileWrittenOff($order);
         $value = $agreement->total();
         $parsed = [];
         foreach ($rows as $i => $row) {
@@ -160,6 +162,17 @@ final class OrderSchedule
         Audit::record(AuditAction::FinanceScheduleUpdated, $order, $actor, before: ['dues' => $before], after: [
             'dues' => self::summary(Allocator::openDues($order->id)),
         ], source: $source, label: $order->number);
+    }
+
+    /**
+     * A written-off debt (P-103, ADR-0035) fixes the dues it settled: the schedule changes only after the write-off is
+     * reversed, so a written-off amount never lands on a due that no longer lacks it.
+     */
+    private static function refuseWhileWrittenOff(Order $order): void
+    {
+        if (DebtWriteOffs::writtenOff($order->id) > 0) {
+            throw ValidationException::withMessages(['dues' => __('finance.write_off.schedule_locked')]);
+        }
     }
 
     /**

@@ -15,6 +15,7 @@ use App\Enums\OrderKind;
 use App\Enums\PurchaseStatus;
 use App\Enums\ReadyOrderStatus;
 use App\Enums\RefundStatus;
+use App\Finance\DebtWriteOffs;
 use App\Installation\InstallationRemarks;
 use App\Models\Delivery\DeliveryNote;
 use App\Models\Delivery\DeliveryRemark;
@@ -34,7 +35,8 @@ use Illuminate\Validation\ValidationException;
 /**
  * Comprehensive closure of an order (M-04-T07 for a made-to-order order, M-05-T10 for a ready one): the order moves to
  * `closed` only when money, refunds, purchasing, delivery, returns and blocking remarks are all settled. The agreement
- * stays as it is and the reason is kept; closing never forgives a debt (a due still owed blocks it). Authorized by P-25
+ * stays as it is and the reason is kept; closing never forgives a debt (a due still owed blocks it until it is paid
+ * or written off by P-103, ADR-0035). Authorized by P-25
  * for a finished order and P-18 for a cancelled one («الصلاحية P-18 أو P-25 بحسب القرار»).
  */
 final class OrderClosure
@@ -42,19 +44,26 @@ final class OrderClosure
     public function __construct(private readonly TransitionRecorder $transitions) {}
 
     /**
-     * Why the order cannot close now (empty when it can). Keys are stable; `details` carry numbers only.
+     * Why the order cannot close now (empty when it can). Keys are stable; `details` carry numbers only; `items` name
+     * each unresolved delivery remark (M-14-T04, ADR-0035).
      *
-     * @return list<array{key: string, details: array<string, int>}>
+     * @return list<array{key: string, details: array<string, int>, items?: list<array{id: int, note: string|null, description: string}>}>
      */
     public static function blockers(Order $order): array
     {
         $blockers = [];
-        $add = function (string $key, array $details = []) use (&$blockers) {
-            $blockers[] = ['key' => $key, 'details' => $details];
+        /**
+         * @param  array<string, int>  $details
+         * @param  list<array{id: int, note: string|null, description: string}>|null  $items
+         */
+        $add = function (string $key, array $details = [], ?array $items = null) use (&$blockers) {
+            $blockers[] = ['key' => $key, 'details' => $details] + ($items === null ? [] : ['items' => $items]);
         };
 
+        // A write-off (P-103, ADR-0035) settles what it wrote off; closing alone never forgives a debt.
         $owed = (int) OrderDue::query()->where('order_id', $order->id)->whereNull('removed_at')->sum('amount_minor')
-            - (int) MoneyEntry::query()->where('order_id', $order->id)->whereNotNull('order_due_id')->sum('amount_minor');
+            - (int) MoneyEntry::query()->where('order_id', $order->id)->whereNotNull('order_due_id')->sum('amount_minor')
+            - DebtWriteOffs::writtenOff($order->id);
         if ($owed > 0) {
             $add('money_owed', ['minor' => $owed]);
         }
@@ -91,18 +100,41 @@ final class OrderClosure
             $add('return_open', ['count' => $returns]);
         }
 
-        $remarks = DeliveryRemark::query()->where('order_id', $order->id)->where('status', DeliveryRemark::OPEN)->count();
-        if ($remarks > 0) {
-            $add('remark_open', ['count' => $remarks]);
+        $remarks = DeliveryRemark::query()->where('order_id', $order->id)->where('status', DeliveryRemark::OPEN)->with('note:id,number')->orderBy('id')->get();
+        if ($remarks->isNotEmpty()) {
+            $add('remark_open', ['count' => $remarks->count()], array_values($remarks->map(fn (DeliveryRemark $r) => [
+                'id' => $r->id, 'note' => $r->note?->number, 'description' => $r->description,
+            ])->all()));
         }
 
-        // Blocking remarks from an installation visit (ADR-0036), each resolved on its own.
-        $installation = InstallationRemarks::openCount($order->id);
-        if ($installation > 0) {
-            $add('installation_remark_open', ['count' => $installation]);
+        // Remarks from installation visits (ADR-0036): same model as the delivery remarks — every one blocks until it is
+        // resolved on its own; listed one per line.
+        $installation = InstallationRemarks::openItems($order->id);
+        if ($installation !== []) {
+            $add('installation_remark_open', ['count' => count($installation)], $installation);
         }
 
+        /** @var list<array{key: string, details: array<string, int>, items?: list<array{id: int, note: string|null, description: string}>}> $blockers */
         return $blockers;
+    }
+
+    /**
+     * One line per blocker, then one per unresolved remark.
+     *
+     * @param  list<array{key: string, details: array<string, int>, items?: list<array{id: int, note: string|null, description: string}>}>  $blockers
+     * @return list<string>
+     */
+    public static function messages(array $blockers): array
+    {
+        $lines = [];
+        foreach ($blockers as $b) {
+            $lines[] = __('order.closure.blocker.'.$b['key'], $b['details']);
+            foreach ($b['items'] ?? [] as $item) {
+                $lines[] = __('order.closure.blocker.remark_item', ['note' => (string) $item['note'], 'remark' => mb_strimwidth($item['description'], 0, 120, '…')]);
+            }
+        }
+
+        return $lines;
     }
 
     /** The permission the decision needs: P-18 over a cancelled order, P-25 over a finished one. */
@@ -139,7 +171,7 @@ final class OrderClosure
 
             $blockers = self::blockers($locked);
             if ($blockers !== []) {
-                throw ValidationException::withMessages(['order' => array_map(fn (array $b) => __('order.closure.blocker.'.$b['key'], $b['details']), $blockers)]);
+                throw ValidationException::withMessages(['order' => self::messages($blockers)]);
             }
 
             $from = $locked->state();

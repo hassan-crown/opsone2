@@ -9,15 +9,14 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * A remark recorded on site (ADR-0036). A blocking one is `open` with a follow-up person and keeps the order from
- * closing until it is resolved — the delivery-remark concept of ADR-0032; a non-blocking one is `noted` only.
+ * A remark recorded on site (ADR-0036), on the same model as the delivery remarks (ADR-0032/0035): every remark is
+ * `open` with a follow-up person and keeps the order from closing until it is resolved on its own.
  *
  * @property int $id
  * @property int $installation_visit_id
  * @property int $order_id
  * @property string $kind
  * @property string $description
- * @property bool $blocking
  * @property string $status
  * @property int|null $follow_up_user_id
  * @property int|null $created_by
@@ -36,8 +35,6 @@ class InstallationRemark extends Model
     public const OPEN = 'open';
 
     public const RESOLVED = 'resolved';
-
-    public const NOTED = 'noted';
 
     protected $guarded = ['id', 'lock_version'];
 
@@ -61,6 +58,18 @@ class InstallationRemark extends Model
     }
 
     /** @return BelongsTo<User, $this> */
+    public function creator(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
+    /** @return BelongsTo<User, $this> */
+    public function resolver(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'resolved_by');
+    }
+
+    /** @return BelongsTo<User, $this> */
     public function followUp(): BelongsTo
     {
         return $this->belongsTo(User::class, 'follow_up_user_id');
@@ -68,6 +77,6 @@ class InstallationRemark extends Model
 
     protected function casts(): array
     {
-        return ['blocking' => 'boolean', 'resolved_at' => 'datetime', 'lock_version' => 'integer'];
+        return ['resolved_at' => 'datetime', 'lock_version' => 'integer'];
     }
 }
