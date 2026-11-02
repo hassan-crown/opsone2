@@ -14,6 +14,7 @@ use App\Models\User;
 use App\Notifications\OutboxDeliverer;
 use App\Notifications\OutboxStatus;
 use App\Reports\Export\ReportExports;
+use App\Tasks\TaskSla;
 use App\Whatsapp\CustomerEvents;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
@@ -45,6 +46,13 @@ Artisan::command('finance:remind', function (CollectionReminders $reminders) {
 })->purpose('Remind customers of dues soon or overdue (inside the reminder hours)');
 
 Schedule::command('finance:remind')->hourly()->withoutOverlapping();
+
+// Task SLA (ADR-0037): `work.reminder` on the due day, `work.escalated` once late, inside the reminder hours.
+Artisan::command('tasks:remind', function (TaskSla $sla) {
+    $this->info(sprintf('Created %d task notice(s).', $sla->run(now())));
+})->purpose('Remind assignees of tasks due and escalate late ones (inside the reminder hours)');
+
+Schedule::command('tasks:remind')->hourly()->withoutOverlapping();
 
 // Outbox safety net: re-queue messages whose delivery job was lost, and drop delivered ones after 30 days.
 Artisan::command('outbox:process', function (OutboxDeliverer $deliverer) {
@@ -135,9 +143,9 @@ Artisan::command('reports:purge-exports', function (ReportExports $exports) {
 
 Schedule::command('reports:purge-exports')->hourly()->withoutOverlapping();
 
-// WhatsApp/SMS reminders 24 hours before a confirmed measurement or installation (ADR-0030), inside the reminder hours.
+// WhatsApp/SMS reminders before a confirmed measurement or installation (ADR-0030; lead time ADR-0037), inside the reminder hours.
 Artisan::command('whatsapp:remind', function () {
     $this->info(sprintf('Queued %d appointment reminder(s).', CustomerEvents::remindDue(now())));
-})->purpose('Remind customers 24 hours before a measurement or installation');
+})->purpose('Remind customers before a measurement or installation');
 
 Schedule::command('whatsapp:remind')->hourly()->withoutOverlapping();

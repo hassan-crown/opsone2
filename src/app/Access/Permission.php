@@ -114,6 +114,8 @@ enum Permission: string
     case P102 = 'P-102';
     // Not in matrix v1.1: added by the product owner's decision on debt at closure (ADR-0035).
     case P103 = 'P-103';
+    // Not in matrix v1.1: configure business rules (ADR-0037).
+    case P104 = 'P-104';
 
     public static function fromCode(string $code): ?self
     {

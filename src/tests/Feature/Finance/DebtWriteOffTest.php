@@ -7,15 +7,20 @@
  */
 
 use App\Access\Permission;
+use App\Actions\Rules\UpdateReminderSettings;
 use App\Delivery\DeliveryProgress;
+use App\Finance\CollectionReminders;
 use App\Finance\CollectionReport;
 use App\Finance\DebtWriteOffs;
 use App\Finance\MoneyLedger;
 use App\Finance\OpenDues;
 use App\Models\Finance\DebtWriteOff;
 use App\Models\Finance\DebtWriteOffEntry;
+use App\Models\Finance\OrderDue;
+use App\Models\Finance\PaymentPlan;
 use App\Models\MemberGrant;
 use App\Models\Order;
+use App\Models\WorkSettings;
 use App\Orders\OrderClosure;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
@@ -162,4 +167,27 @@ it('keeps the schedule fixed while a write-off stands, and a late payment after 
     $this->actingAs($this->f->owner)->postJson(route('finance.write-offs.reverse', $w), ['reason' => 'خطأ في الشطب', 'idempotency_key' => (string) Str::uuid()])->assertOk();
     finPay($this->f->finance, $this->order, '700');
     expect(DebtWriteOffs::owedByDue($this->order))->toBe([])->and(closureKeys($this->order))->toBe([]);
+});
+
+it('never reminds or escalates a written-off due, and keeps the payment plan from replacing its schedule (ADR-0037)', function () {
+    WorkSettings::query()->create([...WorkSettings::DEFAULTS, 'reminder_from' => '00:00', 'reminder_until' => '23:59']);
+    app(UpdateReminderSettings::class)->handle($this->f->owner, [
+        'before_days' => [], 'on_due' => true, 'after_every_days' => 1, 'max_after' => 6,
+        'escalate_after_days' => 1, 'escalate_to' => 'finance', 'appointment_hours' => 24,
+    ], null);
+    writeOff($this, $this->f->owner)->assertCreated();
+    OrderDue::query()->where('order_id', $this->order->id)->update(['due_event' => 'date', 'due_date' => now()->subDays(5)->toDateString()]);
+
+    expect(app(CollectionReminders::class)->runDue(now()))->toBe(0)
+        ->and(DB::table('outbox_messages')->where('idempotency_key', 'like', 'due:%')->count())->toBe(0)
+        ->and(DB::table('user_notifications')->where('type', 'finance.due_escalated')->count())->toBe(0);
+
+    $plan = PaymentPlan::query()->create([
+        'key' => 'all_now', 'name' => ['ar' => 'كامل'], 'is_default' => true,
+        'lines' => [['key' => 'first', 'name' => ['ar' => 'أولى'], 'basis' => 'percent', 'value' => 5000, 'event' => 'agreement', 'stage_key' => null, 'offset_days' => 0, 'grace_days' => 0],
+            ['key' => 'final', 'name' => ['ar' => 'أخيرة'], 'basis' => 'rest', 'value' => null, 'event' => 'agreement', 'stage_key' => null, 'offset_days' => 0, 'grace_days' => 0]],
+    ]);
+    $this->actingAs($this->f->owner)->putJson(route('orders.finance.plan', $this->order), [
+        'plan_id' => $plan->id, 'idempotency_key' => (string) Str::uuid(), 'lock_version' => finVersion($this->order),
+    ])->assertUnprocessable()->assertJsonPath('errors.dues.0', __('finance.write_off.schedule_locked'));
 });

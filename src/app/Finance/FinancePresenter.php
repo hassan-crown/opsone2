@@ -8,10 +8,13 @@ use App\Agreements\OrderAgreement;
 use App\Enums\DueStatus;
 use App\Enums\ProofStatus;
 use App\Files\AttachmentService;
+use App\Finance\Plans\PaymentPlans;
 use App\Models\Attachment;
 use App\Models\Finance\MoneyEntry;
 use App\Models\Finance\OrderDue;
+use App\Models\Finance\OrderFinance;
 use App\Models\Finance\Payment;
+use App\Models\Finance\PaymentPlan;
 use App\Models\Finance\PaymentProof;
 use App\Models\FinanceSettings;
 use App\Models\Order;
@@ -51,7 +54,7 @@ final class FinancePresenter
         foreach ($dues as $due) {
             $held = $allocated[$due->id] ?? 0;
             $off = $written[$due->id] ?? 0;
-            $status = DueCalendar::status($due->amount_minor, $held + $off, $dates[$due->id]);
+            $status = DueCalendar::status($due->amount_minor, $held + $off, $dates[$due->id], graceDays: $due->grace_days);
             if (in_array($status, [DueStatus::Due, DueStatus::Overdue], true) || ($status === DueStatus::PartiallyPaid && $dates[$due->id] !== null && $dates[$due->id] <= AppointmentBooking::today())) {
                 $dueNow += max(0, $due->amount_minor - $held - $off);
             }
@@ -85,18 +88,43 @@ final class FinancePresenter
             'proofs' => self::proofs($order, $viewer, $amounts),
             'conditions' => array_map(fn (array $c) => $amounts ? $c : array_diff_key($c, ['threshold_minor' => true]), CollectionConditions::overview($order)),
             'shortfalls' => CollectionConditions::shortfalls($order),
-            'templates' => array_keys(OrderSchedule::TEMPLATES),
+            'plan' => self::plan($order),
+            // Plan lines may carry fixed amounts: only for whoever may change the schedule (P-38).
+            'plans' => Access::can($viewer, Permission::P38, $order) ? PaymentPlans::options() : [],
+            'stages' => PaymentPlans::stageOptions(),
             'cash_proof_required' => FinanceSettings::current()->cashProofRequired(),
             'can' => [
                 'record' => Access::can($viewer, Permission::P39, $order),
                 'review' => Access::can($viewer, Permission::P40, $order),
                 'schedule' => Access::can($viewer, Permission::P38, $order) && $agreement !== null,
                 'allocate' => Access::can($viewer, Permission::P38, $order),
+                'plan' => Access::can($viewer, Permission::P38, $order),
             ],
             'customer_orders' => self::customerOrders($order, $viewer),
         ];
 
         return $payload;
+    }
+
+    /**
+     * The order's plan: the one its schedule was copied from, else the one it will get at the agreement.
+     *
+     * @return array{key: string, name: string|null, chosen: bool, copied: bool}
+     */
+    private static function plan(Order $order): array
+    {
+        $head = OrderFinance::query()->where('order_id', $order->id)->first(['payment_plan_id', 'payment_plan_key', 'agreement_id']);
+        $copied = $head?->agreement_id !== null;
+        $plan = $copied ? null : PaymentPlans::forOrder($head?->payment_plan_id);
+        $key = $copied ? (string) $head->payment_plan_key : $plan['key'];
+        $row = $copied ? PaymentPlan::query()->find($head->payment_plan_id) : $plan['plan'];
+
+        return [
+            'key' => $key,
+            'name' => $row?->name->get() ?? ($key === '' ? null : (PaymentPlans::TEMPLATES[$key]['name'][app()->getLocale()] ?? null)),
+            'chosen' => $head?->payment_plan_id !== null,
+            'copied' => $copied,
+        ];
     }
 
     /**
@@ -111,6 +139,9 @@ final class FinancePresenter
             'name_i18n' => $due->name->toArray(),
             'basis' => $due->basis->value,
             'event' => $due->due_event->value,
+            'stage_key' => $due->stage_key,
+            'offset_days' => $due->offset_days,
+            'grace_days' => $due->grace_days,
             'due_date' => $due->due_date?->toDateString(),
             'due_on' => $dueOn,
             'status' => $status->value,

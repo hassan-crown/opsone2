@@ -316,7 +316,10 @@ function SupplyEditor({
     );
 }
 
-/** FlowAction_pay: verify a collection by amount, percentage or the remaining balance. */
+/**
+ * FlowAction_pay: verify a collection — a payment of the order's plan (the plan holds the share, ADR-0037), a fixed
+ * amount or the remaining balance. A percentage is only shown on a flow saved before plans existed.
+ */
 function PaymentEditor({
     inputs,
     onChange,
@@ -370,16 +373,22 @@ function PaymentEditor({
                     onChange({
                         ...inputs,
                         basis: e.target.value,
-                        value:
-                            e.target.value === 'remaining'
-                                ? null
-                                : e.target.value === 'percent'
-                                  ? 50
-                                  : null,
+                        value: null,
                     })
                 }
+                hint={
+                    basis === 'due' ? t('flow.input.basis_due_hint') : undefined
+                }
                 options={[
-                    { value: 'percent', label: t('flow.input.basis_percent') },
+                    { value: 'due', label: t('flow.input.basis_due') },
+                    ...(basis === 'percent'
+                        ? [
+                              {
+                                  value: 'percent',
+                                  label: t('flow.input.basis_percent'),
+                              },
+                          ]
+                        : []),
                     { value: 'amount', label: t('flow.input.basis_amount') },
                     {
                         value: 'remaining',
@@ -387,7 +396,7 @@ function PaymentEditor({
                     },
                 ]}
             />
-            {basis !== 'remaining' && (
+            {(basis === 'amount' || basis === 'percent') && (
                 <TextField
                     label={
                         basis === 'amount'

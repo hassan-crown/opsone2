@@ -142,6 +142,17 @@ enum AuditAction: string
     case FinanceSettingsUpdated = 'finance_settings.updated';
     case CashProofPolicyUpdated = 'finance_settings.cash_proof_updated';
     case DiscountLimitsUpdated = 'discount_limits.updated';
+    case PaymentPlanSaved = 'payment_plan.saved';
+    case PaymentPlanArchived = 'payment_plan.archived';
+    case PaymentPlanChosen = 'payment_plan.chosen';
+    case ReminderSettingsUpdated = 'reminder_settings.updated';
+    case DocumentClauseSaved = 'document_clause.saved';
+    case DocumentClauseArchived = 'document_clause.archived';
+    case MessageTemplateSaved = 'message_template.saved';
+    case MessageTemplateReset = 'message_template.reset';
+    case WhatsappTemplateNamesSaved = 'integrations.whatsapp_templates_saved';
+    case TaskSlaSettingsUpdated = 'task_sla.updated';
+    case NumberFormatSaved = 'number_format.saved';
     case DocumentCreated = 'agreement_document.created';
     case DocumentDraftUpdated = 'agreement_document.draft_updated';
     case DocumentSent = 'agreement_document.sent';
@@ -357,13 +368,15 @@ enum AuditAction: string
             self::FlowTemplateChosen, self::FlowDraftSaved, self::FlowPublished, self::FlowDraftDiscarded, self::OrderPaused, self::OrderResumed, self::OrderExecutionFinished, self::OrderClosed, self::OrderReopenedForCorrection, self::StageCompleted, self::ActionAllowed, self::ActionReworked, self::ActionNeedChanged, self::UpcomingWorkEdited, self::MeasurementRecorded, self::MeasurementCorrected => 'workflow',
             self::TaskAssigned, self::TaskRouted, self::TaskReassigned, self::TaskClaimed, self::TaskCompleted, self::TaskCancelled, self::TaskReleased => 'tasks',
             self::AppointmentProposed, self::AppointmentSent, self::AppointmentConfirmed, self::AppointmentChangeRequested, self::AppointmentChangeDiscarded, self::AppointmentChanged, self::AppointmentCompleted, self::AppointmentCancelled, self::AppointmentCustomerChangeRequested => 'appointments',
-            self::WorkSettingsUpdated, self::FinanceSettingsUpdated, self::CashProofPolicyUpdated, self::DiscountLimitsUpdated => 'settings',
+            self::WorkSettingsUpdated, self::FinanceSettingsUpdated, self::CashProofPolicyUpdated, self::DiscountLimitsUpdated,
+            self::PaymentPlanSaved, self::PaymentPlanArchived, self::ReminderSettingsUpdated, self::DocumentClauseSaved, self::DocumentClauseArchived,
+            self::MessageTemplateSaved, self::MessageTemplateReset, self::WhatsappTemplateNamesSaved, self::TaskSlaSettingsUpdated, self::NumberFormatSaved => 'settings',
             self::DocumentCreated, self::DocumentDraftUpdated, self::DocumentSent, self::DocumentApproved, self::DocumentChangesRequested,
             self::DocumentReplaced, self::DocumentExpired, self::DocumentExtended, self::DocumentCancelled, self::AgreementActivated,
             self::DocumentSigned, self::DocumentSignLinkSent, self::DocumentSignLinksRevoked,
             self::ChangeCreated, self::ChangeDraftUpdated, self::ChangePresented, self::ChangeRevisionRequested, self::ChangeApplied,
             self::ChangeWithdrawn, self::DiscountRequested, self::DiscountApproved, self::DiscountRejected, self::DiscountCancelled => 'agreement',
-            self::FinanceScheduleSynced, self::FinanceScheduleUpdated, self::PaymentRecorded, self::PaymentGatewayResult,
+            self::FinanceScheduleSynced, self::FinanceScheduleUpdated, self::PaymentPlanChosen, self::PaymentRecorded, self::PaymentGatewayResult,
             self::PaymentReallocated, self::CreditTransferred, self::MoneyReversed, self::ProofSubmitted, self::ProofConfirmed,
             self::ProofCorrectionRequested, self::ProofCancelled, self::CollectionRemindersSent, self::DebtWrittenOff, self::DebtWriteOffReversed => 'finance',
             self::CommissionSettingsUpdated, self::CommissionPayoutCreated, self::CommissionPayoutReserved, self::CommissionPayoutPaid,

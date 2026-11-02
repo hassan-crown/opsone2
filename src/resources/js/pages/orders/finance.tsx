@@ -19,6 +19,7 @@ import {
     PaymentStatusBadge,
     ProofStatusBadge,
 } from '@/components/finance/status';
+import { PlanPicker } from '@/components/finance/plan-picker';
 import type { FinanceDue, FinancePayload } from '@/components/finance/types';
 import { Amount } from '@/components/opsone/amount';
 import { EmptyState } from '@/components/opsone/empty-state';
@@ -374,6 +375,13 @@ export default function OrderFinance({
                                 )}
                             </div>
                         </CardHeader>
+                        <PlanPicker
+                            url={OrderFinanceController.choosePlan.url(
+                                order.id,
+                            )}
+                            payload={payload}
+                            onDone={(next) => done(next, t('rules.saved'))}
+                        />
                         {dues.length === 0 ? (
                             <EmptyState
                                 icon={CalendarClock}
@@ -432,6 +440,10 @@ export default function OrderFinance({
                                                     {t(
                                                         `finance.event.${due.event}` as TranslationKey,
                                                     )}
+                                                    {due.stage_key &&
+                                                        ` «${payload.stages.find((s) => s.key === due.stage_key)?.name ?? due.stage_key}»`}
+                                                    {due.offset_days > 0 &&
+                                                        ` + ${t('rules.days', { count: due.offset_days })}`}
                                                     {due.due_on && (
                                                         <span className="block text-caption text-weak">
                                                             {formatDate(
@@ -791,6 +803,8 @@ export default function OrderFinance({
                     url={OrderFinanceController.updateSchedule.url(order.id)}
                     lockVersion={payload.lock_version}
                     dues={dues}
+                    plans={payload.plans}
+                    stages={payload.stages}
                     agreedMinor={summary?.agreed_minor ?? null}
                     onClose={() => setOpen(null)}
                     onDone={(next) => done(next, t('finance.schedule.done'))}

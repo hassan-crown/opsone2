@@ -15,6 +15,12 @@ import {
     Store,
     User,
     ReceiptText,
+    Wallet,
+    BellRing,
+    ScrollText,
+    MessageSquareText,
+    Timer,
+    Hash,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import type { ComponentProps } from 'react';
@@ -22,6 +28,7 @@ import { Icon } from '@/components/opsone/icon';
 import { PageHeader } from '@/components/opsone/page-header';
 import { Badge } from '@/components/ui/badge';
 import { useT } from '@/lib/i18n';
+import type { TranslationKey } from '@/lib/i18n';
 import { edit as integrations } from '@/routes/integrations';
 import { preferences as notificationPrefs } from '@/routes/notifications';
 import { show as ownership } from '@/routes/ownership';
@@ -30,6 +37,14 @@ import { edit as appearance } from '@/routes/appearance';
 import { show as closure } from '@/routes/closure';
 import { edit as einvoicing } from '@/routes/einvoicing';
 import { edit as profile } from '@/routes/profile';
+import {
+    clauses,
+    messages,
+    numbering,
+    plans,
+    reminders,
+    sla,
+} from '@/routes/rules';
 import { edit as security } from '@/routes/security';
 import { basic, home, sales, work } from '@/routes/settings';
 import { index as sessions } from '@/routes/sessions';
@@ -56,6 +71,7 @@ type Props = {
         manageSupportAccess: boolean;
         closure: boolean;
         einvoicing: boolean;
+        rules: boolean;
     };
     pendingTransferForMe: boolean;
     pendingSupportRequests: number;
@@ -212,6 +228,22 @@ export default function SettingsHome({
         });
     }
 
+    // ADR-0037: the owner's business rules.
+    const rulesCards: Card[] = can.rules
+        ? [
+              { key: 'plans', href: plans(), icon: Wallet },
+              { key: 'reminders', href: reminders(), icon: BellRing },
+              { key: 'clauses', href: clauses(), icon: ScrollText },
+              { key: 'messages', href: messages(), icon: MessageSquareText },
+              { key: 'sla', href: sla(), icon: Timer },
+              { key: 'numbering', href: numbering(), icon: Hash },
+          ].map((c) => ({
+              ...c,
+              title: t(`rules.nav.${c.key}` as TranslationKey),
+              description: t(`rules.card.${c.key}` as TranslationKey),
+          }))
+        : [];
+
     const subscriptionCards: Card[] = [];
     if (can.viewPlan) {
         subscriptionCards.push({
@@ -299,6 +331,7 @@ export default function SettingsHome({
                     title={t('account.home.group.facility')}
                     cards={facilityCards}
                 />
+                <Group title={t('rules.section')} cards={rulesCards} />
                 <Group
                     title={t('account.home.group.subscription')}
                     cards={subscriptionCards}

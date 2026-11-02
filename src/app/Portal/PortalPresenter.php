@@ -349,7 +349,7 @@ final class PortalPresenter
             /** @var OrderDue $due */
             $held = (int) ($allocated[$due->id] ?? 0) + ($written[$due->id] ?? 0);
             $on = $dates[$due->id];
-            $status = DueCalendar::status($due->amount_minor, $held, $on);
+            $status = DueCalendar::status($due->amount_minor, $held, $on, graceDays: $due->grace_days);
             if (in_array($status, [DueStatus::Due, DueStatus::Overdue], true) || ($status === DueStatus::PartiallyPaid && $on !== null && $on <= $today)) {
                 $dueNow += max(0, $due->amount_minor - $held);
             }

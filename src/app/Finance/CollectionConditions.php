@@ -5,6 +5,7 @@ namespace App\Finance;
 use App\Agreements\OrderAgreement;
 use App\Commissions\CommissionAccrual;
 use App\Enums\ActionStatus;
+use App\Models\Finance\OrderDue;
 use App\Models\Order;
 use App\Models\OrderAction;
 use App\Models\User;
@@ -15,8 +16,9 @@ use Illuminate\Support\Collection;
 
 /**
  * The stage collection condition (SRS-INT-07, P5 `payment_check`), read from the ledger: the order's net collected is
- * compared with each check's threshold — `amount` (fixed), `percent` (of the agreed value, `OrderAgreement::share`),
- * `remaining` (the whole agreed value). The collection is never consumed, so «50% then 100%» compare the same
+ * compared with each check's threshold — `due` (the schedule up to and including the due with the check's reference:
+ * the payment plan is the single source of the share, ADR-0037), `amount` (fixed), `remaining` (the whole agreed
+ * value) and, on actions pinned before ADR-0037, `percent` (of the agreed value, `OrderAgreement::share`). The collection is never consumed, so «50% then 100%» compare the same
  * cumulative amount and never create two receipts. A met check is reported to the engine through
  * `ActionResults::verifyFromSource()` (`order_collection:{payment}`); a proof under review is not money and never
  * meets it (FIN-02). A later reversal never un-completes a stage: `shortfalls()` lists what is no longer covered.
@@ -100,11 +102,30 @@ final class CollectionConditions
         $value = $inputs['value'] ?? null;
 
         return match ($inputs['basis'] ?? null) {
+            'due' => self::throughDue($order, (string) ($inputs['reference'] ?? '')),
             'amount' => is_int($value) ? Money::of($value) : null,
             'percent' => is_int($value) ? OrderAgreement::share($order, $value * 100) : null,
             'remaining' => OrderAgreement::value($order),
             default => null,
         };
+    }
+
+    /**
+     * The collection that covers the schedule through the due with this reference (oldest due first, ADR-0014). A
+     * schedule without that reference asks for the whole agreed value; no schedule yet means not knowable.
+     */
+    private static function throughDue(Order $order, string $reference): ?Money
+    {
+        $dues = Allocator::openDues($order->id);
+        if ($dues->isEmpty()) {
+            return null;
+        }
+        $position = $dues->firstWhere('reference', $reference)?->position;
+        if ($position === null) {
+            return OrderAgreement::value($order);
+        }
+
+        return Money::of((int) $dues->filter(fn (OrderDue $d) => $d->position <= $position)->sum('amount_minor'));
     }
 
     /**

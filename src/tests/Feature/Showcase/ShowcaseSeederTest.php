@@ -100,6 +100,12 @@ it('seeds a coherent history and keeps the ledger and stock invariants', functio
         expect(InvoiceSigner::verify($invoice->xml)['valid'])->toBeTrue();
     }
 
+    // Payment plans (ADR-0037): two plans, every agreed order copied one of them, and 40/40/20 orders have a second
+    // payment due when installation starts.
+    expect(DB::table('payment_plans')->orderBy('key')->pluck('key')->all())->toBe(['fifty_fifty', 'forty_forty_twenty'])
+        ->and(DB::table('order_finances')->whereNotNull('agreement_id')->whereNotIn('payment_plan_key', ['fifty_fifty', 'forty_forty_twenty'])->count())->toBe(0)
+        ->and(DB::table('order_dues')->where('reference', 'second')->where('stage_key', '!=', 'install')->count())->toBe(0);
+
     // Gapless numbering: receipts follow each other without holes.
     $numbers = DB::table('receipts')->orderBy('id')->pluck('number')->map(fn ($n) => (int) substr((string) $n, -6))->all();
     expect($numbers)->toBe(range(1, count($numbers)));

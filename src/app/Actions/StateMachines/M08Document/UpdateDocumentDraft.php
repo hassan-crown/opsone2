@@ -7,6 +7,7 @@ use App\Access\TransitionRecorder;
 use App\Agreements\AgreementLock;
 use App\Agreements\AgreementWrite;
 use App\Agreements\DiscountCheck;
+use App\Agreements\DocumentClauses;
 use App\Agreements\QuoteInput;
 use App\Audit\Audit;
 use App\Audit\AuditAction;
@@ -49,6 +50,7 @@ final class UpdateDocumentDraft
                 $before = $document->content;
                 if ($document->kind === DocumentKind::Quote) {
                     $content = QuoteInput::priced(QuoteInput::normalize($order, $data), FinanceSettings::current());
+                    $content = [...$content, ...DocumentClauses::rerender($before, $order, $content, DocumentClauses::language())];
                     $this->discounts->contentChanged(DiscountDecision::SUBJECT_DOCUMENT, $document->id, $content, $actor);
                 } else {
                     $fields = Validator::make($data, ['description' => ['nullable', 'string', 'max:2000'], 'terms' => ['nullable', 'string', 'max:5000']])->validate();
