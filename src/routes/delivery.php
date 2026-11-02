@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Route;
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('deliveries', [DeliveryController::class, 'index'])->name('deliveries.index');
     Route::get('deliveries/{note}', [DeliveryController::class, 'show'])->whereNumber('note')->name('deliveries.show');
+    Route::get('orders/{order}/delivery-remarks', [OrderClosureController::class, 'remarks'])->whereNumber('order')->name('deliveries.remarks.index');
     Route::get('orders/{order}/deliveries/create', [DeliveryController::class, 'create'])->whereNumber('order')->name('deliveries.create');
 
     Route::middleware('throttle:records-create')->group(function () {
@@ -21,6 +22,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('orders/{order}/close', [OrderClosureController::class, 'close'])->whereNumber('order')->name('orders.close');
         Route::post('deliveries/{note}/remarks', [OrderClosureController::class, 'remark'])->whereNumber('note')->name('deliveries.remarks.store');
         Route::post('delivery-remarks/{remark}/resolve', [OrderClosureController::class, 'resolveRemark'])->whereNumber('remark')->name('deliveries.remarks.resolve');
+        Route::post('deliveries/{note}/corrections', [DeliveryController::class, 'correct'])->whereNumber('note')->name('deliveries.corrections.store');
         Route::post('deliveries/{note}/cancel', [DeliveryController::class, 'cancel'])->whereNumber('note')->name('deliveries.cancel');
     });
 });

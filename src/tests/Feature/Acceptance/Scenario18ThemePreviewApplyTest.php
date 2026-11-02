@@ -2,14 +2,15 @@
 
 /**
  * Binding scenario 18 «معاينة ثيم وتطبيقها» («اختبارات ترابط ملزمة»): the preview covers the site pages only; applying
- * reflects on the defined places of the site and the administration, and never changes a price, an access or a user's
+ * reflects on the facility-facing surfaces (site, store, customer portal) — never on the staff administration, which keeps
+ * OpsOne's identity (Q-03 a, decided by the product owner, ADR-0034) — and never changes a price, an access or a user's
  * own preference.
  *
  * Traces: SRS-THM-04 (preview of the facility's site pages — home, catalogue, product, interest form, cart — on phone and
  * desktop, ar and en, before applying; visitors never see the draft; the admin panel is not shown in the preview),
  * SRS-THM-06 (the theme changes no permission, price, route or ready-goods availability; a user's light/dark/system
- * choice stays theirs), the «where it reflects» table (brand colour: site and customer space, plus the facility's
- * accent touches in the administration); M-35, P-100, P-101, ADR-0021.
+ * choice stays theirs), the «where it reflects» table (brand colour: site, store and customer space; the administration
+ * keeps OpsOne's identity per Q-03 a); M-35, P-100, P-101, ADR-0021, ADR-0034.
  *
  * Actors over HTTP: the owner (P-100 edit, P-101 apply) on `/site-admin/theme`, a manager and a sales member on the
  * staff screens, visitors on `/{ar|en}` and `/{ar|en}/store`.
@@ -142,12 +143,25 @@ it('applying reflects on the site and the store, and changes no price, access, r
     $this->get('/ar/store/p/'.$this->variant->ready_product_id)->assertOk()->assertSee('45.00');
 });
 
-it('the applied brand reaches the facility\'s accent places in the administration (THM «أين ينعكس»)', function () {
+it('the applied brand reaches the facility-facing surfaces only; staff screens keep OpsOne\'s identity (Q-03 a, ADR-0034)', function () {
     accPStaff($this->owner);
-    $this->put(route('site.admin.theme.save'), ['brand_color' => ACC18_BRAND])->assertSessionHasNoErrors();
+    $this->put(route('site.admin.theme.save'), ['brand_color' => ACC18_BRAND, 'font' => 'plex-sans'])->assertSessionHasNoErrors();
     $this->post(route('site.admin.theme.apply'))->assertSessionHasNoErrors();
 
-    // Expected: the administration carries the facility's applied brand accent (in its page or shared props).
-    accPStaff($this->manager);
-    expect(accP18Html('/dashboard'))->toContain(ACC18_BRAND);
-})->skip('Acceptance gap: the applied theme is not shared with the administration (no brand accent/identity in admin pages)');
+    // Product owner's decision: admin, staff and manager screens always use OpsOne's own logo, colours and fonts.
+    foreach ([$this->owner, $this->manager, $this->sales] as $member) {
+        accPStaff($member);
+        foreach (['/dashboard', '/orders'] as $uri) {
+            expect(accP18Html($uri))->not->toContain(ACC18_BRAND)->not->toContain('data-brand="facility"')
+                ->not->toContain("[data-brand='facility']")->not->toContain('--font-sans:')->toContain('data-surface="panel"');
+        }
+    }
+
+    // The customer portal carries the facility's colours (scoped, colours only), as do the site and the store.
+    accPCustomer(storeBuyer());
+    $portal = accP18Html('/portal');
+    expect($portal)->toContain('data-brand="facility"')->toContain("[data-brand='facility']{--brand:")->toContain(ACC18_BRAND)
+        ->not->toContain('--font-sans:');
+    accPFreshBrowser();
+    expect(accP18Html('/en/about'))->toContain(ACC18_BRAND)->toContain('--font-sans:')->and(accP18Html('/ar/store'))->toContain(ACC18_BRAND);
+});

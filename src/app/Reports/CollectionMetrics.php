@@ -3,6 +3,7 @@
 namespace App\Reports;
 
 use App\Enums\JournalKind;
+use App\Finance\DebtWriteOffs;
 use App\Finance\OpenDues;
 use App\Models\Order;
 use App\Reports\Definitions\Support;
@@ -23,7 +24,8 @@ final class CollectionMetrics
      * Sum of money entries per journal kind created in [start, end] on the given orders.
      *
      * @param  Builder<Order>  $orders  already narrowed to what the reader may see money of
-     * @return array{collected: int, corrections: int, transfers: int, refunded: int, net: int}
+     *                                  `written_off` (P-103, ADR-0034) is shown next to them and never counted as received.
+     * @return array{collected: int, corrections: int, transfers: int, refunded: int, net: int, written_off: int}
      */
     public static function movements(Builder $orders, CarbonImmutable $start, CarbonImmutable $end): array
     {
@@ -40,6 +42,7 @@ final class CollectionMetrics
         return [
             'collected' => $collected, 'corrections' => $corrections, 'transfers' => $transfers, 'refunded' => $refunded,
             'net' => $collected + $corrections + $transfers + $refunded,
+            'written_off' => DebtWriteOffs::inRange(Support::orderIds($orders), Support::at($start), Support::at($end)),
         ];
     }
 

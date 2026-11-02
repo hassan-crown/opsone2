@@ -3,6 +3,7 @@ import { X } from 'lucide-react';
 import { useRef, useState } from 'react';
 import DeliveryController from '@/actions/App/Http/Controllers/Delivery/DeliveryController';
 import OrderController from '@/actions/App/Http/Controllers/Orders/OrderController';
+import { DeliveryCorrectionCard } from '@/components/delivery/correction-card';
 import {
     DeliveryStatusBadge,
     KindLabel,
@@ -36,7 +37,7 @@ function today(): string {
     return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 }
 
-/** DelRecord: the delivery note — record it (receiver, date, proof) or withdraw the draft. */
+/** DelRecord: the delivery note — record it (receiver, date, proof), withdraw the draft or correct it (M-14-T03). */
 export default function DeliveryShow({ note }: Props) {
     const t = useT();
     const { locale } = useLocale();
@@ -174,6 +175,9 @@ export default function DeliveryShow({ note }: Props) {
                                     {note.status === 'draft' && (
                                         <Th>{t('delivery.deliverable')}</Th>
                                     )}
+                                    {note.corrections.length > 0 && (
+                                        <Th>{t('delivery.correction.net')}</Th>
+                                    )}
                                     {amounts && (
                                         <Th className="text-end">
                                             {t('delivery.col_value')}
@@ -183,10 +187,7 @@ export default function DeliveryShow({ note }: Props) {
                             </thead>
                             <tbody>
                                 {note.lines.map((l) => (
-                                    <tr
-                                        key={l.order_line_id}
-                                        data-test="note-line"
-                                    >
+                                    <tr key={l.id} data-test="note-line">
                                         <Td>{l.name}</Td>
                                         <Td>
                                             <QtyText
@@ -198,6 +199,14 @@ export default function DeliveryShow({ note }: Props) {
                                             <Td>
                                                 <QtyText
                                                     value={l.deliverable ?? '0'}
+                                                    unit={l.unit}
+                                                />
+                                            </Td>
+                                        )}
+                                        {note.corrections.length > 0 && (
+                                            <Td data-test="note-line-net">
+                                                <QtyText
+                                                    value={l.net}
                                                     unit={l.unit}
                                                 />
                                             </Td>
@@ -245,6 +254,11 @@ export default function DeliveryShow({ note }: Props) {
                         </ul>
                     </Card>
                 )}
+
+                {note.status === 'confirmed' &&
+                    (note.can.correct || note.corrections.length > 0) && (
+                        <DeliveryCorrectionCard note={note} />
+                    )}
 
                 {note.can.confirm && (
                     <form

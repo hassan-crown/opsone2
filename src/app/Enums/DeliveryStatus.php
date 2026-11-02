@@ -4,7 +4,8 @@ namespace App\Enums;
 
 /**
  * M-14 «تسليم الطلب»: draft → confirmed (T01), draft → cancelled before confirmation (T02). A confirmed note is never
- * edited or deleted; a mistake is corrected later by a linked correction (T03, not in this phase).
+ * edited or deleted; a mistake is corrected by a linked correction (T03, `delivery_corrections`, ADR-0034) that keeps
+ * the note confirmed.
  */
 enum DeliveryStatus: string
 {

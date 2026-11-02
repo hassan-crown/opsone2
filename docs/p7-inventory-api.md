@@ -87,6 +87,7 @@ header, 8–100 chars, reused on retry) and the note's `lock_version`; errors as
 | GET | `/deliveries/{note}` | — | P-52 on the order → `{note: {id, number, status, order, lines[{…, quantity, deliverable?, value_minor?}], proofs[{uuid, name, url}], can{confirm, cancel}, lock_version}}` |
 | POST | `/deliveries/{note}/confirm` | multipart: `idempotency_key, lock_version, delivered_on (≤ today), receiver_name, note?, proofs[1..5]` | P-52 → `{note}` with `number = DN-YYYY-000123` |
 | POST | `/deliveries/{note}/cancel` | `reason, lock_version?` | P-52, drafts only |
+| POST | `/deliveries/{note}/corrections` | `idempotency_key, lock_version?, lines[{line_id (note line), quantity}], destination stock\|reservation (required for ready lines), reason` | P-52 on the order **and P-49 on each stock location that moves** → 201 `{note}` (M-14-T03, ADR-0034) |
 
 PHP seams:
 
@@ -98,6 +99,9 @@ PHP seams:
 | `Delivery\DeliveryProgress::lines($order)` / `::complete($order)` / `::deliveredByLine($orderId)` | owed per line `{ordered, delivered, released, deliverable}`; completion; the delivered base **for returns** (confirmed notes, thousandths by order line id) |
 | `Delivery\DeliveryAccess::{canRecord, canView, canSeeAmounts, orders, scoped}` | P-52 on the order, P-37 for amounts |
 | event `App\Delivery\DeliveryConfirmed(orderId, noteId, first, complete)` | after commit; listeners idempotent on `noteId` |
+| `…\T03CorrectDelivery::handle($actor, $note, {lines[{line_id, quantity}], destination?, reason}, ?$lockVersion, ?$key)` | correction: order lock → counter-movements (`correction_reserve` back into the reservation / `correction_in` to general stock) → order back to partially delivered when owed again; the note is never edited |
+| `Delivery\DeliveryCorrections::{orderAccepts, correctedByNoteLine, correctedByOrderLine, issuedPieces, firstDeliveryOn}` | read side of corrections; `DeliveryProgress::deliveredByLine()` is net of them |
+| event `App\Delivery\DeliveryCorrected(orderId, correctionId)` | after commit; no listener yet — the hook for a configurable due-rule engine (`delivery_corrections.first_delivery_on` keeps the date the current rule used) |
 
 Refusals: draft/confirm on an order that cannot accept a delivery → 409 `order_{status}`; confirming a non-draft → 409
 `not_from_{status}`; quantity above deliverable → 422 `lines.N.quantity` / `lines`; no receiver / no proof → 422.
@@ -111,6 +115,22 @@ Contracts to other domains:
 - **P7a**: stock leaves only through `IssueReadyReservation` (movement `issue_reserved`, `source_type = delivery_note`,
   `source_id = note id`, key `delivery:{note}:{line}:{reservation}`).
 - **Numbers**: `DN-YYYY-000123` (gapless per year, taken at recording; drafts and withdrawn drafts have none).
+
+### Delivery remarks (M-14-T04, ADR-0032 / ADR-0034) — stable contract
+
+An order holds any number of blocking remarks (on its confirmed notes); each is resolved on its own. The order cannot
+close while one is open. **Stable for other clients (the installation field app):** routes, names and payload keys
+below only grow; `App\Delivery\DeliveryRemarks::row()` builds every remark.
+
+| Method | URL (name) | Body | Permission → answer |
+|---|---|---|---|
+| GET | `/orders/{order}/delivery-remarks` (`deliveries.remarks.index`) | — | P-52 on the order → `{remarks: [row]}`, open first (oldest first), then resolved (latest first) |
+| POST | `/deliveries/{note}/remarks` (`deliveries.remarks.store`) | `description` (3..2000) | P-52, confirmed note → 201 `{remark: row}`; the follow-up person is the order's follower, else its assignee |
+| POST | `/delivery-remarks/{remark}/resolve` (`deliveries.remarks.resolve`) | `resolution` (3..2000), `lock_version?` | P-52 → `{remark: row}`; resolving twice → 409 `remark_resolved`; stale → 409 |
+
+`row = {id, delivery_note_id, note, description, status open|resolved, recorded_by, recorded_at, follow_up, resolution,
+resolved_by, resolved_at, lock_version}` (names, ISO-8601 times). Closure: blocker `remark_open` with `details.count` and
+`items[{id, note, description}]`; the 422 of `POST /orders/{order}/close` has one line per unresolved remark.
 
 ## Cancellation and the settlement follow-up (P7e, ADR-0020) — M-34
 

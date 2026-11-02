@@ -1,6 +1,7 @@
 # ADR-0032: Private site preview, order closure and delivery remarks (acceptance gaps)
 
-Status: accepted (2026-11-01). Closes gaps recorded in `docs/acceptance-report.md`: scenario 18 (THM-04), integrated rows
+Status: accepted (2026-11-01). The four questions it left open were answered by the product owner and implemented in
+[ADR-0034](0034-delivery-correction-identity-remarks-write-off.md) (Q-03, M-14-T03, several remarks, debt write-off). Closes gaps recorded in `docs/acceptance-report.md`: scenario 18 (THM-04), integrated rows
 «مخصص من البداية» (M-04-T07) and «توريد وتسليم جزئيان» (M-14-T04).
 
 ## Private preview of the draft theme and draft pages (THM-04)

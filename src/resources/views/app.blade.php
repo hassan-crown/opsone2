@@ -2,6 +2,8 @@
     $locale = app()->getLocale();
     $appearance = $appearance ?? 'system';
     $theme = $appearance === 'system' ? 'light' : $appearance;
+    // Q-03 (a, ADR-0034): facility colours on the customer portal only; staff screens keep OpsOne's identity.
+    $facilityBrand = \App\Site\Theme\PortalBrand::css(request());
 @endphp
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', $locale) }}" dir="{{ \App\Http\Middleware\SetLocale::direction($locale) }}" data-theme="{{ $theme }}" @class(['dark' => $theme === 'dark'])>
@@ -40,11 +42,14 @@
 
         @viteReactRefresh
         @vite(['resources/css/app.css', 'resources/js/app.tsx', "resources/js/pages/{$page['component']}.tsx"])
+        @if ($facilityBrand !== '')
+            <style>{!! $facilityBrand !!}</style>
+        @endif
         <x-inertia::head>
             <title>{{ config('app.name', 'Laravel') }}</title>
         </x-inertia::head>
     </head>
-    <body data-surface="panel">
+    <body data-surface="panel" @if ($facilityBrand !== '') data-brand="facility" @endif>
         <x-inertia::app />
     </body>
 </html>

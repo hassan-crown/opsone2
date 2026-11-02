@@ -31,9 +31,11 @@ final class Allocator
             return 0;
         }
         $allocated = MoneyLedger::allocatedByDue($order->id);
+        // A written-off part (P-103, ADR-0034) is settled: money never goes there until the write-off is reversed.
+        $written = DebtWriteOffs::byDue([$order->id]);
         $lacking = [];
         foreach ($dues as $due) {
-            $lacking[$due->id] = max(0, $due->amount_minor - ($allocated[$due->id] ?? 0));
+            $lacking[$due->id] = max(0, $due->amount_minor - ($allocated[$due->id] ?? 0) - ($written[$due->id] ?? 0));
         }
 
         $total = 0;
@@ -69,10 +71,11 @@ final class Allocator
     {
         $dues = OrderDue::query()->where('order_id', $order->id)->get()->keyBy('id');
         $allocated = MoneyLedger::allocatedByDue($order->id);
+        $written = DebtWriteOffs::byDue([$order->id]);
 
         foreach ($allocated as $dueId => $held) {
             $due = $dues->get($dueId);
-            $limit = $due === null || $due->removed_at !== null ? 0 : $due->amount_minor;
+            $limit = $due === null || $due->removed_at !== null ? 0 : max(0, $due->amount_minor - ($written[$dueId] ?? 0));
             $excess = $held - $limit;
             if ($excess <= 0) {
                 continue;
