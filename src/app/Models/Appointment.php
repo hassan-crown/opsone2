@@ -4,10 +4,12 @@ namespace App\Models;
 
 use App\Access\Contracts\ScopedRecord;
 use App\Enums\AppointmentStatus;
+use App\Models\Installation\InstallationVisit;
 use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
  * An appointment of an order with actual members as resources (M-16, SHR-03/04). `pending_change` is the separate
@@ -36,6 +38,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
  * @property int|null $created_by
  * @property int $lock_version
  * @property-read Order $order
+ * @property-read InstallationVisit|null $installationVisit
  */
 class Appointment extends Model implements ScopedRecord
 {
@@ -61,6 +64,16 @@ class Appointment extends Model implements ScopedRecord
     public function members(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'appointment_members');
+    }
+
+    /**
+     * The on-site record of an installation appointment (ADR-0036); none until the technician arrives.
+     *
+     * @return HasOne<InstallationVisit, $this>
+     */
+    public function installationVisit(): HasOne
+    {
+        return $this->hasOne(InstallationVisit::class);
     }
 
     /**

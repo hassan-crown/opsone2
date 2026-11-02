@@ -1,5 +1,5 @@
 import { Head, Link, router, useForm } from '@inertiajs/react';
-import { Lock, RotateCcw } from 'lucide-react';
+import { Lock, LogOut, RotateCcw } from 'lucide-react';
 import { useState } from 'react';
 import type { FormEvent } from 'react';
 import MemberController from '@/actions/App/Http/Controllers/Org/MemberController';
@@ -51,7 +51,12 @@ type Props = {
     }[];
     roleOptions: { id: number; name: string }[];
     scopes: string[];
-    can: { access: boolean; disable: boolean; reactivate: boolean };
+    can: {
+        access: boolean;
+        disable: boolean;
+        reactivate: boolean;
+        revoke_sessions: boolean;
+    };
 };
 
 export default function MemberShow({
@@ -126,6 +131,38 @@ export default function MemberShow({
                             >
                                 <Icon icon={RotateCcw} />
                                 {t('org.team.reactivate')}
+                            </Button>
+                        )}
+                        {can.revoke_sessions && (
+                            <Button
+                                type="button"
+                                variant="secondary"
+                                loading={busy}
+                                onClick={() => {
+                                    if (
+                                        window.confirm(
+                                            t(
+                                                'org.member.revoke_sessions_confirm',
+                                            ),
+                                        )
+                                    ) {
+                                        router.post(
+                                            MemberController.revokeSessions.url(
+                                                {
+                                                    membership: member.id,
+                                                },
+                                            ),
+                                            {},
+                                            {
+                                                onStart: () => setBusy(true),
+                                                onFinish: () => setBusy(false),
+                                            },
+                                        );
+                                    }
+                                }}
+                            >
+                                <Icon icon={LogOut} />
+                                {t('org.member.revoke_sessions')}
                             </Button>
                         )}
                         {can.disable && (

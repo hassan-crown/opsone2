@@ -18,6 +18,7 @@ enum AuditAction: string
     case MembershipDisabled = 'membership.disabled';
     case MembershipReactivated = 'membership.reactivated';
     case MembershipAccessUpdated = 'membership.access_updated';
+    case MembershipSessionsRevoked = 'membership.sessions_revoked';
     case RoleTemplateUpdated = 'role.updated';
 
     case OwnershipTransferRequested = 'ownership.requested';
@@ -106,6 +107,14 @@ enum AuditAction: string
     case StockCorrectionReturned = 'stock.correction_returned';
     case DebtWrittenOff = 'finance.debt_written_off';
     case DebtWriteOffReversed = 'finance.debt_write_off_reversed';
+
+    case InstallationArrived = 'installation.arrived';
+    case InstallationPhotoAdded = 'installation.photo_added';
+    case InstallationRemarkRecorded = 'installation.remark_recorded';
+    case InstallationRemarkResolved = 'installation.remark_resolved';
+    case InstallationSignatureRequested = 'installation.signature_requested';
+    case InstallationSigned = 'installation.signed';
+    case InstallationFinished = 'installation.finished';
     case OrderReopenedForCorrection = 'order.reopened_for_correction';
     case StageCompleted = 'order.stage_completed';
     case ActionAllowed = 'order.action_allowed';
@@ -319,7 +328,7 @@ enum AuditAction: string
             self::SitePageCreated, self::SitePageDraftSaved, self::SitePagePublished, self::SitePageUnpublished, self::SitePageDraftDiscarded, self::SitePageArchived, self::SitePageRestored, self::SiteThemeDraftSaved, self::SiteThemeApplied, self::SiteThemeDraftDiscarded, self::SiteThemeRestored, self::SitePreviewLinkIssued, self::SiteDomainRequested, self::SiteDomainVerified, self::SiteDomainRemoved => 'site',
             self::InvitationCreated, self::InvitationAccepted, self::InvitationCancelled, self::InvitationRenewed,
             self::OwnerInvitationCreated, self::OwnerEstablished,
-            self::MembershipDisabled, self::MembershipReactivated, self::MembershipAccessUpdated => 'team',
+            self::MembershipDisabled, self::MembershipReactivated, self::MembershipAccessUpdated, self::MembershipSessionsRevoked => 'team',
             self::RoleTemplateUpdated => 'roles',
             self::OwnershipTransferRequested, self::OwnershipTransferAccepted,
             self::OwnershipTransferRejected, self::OwnershipTransferCancelled => 'ownership',
@@ -364,6 +373,8 @@ enum AuditAction: string
             self::PurchaseCreated, self::PurchaseUpdated, self::PurchaseConfirmed, self::PurchaseReceived,
             self::PurchaseAdjusted, self::PurchaseRemainderCancelled => 'procurement',
             self::DeliveryDrafted, self::DeliveryConfirmed, self::DeliveryCancelled, self::DeliveryRemarkRecorded, self::DeliveryRemarkResolved, self::DeliveryCorrected => 'delivery',
+            self::InstallationArrived, self::InstallationPhotoAdded, self::InstallationRemarkRecorded, self::InstallationRemarkResolved,
+            self::InstallationSignatureRequested, self::InstallationSigned, self::InstallationFinished => 'installation',
             self::CancellationRequested, self::CancellationAccepted, self::CancellationRejected, self::CancellationWithdrawn,
             self::SettlementItemResolved, self::SettlementClosed => 'cancellation',
             self::ReturnRequested, self::ReturnAccepted, self::ReturnRejected, self::ReturnReceived, self::ReturnInspected,

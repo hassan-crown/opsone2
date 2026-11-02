@@ -5,6 +5,7 @@ use App\Http\Controllers\Portal\AppointmentController;
 use App\Http\Controllers\Portal\CancellationController;
 use App\Http\Controllers\Portal\DocumentController;
 use App\Http\Controllers\Portal\FileController;
+use App\Http\Controllers\Portal\InstallationController;
 use App\Http\Controllers\Portal\PaymentController;
 use App\Http\Controllers\Portal\SettingsController;
 use App\Http\Controllers\Portal\SignatureController;
@@ -64,6 +65,10 @@ Route::middleware(AuthenticateCustomer::class)->group(function () {
     Route::get('orders/{order}/cancel', [CancellationController::class, 'create'])->name('orders.cancel');
     Route::post('orders/{order}/cancellation', [CancellationController::class, 'store'])->middleware(['throttle:portal-write', RefuseCustomerWritesWhenReadOnly::class])->name('cancellations.store');
     Route::post('cancellations/{cancellation}/withdraw', [CancellationController::class, 'withdraw'])->middleware(['throttle:portal-write', RefuseCustomerWritesWhenReadOnly::class])->name('cancellations.withdraw');
+
+    // ADR-0036: the customer's acceptance of an installation, from the link the technician sent.
+    Route::get('installations/{visit}', [InstallationController::class, 'show'])->whereNumber('visit')->name('installations.show');
+    Route::post('installations/{visit}/sign', [InstallationController::class, 'sign'])->whereNumber('visit')->middleware(['throttle:portal-write', RefuseCustomerWritesWhenReadOnly::class])->name('installations.sign');
 
     Route::get('settings', [SettingsController::class, 'show'])->name('settings');
     Route::post('logout', [SignInController::class, 'logout'])->name('logout');

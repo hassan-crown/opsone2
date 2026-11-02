@@ -16,6 +16,7 @@ use App\Enums\PurchaseStatus;
 use App\Enums\ReadyOrderStatus;
 use App\Enums\RefundStatus;
 use App\Finance\DebtWriteOffs;
+use App\Installation\InstallationRemarks;
 use App\Models\Delivery\DeliveryNote;
 use App\Models\Delivery\DeliveryRemark;
 use App\Models\Finance\MoneyEntry;
@@ -104,6 +105,13 @@ final class OrderClosure
             $add('remark_open', ['count' => $remarks->count()], array_values($remarks->map(fn (DeliveryRemark $r) => [
                 'id' => $r->id, 'note' => $r->note?->number, 'description' => $r->description,
             ])->all()));
+        }
+
+        // Remarks from installation visits (ADR-0036): same model as the delivery remarks — every one blocks until it is
+        // resolved on its own; listed one per line.
+        $installation = InstallationRemarks::openItems($order->id);
+        if ($installation !== []) {
+            $add('installation_remark_open', ['count' => count($installation)], $installation);
         }
 
         /** @var list<array{key: string, details: array<string, int>, items?: list<array{id: int, note: string|null, description: string}>}> $blockers */

@@ -31,8 +31,10 @@ import { OrderCancelCard } from '@/components/cancellation/order-cancel-card';
 import type { OrderCancellation } from '@/components/cancellation/order-cancel-card';
 import { OrderDeliveryCard } from '@/components/delivery/order-delivery-card';
 import type { OrderDelivery } from '@/components/delivery/order-delivery-card';
+import { InstallationCard } from '@/components/orders/installation-card';
 import { OrderClosureCard } from '@/components/orders/order-closure-card';
 import type { OrderClosure } from '@/components/orders/order-closure-card';
+import type { OrderInstallation } from '@/types/field';
 import { OrderStockCard } from '@/components/stock/order-stock-card';
 import type { OrderStock } from '@/components/stock/types';
 import { toPayload } from '@/components/orders/types';
@@ -68,6 +70,7 @@ type Props = {
     stock?: OrderStock;
     delivery?: OrderDelivery | null;
     closure?: OrderClosure | null;
+    installation?: OrderInstallation | null;
     cancellation?: OrderCancellation | null;
 };
 
@@ -105,6 +108,7 @@ export default function OrderShow({
     stock,
     delivery,
     closure,
+    installation,
     cancellation,
 }: Props) {
     const t = useT();
@@ -564,6 +568,9 @@ export default function OrderShow({
                                     orderId={order.id}
                                     delivery={delivery}
                                 />
+                            )}
+                            {installation && (
+                                <InstallationCard installation={installation} />
                             )}
                             {closure && (
                                 <OrderClosureCard
