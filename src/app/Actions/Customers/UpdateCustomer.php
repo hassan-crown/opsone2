@@ -21,7 +21,7 @@ final class UpdateCustomer
 {
     private const FIELDS = [
         'kind', 'name', 'mobile', 'email', 'portal_login_enabled', 'country', 'assignee_id', 'preferred_channel',
-        'internal_notes', 'commercial_registration', 'vat_number', 'office_phone',
+        'internal_notes', 'commercial_registration', 'vat_number', 'office_phone', 'national_address',
     ];
 
     public function __construct(private readonly Authorizer $access) {}

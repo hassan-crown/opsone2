@@ -1,6 +1,9 @@
 <?php
 
+use App\EInvoicing\Zatca\InvoiceHasher;
+use App\EInvoicing\Zatca\InvoiceSigner;
 use App\Models\Customer;
+use App\Models\EInvoicing\EInvoice;
 use App\Models\Order;
 use Carbon\CarbonImmutable;
 use Database\Seeders\ShowcaseSeeder;
@@ -76,6 +79,26 @@ it('seeds a coherent history and keeps the ledger and stock invariants', functio
         ->and($statuses)->toContain('read')
         ->and(DB::table('customer_messages')->where('status', 'queued')->count())->toBe(0)
         ->and(DB::table('customer_messages as m')->join('customers as c', 'c.id', '=', 'm.customer_id')->whereNotNull('c.whatsapp_opt_out_at')->where('m.channel', 'whatsapp')->count())->toBe(0);
+
+    // ZATCA e-invoicing (ADR-0033): invoices on first payments, notes, phase 1 then a signed chain after onboarding.
+    $einvoices = EInvoice::query()->orderBy('id')->get();
+    expect($einvoices->where('kind', 'invoice')->count())->toBeGreaterThan(3)
+        ->and($einvoices->where('kind', 'credit_note')->count())->toBeGreaterThanOrEqual(2)
+        ->and($einvoices->where('kind', 'debit_note')->count())->toBe(1)
+        ->and($einvoices->where('submission_status', 'not_required')->count())->toBeGreaterThan(0)
+        ->and($einvoices->where('signed', true)->count())->toBeGreaterThan(0)
+        ->and($einvoices->whereIn('submission_status', ['pending', 'failed', 'rejected'])->count())->toBe(0)
+        ->and(DB::table('zatca_devices')->where('status', 'active')->count())->toBe(1);
+    foreach ($einvoices->groupBy(fn ($i) => (string) $i->device_id) as $chain) {
+        $previous = InvoiceHasher::FIRST_PIH;
+        foreach ($chain->sortBy('icv')->values() as $n => $invoice) {
+            expect($invoice->icv)->toBe($n + 1)->and($invoice->previous_hash)->toBe($previous);
+            $previous = $invoice->hash;
+        }
+    }
+    foreach ($einvoices->where('signed', true) as $invoice) {
+        expect(InvoiceSigner::verify($invoice->xml)['valid'])->toBeTrue();
+    }
 
     // Gapless numbering: receipts follow each other without holes.
     $numbers = DB::table('receipts')->orderBy('id')->pluck('number')->map(fn ($n) => (int) substr((string) $n, -6))->all();

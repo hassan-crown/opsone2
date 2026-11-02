@@ -293,6 +293,8 @@ final class CustomOrders
         if ($eligible === []) {
             throw new \RuntimeException('nobody eligible for '.$actionKey);
         }
+        // By user id, so the seeded pick never depends on the database's row order.
+        usort($eligible, fn (array $a, array $b) => $a['user_id'] <=> $b['user_id']);
         $installer = $actionKey === 'installation' ? ($st->data['installer'] ?? null) : null;
         $userId = $installer !== null && in_array($installer, array_column($eligible, 'user_id'), true)
             ? (int) $installer : (int) $this->s->rng->pick($eligible)['user_id'];

@@ -7,6 +7,7 @@ use App\Actions\Finance\TransferCredit;
 use App\Actions\Finance\UpdateSchedule;
 use App\Actions\StateMachines\M11Payment\T01RecordPayment;
 use App\Agreements\OrderAgreement;
+use App\EInvoicing\EInvoicePresenter;
 use App\Enums\OrderKind;
 use App\Enums\StateMachine;
 use App\Finance\FinanceLock;
@@ -54,6 +55,7 @@ class OrderFinanceController extends Controller
             'finance' => $finance,
             'settlement' => SettlementPresenter::forOrder($order, $actor),
             'today' => AppointmentBooking::today(),
+            'einvoices' => EInvoicePresenter::forOrder($order, $actor),
         ]);
     }
 

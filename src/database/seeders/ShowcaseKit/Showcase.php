@@ -49,6 +49,8 @@ final class Showcase
 
     public Messaging $messaging;
 
+    public EInvoicing $einvoicing;
+
     public Installations $installations;
 
     /** @var array<string, User> */
@@ -83,6 +85,7 @@ final class Showcase
         $this->site = new Site($this);
         $this->portal = new Portal($this);
         $this->messaging = new Messaging;
+        $this->einvoicing = new EInvoicing($this);
         $this->installations = new Installations($this);
     }
 
@@ -117,6 +120,7 @@ final class Showcase
         $this->info('Organisation…');
         (new Foundation($this))->run();
         $this->messaging->enable();
+        $this->einvoicing->enable();
         $this->info('Catalogue…');
         $this->catalog->run();
         $this->store->setup();
@@ -133,6 +137,7 @@ final class Showcase
         $this->portal->run();
         $this->timeline->run();
         $this->messaging->settle();
+        $this->einvoicing->settle();
         foreach ($this->timeline->failures as $failure) {
             $this->warn($failure);
         }

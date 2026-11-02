@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Account;
 use App\Access\Access;
 use App\Access\LicenseLimits;
 use App\Access\Permission;
+use App\EInvoicing\ZatcaAccess;
 use App\Enums\OwnershipTransferStatus;
 use App\Enums\SupportGrantStatus;
 use App\Http\Controllers\Controller;
@@ -51,6 +52,7 @@ class SettingsHomeController extends Controller
                 'transferOwnership' => Access::can($user, Permission::P07),
                 'manageSupportAccess' => $canSupport = Access::can($user, Permission::P79),
                 'closure' => ClosureAccess::allows($user),
+                'einvoicing' => ZatcaAccess::manages($user),
             ],
             'pendingSupportRequests' => $canSupport ? SupportGrant::query()
                 ->where('status', SupportGrantStatus::Requested->value)

@@ -173,9 +173,13 @@ it('never sends twice when an earlier attempt already reached the provider', fun
 });
 
 it('queues a booking message when a measurement is confirmed and a reminder 24 h before', function () {
+    // A fixed clock: 09:00 Riyadh tomorrow (time only moves forward), the appointment at 05:00 the next day (propose()
+    // reads Riyadh wall time), the reminder run at 10:00 — inside its 24 h window whatever hour the suite runs.
+    $this->travelTo(now()->setTimezone('Asia/Riyadh')->addDay()->setTime(9, 0)->utc());
+    $riyadh = now()->setTimezone('Asia/Riyadh');
     ($this->enable)();
     $tech = $this->f->org->member('executor', [$this->f->org->a]);
-    $a = propose($this->f->sales, $this->f->order, [$tech->id], now()->addHours(20)->format('Y-m-d H:i'), now()->addHours(21)->format('Y-m-d H:i'));
+    $a = propose($this->f->sales, $this->f->order, [$tech->id], $riyadh->copy()->addHours(20)->format('Y-m-d H:i'), $riyadh->copy()->addHours(21)->format('Y-m-d H:i'));
     app(T02ConfirmAppointment::class)->handle($this->f->sales, $a, 'phone');
 
     $booked = CustomerMessage::query()->where('event', 'measurement_booked')->get();
