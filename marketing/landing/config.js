@@ -3,7 +3,7 @@
  *
  * DEMO FORM
  *   demoEndpoint  URL that accepts a POST of JSON:
- *                 { name, company, phone, city, trade, utm_source, utm_medium, utm_campaign, utm_term,
+ *                 { name, company, phone, city, trade (what they sell: ready, custom or both), utm_source, utm_medium, utm_campaign, utm_term,
  *                   utm_content, gclid, fbclid, page, sentAt }
  *                 Any 2xx response is shown as "received"; anything else as a failure.
  *   demoEmail     Optional fallback, used only while demoEndpoint is empty: the form opens the visitor's

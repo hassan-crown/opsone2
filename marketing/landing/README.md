@@ -1,8 +1,9 @@
 # OpsOne landing page
 
 A self-contained static page (HTML, CSS, JS; no build step; fonts and pictures local) that sells OpsOne to owners and
-managers of Saudi **retailers and showrooms** that sell custom and ready products (kitchens, aluminium, furniture,
-accessories). Arabic only, right to left. One action: request a demo.
+managers of Saudi businesses that sell ready and custom products from a showroom or an online store. The audience is
+described by **how a business works, never by sector** (product owner, 2026-11-02): no kitchens, aluminium, furniture or
+accessories anywhere in copy, meta, alt text or pictures. Arabic only, right to left. One action: request a demo.
 
 **Positioning (product owner, 2026-11-02):** OpsOne is for the retailer, not the workshop. Most retailers outsource
 manufacturing; OpsOne tracks the order around it (sending to the workshop, the expected date, receiving), the customer, the
@@ -33,7 +34,7 @@ then visit `http://localhost:8080`.
 | `HOSTING.md` | Suggested compression, cache and security headers. |
 | `assets/fonts/` | IBM Plex Sans Arabic 400/500/600/700 from the design system, with `OFL.txt`. |
 | `assets/brand/` | The OpsOne logo and mark, generated from the original geometry in `docs/design-system/source/components/src/logo.js` (not redrawn). |
-| `assets/photos/` | Four open-licence photographs with `credits.json`. |
+| `assets/photos/` | Four CC0 photographs (no credit required) with `credits.json` as the internal provenance record. |
 | `assets/video/` | Three muted loops recorded from the running showcase at 2× (2560×1600 / 780×1688, WebM/VP8) with WebP posters. |
 | `assets/vendor/` | GSAP 3.13.0 and ScrollTrigger 3.13.0, copied unchanged from cdnjs (GSAP's no-charge standard licence); `LUCIDE-LICENSE.txt` for the icons, which are inlined in `index.html` as an SVG sprite (Lucide 0.475, the app's icon set). |
 
@@ -213,6 +214,19 @@ inspector runs with `--allow icon-cards` for the capability grid they asked for.
 - **Footer**: final call to action, normal-size logo, product / audience / contact columns, small credits.
 - Clips re-recorded at 2× (CSS zoom on a double-size viewport) so they are sharp; the old low-resolution screenshots were removed.
 
+## Audience round (product owner, 2026-11-02)
+
+- All sector naming removed from copy, title, description, Open Graph, JSON-LD, alt text and the share image (re-captured from the
+  new hero). Workshop wording became «الورش والمورّدين» / «المورّد»; owning a workshop stays an option («إن كانت لك ورشتك»).
+- New section **«لمن OpsOne؟»** (`#fit`, first after the hero, in the top bar and the footer «لمن» column): seven business traits,
+  each with a Lucide icon, the OpsOne capability that serves it, and the module name as a chip.
+- The demo form's «النشاط» list became «ماذا تبيع؟» (جاهز / مخصص أو حسب الطلب / الاثنان); the field is still sent as `trade`.
+- Visible photo credits removed; the three photographs that required attribution and the faucet were replaced with CC0 pictures.
+- Lighthouse 12.8.2 (Brotli server): mobile 97 / 100 / 100 / 100 (LCP 2.5 s, 467 KB); desktop 100 / 100 / 100 / 100.
+- Inspector at 1440/768/375: lint 0; one FAIL «blank-gap» on the phone is the inspector's own limit (it walks at most 12 screens to
+  fire scroll reveals, and the phone page is now longer, so the capabilities section is still hidden when it measures). A full
+  scroll shows that section rendered; WARNs «off-centre» (right-to-left line ends) and «ragged-edges» defended as before.
+
 ## Critique (last round)
 
 ```
@@ -239,35 +253,40 @@ a stage preview too small to read on tablet.
 
 ## Pictures and credits
 
-Credited in the footer.
+Nothing is credited on the page: every photograph is CC0 (public-domain dedication, `creditRequired: false`), so the earlier
+CC BY / CC BY-SA photographs were removed rather than left uncredited. Provenance stays in `assets/photos/credits.json`.
 
-- `assets/photos/showroom-customer-1600.webp (and -800)`: “Man tests kitchen faucet at home improvement store in modern showroom setting” by Shixart1985,
-  CC BY 2.0, via Wikimedia Commons (resized). https://commons.wikimedia.org/wiki/File:Man_tests_kitchen_faucet_at_home_improvement_store_in_modern_showroom_setting.jpg
-- `assets/photos/home-kitchen-windows-600.webp`: “Modern kitchen and dining area with stylish furnishings and natural light in a contemporary
-  home setting” by Shixart1985, CC BY 2.0, via Wikimedia Commons (resized).
-  https://commons.wikimedia.org/wiki/File:Modern_kitchen_and_dining_area_with_stylish_furnishings_and_natural_light_in_a_contemporary_home_setting.jpg
-- `assets/photos/kitchen-cabinet-installation-600.webp`: “Kitchen cabinet installation” by Akpeski, CC BY-SA 4.0, via Wikimedia Commons.
-  https://commons.wikimedia.org/wiki/File:Kitchen_cabinet_installation.jpg
-- `assets/photos/store-faucet-600.webp`: “Kitchen Faucet 1” by Stilfehler, CC0, via Wikimedia Commons (resized).
-  https://commons.wikimedia.org/wiki/File:Kitchen_Faucet_1.jpg
-- Icons: Lucide (ISC).
+- `assets/photos/consultation-1600.webp` (and `-800`): “Rawpixel.com 2017-06-02 (Unsplash)” by rawpixel.com, CC0, via Wikimedia
+  Commons (resized). https://commons.wikimedia.org/wiki/File:Rawpixel.com_2017-06-02_(Unsplash).jpg
+- `assets/photos/field-tools-600.webp`: “Taduuda 2016-03-24 (Unsplash Geh-r9A4RBg)” by Taduuda, CC0, via Wikimedia Commons (resized).
+  https://commons.wikimedia.org/wiki/File:Taduuda_2016-03-24_(Unsplash_Geh-r9A4RBg).jpg
+- `assets/photos/finished-space-600.webp`: “Minimal creative interior (Unsplash)” by Breather, CC0, via Wikimedia Commons (resized).
+  https://commons.wikimedia.org/wiki/File:Minimal_creative_interior_(Unsplash).jpg
+- `assets/photos/store-pendant-light-600.webp`: “Light bulbs in a coffee shop (Unsplash)” by Tomas Jasovsky, CC0, via Wikimedia
+  Commons (resized). https://commons.wikimedia.org/wiki/File:Light_bulbs_in_a_coffee_shop_(Unsplash).jpg
+- Icons: Lucide 0.475 (ISC), notice in `assets/vendor/LUCIDE-LICENSE.txt` and a comment above the sprite in `index.html`.
 
-Product clips in `assets/video/` are OpsOne itself, recorded from the showcase dataset (no credit needed).
+CC0 waives copyright only. The consultation photograph shows two recognisable people; it is a generic stock scene, not presented
+as a customer, but a pilot customer's own photographs remain the better choice (see below).
 
-These photographs show the trade's world; none is presented as a customer or as OpsOne's own work. Product screens in `assets/ui/` are
-OpsOne itself with showcase data. The interface close-ups on the board are built in HTML (`data-ui`) from the product's own
-badges and values. The signature in the e-signature tile is drawn in SVG. No bundled stock photographs are used.
+Product clips in `assets/video/` are OpsOne itself, recorded from the showcase dataset (no credit needed). **The order and portal
+clips still show the showcase's sample orders, which name kitchens** (order line «مطبخ مع بار شبه جزيرة», portal summary
+«مطبخ لشقة للإيجار»). Re-record them once the showcase has sector-neutral sample orders.
+
+The interface close-ups are built in HTML (`data-ui`) from the product's own badges and values. The signature in the
+e-signature tile is drawn in SVG.
 
 ## Sample content to confirm before launch
 
 - Stage editor: stage names, responsible roles, durations (يومان، 3 أيام، يوم، 21 يومًا), the two gates and the overdue alert.
 - Roles: the refund request 2,700.00 ر.س and the permission matrix (which role may do what) must match the real role setup.
-- Tools: the quote QUO-2026-00070 (from the showcase PDF), the invoice INV-2026-01187 amounts, the faucet price 1,150.00 ر.س.
+- Tools: the quote QUO-2026-00070 (from the showcase PDF), the invoice INV-2026-01187 amounts, the store item «مصباح معلّق بقفص معدني» at 385.00 ر.س.
 - Footer: contact details (email, phone, WhatsApp, address) are missing and needed from the product owner.
-- Hero window tasks for the outsourced stage: «إرسال أمر التصنيع للورشة» (المشتريات), «تأكيد موعد الجاهزية 6 نوفمبر» (الورشة المتعاقدة),
-  «استلام البنود من الورشة» (المستودع); executors per trade: ورشة المطابخ المتعاقدة، مصنع الألمنيوم المتعاقد، ورشة الأثاث المتعاقدة.
-- Example orders and splits: مطبخ 42,000 + 6,300 ضريبة = 48,300 ر.س (50/50 → 24,150)؛ ألمنيوم 54,000 + 8,100 = 62,100
-  (→ 31,050)؛ أثاث (غرفة نوم بخزانة أبواب منزلقة) 16,000 + 2,400 = 18,400 (→ 9,200). Item descriptions and executor names per trade.
+- Hero window tasks for the outsourced stage: «إرسال أمر التنفيذ للمورّد» (المشتريات), «تأكيد موعد الجاهزية 6 نوفمبر» (المورّد المتعاقد),
+  «استلام البنود من المورّد» (المستودع); the order is «طلب مخصص حسب المقاسات، 6 بنود», 48,300 ر.س split 50/50 → 24,150.
+- Quote lines: «تصميم وتنفيذ حسب المقاسات» 33,540.00، «منتجات جاهزة من المعرض» 5,070.00، «تركيب وتوصيل وتجهيز الموقع» 1,524.00.
+- «لمن OpsOne؟»: each trait is matched to a module that exists (العروض والعقود، المخزون والتسليم، مسار التشغيل، المشتريات والموردون،
+  المهام والتقويم، الفروع والصلاحيات، المتجر الإلكتروني); confirm each sentence stays true.
 - Commission example 2.5% on 42,000 = 1,050.00 ر.س, half collected = 525.00 (the basis follows the P6 default, which is
   still awaiting product-owner confirmation).
 - WhatsApp message text, OTP digits, stock example (ألواح MDF 18 مم، 12، حد الطلب 20), store item (مقبض ستانلس 160 مم، 35.00 ر.س).
@@ -280,8 +299,8 @@ badges and values. The signature in the e-signature tile is drawn in SVG. No bun
 
 ## What would raise the page further (needs the product owner)
 
-1. **Real footage and photographs from a pilot customer** (their showroom, a customer choosing finishes, finished kitchens and installed
-   aluminium windows and doors in homes, an installation day), 10–20 s
+1. **Real footage and photographs from a pilot customer** (their showroom, a customer choosing, a delivery or installation day,
+   a finished space), 10–20 s
    horizontal clips and a few stills shot on a phone at 4K, with written permission to publish. They replace the Commons photographs
    and give the band «لمن صُمّم» the customer's own world.
 2. **A full ffmpeg** on the build machine (`brew install ffmpeg`) to add H.264 MP4 versions of the clips for older Safari/iOS and

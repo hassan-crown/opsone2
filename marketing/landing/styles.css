@@ -166,6 +166,18 @@ p { text-wrap: pretty; }
 .section-head { max-width: 46rem; }
 .lead { color: var(--muted); }
 
+/* ---------- fit: who OpsOne is for, by how a business works ---------- */
+.fit { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: var(--gutter); align-items: start; padding: var(--pad) var(--margin); background: var(--fill); }
+.fit__head { grid-column: 1 / span 4; display: grid; gap: 1rem; position: sticky; top: 2rem; }
+.fit__more { color: var(--muted); line-height: 1.65; }
+.fit__more .link { font-weight: 600; }
+.fit__list { grid-column: 6 / span 7; display: grid; gap: 0.75rem; }
+.fit__list li { --c: 22px; display: grid; grid-template-columns: auto 1fr auto; gap: 1.1rem; align-items: center; padding: 1.15rem 1.35rem; background: #fff; clip-path: polygon(var(--c) 0, 100% 0, 100% 100%, 0 100%, 0 calc(var(--c) * 0.8)); }
+.fit__trait h3 { font-size: var(--step-lead); line-height: 1.4; }
+.fit__trait p { display: flex; gap: 0.45rem; align-items: baseline; margin-top: 0.3rem; color: var(--muted); line-height: 1.6; }
+.fit__trait p .ic { flex: none; width: 1rem; height: 1rem; color: var(--accent); transform: translateY(0.15em); }
+.fit__module { padding: 0.35rem 0.75rem; border-radius: 999px; background: var(--teal-50); color: var(--accent); font-size: var(--step-small); font-weight: 600; white-space: nowrap; }
+
 /* ---------- benefits ---------- */
 .benefits { padding: var(--pad) var(--margin); background: var(--paper); }
 .benefits__head { display: grid; gap: 1rem; max-width: 52rem; margin-inline: auto; text-align: center; }
@@ -386,6 +398,8 @@ p { text-wrap: pretty; }
   [data-ui] .app__top { justify-content: flex-end; }
   [data-ui] .app__grid { grid-template-columns: 1.3fr 1fr; }
   .benefits__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .fit__head { grid-column: 1 / -1; position: static; }
+  .fit__list { grid-column: 1 / -1; }
   .journey__picture, .journey__text, .control__text, .control__stage { grid-column: 1 / -1; }
   .roles__body { display: flex; flex-direction: column; gap: 1.5rem; }
   .roles__side { display: contents; }
@@ -424,6 +438,9 @@ p { text-wrap: pretty; }
   [data-ui] .stg__tasks { display: none; }
   [data-ui] .app__toast { inset-inline: 0.75rem; bottom: 0.75rem; max-width: none; }
   .benefits__head { text-align: start; }
+  .fit__list li { grid-template-columns: auto 1fr; gap: 0.35rem 0.9rem; align-items: start; padding: 1rem; }
+  .fit__list .ic-tile { width: 2.75rem; height: 2.75rem; }
+  .fit__module { grid-column: 2; justify-self: start; }
   .benefits__grid { grid-template-columns: 1fr; gap: 1.75rem; }
   .benefits__grid li { display: grid; grid-template-columns: auto 1fr; gap: 0 1rem; }
   .benefits__grid .ic-tile { grid-row: span 2; }

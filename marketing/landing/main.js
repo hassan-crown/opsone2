@@ -149,7 +149,7 @@
       name: (v) => (v.trim().length >= 2 ? '' : 'اكتب اسمك.'),
       company: (v) => (v.trim().length >= 2 ? '' : 'اكتب اسم المنشأة.'),
       phone: (v) => (!v.trim() ? 'اكتب رقم الجوال.' : phoneOk(v) ? '' : 'اكتب رقم جوال سعوديًا صحيحًا، مثل 0551234567.'),
-      trade: (v) => (v ? '' : 'اختر نشاط المنشأة.'),
+      trade: (v) => (v ? '' : 'اختر ما تبيعه.'),
     };
     const check = (field) => {
       const rule = rules[field.name];
@@ -218,7 +218,7 @@
       }
 
       if (cfg.demoEmail) {
-        const body = [`الاسم: ${data.name}`, `المنشأة: ${data.company}`, `الجوال: ${data.phone}`, `النشاط: ${data.trade}`, `المدينة: ${data.city || '-'}`].join('\n');
+        const body = [`الاسم: ${data.name}`, `المنشأة: ${data.company}`, `الجوال: ${data.phone}`, `يبيع: ${data.trade}`, `المدينة: ${data.city || '-'}`].join('\n');
         track();
         location.href = `mailto:${encodeURIComponent(cfg.demoEmail)}?subject=${encodeURIComponent('طلب عرض تجريبي لـ OpsOne')}&body=${encodeURIComponent(body)}`;
         say(`فتحنا بريدك برسالة جاهزة إلى <span dir="ltr">${esc(cfg.demoEmail)}</span>. يصلنا طلبك بعد أن ترسلها من هناك.`);
