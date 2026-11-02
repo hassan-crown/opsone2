@@ -14,6 +14,7 @@ import {
     ShieldCheck,
     Store,
     User,
+    ReceiptText,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import type { ComponentProps } from 'react';
@@ -27,6 +28,7 @@ import { show as ownership } from '@/routes/ownership';
 import { show as plan } from '@/routes/plan';
 import { edit as appearance } from '@/routes/appearance';
 import { show as closure } from '@/routes/closure';
+import { edit as einvoicing } from '@/routes/einvoicing';
 import { edit as profile } from '@/routes/profile';
 import { edit as security } from '@/routes/security';
 import { basic, home, sales, work } from '@/routes/settings';
@@ -53,6 +55,7 @@ type Props = {
         transferOwnership: boolean;
         manageSupportAccess: boolean;
         closure: boolean;
+        einvoicing: boolean;
     };
     pendingTransferForMe: boolean;
     pendingSupportRequests: number;
@@ -168,6 +171,15 @@ export default function SettingsHome({
             icon: Mail,
             title: t('account.home.integrations.title'),
             description: t('account.home.integrations.description'),
+        });
+    }
+    if (can.einvoicing) {
+        facilityCards.push({
+            key: 'einvoicing',
+            href: einvoicing(),
+            icon: ReceiptText,
+            title: t('einvoicing.title'),
+            description: t('einvoicing.card'),
         });
     }
     if (can.transferOwnership || pendingTransferForMe) {

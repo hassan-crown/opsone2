@@ -293,9 +293,23 @@ enum AuditAction: string
     case FacilityExportRequested = 'ops.export_requested';
     case FacilityExportDownloaded = 'ops.export_downloaded';
 
+    // ZATCA e-invoicing (ADR-0033)
+    case EInvoiceIssued = 'einvoice.issued';
+    case EInvoiceSigned = 'einvoice.signed';
+    case EInvoiceSubmitted = 'einvoice.submitted';
+    case EInvoiceResponse = 'einvoice.response';
+    case EInvoiceRetryRequested = 'einvoice.retry_requested';
+    case ZatcaSettingsSaved = 'zatca.settings_saved';
+    case ZatcaOnboardingStarted = 'zatca.onboarding_started';
+    case ZatcaOnboarded = 'zatca.onboarded';
+    case ZatcaOnboardingFailed = 'zatca.onboarding_failed';
+    case ZatcaDeviceRetired = 'zatca.device_retired';
+
     public function area(): string
     {
         return match ($this) {
+            self::EInvoiceIssued, self::EInvoiceSigned, self::EInvoiceSubmitted, self::EInvoiceResponse, self::EInvoiceRetryRequested,
+            self::ZatcaSettingsSaved, self::ZatcaOnboardingStarted, self::ZatcaOnboarded, self::ZatcaOnboardingFailed, self::ZatcaDeviceRetired => 'einvoicing',
             self::ReportExportRequested, self::ReportExportGenerated, self::ReportExportFailed, self::ReportExportDownloaded, self::ReportExportPurged => 'reports',
             self::StoreSettingsUpdated, self::PaymentGatewaySettingsSaved, self::StoreCheckoutStarted, self::StoreCheckoutPaid, self::StoreCheckoutReleased, self::StoreCheckoutNeedsAttention, self::StoreLinkIssued, self::StoreLinkCancelled, self::StoreLinkUsed, self::CouponCreated, self::CouponUpdated, self::CouponPaused, self::CouponResumed => 'store',
             self::SitePageCreated, self::SitePageDraftSaved, self::SitePagePublished, self::SitePageUnpublished, self::SitePageDraftDiscarded, self::SitePageArchived, self::SitePageRestored, self::SiteThemeDraftSaved, self::SiteThemeApplied, self::SiteThemeDraftDiscarded, self::SiteThemeRestored, self::SitePreviewLinkIssued, self::SiteDomainRequested, self::SiteDomainVerified, self::SiteDomainRemoved => 'site',

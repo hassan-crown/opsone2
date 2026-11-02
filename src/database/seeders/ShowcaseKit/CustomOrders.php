@@ -288,6 +288,8 @@ final class CustomOrders
         if ($eligible === []) {
             throw new \RuntimeException('nobody eligible for '.$actionKey);
         }
+        // By user id, so the seeded pick never depends on the database's row order.
+        usort($eligible, fn (array $a, array $b) => $a['user_id'] <=> $b['user_id']);
         $userId = (int) $this->s->rng->pick($eligible)['user_id'];
         // Department inbox work is handed out by the department supervisor (production) or the branch manager.
         $assigner = in_array($actionKey, ['manufacturing', 'quality_check'], true) ? $this->s->users['sup_prod'] : $this->manager($st);

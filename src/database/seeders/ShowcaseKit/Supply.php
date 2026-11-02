@@ -287,7 +287,7 @@ final class Supply
     {
         $location = $this->s->catalog->locations[$branch];
         $lines = [];
-        $rows = StockBalance::query()->where('location_id', $location->id)->where('on_hand_milli', '>', 0)->get();
+        $rows = StockBalance::query()->where('location_id', $location->id)->where('on_hand_milli', '>', 0)->orderBy('id')->get();
         foreach ($rows->take(18) as $b) {
             $item = StockItem::query()->findOrFail($b->stock_item_id);
             $diff = $this->s->rng->chance(18) ? -1000 * $this->s->rng->int(1, 2) : 0;

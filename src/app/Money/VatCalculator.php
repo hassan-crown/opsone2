@@ -7,8 +7,8 @@ use InvalidArgumentException;
 /**
  * VAT per line (Q-35 a): the facility's rate in basis points (1500 = 15%) and whether entered prices include it.
  * Inclusive: vat = amount × r / (1 + r), rounded half-up, net = amount − vat. Exclusive: vat = amount × r, rounded
- * half-up, gross = amount + vat. Totals are sums of rounded lines, never a rounding of the total. The tax invoice
- * itself is issued outside OpsOne (BR-20).
+ * half-up, gross = amount + vat. Totals are sums of rounded lines, never a rounding of the total. ZATCA e-invoices
+ * (ADR-0033) carry these per-line figures unchanged.
  */
 final class VatCalculator
 {

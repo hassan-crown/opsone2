@@ -40,12 +40,13 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property string|null $commercial_registration
  * @property string|null $vat_number
  * @property string|null $office_phone
+ * @property array{street?: string, building_number?: string, additional_number?: string|null, district?: string, city?: string, postal_code?: string}|null $national_address
  * @property-read Branch $branch
  * @property-read User|null $assignee
  */
 #[Fillable([
     'kind', 'name', 'mobile', 'email', 'portal_login_enabled', 'country', 'branch_id', 'assignee_id', 'created_by',
-    'preferred_channel', 'internal_notes', 'commercial_registration', 'vat_number', 'office_phone',
+    'preferred_channel', 'internal_notes', 'commercial_registration', 'vat_number', 'office_phone', 'national_address',
 ])]
 class Customer extends Model implements AuthenticatableContract, ScopedRecord
 {
@@ -56,7 +57,7 @@ class Customer extends Model implements AuthenticatableContract, ScopedRecord
     use HasFactory;
 
     /** Fields only holders of P-10 over the record may see (internal notes and business registration data). */
-    public const SENSITIVE = ['internal_notes', 'commercial_registration', 'vat_number', 'office_phone'];
+    public const SENSITIVE = ['internal_notes', 'commercial_registration', 'vat_number', 'office_phone', 'national_address'];
 
     /**
      * @return BelongsTo<Branch, $this>
@@ -132,6 +133,7 @@ class Customer extends Model implements AuthenticatableContract, ScopedRecord
             'portal_session_version' => 'integer',
             'portal_last_login_at' => 'datetime',
             'whatsapp_opt_out_at' => 'datetime',
+            'national_address' => 'array',
         ];
     }
 }

@@ -7,4 +7,5 @@ enum OutboxChannel: string
     case Mail = 'mail';
     case Sms = 'sms';
     case Whatsapp = 'whatsapp';
+    case Zatca = 'zatca';
 }
