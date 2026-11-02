@@ -13,6 +13,7 @@ use App\Models\SupportRequest;
 use App\Models\User;
 use App\Notifications\OutboxDeliverer;
 use App\Notifications\OutboxStatus;
+use App\Procurement\WorkshopLateAlerts;
 use App\Reports\Export\ReportExports;
 use App\Whatsapp\CustomerEvents;
 use Illuminate\Foundation\Inspiring;
@@ -69,6 +70,13 @@ Artisan::command('einvoicing:sweep', function (MissingInvoices $missing) {
 })->purpose('Issue tax invoices missing for paid orders');
 
 Schedule::command('einvoicing:sweep')->hourly()->withoutOverlapping();
+
+// ADR-0038: open workshop purchase orders past their expected date notify their followers (once per order and date).
+Artisan::command('workshops:late-alerts', function (WorkshopLateAlerts $alerts) {
+    $this->info(sprintf('Sent %d late-workshop notification(s).', $alerts->run()));
+})->purpose('Notify the followers of workshop purchase orders past their expected date');
+
+Schedule::command('workshops:late-alerts')->dailyAt('07:30')->withoutOverlapping();
 
 // OpsOne support access (M-38). Until the central app exists, OpsOne operations use these from the server shell.
 Artisan::command('support:identity {email} {name}', function (string $email, string $name) {

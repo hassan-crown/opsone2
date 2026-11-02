@@ -14,6 +14,13 @@ return [
         'timezone' => env('OPSONE_FACILITY_TIMEZONE', 'Asia/Riyadh'),
     ],
 
+    /*
+    | The flow a new facility starts with (ADR-0038): the retail flow with an external workshop by default; a
+    | kitchen, aluminium or furniture tenant may be provisioned with its variant, a manufacturer with `in_house`.
+    | Only applies when the facility has no flow yet; the owner changes it later in the flow settings.
+    */
+    'default_flow_template' => env('OPSONE_DEFAULT_FLOW_TEMPLATE', 'retail_outsourced'),
+
     'owner' => [
         'email' => env('OPSONE_OWNER_EMAIL'),
         'name' => env('OPSONE_OWNER_NAME', 'Owner'),

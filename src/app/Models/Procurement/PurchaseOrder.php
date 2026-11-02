@@ -2,8 +2,10 @@
 
 namespace App\Models\Procurement;
 
-use App\Access\Contracts\ScopedRecord;
+use App\Access\Permission;
 use App\Enums\PurchaseStatus;
+use App\Files\Contracts\AttachmentOwner;
+use App\Models\Attachment;
 use App\Models\Branch;
 use App\Models\User;
 use Carbon\CarbonInterface;
@@ -11,6 +13,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use LogicException;
 
 /**
@@ -26,6 +29,7 @@ use LogicException;
  * @property CarbonInterface|null $expected_on
  * @property int|null $responsible_id
  * @property string|null $notes
+ * @property string|null $flow_reference
  * @property int $vat_rate_bp
  * @property bool $prices_include_vat
  * @property int $net_minor
@@ -44,7 +48,7 @@ use LogicException;
  * @property-read User|null $responsible
  * @property-read Collection<int, PurchaseOrderLine> $lines
  */
-class PurchaseOrder extends Model implements ScopedRecord
+class PurchaseOrder extends Model implements AttachmentOwner
 {
     protected $guarded = ['id', 'lock_version'];
 
@@ -99,6 +103,34 @@ class PurchaseOrder extends Model implements ScopedRecord
     public function receipts(): HasMany
     {
         return $this->hasMany(PurchaseReceipt::class)->orderByDesc('id');
+    }
+
+    /**
+     * Generated purchase-order PDFs (ADR-0038).
+     *
+     * @return MorphMany<Attachment, $this>
+     */
+    public function attachments(): MorphMany
+    {
+        return $this->morphMany(Attachment::class, 'attachable')->orderBy('id');
+    }
+
+    /**
+     * @return HasMany<PurchaseOrderSend, $this>
+     */
+    public function sends(): HasMany
+    {
+        return $this->hasMany(PurchaseOrderSend::class)->orderByDesc('id');
+    }
+
+    public function attachmentViewPermission(): Permission
+    {
+        return Permission::P46;
+    }
+
+    public function attachmentUploadPermission(): Permission
+    {
+        return Permission::P46;
     }
 
     public function accessBranchIds(): array

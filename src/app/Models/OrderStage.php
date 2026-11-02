@@ -26,6 +26,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property int|null $follow_up_user_id
  * @property int|null $follow_up_department_id
  * @property int|null $target_days
+ * @property array<string, mixed>|null $follow_up_target
+ * @property CarbonInterface|null $expected_on
  * @property StageStatus $status
  * @property CarbonInterface|null $started_at
  * @property CarbonInterface|null $completed_at
@@ -82,6 +84,8 @@ class OrderStage extends Model implements ScopedRecord
             'started_at' => 'datetime',
             'completed_at' => 'datetime',
             'target_days' => 'integer',
+            'follow_up_target' => 'array',
+            'expected_on' => 'date',
         ];
     }
 }

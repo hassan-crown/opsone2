@@ -18,6 +18,9 @@ use App\Actions\StateMachines\M08Document\T02RecordExternalApproval;
 use App\Actions\StateMachines\M08Document\UpdateDocumentDraft;
 use App\Actions\StateMachines\M10Proof\T01ConfirmProof;
 use App\Actions\StateMachines\M11Payment\T01RecordPayment;
+use App\Actions\StateMachines\M13PurchaseOrder\T00CreatePurchaseOrder;
+use App\Actions\StateMachines\M13PurchaseOrder\T01ConfirmPurchaseOrder;
+use App\Actions\StateMachines\M13PurchaseOrder\T02ReceivePurchase;
 use App\Actions\StateMachines\M14Delivery\T00CreateDraft;
 use App\Actions\StateMachines\M14Delivery\T01ConfirmDelivery;
 use App\Actions\StateMachines\M16Appointment\T00ProposeAppointment;
@@ -42,6 +45,9 @@ use App\Models\Customer;
 use App\Models\Finance\PaymentProof;
 use App\Models\Order;
 use App\Models\OrderLine;
+use App\Models\Procurement\PurchaseOrder;
+use App\Models\Procurement\PurchaseOrderLine;
+use App\Procurement\PurchaseOrderDocuments;
 use App\Models\Task;
 use App\Models\User;
 use App\Money\Money;
@@ -53,7 +59,8 @@ use Illuminate\Support\Str;
 
 /**
  * The life of one made-to-order kitchen, walked through the real workflow: measurement → design → quote and
- * agreement → deposit → manufacturing → installation → final payment → delivery. Every step is a timed event run
+ * agreement → deposit → sent to an external workshop → received and checked → installation → final payment →
+ * delivery. Every step is a timed event run
  * under the frozen clock by the Timeline, using the same Actions the screens call.
  */
 final class CustomOrders
@@ -158,16 +165,31 @@ final class CustomOrders
         }
         $d += 0.8;
         $this->step($st, $at($d, 10), 'stage-agreement', fn () => $this->completeStage($st, 'agreement'));
-        // Manufacturing
+        // Workshop (ADR-0038): the kitchen is made by an external workshop and followed by its purchase order —
+        // confirming it verifies «sent», the accepted receipt verifies «received»; some arrive late, a few fail the
+        // first quality check and go back.
+        $makeDays = $rng->int(12, 24); // drawn as before, so the rest of the dataset's draws stay the same
+        $wr = $this->s->workshopRng;
+        $workshop = $wr->pick(array_keys($this->s->supply->workshops));
+        $lead = (int) $this->s->supply->workshops[$workshop]->lead_days;
+        $email = $wr->chance(60);
+        $delay = (int) $wr->weighted(['-2' => 14, '0' => 44, '3' => 20, '7' => 14, '12' => 8]);
+        $rejectFirst = $wr->chance(10);
         $d += 0.2;
-        $this->step($st, $at($d, 9), 'make-claim', fn () => $this->claimOrAssign($st, 'manufacturing'));
-        $d += $rng->int(12, 24);
-        $this->step($st, $at($d, 15), 'make-done', fn () => $this->doTaskNamed($st, 'manufacturing'));
+        $this->step($st, $at($d, 10), 'workshop-po', fn () => $this->sendToWorkshop($st, $workshop, $lead, $email));
+        $this->step($st, $at($d + 0.1, 12), 'stage-workshop', fn () => $this->completeStage($st, 'workshop'));
+        $d += max($lead + $delay, 3);
+        if ($rejectFirst) {
+            $this->step($st, $at($d, 11), 'workshop-reject', fn () => $this->receiveFromWorkshop($st, true));
+            $d += 3;
+        }
+        $this->step($st, $at($d, 11), 'workshop-receive', fn () => $this->receiveFromWorkshop($st, false));
         $d += 0.3;
         $this->step($st, $at($d, 9), 'qc-claim', fn () => $this->claimOrAssign($st, 'quality_check'));
         $d += 1;
         $this->step($st, $at($d, 13), 'qc-done', fn () => $this->doTaskNamed($st, 'quality_check'));
-        $this->step($st, $at($d + 0.2, 14), 'stage-manufacture', fn () => $this->completeStage($st, 'manufacture'));
+        $this->step($st, $at($d + 0.2, 14), 'stage-receiving', fn () => $this->completeStage($st, 'receiving'));
+        unset($makeDays);
         // Installation
         $d += 0.3;
         $installDay = $d + $rng->int(2, 6);
@@ -292,7 +314,7 @@ final class CustomOrders
         usort($eligible, fn (array $a, array $b) => $a['user_id'] <=> $b['user_id']);
         $userId = (int) $this->s->rng->pick($eligible)['user_id'];
         // Department inbox work is handed out by the department supervisor (production) or the branch manager.
-        $assigner = in_array($actionKey, ['manufacturing', 'quality_check'], true) ? $this->s->users['sup_prod'] : $this->manager($st);
+        $assigner = $actionKey === 'quality_check' ? $this->s->users['sup_prod'] : $this->manager($st);
         app(T01AssignTask::class)->handle($assigner, $task, $userId, null);
     }
 
@@ -408,6 +430,57 @@ final class CustomOrders
             ], $task->refresh(), null);
         }
         app(T05CompleteTask::class)->handle($actor, $task->refresh(), 'تم أخذ القياسات النهائية.');
+    }
+
+    /**
+     * A workshop purchase order for the kitchen (ADR-0038), confirmed — which verifies «sent» — and, for most, emailed
+     * to the workshop with its PDF.
+     */
+    private function sendToWorkshop(Story $st, string $workshop, int $lead, bool $email): void
+    {
+        $order = $this->order($st);
+        $inv = $this->s->users['inventory'];
+        $branch = $st->data['branch'];
+        $cost = (int) round($this->agreementTotal($order) * 0.45);
+        $lines = OrderLine::query()->where('order_id', $order->id)->whereNull('removed_at')->where('line_type', 'custom_product')->orderBy('position')->get()
+            ->map(fn (OrderLine $l) => [
+                'id' => null, 'item_type' => PurchaseOrderLine::ORDER_LINE, 'item_id' => $l->id, 'quantity_milli' => 1000,
+                'unit_cost_minor' => $cost, 'order_id' => $order->id,
+            ])->values()->all();
+        $po = app(T00CreatePurchaseOrder::class)->handle($inv, [
+            'supplier_id' => $this->s->supply->workshops[$workshop]->id, 'branch_id' => $this->s->branches[$branch]->id,
+            'location_id' => $this->s->catalog->locations[$branch]->id, 'expected_on' => CarbonImmutable::now()->addDays($lead)->toDateString(),
+            'responsible_id' => $inv->id, 'notes' => 'التصنيع حسب التصميم المعتمد والمقاسات النهائية؛ التسليم في معرض الفرع.', 'lines' => $lines,
+        ], $this->key());
+        $po = app(T01ConfirmPurchaseOrder::class)->handle($inv, $po->refresh(), $po->lock_version, $this->key());
+        $st->data['po'] = $po->id;
+        if ($email) {
+            app(PurchaseOrderDocuments::class)->send($inv, $po->refresh(), [], $this->key());
+        }
+    }
+
+    /**
+     * The kitchen arrives from the workshop: fully accepted, or — the first time for a few — rejected on inspection.
+     */
+    private function receiveFromWorkshop(Story $st, bool $reject): void
+    {
+        $po = PurchaseOrder::query()->with('lines')->findOrFail($st->int('po'));
+        $lines = [];
+        foreach ($po->lines as $line) {
+            $remaining = $line->remainingMilli();
+            if ($remaining > 0) {
+                $lines[] = $reject
+                    ? ['line_id' => $line->id, 'accepted_milli' => 0, 'rejected_milli' => $remaining, 'reject_reason' => 'خدش في واجهات الأبواب — أُعيد للورشة للإصلاح.']
+                    : ['line_id' => $line->id, 'accepted_milli' => $remaining, 'rejected_milli' => 0];
+            }
+        }
+        if ($lines === []) {
+            return;
+        }
+        app(T02ReceivePurchase::class)->handle($this->s->users['inventory'], $po, [
+            'location_id' => $this->s->catalog->locations[$st->data['branch']]->id, 'received_on' => CarbonImmutable::now()->toDateString(),
+            'reference' => 'DN-W'.$po->id, 'note' => $reject ? 'رُفض عند الفحص' : 'استلام كامل وفحص أولي', 'lines' => $lines,
+        ], [], $po->lock_version, $this->key());
     }
 
     private function completeStage(Story $st, string $key): void

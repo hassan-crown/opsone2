@@ -96,7 +96,7 @@ final class EInvoicePdf
         return (new Writer(new GDLibRenderer(360, 2)))->writeString($payload);
     }
 
-    private static function logo(): ?string
+    public static function logo(): ?string
     {
         $uuid = ThemeSettings::published()['logo'] ?? null;
         $file = is_string($uuid) && $uuid !== '' ? Attachment::query()->where('uuid', $uuid)->first() : null;

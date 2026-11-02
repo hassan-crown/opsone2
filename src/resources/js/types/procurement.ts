@@ -21,6 +21,8 @@ export type SupplierRow = {
     supplies: string | null;
     notes: string | null;
     status: 'active' | 'disabled';
+    is_workshop: boolean;
+    lead_days: number | null;
     lock_version: number;
 };
 
@@ -82,7 +84,15 @@ export type PurchaseDetail = {
     id: number;
     number: string;
     status: PurchaseStatus;
-    supplier: { id: number; name: Text; active: boolean };
+    supplier: {
+        id: number;
+        name: Text;
+        active: boolean;
+        is_workshop: boolean;
+        email: string | null;
+    };
+    flow_reference: string | null;
+    days_late: number;
     branch: { id: number; name: string };
     location_id: number | null;
     expected_on: string | null;
@@ -97,13 +107,52 @@ export type PurchaseDetail = {
     totals?: { net_minor: number; vat_minor: number; gross_minor: number };
     lines: PurchaseLine[];
     receipts: PurchaseReceipt[];
+    orders: { id: number; number: string }[];
+    sends: PurchaseSend[];
+    email_defaults: {
+        recipient: string | null;
+        subject: string;
+        body: string;
+    } | null;
     can: {
         edit: boolean;
         confirm: boolean;
         receive: boolean;
         cancel: boolean;
         adjust: boolean;
+        pdf: boolean;
+        email: boolean;
     };
+};
+
+/** One emailed copy of a purchase order (ADR-0038). */
+export type PurchaseSend = {
+    id: number;
+    recipient: string;
+    subject: string;
+    locale: 'ar' | 'en';
+    status: 'queued' | 'sent' | 'failed';
+    retrying: boolean;
+    attempts: number | null;
+    sent_at: string | null;
+    created_at: string;
+    sender: string | null;
+    template_version: number;
+    retry_of: number | null;
+};
+
+/** A row of «orders at workshops» (ADR-0038). */
+export type WorkshopRow = {
+    id: number;
+    number: string;
+    status: PurchaseStatus;
+    supplier: { id: number; name: Text; is_workshop: boolean };
+    branch: { id: number; name: string };
+    orders: { id: number; number: string | null }[];
+    expected_on: string | null;
+    days_late: number;
+    progress: number;
+    flow_reference: string | null;
 };
 
 export type LocationOption = { id: number; name: string };

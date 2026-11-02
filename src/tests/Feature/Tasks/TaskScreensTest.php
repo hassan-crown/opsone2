@@ -26,7 +26,7 @@ beforeEach(function () {
     $f = ordersFixture();
     $org = $f->org;
 
-    $definition = FlowTemplates::definition(FlowTemplates::DEFAULT);
+    $definition = FlowTemplates::definition(FlowTemplates::IN_HOUSE);
     $definition['stages'][0]['follow_up'] = ['type' => 'department', 'id' => $org->d1->id];
     foreach ($definition['stages'][0]['actions'] as $i => $action) {
         $definition['stages'][0]['actions'][$i]['assign'] = ['type' => 'department', 'id' => $org->d1->id];

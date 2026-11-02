@@ -43,7 +43,7 @@ uses(RefreshDatabase::class);
  */
 function inboxFixture(object $f): object
 {
-    $definition = FlowTemplates::definition(FlowTemplates::DEFAULT);
+    $definition = FlowTemplates::definition(FlowTemplates::IN_HOUSE);
     foreach ($definition['stages'][0]['actions'] as $i => $action) {
         $definition['stages'][0]['actions'][$i]['assign'] = ['type' => 'department', 'id' => $f->org->d1->id];
     }

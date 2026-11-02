@@ -24,7 +24,8 @@ final class ActionResults
 
     /**
      * @param  string|null  $purpose  the action's distinguishing input: payment/supply `reference`, approval `subject`,
-     *                                document `document`, required document `document_type`; null for a delivery
+     *                                document `document`, required document `document_type`, workshop
+     *                                `reference:milestone`; null for a delivery
      * @return OrderAction|null the matched action, or null when the order's flow has no such action
      */
     public function verifyFromSource(Order $order, ActionType $type, ?string $purpose, string $sourceType, int|string $sourceId, ?User $actor = null): ?OrderAction
@@ -90,6 +91,8 @@ final class ActionResults
             ActionType::PaymentCheck, ActionType::SupplyFollowUp => ['reference' => $purpose],
             ActionType::CustomerApproval => ['subject' => $purpose],
             ActionType::PrepareDocument => ['document' => $purpose],
+            // `reference:milestone`, e.g. `workshop:received`.
+            ActionType::WorkshopOrder => array_combine(['reference', 'milestone'], array_pad(explode(':', (string) $purpose, 2), 2, '')),
             default => [],
         };
     }

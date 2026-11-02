@@ -8,8 +8,10 @@ use App\Enums\PurchaseStatus;
 use App\Files\AttachmentService;
 use App\Models\Attachment;
 use App\Models\Branch;
+use App\Models\Order;
 use App\Models\Procurement\PurchaseOrder;
 use App\Models\Procurement\PurchaseOrderLine;
+use App\Models\Procurement\PurchaseOrderSend;
 use App\Models\Procurement\PurchaseReceipt;
 use App\Models\Procurement\Supplier;
 use App\Models\User;
@@ -41,6 +43,7 @@ final class PurchasePresenter
         return [
             'id' => $s->id, 'name' => self::text($s->name), 'contact_name' => $s->contact_name, 'phone' => $s->phone, 'email' => $s->email,
             'vat_number' => $s->vat_number, 'supplies' => $s->supplies, 'notes' => $s->notes, 'status' => $s->status,
+            'is_workshop' => $s->is_workshop, 'lead_days' => $s->lead_days,
             'lock_version' => $s->lock_version,
         ];
     }
@@ -71,14 +74,19 @@ final class PurchasePresenter
      */
     public function detail(PurchaseOrder $po, User $viewer): array
     {
-        $po->load(['supplier', 'branch', 'responsible', 'lines.purchaseOrder', 'receipts.lines', 'receipts.receiver', 'receipts.attachments']);
+        $po->load(['supplier', 'branch', 'responsible', 'lines.purchaseOrder', 'receipts.lines', 'receipts.receiver', 'receipts.attachments', 'sends.outbox', 'sends.sender', 'sends.document']);
         $costs = PurchaseAccess::canSeeCosts($viewer, $po);
         $open = $po->status->open();
         $edit = $po->status === PurchaseStatus::Draft && Access::can($viewer, Permission::P46, $po);
 
         return [
             'id' => $po->id, 'number' => $po->number, 'status' => $po->status->value,
-            'supplier' => ['id' => $po->supplier_id, 'name' => self::text($po->supplier->name), 'active' => $po->supplier->isActive()],
+            'supplier' => [
+                'id' => $po->supplier_id, 'name' => self::text($po->supplier->name), 'active' => $po->supplier->isActive(),
+                'is_workshop' => $po->supplier->is_workshop, 'email' => $po->supplier->email,
+            ],
+            'flow_reference' => $po->flow_reference,
+            'days_late' => WorkshopOrders::lateDays($po),
             'branch' => ['id' => $po->branch_id, 'name' => OrgPresenter::name($po->branch)],
             'location_id' => $po->location_id,
             'expected_on' => $po->expected_on?->toDateString(),
@@ -95,12 +103,31 @@ final class PurchasePresenter
             ] : []),
             'lines' => $po->lines->map(fn (PurchaseOrderLine $l) => $this->line($l, $po, $costs))->values()->all(),
             'receipts' => $po->receipts->map(fn (PurchaseReceipt $r) => $this->receipt($r, $po, $viewer))->values()->all(),
+            'orders' => Order::query()->whereIn('id', $po->lines->pluck('order_id')->filter()->unique()->all())->get(['id', 'number'])
+                ->map(fn (Order $o) => ['id' => $o->id, 'number' => $o->number])->values()->all(),
+            'sends' => $po->sends->map(fn (PurchaseOrderSend $send) => [
+                'id' => $send->id, 'recipient' => $send->recipient, 'subject' => $send->subject, 'locale' => $send->locale,
+                // queued (pending / retrying) | sent | failed (retries exhausted); attempts while the outbox row lives.
+                'status' => $send->status,
+                'retrying' => $send->status === PurchaseOrderSend::QUEUED && ($send->outbox->attempts ?? 0) > 0,
+                'attempts' => $send->outbox?->attempts,
+                'sent_at' => $send->sent_at?->toIso8601String(),
+                'created_at' => $send->created_at->toIso8601String(),
+                'sender' => $send->sender?->name,
+                'template_version' => $send->document->template_version,
+                'retry_of' => $send->retry_of,
+            ])->values()->all(),
+            'email_defaults' => in_array($po->status, [PurchaseStatus::Ordered, PurchaseStatus::PartiallyReceived, PurchaseStatus::Received], true)
+                ? ['recipient' => $po->supplier->email, ...PurchaseOrderDocuments::texts($po, 'ar')] : null,
             'can' => [
                 'edit' => $edit,
                 'confirm' => $edit,
                 'receive' => $open && Access::can($viewer, Permission::P47, $po),
                 'cancel' => in_array($po->status, [PurchaseStatus::Draft, PurchaseStatus::Ordered, PurchaseStatus::PartiallyReceived], true) && Access::can($viewer, Permission::P46, $po),
                 'adjust' => $open && Access::can($viewer, Permission::P46, $po),
+                'pdf' => PurchaseAccess::canView($viewer, $po),
+                'email' => in_array($po->status, [PurchaseStatus::Ordered, PurchaseStatus::PartiallyReceived, PurchaseStatus::Received], true)
+                    && Access::can($viewer, Permission::P46, $po),
             ],
         ];
     }

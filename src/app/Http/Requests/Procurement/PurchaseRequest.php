@@ -35,9 +35,10 @@ class PurchaseRequest extends AgreementWriteRequest
             'expected_on' => ['nullable', 'date'],
             'responsible_id' => ['nullable', 'integer', 'exists:users,id'],
             'notes' => ['nullable', 'string', 'max:2000'],
+            'flow_reference' => ['nullable', 'string', 'regex:/^[a-z0-9_]{1,30}$/'],
             'lines' => ['required', 'array', 'min:1', 'max:100'],
             'lines.*.id' => ['nullable', 'integer'],
-            'lines.*.item_type' => ['required', Rule::in([PurchaseOrderLine::MATERIAL, PurchaseOrderLine::READY_VARIANT])],
+            'lines.*.item_type' => ['required', Rule::in(PurchaseOrderLine::TYPES)],
             'lines.*.item_id' => ['required', 'integer', 'min:1'],
             'lines.*.quantity' => ['required', function (string $attribute, mixed $value, Closure $fail) {
                 if (! Quantity::isValidInput(is_numeric($value) ? (string) $value : $value) || Quantity::fromInput(trim((string) $value)) < 1) {
@@ -77,6 +78,7 @@ class PurchaseRequest extends AgreementWriteRequest
             'expected_on' => $body['expected_on'] ?? null,
             'responsible_id' => isset($body['responsible_id']) ? (int) $body['responsible_id'] : null,
             'notes' => isset($body['notes']) && trim((string) $body['notes']) !== '' ? trim((string) $body['notes']) : null,
+            'flow_reference' => isset($body['flow_reference']) && $body['flow_reference'] !== '' ? (string) $body['flow_reference'] : null,
             'lines' => $lines,
         ];
     }

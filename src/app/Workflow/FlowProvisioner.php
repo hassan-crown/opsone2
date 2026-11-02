@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\DB;
 
 /**
  * M-23-T01 at provisioning: the facility starts with the default flow published (WF-01), so opening orders never
- * waits for setup. Idempotent; the `singleton` key keeps it to one flow even when two first orders race.
+ * waits for setup. Which template is per deployment (`opsone.default_flow_template`, ADR-0038). Idempotent; the `singleton` key keeps it to one flow even when two first orders race.
  */
 final class FlowProvisioner
 {
@@ -29,7 +29,7 @@ final class FlowProvisioner
         }
 
         try {
-            return DB::transaction(fn () => $this->create(FlowTemplates::DEFAULT, null, TransitionRecorder::SOURCE_PROVISIONING));
+            return DB::transaction(fn () => $this->create(FlowTemplates::provisioned(), null, TransitionRecorder::SOURCE_PROVISIONING));
         } catch (UniqueConstraintViolationException) {
             return Flow::current() ?? throw new \RuntimeException('The facility flow could not be provisioned.');
         }

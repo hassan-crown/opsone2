@@ -85,13 +85,26 @@ export function move<T>(list: T[], index: number, by: -1 | 1): T[] {
 }
 
 export const targetValue = (target: Target): string =>
-    target.type === 'order_assignee'
-        ? 'order_assignee'
+    ['order_assignee', 'stage', 'per_branch'].includes(target.type)
+        ? target.type
         : `${target.type}:${target.id ?? ''}`;
 
-export function parseTarget(value: string): Target {
+/** `previous` keeps the per-branch rows when the choice does not change. */
+export function parseTarget(value: string, previous?: Target): Target {
     if (value === 'order_assignee' || value === '') {
         return { type: 'order_assignee' };
+    }
+    if (value === 'stage') {
+        return { type: 'stage' };
+    }
+    if (value === 'per_branch') {
+        return {
+            type: 'per_branch',
+            branches:
+                previous?.type === 'per_branch'
+                    ? (previous.branches ?? [])
+                    : [],
+        };
     }
     const [type, id] = value.split(':');
 

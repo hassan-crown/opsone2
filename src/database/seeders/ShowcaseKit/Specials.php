@@ -120,7 +120,7 @@ final class Specials
 
     private function change(bool $increase, bool $reduce = false): void
     {
-        $order = $this->pick(['manufacture', 'install']);
+        $order = $this->pick(['workshop', 'receiving', 'install']);
         if ($order === null) {
             throw new \RuntimeException('no order to change');
         }
@@ -173,7 +173,7 @@ final class Specials
 
     private function cancel(string $reason, string $retained): void
     {
-        $order = $this->pick(['manufacture', 'agreement', 'design']);
+        $order = $this->pick(['workshop', 'agreement', 'design']);
         if ($order === null) {
             throw new \RuntimeException('no order to cancel');
         }

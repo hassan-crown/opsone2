@@ -191,3 +191,28 @@ document number = RT.
 | `refunds.order_return_id` | Links a return's refunds; M-12-T07 refuses to retry one the return replaced after a failure (409 `superseded`). |
 | Stock ledger | Location row shared-locked before balances; nothing arrives at a disabled location (422 `location_id`). |
 | Audit log | Amounts of records that belong to an order (returns, delivery notes, cancellations…) follow the order's P-37 rule. |
+
+## Workshop purchase orders and the purchase-order document (No-Code phase 1b, ADR-0038)
+
+| Endpoint / seam | Body / query | Permission → result |
+|---|---|---|
+| `POST/PUT /suppliers` | `+ is_workshop: bool, lead_days?: 1..365` | P-45. A workshop's `lead_days` proposes a new purchase order's `expected_on` (create, when left empty). |
+| `POST/PUT /purchases` | `+ flow_reference?: ^[a-z0-9_]{1,30}$`; line `item_type: material \| ready_variant \| order_line` | P-46. `order_line` = a line of the linked order (`order_id` required, same order, not removed); frozen name, unit `piece`, **never stocked**. |
+| `GET /purchases/create?order=&reference=` | — | P-46 (+P-16 on the order) → `prefill {order, branch_id, supplier_id (the only active workshop), expected_on, flow_reference, lines[]}`. |
+| `GET /workshops` (`?supplier&branch&late=1`) | — | P-46 / P-47 scoped like the purchase list → `rows[{id, number, status, supplier{is_workshop}, branch, orders[{id, number}], expected_on, days_late, progress, flow_reference}], summary{open, late, by_workshop[]}`. No costs. |
+| `GET /purchases/{po}/pdf` (`?locale=en&download=1`) | — | P-46 / P-47 on the order → the PDF (stored once per content fingerprint as `purchase_order_documents` + private attachment, records `template_version`). Prices only when the layout shows them **and** the viewer holds P-82. |
+| `POST /purchases/{po}/email` | `idempotency_key, recipient?, subject?, body?, locale?: ar\|en` | P-46; ordered / partially received / received (409 otherwise) → `purchase_order_sends` row + outbox mail (kind `purchase_order`, PDF attached), audit `purchase.emailed`. Empty fields use the supplier email and the facility texts. |
+| `POST /purchases/{po}/sends/{send}/retry` | `idempotency_key` | P-46; only a `failed` send (retries exhausted, else 409) → a new send with `retry_of`. |
+| `GET /settings/purchase-document` | — | P-45 → `{version, layout{blocks[{key, visible}], flags{}, title{ar,en}, terms{ar,en}}, email{subject{ar,en}, body{ar,en}}, options}`. |
+| `PUT /settings/purchase-document` | `version (the one read), layout, email` | P-45 → a new immutable `purchase_document_versions` row (audit `purchase.document_saved`); stale `version` → `lock_version` error; unchanged → no new version; placeholders only `{number} {supplier} {facility} {branch} {expected_on}`. |
+| `POST /settings/purchase-document/preview` | `layout, locale?` | P-45 → PDF of the unsaved layout on the viewer's latest purchase order (or a sample). |
+
+Send statuses (`purchase_order_sends.status`, mirrored from the outbox, which prunes delivered rows): `queued`
+(pending or retrying with backoff), `sent`, `failed` (retries exhausted). Blocks: `facility, branch, supplier,
+order_reference, expected_on, delivery_address, lines, notes, terms, signatures`; flags: `facility_contact,
+customer_name (off), customer_phone (off), line_dimensions, line_options, line_notes, line_images, prices (off),
+signature, stamp`.
+
+Flow sync (`Procurement\WorkshopOrders::sync`, inside T01–T04): see docs/p5-engine-api.md «For P6/P7». Late alert:
+`workshops:late-alerts` (daily 07:30) notifies `workshop.late` to the purchase order's responsible, the order's owner and
+the open workshop stages' responsible, once per purchase order and expected date.

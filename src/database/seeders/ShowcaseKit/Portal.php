@@ -20,7 +20,7 @@ final class Portal
         ['mobile' => '+966501110001', 'name' => 'نورة بنت سعد الفهد', 'email' => 'portal1@mail-demo.test', 'branch' => 'RUH', 'start' => '2026-10-13 10:00', 'opts' => ['stopAfter' => 'design-upload', 'unconfirmed' => ['measurement']]],
         ['mobile' => '+966501110002', 'name' => 'عبدالرحمن بن ناصر الخالدي', 'email' => 'portal2@mail-demo.test', 'branch' => 'JED', 'start' => '2026-10-04 10:00', 'opts' => ['stopAfter' => 'quote-send', 'viaPortal' => true, 'discount' => '0', 'esign' => 'pending']],
         ['mobile' => '+966501110003', 'name' => 'شركة المسار للمقاولات', 'email' => 'portal3@mail-demo.test', 'branch' => 'RUH', 'start' => '2026-09-27 10:00', 'opts' => ['stopAfter' => 'first-payment', 'proofByCustomer' => true, 'viaPortal' => true, 'discount' => '0', 'esign' => 'signed', 'contract' => 'signed', 'signer' => 'م. خالد بن فهد المسار']],
-        ['mobile' => '+966501110004', 'name' => 'ريم بنت محمد السبيعي', 'email' => 'portal4@mail-demo.test', 'branch' => 'DMM', 'start' => '2026-09-06 10:00', 'opts' => ['stopAfter' => 'stage-manufacture', 'unconfirmed' => ['installation'], 'viaPortal' => true, 'discount' => '0', 'esign' => 'signed', 'contract' => 'pending']],
+        ['mobile' => '+966501110004', 'name' => 'ريم بنت محمد السبيعي', 'email' => 'portal4@mail-demo.test', 'branch' => 'DMM', 'start' => '2026-09-06 10:00', 'opts' => ['stopAfter' => 'stage-receiving', 'unconfirmed' => ['installation'], 'viaPortal' => true, 'discount' => '0', 'esign' => 'signed', 'contract' => 'pending']],
     ];
 
     public function __construct(private readonly Showcase $s) {}

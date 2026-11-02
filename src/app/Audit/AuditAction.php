@@ -214,6 +214,9 @@ enum AuditAction: string
     case PurchaseReceived = 'purchase.received';
     case PurchaseAdjusted = 'purchase.adjusted';
     case PurchaseRemainderCancelled = 'purchase.remainder_cancelled';
+    // ADR-0038: the facility's purchase-order document and its emailed copies.
+    case PurchaseDocumentSaved = 'purchase.document_saved';
+    case PurchaseEmailed = 'purchase.emailed';
     // P7 delivery (domain 06, M-14).
     case DeliveryDrafted = 'delivery.drafted';
     case DeliveryConfirmed = 'delivery.confirmed';
@@ -358,7 +361,7 @@ enum AuditAction: string
             self::SaleCorrectionApproved, self::SaleCorrectionRejected, self::SaleCorrectionCancelled => 'commissions',
             self::SupplierCreated, self::SupplierUpdated, self::SupplierDisabled, self::SupplierEnabled,
             self::PurchaseCreated, self::PurchaseUpdated, self::PurchaseConfirmed, self::PurchaseReceived,
-            self::PurchaseAdjusted, self::PurchaseRemainderCancelled => 'procurement',
+            self::PurchaseAdjusted, self::PurchaseRemainderCancelled, self::PurchaseDocumentSaved, self::PurchaseEmailed => 'procurement',
             self::DeliveryDrafted, self::DeliveryConfirmed, self::DeliveryCancelled, self::DeliveryRemarkRecorded, self::DeliveryRemarkResolved => 'delivery',
             self::CancellationRequested, self::CancellationAccepted, self::CancellationRejected, self::CancellationWithdrawn,
             self::SettlementItemResolved, self::SettlementClosed => 'cancellation',

@@ -11,7 +11,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * A supplier profile (FUL-05, P-45): name, contact and notes, never an accounting payable account. Disabling keeps
- * every purchase made from it; a disabled supplier cannot be chosen on a new purchase order.
+ * every purchase made from it; a disabled supplier cannot be chosen on a new purchase order. A workshop (ADR-0038)
+ * makes the facility's custom orders; its `lead_days` proposes a purchase order's expected date.
  *
  * @property int $id
  * @property Translated $name
@@ -20,6 +21,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property string|null $email
  * @property string|null $vat_number
  * @property string|null $supplies
+ * @property bool $is_workshop
+ * @property int|null $lead_days
  * @property string|null $notes
  * @property string $status
  * @property CarbonInterface|null $disabled_at
@@ -34,7 +37,7 @@ class Supplier extends Model implements ScopedRecord
 
     protected $guarded = ['id', 'lock_version'];
 
-    protected $attributes = ['lock_version' => 1, 'status' => self::ACTIVE];
+    protected $attributes = ['lock_version' => 1, 'status' => self::ACTIVE, 'is_workshop' => false];
 
     /**
      * Saudi VAT registration number: 15 digits, first and last 3.
@@ -65,6 +68,7 @@ class Supplier extends Model implements ScopedRecord
         return [
             'name' => $this->name->toArray(), 'contact_name' => $this->contact_name, 'phone' => $this->phone, 'email' => $this->email,
             'vat_number' => $this->vat_number, 'supplies' => $this->supplies, 'notes' => $this->notes, 'status' => $this->status,
+            'is_workshop' => $this->is_workshop, 'lead_days' => $this->lead_days,
         ];
     }
 
@@ -93,6 +97,8 @@ class Supplier extends Model implements ScopedRecord
         return [
             'name' => TranslatableString::class,
             'disabled_at' => 'datetime',
+            'is_workshop' => 'boolean',
+            'lead_days' => 'integer',
             'lock_version' => 'integer',
         ];
     }

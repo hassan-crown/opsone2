@@ -7,6 +7,7 @@ use App\Enums\StateMachine;
 use App\Enums\TaskStatus;
 use App\Models\Order;
 use App\Models\OrderAction;
+use App\Models\OrderStage;
 use App\Models\Task;
 use App\Models\User;
 use App\Notifications\Notifier;
@@ -14,7 +15,8 @@ use App\Notifications\Notifier;
 /**
  * M-07-T00: creates an action's work once, when the action becomes available (WF-06 «إنشاء مهامها دون تكرار»), routed
  * as the flow says: the order's responsible person or a named member when eligible, otherwise unassigned under a
- * known follower; a department routing puts it in that department's inbox.
+ * known follower; a department routing puts it in that department's inbox; a role, a person per branch or the stage's
+ * responsible resolve through StageAssignment (ADR-0038).
  */
 final class TaskFactory
 {
@@ -45,6 +47,10 @@ final class TaskFactory
         $target = match ($action->assign_type) {
             'order_assignee' => $order->assignee_id,
             'member' => $action->assign_id,
+            // ADR-0038: a role, a person per branch, or the stage's responsible (resolved now, eligibility included).
+            StageAssignment::ROLE, StageAssignment::PER_BRANCH, StageAssignment::STAGE => StageAssignment::resolve(
+                $action->assign_target ?? ['type' => $action->assign_type], $order, OrderStage::query()->find($action->order_stage_id), $task,
+            ),
             default => null,
         };
         if ($kind === Task::KIND_CORRECTION && $corrects?->assignee_id !== null) {

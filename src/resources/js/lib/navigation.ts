@@ -20,6 +20,7 @@ import {
     ShoppingBag,
     BarChart3,
     Gauge,
+    Factory,
 } from 'lucide-react';
 import CommissionController from '@/actions/App/Http/Controllers/Commissions/CommissionController';
 import CalendarController from '@/actions/App/Http/Controllers/Calendar/CalendarController';
@@ -37,6 +38,7 @@ import ReturnController from '@/actions/App/Http/Controllers/Returns/ReturnContr
 import ExecutiveDashboardController from '@/actions/App/Http/Controllers/Reports/ExecutiveDashboardController';
 import ReportsController from '@/actions/App/Http/Controllers/Reports/ReportsController';
 import PurchaseController from '@/actions/App/Http/Controllers/Procurement/PurchaseController';
+import WorkshopBoardController from '@/actions/App/Http/Controllers/Procurement/WorkshopBoardController';
 import OrderController from '@/actions/App/Http/Controllers/Orders/OrderController';
 import InterestController from '@/actions/App/Http/Controllers/Customers/InterestController';
 import AuditLogController from '@/actions/App/Http/Controllers/Audit/AuditLogController';
@@ -115,6 +117,12 @@ export const mainNav: LocalizedNavItem[] = [
         label: 'procurement.nav',
         href: PurchaseController.index(),
         icon: Truck,
+        access: 'procurement',
+    },
+    {
+        label: 'workshops.nav',
+        href: WorkshopBoardController.index(),
+        icon: Factory,
         access: 'procurement',
     },
     {

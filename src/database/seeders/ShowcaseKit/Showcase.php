@@ -21,6 +21,9 @@ final class Showcase
 
     public Rng $rng;
 
+    /** Workshop choices and delays (ADR-0038) draw from their own stream, so the rest of the dataset stays as it was. */
+    public Rng $workshopRng;
+
     public Timeline $timeline;
 
     public Assets $assets;
@@ -68,6 +71,7 @@ final class Showcase
         $this->start = CarbonImmutable::parse('2026-05-01 08:00', 'Asia/Riyadh');
         $this->end = CarbonImmutable::parse('2026-11-01 12:00', 'Asia/Riyadh');
         $this->rng = new Rng(20261101);
+        $this->workshopRng = new Rng(20261102);
         $this->timeline = new Timeline($this->end);
         $this->timeline->trace = (bool) getenv('SHOWCASE_TRACE');
         $this->assets = new Assets($images);

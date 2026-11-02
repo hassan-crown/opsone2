@@ -39,7 +39,7 @@ uses(RefreshDatabase::class);
  */
 function editedDefault(callable $change): array
 {
-    $definition = FlowTemplates::definition(FlowTemplates::DEFAULT);
+    $definition = FlowTemplates::definition(FlowTemplates::IN_HOUSE);
     $change($definition);
 
     return $definition;
@@ -53,8 +53,9 @@ function issueCodes(array $definition): array
     return array_map(fn (array $i) => $i['code'], app(FlowCheck::class)->run($definition)->issues);
 }
 
-it('offers exactly ten fixed system actions in five groups', function () {
-    expect(ActionType::cases())->toHaveCount(10)
+it('offers exactly eleven fixed system actions in five groups', function () {
+    // Ten from ADR-0012 plus the workshop order of ADR-0038.
+    expect(ActionType::cases())->toHaveCount(11)
         ->and(array_unique(array_map(fn (ActionType $t) => $t->group()->value, ActionType::cases())))->toHaveCount(5)
         ->and(ActionType::catalogue()[0])->toHaveKeys(['type', 'group', 'completion', 'label', 'inputs', 'defaults']);
 });
@@ -149,10 +150,10 @@ it('provisions one published default flow and pins it on the first order', funct
 
     expect(Flow::query()->count())->toBe(1)
         ->and($flow->status)->toBe(FlowStatus::Published)
-        ->and($flow->template_key)->toBe('default')
+        ->and($flow->template_key)->toBe(FlowTemplates::IN_HOUSE)
         ->and(OrderWorkflow::query()->where('order_id', $f->order->id)->value('flow_version_id'))->toBe($flow->published_version_id)
         ->and(app(FlowProvisioner::class)->ensure()->id)->toBe($flow->id)
-        ->and(fn () => Flow::query()->create(['status' => 'published', 'template_key' => 'default']))->toThrow(UniqueConstraintViolationException::class);
+        ->and(fn () => Flow::query()->create(['status' => 'published', 'template_key' => FlowTemplates::IN_HOUSE]))->toThrow(UniqueConstraintViolationException::class);
 });
 
 it('M-23: draft, discard, publish and template replacement follow the machine', function () {
@@ -233,11 +234,11 @@ it('lets only P-20 edit and P-21 publish or replace the flow', function () {
     $supervisor = $f->org->member('supervisor', [$f->org->a], $f->org->d1);
 
     foreach ([$f->sales, $supervisor] as $user) {
-        expectRefusedWithoutEffect(fn () => app(T02SaveDraft::class)->handle($user, FlowTemplates::definition('default')), AuthorizationException::class);
+        expectRefusedWithoutEffect(fn () => app(T02SaveDraft::class)->handle($user, FlowTemplates::definition(FlowTemplates::IN_HOUSE)), AuthorizationException::class);
         expectRefusedWithoutEffect(fn () => app(T01ChooseTemplate::class)->handle($user, 'compact'), AuthorizationException::class);
     }
 
-    app(T02SaveDraft::class)->handle($manager, FlowTemplates::definition('default'));
+    app(T02SaveDraft::class)->handle($manager, FlowTemplates::definition(FlowTemplates::IN_HOUSE));
     expectRefusedWithoutEffect(fn () => app(T03PublishFlow::class)->handle($f->sales), AuthorizationException::class);
     expect(app(T03PublishFlow::class)->handle($manager)->status)->toBe(FlowStatus::Published);
 });
@@ -245,9 +246,9 @@ it('lets only P-20 edit and P-21 publish or replace the flow', function () {
 it('refuses a stale flow version', function () {
     $f = workflowFixture();
     $flow = Flow::current();
-    app(T02SaveDraft::class)->handle($f->org->owner, FlowTemplates::definition('default'), $flow->lock_version);
+    app(T02SaveDraft::class)->handle($f->org->owner, FlowTemplates::definition(FlowTemplates::IN_HOUSE), $flow->lock_version);
 
-    expectRefusedWithoutEffect(fn () => app(T02SaveDraft::class)->handle($f->org->owner, FlowTemplates::definition('default'), $flow->lock_version), StaleRecord::class);
+    expectRefusedWithoutEffect(fn () => app(T02SaveDraft::class)->handle($f->org->owner, FlowTemplates::definition(FlowTemplates::IN_HOUSE), $flow->lock_version), StaleRecord::class);
 });
 
 it('rejects an unknown transition code without effect', function () {

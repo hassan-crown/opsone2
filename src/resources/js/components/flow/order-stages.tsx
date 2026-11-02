@@ -3,12 +3,15 @@ import {
     CirclePause,
     CirclePlay,
     Clock,
+    Factory,
     ListChecks,
     Pencil,
     RotateCcw,
 } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
+import { Link } from '@inertiajs/react';
 import OrderProgressController from '@/actions/App/Http/Controllers/Flow/OrderProgressController';
+import PurchaseController from '@/actions/App/Http/Controllers/Procurement/PurchaseController';
 import { Icon } from '@/components/opsone/icon';
 import { notify } from '@/components/opsone/toast';
 import { Alert, AlertBody } from '@/components/ui/alert';
@@ -344,6 +347,16 @@ export function OrderStages({
                                             })}
                                         </span>
                                     )}
+                                    {stage.days_late > 0 && (
+                                        <Badge
+                                            variant="danger"
+                                            data-test={`late-${stage.key}`}
+                                        >
+                                            {t('workshops.stage_late', {
+                                                n: stage.days_late,
+                                            })}
+                                        </Badge>
+                                    )}
                                 </div>
                                 {stage.can_complete &&
                                     running &&
@@ -416,6 +429,42 @@ export function OrderStages({
                                                 )}
                                             </p>
                                         </div>
+                                        {action.workshop?.milestone ===
+                                            'sent' &&
+                                            action.workshop.can_order &&
+                                            running &&
+                                            ['ready', 'unavailable'].includes(
+                                                action.status,
+                                            ) && (
+                                                <Button
+                                                    asChild
+                                                    variant="secondary"
+                                                    size="sm"
+                                                >
+                                                    <Link
+                                                        href={PurchaseController.create.url(
+                                                            {
+                                                                query: {
+                                                                    order: orderId,
+                                                                    reference:
+                                                                        action
+                                                                            .workshop
+                                                                            .reference,
+                                                                },
+                                                            },
+                                                        )}
+                                                        data-test={`workshop-order-${action.key}`}
+                                                    >
+                                                        <Icon
+                                                            icon={Factory}
+                                                            size="sm"
+                                                        />
+                                                        {t(
+                                                            'workshops.create_po',
+                                                        )}
+                                                    </Link>
+                                                </Button>
+                                            )}
                                         {action.can.rework &&
                                             running &&
                                             !progress.paused && (
