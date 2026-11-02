@@ -11,6 +11,7 @@ use App\Models\OrderStage;
 use App\Models\Task;
 use App\Models\User;
 use App\Notifications\Notifier;
+use App\Tasks\TaskSla;
 
 /**
  * M-07-T00: creates an action's work once, when the action becomes available (WF-06 «إنشاء مهامها دون تكرار»), routed
@@ -41,6 +42,8 @@ final class TaskFactory
             'department_id' => $action->assign_type === 'department' ? $action->assign_id : null,
             'follow_up_user_id' => TaskEligibility::followerOf($order),
             'status' => TaskStatus::Unassigned,
+            // ADR-0037: fixed at creation in working days; a later setting change never moves it.
+            'due_at' => TaskSla::dueAt($action->type->value, now()),
         ]);
         $task->setRelation('order', $order);
 

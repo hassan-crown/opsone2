@@ -4,7 +4,10 @@ namespace App\Agreements\Signing;
 
 use App\Enums\DocumentKind;
 use App\Enums\DocumentStatus;
+use App\Enums\DueEvent;
 use App\Finance\OrderSchedule;
+use App\Finance\Plans\DueWording;
+use App\Finance\Plans\PaymentPlans;
 use App\Models\Agreements\AgreementDocument;
 use App\Models\Attachment;
 use App\Models\Facility;
@@ -169,28 +172,19 @@ final class DocumentSheet
         if ($dues->isNotEmpty()) {
             return array_values($dues->map(fn (OrderDue $d) => [
                 'name' => (string) $d->name->get($locale),
-                'when' => $d->due_date !== null ? $d->due_date->toDateString() : __('esign.pdf.due.'.$d->due_event->value, [], $locale),
+                'when' => $d->due_date !== null ? $d->due_date->toDateString() : DueWording::of($d->due_event, $d->stage_key, $d->offset_days, $locale),
                 'amount' => self::money($d->amount_minor),
             ])->all());
         }
 
-        $template = OrderSchedule::TEMPLATES[OrderSchedule::DEFAULT_TEMPLATE];
-        $rows = [];
-        $left = $totalMinor;
-        foreach ($template as $row) {
-            $amount = null;
-            if ($totalMinor !== null) {
-                $amount = $row['basis'] === 'percent' ? Money::of($totalMinor)->percent((int) $row['value'])->minor : $left;
-                $left = $left === null || $amount === null ? null : $left - $amount;
-            }
-            $rows[] = [
-                'name' => $row['name'][$locale] ?? $row['name']['ar'],
-                'when' => __('esign.pdf.due.'.$row['event'], [], $locale),
-                'amount' => self::money($amount),
-            ];
-        }
+        $lines = PaymentPlans::pending($document->order_id)['lines'];
+        $amounts = $totalMinor === null ? [] : OrderSchedule::preview($lines, Money::of($totalMinor));
 
-        return $rows;
+        return array_map(fn (array $l, int $i) => [
+            'name' => $l['name'][$locale] ?? $l['name']['ar'],
+            'when' => DueWording::of(DueEvent::from($l['event']), $l['stage_key'], $l['offset_days'], $locale),
+            'amount' => self::money($amounts[$i] ?? null),
+        ], $lines, array_keys($lines));
     }
 
     private static function themeLogo(mixed $uuid): ?string

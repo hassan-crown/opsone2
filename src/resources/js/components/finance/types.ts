@@ -7,14 +7,47 @@ export type DueStatus =
     | 'partially_paid'
     | 'paid';
 
+/** Closed trigger catalogue (ADR-0037). */
+export type DueEvent =
+    | 'agreement'
+    | 'contract.approved'
+    | 'design.approved'
+    | 'stage.started'
+    | 'delivery'
+    | 'delivery.completed'
+    | 'payment_stage'
+    | 'date';
+
+export type PlanLine = {
+    key: string;
+    name: { ar: string; en?: string | null };
+    basis: 'amount' | 'percent' | 'rest';
+    value: string | null;
+    event: DueEvent;
+    stage_key: string | null;
+    offset_days: number;
+    grace_days: number;
+};
+
+export type PaymentPlanOption = {
+    id: number;
+    key: string;
+    name: string;
+    is_default: boolean;
+    lines: PlanLine[];
+};
+
 export type FinanceDue = {
     id: number;
     reference: string;
     name: string | null;
     name_i18n: { ar?: string | null; en?: string | null };
     basis: 'amount' | 'percent' | 'rest';
-    event: 'agreement' | 'payment_stage' | 'delivery' | 'date';
+    event: DueEvent;
     due_date: string | null;
+    stage_key: string | null;
+    offset_days: number;
+    grace_days: number;
     due_on: string | null;
     status: DueStatus;
     basis_value?: number | null;
@@ -94,7 +127,16 @@ export type FinancePayload = {
     proofs: FinanceProof[];
     conditions: FinanceCondition[];
     shortfalls: string[];
-    templates: string[];
+    /** The plan copied into the schedule, or the one the agreement will copy (ADR-0037). */
+    plan: {
+        key: string;
+        name: string | null;
+        chosen: boolean;
+        copied: boolean;
+    };
+    /** Active plans; empty without P-38. */
+    plans: PaymentPlanOption[];
+    stages: { key: string; name: string }[];
     /** Owner setting (ADR-0014): false lets a cash collection go without a proof file, with a note. */
     cash_proof_required: boolean;
     can: {
@@ -102,6 +144,7 @@ export type FinancePayload = {
         review: boolean;
         schedule: boolean;
         allocate: boolean;
+        plan: boolean;
     };
     customer_orders: { id: number; number: string }[];
 };

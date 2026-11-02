@@ -111,6 +111,12 @@ it('seeds a coherent history and keeps the ledger and stock invariants', functio
         expect(json_decode((string) $action->source_reference, true)['type'] ?? null)->toBeIn(['purchase_order', 'purchase_receipt']);
     }
 
+    // Payment plans (ADR-0037): two plans, every agreed order copied one of them, and 40/40/20 orders have a second
+    // payment due when installation starts.
+    expect(DB::table('payment_plans')->orderBy('key')->pluck('key')->all())->toBe(['fifty_fifty', 'forty_forty_twenty'])
+        ->and(DB::table('order_finances')->whereNotNull('agreement_id')->whereNotIn('payment_plan_key', ['fifty_fifty', 'forty_forty_twenty'])->count())->toBe(0)
+        ->and(DB::table('order_dues')->where('reference', 'second')->where('stage_key', '!=', 'install')->count())->toBe(0);
+
     // Gapless numbering: receipts follow each other without holes.
     $numbers = DB::table('receipts')->orderBy('id')->pluck('number')->map(fn ($n) => (int) substr((string) $n, -6))->all();
     expect($numbers)->toBe(range(1, count($numbers)));
@@ -118,6 +124,16 @@ it('seeds a coherent history and keeps the ledger and stock invariants', functio
     // E-signatures (ADR-0029): signed quotes/contracts with their signed PDF, and documents awaiting signature with a live link.
     expect(DB::table('document_signatures')->whereNotNull('signed_pdf_id')->count())->toBeGreaterThanOrEqual(3)
         ->and(DB::table('document_sign_links')->whereNull('used_at')->whereNull('revoked_at')->count())->toBeGreaterThanOrEqual(2);
+
+    // Installation field app (ADR-0036): finished visits each with before/after photos and a signature.
+    $finished = DB::table('installation_visits')->whereNotNull('finished_at')->get();
+    expect($finished->count())->toBeGreaterThanOrEqual(1);
+    foreach ($finished as $visit) {
+        expect($visit->signed_at)->not->toBeNull()
+            ->and(DB::table('installation_photos')->where('installation_visit_id', $visit->id)->where('phase', 'before')->exists())->toBeTrue()
+            ->and(DB::table('installation_photos')->where('installation_visit_id', $visit->id)->where('phase', 'after')->exists())->toBeTrue()
+            ->and(DB::table('appointments')->where('id', $visit->appointment_id)->value('status'))->toBe('done');
+    }
 });
 
 it('refuses to run outside the local and testing environments', function () {

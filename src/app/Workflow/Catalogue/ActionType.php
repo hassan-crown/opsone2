@@ -26,7 +26,13 @@ enum ActionType: string
 
     public const APPROVAL_SUBJECTS = ['design', 'quote', 'contract'];
 
-    public const PAYMENT_BASES = ['amount', 'percent', 'remaining'];
+    /**
+     * How a payment check is met (ADR-0037): `due` — the order's schedule is collected through the due with this
+     * reference (amounts come from the payment plan, the single source); `amount` — a fixed sum; `remaining` — the
+     * whole agreed value. `percent` is no longer offered: it duplicated the plan's share and is only read on actions
+     * already pinned to an order.
+     */
+    public const PAYMENT_BASES = ['due', 'amount', 'remaining'];
 
     public const MEASUREMENT_KINDS = ['estimated', 'final'];
 
@@ -119,7 +125,7 @@ enum ActionType: string
             self::WorkTask => ['label' => ['ar' => 'مهمة عمل', 'en' => 'Work task'], 'requires_attachment' => false],
             self::SupplyFollowUp => ['reference' => 'materials'],
             self::WorkshopOrder => ['reference' => 'workshop', 'milestone' => 'sent'],
-            self::PaymentCheck => ['reference' => 'first', 'basis' => 'percent', 'value' => 50],
+            self::PaymentCheck => ['reference' => 'first', 'basis' => 'due', 'value' => null],
             self::RequiredDocument => ['document_type' => 'document', 'review_required' => false],
         };
     }
@@ -158,8 +164,8 @@ enum ActionType: string
             self::CustomerApproval => ($inputs['subject'] ?? null) === 'design'
                 ? $other === self::PrepareDesign
                 : $other === self::PrepareDocument && ($otherInputs['document'] ?? null) === ($inputs['subject'] ?? null),
-            // A percentage or the remaining balance needs a known value: the agreement's approval comes first.
-            self::PaymentCheck => in_array($inputs['basis'] ?? null, ['percent', 'remaining'], true)
+            // A due, a percentage or the remaining balance needs a known value: the agreement's approval comes first.
+            self::PaymentCheck => in_array($inputs['basis'] ?? null, ['due', 'percent', 'remaining'], true)
                 && $other === self::CustomerApproval && in_array($otherInputs['subject'] ?? null, self::DOCUMENTS, true),
             // A design is prepared after the measurements it relies on, when the flow takes them.
             self::PrepareDesign => $other === self::RecordMeasurements,
@@ -179,7 +185,7 @@ enum ActionType: string
     {
         return match ($this) {
             self::CustomerApproval => 'approval_before_document',
-            self::PaymentCheck => in_array($inputs['basis'] ?? null, ['percent', 'remaining'], true) ? 'payment_without_agreement' : null,
+            self::PaymentCheck => in_array($inputs['basis'] ?? null, ['due', 'percent', 'remaining'], true) ? 'payment_without_agreement' : null,
             self::WorkshopOrder => ($inputs['milestone'] ?? null) === 'received' ? 'receipt_without_workshop_order' : null,
             default => null,
         };

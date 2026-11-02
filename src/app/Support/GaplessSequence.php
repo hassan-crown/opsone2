@@ -2,6 +2,9 @@
 
 namespace App\Support;
 
+use App\Models\Branch;
+use App\Numbering\NumberFormats;
+use App\Workflow\AppointmentBooking;
 use Illuminate\Support\Facades\DB;
 use LogicException;
 
@@ -14,7 +17,7 @@ use LogicException;
  */
 final class GaplessSequence
 {
-    public function next(string $name, int $period): int
+    public function next(string $name, int $period, ?int $startAt = null): int
     {
         if (DB::transactionLevel() === 0) {
             throw new LogicException('A gapless number must be taken inside the transaction that uses it.');
@@ -36,17 +39,39 @@ final class GaplessSequence
             throw new LogicException("Sequence {$name}/{$period} is missing.");
         }
         $next = (int) $next;
+        if ($startAt !== null && $next < $startAt) {
+            // A configured starting number (ADR-0037): the counter jumps once, still under this transaction's lock.
+            DB::table('sequence_counters')->where('name', $name)->where('period', $period)->update(['last_value' => $startAt, 'updated_at' => $now]);
+            $next = $startAt;
+        }
 
         return $next;
     }
 
     /**
-     * `PREFIX-YYYY-00042` for the current year.
+     * `PREFIX-YYYY-00042` for the current year — or the facility's format for this sequence (ADR-0037): its prefix,
+     * Gregorian/Hijri/no year, branch segment with its own counter, digits and starting number.
      */
-    public function format(string $name, string $prefix, int $pad = 5): string
+    public function format(string $name, string $prefix, int $pad = 5, ?int $branchId = null): string
     {
-        $year = (int) now()->format('Y');
+        $format = NumberFormats::find($name);
+        if ($format === null) {
+            $year = (int) now()->format('Y');
 
-        return sprintf('%s-%d-%s', $prefix, $year, str_pad((string) $this->next($name, $year), $pad, '0', STR_PAD_LEFT));
+            return NumberFormats::compose($prefix, null, $year, $this->next($name, $year), $pad);
+        }
+
+        $now = now(AppointmentBooking::timezone());
+        $period = NumberFormats::period($format->year_mode, $now);
+        $code = null;
+        $counter = $name;
+        $branch = $format->per_branch && $branchId !== null ? Branch::query()->find($branchId) : null;
+        if ($branch !== null) {
+            $code = $branch->code !== null && $branch->code !== '' ? strtoupper($branch->code) : 'B'.$branch->id;
+            $counter = "{$name}@{$branch->id}";
+        }
+        $start = $format->start_at !== null && $format->start_period === $period && $counter === $name ? $format->start_at : null;
+
+        return NumberFormats::compose($format->prefix, $code, $format->year_mode === 'none' ? null : $period, $this->next($counter, $period, $start), $format->pad);
     }
 }

@@ -10,6 +10,8 @@ import { api } from '@/lib/api';
 import { useLocale, useT } from '@/lib/i18n';
 import type { Locale, TranslationKey } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
+import { StatusBadge as InstallationBadge } from '@/components/field/field-bits';
+import type { InstallationStatus } from '@/types/field';
 
 export type AppointmentRow = {
     id: number;
@@ -31,6 +33,8 @@ export type AppointmentRow = {
     can_manage: boolean;
     maps_url: string;
     address: string;
+    /** ADR-0036: where an installation stands on site; null for other kinds. */
+    installation: InstallationStatus | null;
 };
 
 export type ClashPreview = {
@@ -173,6 +177,11 @@ export function AppointmentCard({
             {detailed && (
                 <span className="text-caption text-weak">
                     {appointment.address}
+                </span>
+            )}
+            {appointment.installation && (
+                <span className="flex">
+                    <InstallationBadge status={appointment.installation} />
                 </span>
             )}
             {(appointment.conflicted || appointment.has_pending_change) && (

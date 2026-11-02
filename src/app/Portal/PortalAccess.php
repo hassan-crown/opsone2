@@ -13,6 +13,7 @@ use App\Models\Cancellation\OrderCancellation;
 use App\Models\Customer;
 use App\Models\Finance\PaymentProof;
 use App\Models\Finance\Receipt;
+use App\Models\Installation\InstallationVisit;
 use App\Models\Order;
 use App\Models\Tickets\Ticket;
 use App\Models\Tickets\TicketMessage;
@@ -92,6 +93,12 @@ final class PortalAccess
     public static function appointment(Customer $customer, int|string $id): Appointment
     {
         return self::appointments($customer)->whereKey(self::id($id))->firstOrFail();
+    }
+
+    /** An installation visit of one of the customer's orders (acceptance signature, ADR-0036); foreign = 404. */
+    public static function installationVisit(Customer $customer, int|string $id): InstallationVisit
+    {
+        return InstallationVisit::query()->whereIn('order_id', self::orders($customer)->select('orders.id'))->whereKey(self::id($id))->firstOrFail();
     }
 
     /**

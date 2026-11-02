@@ -23,6 +23,7 @@ require __DIR__.'/catalog.php';
 require __DIR__.'/orders.php';
 require __DIR__.'/flow.php';
 require __DIR__.'/tasks.php';
+require __DIR__.'/field.php';
 require __DIR__.'/calendar.php';
 require __DIR__.'/agreements.php';
 require __DIR__.'/finance.php';
@@ -37,6 +38,7 @@ require __DIR__.'/site-admin.php';
 require __DIR__.'/tickets.php';
 require __DIR__.'/reports.php';
 require __DIR__.'/einvoicing.php';
+require __DIR__.'/rules.php';
 
 if (app()->isLocal()) {
     Route::inertia('_design', 'design')->name('design');

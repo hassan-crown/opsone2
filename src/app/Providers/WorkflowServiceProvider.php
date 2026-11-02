@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Models\Appointment;
+use App\Models\Order;
 use App\Models\Procurement\PurchaseOrder;
 use App\Models\Task;
 use App\Notifications\NotificationTargets;
@@ -34,6 +35,12 @@ class WorkflowServiceProvider extends ServiceProvider
             (new Appointment)->getMorphClass(),
             fn (int $id) => Appointment::query()->with('order')->find($id),
             fn (object $appointment) => route('appointments.show', ['appointment' => $appointment instanceof Appointment ? $appointment->id : 0]),
+        );
+        // An order's own page (installation remarks to follow up, ADR-0036); the link re-checks the type's permission on it.
+        $targets->register(
+            (new Order)->getMorphClass(),
+            fn (int $id) => Order::query()->find($id),
+            fn (object $order) => route('orders.show', ['order' => $order instanceof Order ? $order->id : 0]),
         );
     }
 }

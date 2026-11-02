@@ -41,6 +41,7 @@ Route::middleware(['auth', 'verified'])->prefix('org')->name('org.')->group(func
     Route::get('team/members/{membership}/disable', [MemberController::class, 'confirmDisable'])->name('team.member.confirm-disable');
     Route::post('team/members/{membership}/disable', [MemberController::class, 'disable'])->name('team.member.disable');
     Route::post('team/members/{membership}/reactivate', [MemberController::class, 'reactivate'])->name('team.member.reactivate');
+    Route::post('team/members/{membership}/sessions/revoke', [MemberController::class, 'revokeSessions'])->name('team.member.revoke-sessions');
 
     Route::get('roles', [RoleController::class, 'index'])->name('roles.index');
     Route::get('roles/{template}', [RoleController::class, 'edit'])->name('roles.edit');

@@ -18,6 +18,7 @@ enum AuditAction: string
     case MembershipDisabled = 'membership.disabled';
     case MembershipReactivated = 'membership.reactivated';
     case MembershipAccessUpdated = 'membership.access_updated';
+    case MembershipSessionsRevoked = 'membership.sessions_revoked';
     case RoleTemplateUpdated = 'role.updated';
 
     case OwnershipTransferRequested = 'ownership.requested';
@@ -106,6 +107,14 @@ enum AuditAction: string
     case StockCorrectionReturned = 'stock.correction_returned';
     case DebtWrittenOff = 'finance.debt_written_off';
     case DebtWriteOffReversed = 'finance.debt_write_off_reversed';
+
+    case InstallationArrived = 'installation.arrived';
+    case InstallationPhotoAdded = 'installation.photo_added';
+    case InstallationRemarkRecorded = 'installation.remark_recorded';
+    case InstallationRemarkResolved = 'installation.remark_resolved';
+    case InstallationSignatureRequested = 'installation.signature_requested';
+    case InstallationSigned = 'installation.signed';
+    case InstallationFinished = 'installation.finished';
     case OrderReopenedForCorrection = 'order.reopened_for_correction';
     case StageCompleted = 'order.stage_completed';
     case ActionAllowed = 'order.action_allowed';
@@ -133,6 +142,17 @@ enum AuditAction: string
     case FinanceSettingsUpdated = 'finance_settings.updated';
     case CashProofPolicyUpdated = 'finance_settings.cash_proof_updated';
     case DiscountLimitsUpdated = 'discount_limits.updated';
+    case PaymentPlanSaved = 'payment_plan.saved';
+    case PaymentPlanArchived = 'payment_plan.archived';
+    case PaymentPlanChosen = 'payment_plan.chosen';
+    case ReminderSettingsUpdated = 'reminder_settings.updated';
+    case DocumentClauseSaved = 'document_clause.saved';
+    case DocumentClauseArchived = 'document_clause.archived';
+    case MessageTemplateSaved = 'message_template.saved';
+    case MessageTemplateReset = 'message_template.reset';
+    case WhatsappTemplateNamesSaved = 'integrations.whatsapp_templates_saved';
+    case TaskSlaSettingsUpdated = 'task_sla.updated';
+    case NumberFormatSaved = 'number_format.saved';
     case DocumentCreated = 'agreement_document.created';
     case DocumentDraftUpdated = 'agreement_document.draft_updated';
     case DocumentSent = 'agreement_document.sent';
@@ -322,7 +342,7 @@ enum AuditAction: string
             self::SitePageCreated, self::SitePageDraftSaved, self::SitePagePublished, self::SitePageUnpublished, self::SitePageDraftDiscarded, self::SitePageArchived, self::SitePageRestored, self::SiteThemeDraftSaved, self::SiteThemeApplied, self::SiteThemeDraftDiscarded, self::SiteThemeRestored, self::SitePreviewLinkIssued, self::SiteDomainRequested, self::SiteDomainVerified, self::SiteDomainRemoved => 'site',
             self::InvitationCreated, self::InvitationAccepted, self::InvitationCancelled, self::InvitationRenewed,
             self::OwnerInvitationCreated, self::OwnerEstablished,
-            self::MembershipDisabled, self::MembershipReactivated, self::MembershipAccessUpdated => 'team',
+            self::MembershipDisabled, self::MembershipReactivated, self::MembershipAccessUpdated, self::MembershipSessionsRevoked => 'team',
             self::RoleTemplateUpdated => 'roles',
             self::OwnershipTransferRequested, self::OwnershipTransferAccepted,
             self::OwnershipTransferRejected, self::OwnershipTransferCancelled => 'ownership',
@@ -351,13 +371,15 @@ enum AuditAction: string
             self::FlowTemplateChosen, self::FlowDraftSaved, self::FlowPublished, self::FlowDraftDiscarded, self::OrderPaused, self::OrderResumed, self::OrderExecutionFinished, self::OrderClosed, self::OrderReopenedForCorrection, self::StageCompleted, self::ActionAllowed, self::ActionReworked, self::ActionNeedChanged, self::UpcomingWorkEdited, self::MeasurementRecorded, self::MeasurementCorrected => 'workflow',
             self::TaskAssigned, self::TaskRouted, self::TaskReassigned, self::TaskClaimed, self::TaskCompleted, self::TaskCancelled, self::TaskReleased => 'tasks',
             self::AppointmentProposed, self::AppointmentSent, self::AppointmentConfirmed, self::AppointmentChangeRequested, self::AppointmentChangeDiscarded, self::AppointmentChanged, self::AppointmentCompleted, self::AppointmentCancelled, self::AppointmentCustomerChangeRequested => 'appointments',
-            self::WorkSettingsUpdated, self::FinanceSettingsUpdated, self::CashProofPolicyUpdated, self::DiscountLimitsUpdated => 'settings',
+            self::WorkSettingsUpdated, self::FinanceSettingsUpdated, self::CashProofPolicyUpdated, self::DiscountLimitsUpdated,
+            self::PaymentPlanSaved, self::PaymentPlanArchived, self::ReminderSettingsUpdated, self::DocumentClauseSaved, self::DocumentClauseArchived,
+            self::MessageTemplateSaved, self::MessageTemplateReset, self::WhatsappTemplateNamesSaved, self::TaskSlaSettingsUpdated, self::NumberFormatSaved => 'settings',
             self::DocumentCreated, self::DocumentDraftUpdated, self::DocumentSent, self::DocumentApproved, self::DocumentChangesRequested,
             self::DocumentReplaced, self::DocumentExpired, self::DocumentExtended, self::DocumentCancelled, self::AgreementActivated,
             self::DocumentSigned, self::DocumentSignLinkSent, self::DocumentSignLinksRevoked,
             self::ChangeCreated, self::ChangeDraftUpdated, self::ChangePresented, self::ChangeRevisionRequested, self::ChangeApplied,
             self::ChangeWithdrawn, self::DiscountRequested, self::DiscountApproved, self::DiscountRejected, self::DiscountCancelled => 'agreement',
-            self::FinanceScheduleSynced, self::FinanceScheduleUpdated, self::PaymentRecorded, self::PaymentGatewayResult,
+            self::FinanceScheduleSynced, self::FinanceScheduleUpdated, self::PaymentPlanChosen, self::PaymentRecorded, self::PaymentGatewayResult,
             self::PaymentReallocated, self::CreditTransferred, self::MoneyReversed, self::ProofSubmitted, self::ProofConfirmed,
             self::ProofCorrectionRequested, self::ProofCancelled, self::CollectionRemindersSent, self::DebtWrittenOff, self::DebtWriteOffReversed => 'finance',
             self::CommissionSettingsUpdated, self::CommissionPayoutCreated, self::CommissionPayoutReserved, self::CommissionPayoutPaid,
@@ -367,6 +389,8 @@ enum AuditAction: string
             self::PurchaseCreated, self::PurchaseUpdated, self::PurchaseConfirmed, self::PurchaseReceived,
             self::PurchaseAdjusted, self::PurchaseRemainderCancelled, self::PurchaseDocumentSaved, self::PurchaseEmailed => 'procurement',
             self::DeliveryDrafted, self::DeliveryConfirmed, self::DeliveryCancelled, self::DeliveryRemarkRecorded, self::DeliveryRemarkResolved, self::DeliveryCorrected => 'delivery',
+            self::InstallationArrived, self::InstallationPhotoAdded, self::InstallationRemarkRecorded, self::InstallationRemarkResolved,
+            self::InstallationSignatureRequested, self::InstallationSigned, self::InstallationFinished => 'installation',
             self::CancellationRequested, self::CancellationAccepted, self::CancellationRejected, self::CancellationWithdrawn,
             self::SettlementItemResolved, self::SettlementClosed => 'cancellation',
             self::ReturnRequested, self::ReturnAccepted, self::ReturnRejected, self::ReturnReceived, self::ReturnInspected,

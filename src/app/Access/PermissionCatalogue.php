@@ -6,7 +6,8 @@ use App\Access\Enums\Audience;
 use App\Access\Enums\Scope;
 
 /**
- * Permission catalogue generated from «مصفوفة الصلاحيات» v1.1 (P-01..P-102, plus P-103 from ADR-0035).
+ * Permission catalogue generated from «مصفوفة الصلاحيات» v1.1 (P-01..P-102, plus P-103 from ADR-0035 and P-104 from
+ * ADR-0037).
  *
  * - `audience`: who the action belongs to. Only `staff` and `self` are evaluated by the facility Gate;
  *   `customer`, `public` and `platform` actions are served by their own guards (customer portal, public site,
@@ -950,6 +951,17 @@ final class PermissionCatalogue
             'ar' => 'شطب الرصيد المستحق على العميل أو عكس الشطب',
             'en' => 'Write off a customer\'s outstanding balance or reverse the write-off',
             'scopes' => ['own', 'assigned', 'department', 'branches', 'region', 'tenant'],
+            'roles' => ['owner'],
+            'capability' => null,
+        ],
+        // ADR-0037: owner-level business rules (payment plans, reminders, clauses, message templates, task SLA,
+        // numbering). Owner only by default; every change is audited.
+        'P-104' => [
+            'group' => 'organization',
+            'audience' => 'staff',
+            'ar' => 'تهيئة قواعد العمل (خطط الدفع، التذكير، البنود، الرسائل، المهلة، الترقيم)',
+            'en' => 'Configure business rules (payment plans, reminders, clauses, messages, SLA, numbering)',
+            'scopes' => ['tenant'],
             'roles' => ['owner'],
             'capability' => null,
         ],

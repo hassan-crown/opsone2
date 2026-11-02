@@ -88,7 +88,15 @@ final class NotificationCatalogue
             'mandatory' => false,
             'permission' => null,
             'title' => 'notifications.type.work_reminder.title',
-            'body' => null,
+            'body' => 'notifications.type.work_reminder.body',
+            'route' => null,
+        ],
+        // ADR-0037: a task late beyond the facility's escalation days, to its follower; opening re-checks P-24.
+        'work.escalated' => [
+            'mandatory' => false,
+            'permission' => Permission::P24,
+            'title' => 'notifications.type.work_escalated.title',
+            'body' => 'notifications.type.work_escalated.body',
             'route' => null,
         ],
         // P5: work and appointments; opening re-checks P-24 on the live task or appointment.
@@ -104,6 +112,13 @@ final class NotificationCatalogue
             'permission' => Permission::P24,
             'title' => 'notifications.type.task_unassigned.title',
             'body' => 'notifications.type.task_unassigned.body',
+            'route' => null,
+        ],
+        'installation.remark_blocking' => [
+            'mandatory' => true,
+            'permission' => Permission::P16,
+            'title' => 'notifications.type.installation_remark_blocking.title',
+            'body' => 'notifications.type.installation_remark_blocking.body',
             'route' => null,
         ],
         'appointment.confirmed' => [

@@ -41,6 +41,10 @@ return [
         'web' => [
             'driver' => 'session',
             'provider' => 'users',
+            // «Remember me» lifetime in minutes (ADR-0036: technicians stay signed in on the installed field app).
+            // The cookie is HttpOnly and follows SESSION_SECURE_COOKIE; P-06 holders end it with «sign out
+            // everywhere» on the member page, and any access change rotates it (SessionRevoker).
+            'remember' => (int) env('AUTH_REMEMBER_MINUTES', 60 * 24 * 90),
         ],
 
         // Facility customers in their workspace (ADR-0022): a separate session cookie, never the staff session.

@@ -93,7 +93,7 @@ final class OrderOpener
             throw ValidationException::withMessages([$errorPrefix.'assignee_id' => __('orders.validation.assignee_invalid')]);
         }
 
-        $order->number = $this->sequence->format(self::SEQUENCE, 'ORD');
+        $order->number = $this->sequence->format(self::SEQUENCE, 'ORD', branchId: $order->branch_id);
         $order->save();
 
         foreach (array_values($data['lines'] ?? []) as $i => $input) {
@@ -141,7 +141,7 @@ final class OrderOpener
             'created_by' => null,
         ]);
         $order->contact_id = $customer->isOrganization() ? self::contactFor($customer, null) : null;
-        $order->number = $this->sequence->format(self::SEQUENCE, 'ORD');
+        $order->number = $this->sequence->format(self::SEQUENCE, 'ORD', branchId: $branchId);
         $order->save();
 
         foreach ($lines as $i => $input) {

@@ -2,6 +2,7 @@
 
 namespace App\Notifications;
 
+use App\Messages\MessageTemplates;
 use App\Models\Facility;
 use App\Models\NotificationPreference;
 use App\Models\User;
@@ -28,28 +29,33 @@ final class Notifier
             return null;
         }
 
+        $facility = Facility::current();
+        $locale = $user->locale ?? ($facility === null ? 'ar' : $facility->default_locale);
+        // A facility wording (ADR-0037) is rendered now, in the recipient's language; otherwise the keys stay and the
+        // screen translates them.
+        $title = MessageTemplates::subject($type, 'in_app', $locale, $params) ?? $definition['title'];
+        $body = MessageTemplates::find($type, 'in_app', $locale) === null ? $definition['body'] : MessageTemplates::body($type, 'in_app', $locale, $params, (string) $definition['body']);
+
         $notification = UserNotification::query()->create([
             'user_id' => $user->id,
             'type' => $type,
-            'data' => ['title' => $definition['title'], 'body' => $definition['body'], 'params' => $params],
+            'data' => ['title' => $title, 'body' => $body, 'params' => $params],
             'target_type' => $target?->getMorphClass(),
             'target_id' => $target?->getKey(),
             'dedupe_key' => $dedupeKey,
         ]);
 
         if ($this->wantsEmail($user, $type, $definition['mandatory'])) {
-            $facility = Facility::current();
-            $locale = $user->locale ?? ($facility === null ? 'ar' : $facility->default_locale);
             $url = $definition['route'] !== null || $target !== null ? route('notifications.open', $notification) : null;
 
             $lines = [];
-            if ($definition['body'] !== null) {
-                $lines[] = __($definition['body'], $params, $locale);
+            if ($body !== null && $body !== '') {
+                $lines[] = __($body, $params, $locale);
             }
 
             $this->outbox->enqueueMail(
                 $user->email,
-                __($definition['title'], $params, $locale),
+                __($title, $params, $locale),
                 $lines,
                 $url === null ? null : ['label' => __('notifications.mail.open', [], $locale), 'url' => $url],
                 $locale,
