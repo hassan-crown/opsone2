@@ -211,7 +211,7 @@ final class InvoiceIssuer
 
     /**
      * @param  array<string, mixed>  $attributes
-     * @param  array{lines: list<array{description: string, quantity: string, unit: string|null, net_minor: int, vat_minor: int, gross_minor: int}>, rate_bp: int, net_minor: int, vat_minor: int, total_minor: int}  $content
+     * @param  array{lines: list<array{description: string, quantity: string, unit: string|null, net_minor: int, vat_minor: int, gross_minor: int, discount_minor?: int}>, rate_bp: int, net_minor: int, vat_minor: int, total_minor: int}  $content
      */
     private function issue(ZatcaSettings $settings, array $attributes, array $content, ?EInvoice $original, Order $order, ?User $actor, string $source): EInvoice
     {

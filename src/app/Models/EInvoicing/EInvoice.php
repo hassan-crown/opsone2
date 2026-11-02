@@ -36,7 +36,7 @@ use LogicException;
  * @property string $currency
  * @property array<string, string|null> $seller
  * @property array<string, mixed> $buyer
- * @property list<array{description: string, quantity: string, unit: string|null, net_minor: int, vat_minor: int, gross_minor: int}> $lines
+ * @property list<array{description: string, quantity: string, unit: string|null, net_minor: int, vat_minor: int, gross_minor: int, discount_minor?: int}> $lines
  * @property int $vat_rate_bp
  * @property int $net_minor
  * @property int $vat_minor

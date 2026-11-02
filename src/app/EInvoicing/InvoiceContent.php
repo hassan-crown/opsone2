@@ -9,19 +9,20 @@ use App\Models\Order;
 use App\Models\OrderLine;
 use App\Models\Store\StoreCheckout;
 use App\Money\Money;
+use App\Money\VatCalculator;
 use App\Store\CheckoutStatus;
 use Illuminate\Support\Collection;
 
 /**
  * The priced lines a tax invoice of an order carries (ADR-0033), taken from the record that fixed the price — never
  * recomputed differently: a made-to-order order's active agreement version (its lines already hold the per-line
- * net/VAT/gross of Q-34/Q-35), a store order's paid checkout (coupon included), else a ready order's own lines priced
+ * net/VAT/gross of Q-34/Q-35, plus each line's discount before VAT for the PDF), a store order's paid checkout (coupon included), else a ready order's own lines priced
  * with the facility VAT setting. Totals are sums of the rounded lines (the single rounding policy).
  */
 final class InvoiceContent
 {
     /**
-     * @return array{lines: list<array{description: string, quantity: string, unit: string|null, net_minor: int, vat_minor: int, gross_minor: int}>, rate_bp: int, net_minor: int, vat_minor: int, total_minor: int}|null
+     * @return array{lines: list<array{description: string, quantity: string, unit: string|null, net_minor: int, vat_minor: int, gross_minor: int, discount_minor?: int}>, rate_bp: int, net_minor: int, vat_minor: int, total_minor: int}|null
      */
     public static function forOrder(Order $order): ?array
     {
@@ -35,7 +36,7 @@ final class InvoiceContent
     /**
      * A single amount line (credit or debit note) split at the original rate, VAT-inclusive (Q-35 a).
      *
-     * @return array{lines: list<array{description: string, quantity: string, unit: string|null, net_minor: int, vat_minor: int, gross_minor: int}>, rate_bp: int, net_minor: int, vat_minor: int, total_minor: int}
+     * @return array{lines: list<array{description: string, quantity: string, unit: string|null, net_minor: int, vat_minor: int, gross_minor: int, discount_minor?: int}>, rate_bp: int, net_minor: int, vat_minor: int, total_minor: int}
      */
     public static function amountLine(string $description, int $grossMinor, int $rateBp): array
     {
@@ -46,7 +47,7 @@ final class InvoiceContent
     }
 
     /**
-     * @return array{lines: list<array{description: string, quantity: string, unit: string|null, net_minor: int, vat_minor: int, gross_minor: int}>, rate_bp: int, net_minor: int, vat_minor: int, total_minor: int}|null
+     * @return array{lines: list<array{description: string, quantity: string, unit: string|null, net_minor: int, vat_minor: int, gross_minor: int, discount_minor?: int}>, rate_bp: int, net_minor: int, vat_minor: int, total_minor: int}|null
      */
     private static function fromAgreement(Order $order): ?array
     {
@@ -56,6 +57,7 @@ final class InvoiceContent
         }
         $content = $agreement->content;
         $rate = (int) ($content['vat']['rate_bp'] ?? FinanceSettings::current()->vat_rate_bp);
+        $vat = new VatCalculator($rate, (bool) ($content['vat']['inclusive'] ?? FinanceSettings::current()->prices_include_vat));
         $lines = [];
         foreach ((array) ($content['lines'] ?? []) as $line) {
             if (! is_array($line) || ! isset($line['net_minor'], $line['vat_minor'], $line['gross_minor'])) {
@@ -68,14 +70,14 @@ final class InvoiceContent
                 'net_minor' => (int) $line['net_minor'],
                 'vat_minor' => (int) $line['vat_minor'],
                 'gross_minor' => (int) $line['gross_minor'],
-            ];
+            ] + self::discount((int) ($line['discount_minor'] ?? 0), (int) ($line['after_discount_minor'] ?? 0), (int) $line['net_minor'], $vat);
         }
 
         return self::totals($lines, $rate);
     }
 
     /**
-     * @return array{lines: list<array{description: string, quantity: string, unit: string|null, net_minor: int, vat_minor: int, gross_minor: int}>, rate_bp: int, net_minor: int, vat_minor: int, total_minor: int}|null
+     * @return array{lines: list<array{description: string, quantity: string, unit: string|null, net_minor: int, vat_minor: int, gross_minor: int, discount_minor?: int}>, rate_bp: int, net_minor: int, vat_minor: int, total_minor: int}|null
      */
     private static function fromCheckout(Order $order): ?array
     {
@@ -87,25 +89,27 @@ final class InvoiceContent
         $names = self::activeLines($order)->values();
         $lines = [];
         foreach (array_values((array) ($pricing['lines'] ?? [])) as $i => $line) {
-            if (! is_array($line) || ! isset($line['net_minor'], $line['vat_minor'], $line['gross_minor'])) {
+            // StorePricing names the line's gross `total_minor`; its coupon share is already before VAT.
+            if (! is_array($line) || ! isset($line['net_minor'], $line['vat_minor'], $line['total_minor'])) {
                 return null;
             }
             $orderLine = $names->get($i);
+            $discount = (int) ($line['discount_minor'] ?? 0);
             $lines[] = [
                 'description' => $orderLine instanceof OrderLine ? self::name($orderLine) : '—',
                 'quantity' => (string) ($line['quantity'] ?? '1'),
                 'unit' => null,
                 'net_minor' => (int) $line['net_minor'],
                 'vat_minor' => (int) $line['vat_minor'],
-                'gross_minor' => (int) $line['gross_minor'],
-            ];
+                'gross_minor' => (int) $line['total_minor'],
+            ] + ($discount > 0 ? ['discount_minor' => $discount] : []);
         }
 
         return self::totals($lines, (int) ($pricing['vat']['rate_bp'] ?? FinanceSettings::current()->vat_rate_bp));
     }
 
     /**
-     * @return array{lines: list<array{description: string, quantity: string, unit: string|null, net_minor: int, vat_minor: int, gross_minor: int}>, rate_bp: int, net_minor: int, vat_minor: int, total_minor: int}|null
+     * @return array{lines: list<array{description: string, quantity: string, unit: string|null, net_minor: int, vat_minor: int, gross_minor: int, discount_minor?: int}>, rate_bp: int, net_minor: int, vat_minor: int, total_minor: int}|null
      */
     private static function fromLines(Order $order): ?array
     {
@@ -124,6 +128,22 @@ final class InvoiceContent
         }
 
         return self::totals($lines, $vat->rateBp());
+    }
+
+    /**
+     * An agreement line's discount before VAT (shown on the PDF; the XML carries the net after it): the discount is
+     * taken from the line amount, so with inclusive prices its pre-VAT part is net(before) − net(after).
+     *
+     * @return array{discount_minor?: int}
+     */
+    private static function discount(int $discountMinor, int $afterMinor, int $netMinor, VatCalculator $vat): array
+    {
+        if ($discountMinor <= 0) {
+            return [];
+        }
+        $before = $vat->line(Money::of($afterMinor + $discountMinor))->net->minor;
+
+        return ['discount_minor' => max(0, $before - $netMinor)];
     }
 
     /**
@@ -154,8 +174,8 @@ final class InvoiceContent
     }
 
     /**
-     * @param  list<array{description: string, quantity: string, unit: string|null, net_minor: int, vat_minor: int, gross_minor: int}>  $lines
-     * @return array{lines: list<array{description: string, quantity: string, unit: string|null, net_minor: int, vat_minor: int, gross_minor: int}>, rate_bp: int, net_minor: int, vat_minor: int, total_minor: int}|null
+     * @param  list<array{description: string, quantity: string, unit: string|null, net_minor: int, vat_minor: int, gross_minor: int, discount_minor?: int}>  $lines
+     * @return array{lines: list<array{description: string, quantity: string, unit: string|null, net_minor: int, vat_minor: int, gross_minor: int, discount_minor?: int}>, rate_bp: int, net_minor: int, vat_minor: int, total_minor: int}|null
      */
     private static function totals(array $lines, int $rateBp): ?array
     {

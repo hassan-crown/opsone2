@@ -33,6 +33,7 @@ final class EInvoicePdf
         }
         $theme = ThemeSettings::published();
         $brand = (string) ($theme['palette']['light']['brand'] ?? $theme['brand'] ?? '');
+        $discount = array_sum(array_map(fn (array $l) => (int) ($l['discount_minor'] ?? 0), $invoice->lines));
 
         $html = view('pdf.einvoice', ['v' => [
             'brand' => Color::valid($brand) ? $brand : DocumentSheet::DEFAULT_BRAND,
@@ -50,11 +51,16 @@ final class EInvoicePdf
             'lines' => array_map(fn (array $l) => [
                 'description' => $l['description'],
                 'quantity' => $l['quantity'],
+                'discount' => DocumentSheet::money($l['discount_minor'] ?? 0),
                 'net' => DocumentSheet::money($l['net_minor']),
                 'vat' => DocumentSheet::money($l['vat_minor']),
                 'gross' => DocumentSheet::money($l['gross_minor']),
             ], $invoice->lines),
             'rate' => rtrim(rtrim(number_format($invoice->vat_rate_bp / 100, 2, '.', ''), '0'), '.').'%',
+            // Discounts (before VAT) are shown only; the XML carries each line's net after its discount.
+            'has_discount' => $discount > 0,
+            'subtotal' => DocumentSheet::money($invoice->net_minor + $discount),
+            'discount' => DocumentSheet::money($discount),
             'net' => DocumentSheet::money($invoice->net_minor),
             'vat' => DocumentSheet::money($invoice->vat_minor),
             'total' => DocumentSheet::money($invoice->total_minor),

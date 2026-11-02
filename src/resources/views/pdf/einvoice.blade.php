@@ -3,6 +3,7 @@
     $ar = fn (string $key, array $params = []) => __('einvoicing.pdf.'.$key, $params, 'ar');
     $en = fn (string $key, array $params = []) => __('einvoicing.pdf.'.$key, $params, 'en');
     $title = $v['kind'] === 'invoice' ? 'title.'.$v['type'] : 'title.'.$v['kind'];
+    $totalKey = $v['kind'] === 'invoice' ? 'total' : 'total_'.$v['kind'];
     $party = fn (array $p) => trim(implode('، ', array_filter([
         trim(($p['building_number'] ?? '').' '.($p['street'] ?? '')),
         $p['district'] ?? null, $p['city'] ?? null, $p['postal_code'] ?? null,
@@ -43,7 +44,7 @@
         <td style="width: 60%; vertical-align: top;">
             @if ($v['has_logo'])<img src="var:logo" style="height: 42pt; max-width: 150pt;" /><br />@endif
             <div style="font-size: 12pt; font-weight: bold; margin-top: 3pt;">{{ $v['seller']['name'] ?? '' }}</div>
-            @if (! empty($v['seller']['name_en']))<div dir="ltr" class="muted">{{ $v['seller']['name_en'] }}</div>@endif
+            @if (! empty($v['seller']['name_en']))<div class="muted"><span dir="ltr">{{ $v['seller']['name_en'] }}</span></div>@endif
             <div class="small">{{ $ar('vat_number') }} / {{ $en('vat_number') }}: <span dir="ltr">{{ $v['seller']['vat_number'] ?? '' }}</span></div>
             <div class="small">{{ $ar('cr') }} / {{ $en('cr') }}: <span dir="ltr">{{ $v['seller']['commercial_registration'] ?? '' }}</span></div>
             <div class="small muted">{{ $party($v['seller']) }}</div>
@@ -95,8 +96,9 @@
     <thead>
         <tr>
             <th style="width: 5%;">#</th>
-            <th style="width: 41%;">{{ $ar('item') }}<br /><span dir="ltr">{{ $en('item') }}</span></th>
+            <th style="width: {{ $v['has_discount'] ? 29 : 41 }}%;">{{ $ar('item') }}<br /><span dir="ltr">{{ $en('item') }}</span></th>
             <th style="width: 10%;">{{ $ar('quantity') }}<br /><span dir="ltr">{{ $en('quantity') }}</span></th>
+            @if ($v['has_discount'])<th class="num" style="width: 12%;">{{ $ar('discount') }}<br /><span dir="ltr">{{ $en('discount') }}</span></th>@endif
             <th class="num" style="width: 15%;">{{ $ar('net') }}<br /><span dir="ltr">{{ $en('net') }}</span></th>
             <th class="num" style="width: 13%;">{{ $ar('vat', ['rate' => $v['rate']]) }}<br /><span dir="ltr">{{ $en('vat', ['rate' => $v['rate']]) }}</span></th>
             <th class="num" style="width: 16%;">{{ $ar('gross') }}<br /><span dir="ltr">{{ $en('gross') }}</span></th>
@@ -108,6 +110,7 @@
                 <td>{{ $i + 1 }}</td>
                 <td>{{ $line['description'] }}</td>
                 <td><span dir="ltr">{{ $line['quantity'] }}</span></td>
+                @if ($v['has_discount'])<td class="num"><span dir="ltr">{{ $line['discount'] }}</span></td>@endif
                 <td class="num"><span dir="ltr">{{ $line['net'] }}</span></td>
                 <td class="num"><span dir="ltr">{{ $line['vat'] }}</span></td>
                 <td class="num"><span dir="ltr">{{ $line['gross'] }}</span></td>
@@ -121,9 +124,13 @@
         <td style="width: 50%;"></td>
         <td style="width: 50%;">
             <table class="totals">
+                @if ($v['has_discount'])
+                    <tr><td>{{ $ar('subtotal') }} / <span dir="ltr">{{ $en('subtotal') }}</span></td><td class="num"><span dir="ltr">{{ $v['subtotal'] }} SAR</span></td></tr>
+                    <tr><td>{{ $ar('total_discount') }} / <span dir="ltr">{{ $en('total_discount') }}</span></td><td class="num"><span dir="ltr">−{{ $v['discount'] }} SAR</span></td></tr>
+                @endif
                 <tr><td>{{ $ar('total_net') }} / <span dir="ltr">{{ $en('total_net') }}</span></td><td class="num"><span dir="ltr">{{ $v['net'] }} SAR</span></td></tr>
                 <tr><td>{{ $ar('total_vat', ['rate' => $v['rate']]) }} / <span dir="ltr">{{ $en('total_vat', ['rate' => $v['rate']]) }}</span></td><td class="num"><span dir="ltr">{{ $v['vat'] }} SAR</span></td></tr>
-                <tr class="grand"><td>{{ $ar('total') }} / <span dir="ltr">{{ $en('total') }}</span></td><td class="num"><span dir="ltr">{{ $v['total'] }} SAR</span></td></tr>
+                <tr class="grand"><td>{{ $ar($totalKey) }} / <span dir="ltr">{{ $en($totalKey) }}</span></td><td class="num"><span dir="ltr">{{ $v['total'] }} SAR</span></td></tr>
             </table>
         </td>
     </tr>
