@@ -18,6 +18,7 @@ use App\Actions\Settings\UpdateWorkSettings;
 use App\Actions\StateMachines\M02Setup\T01SaveSetupStep;
 use App\Actions\StateMachines\M02Setup\T02CompleteSetup;
 use App\Actions\StateMachines\M22Membership\T00CreateMembership;
+use App\Actions\StateMachines\M23Flow\T01ChooseTemplate;
 use App\Actions\StateMachines\M23Flow\T02SaveDraft;
 use App\Actions\StateMachines\M23Flow\T03PublishFlow;
 use App\Finance\Plans\PaymentPlans;
@@ -28,6 +29,7 @@ use App\Models\Region;
 use App\Models\RoleTemplate;
 use App\Models\User;
 use App\Workflow\FlowProvisioner;
+use App\Workflow\FlowTemplates;
 use Carbon\CarbonImmutable;
 
 /**
@@ -157,18 +159,23 @@ final class Foundation
     }
 
     /**
-     * The published flow is the five-stage default with real routing: design work goes to the design department,
-     * manufacturing to production, measurements and installation to the installation department.
+     * The published flow is the retail default (ADR-0038: kitchens made by external workshops, followed by their
+     * purchase orders) with real routing: design work goes to the design department, the quality check on receipt
+     * to production, measurements and installation to the installation department; the workshop stages follow the
+     * procurement role.
      */
     private function flow(): void
     {
         $owner = $this->s->users['owner'];
         $flow = app(FlowProvisioner::class)->ensure();
-        $definition = $flow->publishedVersion->definition;
+        if ($flow->template_key !== FlowTemplates::RETAIL) {
+            // A deployment provisioned with another template still shows the retail story.
+            $flow = app(T01ChooseTemplate::class)->handle($owner, FlowTemplates::RETAIL, true, $flow->lock_version);
+        }
+        $definition = $flow->refresh()->publishedVersion->definition;
 
         $routing = [
-            'measure' => 'installation', 'design' => 'design', 'manufacturing' => 'production',
-            'quality_check' => 'production', 'installation' => 'installation',
+            'measure' => 'installation', 'design' => 'design', 'quality_check' => 'production', 'installation' => 'installation',
         ];
         foreach ($definition['stages'] as &$stage) {
             foreach ($stage['actions'] as &$action) {

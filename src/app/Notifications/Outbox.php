@@ -57,6 +57,15 @@ final class Outbox
     }
 
     /**
+     * A purchase order emailed to its supplier with its PDF attached (ADR-0038). The send row carries what is sent;
+     * its status, attempts and last error are this row's.
+     */
+    public function enqueuePurchaseOrder(string $to, int $sendId, string $idempotencyKey): ?OutboxMessage
+    {
+        return $this->enqueue(OutboxChannel::Mail, $to, 'purchase_order', ['purchase_order_send_id' => $sendId], $idempotencyKey);
+    }
+
+    /**
      * @param  array<string, mixed>  $payload
      */
     private function enqueue(OutboxChannel $channel, string $to, string $kind, array $payload, string $key): ?OutboxMessage

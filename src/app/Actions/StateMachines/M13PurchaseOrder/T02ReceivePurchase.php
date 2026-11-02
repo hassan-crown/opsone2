@@ -17,6 +17,7 @@ use App\Models\User;
 use App\Procurement\Locations;
 use App\Procurement\ProcurementWrite;
 use App\Procurement\PurchaseStep;
+use App\Procurement\WorkshopOrders;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Collection;
 use Illuminate\Validation\ValidationException;
@@ -33,6 +34,7 @@ final class T02ReceivePurchase
     public function __construct(
         private readonly ProcurementWrite $write,
         private readonly TransitionRecorder $transitions,
+        private readonly WorkshopOrders $workshops,
         private readonly StockReceiver $stock,
         private readonly AttachmentService $files,
     ) {}
@@ -91,6 +93,9 @@ final class T02ReceivePurchase
             $this->transitions->record(StateMachine::M13, 'T02', $locked, $from, $to, $actor, $source, null, ['receipt' => $receipt->id, 'lines' => $context]);
             Audit::record(AuditAction::PurchaseReceived, $locked, $actor, after: ['number' => $locked->number, 'receipt' => $receipt->id, 'lines' => $context],
                 source: $source, branchIds: [$locked->branch_id], label: $locked->number);
+
+            // ADR-0038: the linked orders' workshop and supply actions follow this purchase order.
+            $this->workshops->sync($locked, $actor);
 
             return ['receipt_id' => $receipt->id, 'purchase_order_id' => $locked->id];
         });

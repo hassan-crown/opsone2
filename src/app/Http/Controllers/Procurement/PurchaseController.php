@@ -11,6 +11,7 @@ use App\Actions\StateMachines\M13PurchaseOrder\T02ReceivePurchase;
 use App\Actions\StateMachines\M13PurchaseOrder\T03CancelRemainder;
 use App\Actions\StateMachines\M13PurchaseOrder\T04AdjustQuantities;
 use App\Customers\CustomerPresenter;
+use App\Enums\OrderLineType;
 use App\Enums\PurchaseStatus;
 use App\Http\Requests\Procurement\AdjustRequest;
 use App\Http\Requests\Procurement\EnvelopeRequest;
@@ -19,12 +20,15 @@ use App\Http\Requests\Procurement\ReasonRequest;
 use App\Http\Requests\Procurement\ReceiveRequest;
 use App\Models\Catalog\CatalogMaterial;
 use App\Models\Catalog\CatalogReadyVariant;
+use App\Models\Order;
+use App\Models\OrderLine;
 use App\Models\Procurement\PurchaseOrder;
 use App\Models\Procurement\PurchaseOrderLine;
 use App\Models\Procurement\Supplier;
 use App\Models\User;
 use App\Procurement\Locations;
 use App\Procurement\PurchaseAccess;
+use App\Procurement\PurchaseLines;
 use App\Procurement\PurchasePresenter;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -225,6 +229,9 @@ final class PurchaseController extends ProcurementController
      */
     private function prefill(Request $request): ?array
     {
+        if ($request->filled('order')) {
+            return $this->workshopPrefill($this->actor($request), (int) $request->query('order'), $request->query('reference'));
+        }
         $type = (string) $request->query('item_type');
         $id = (int) $request->query('item_id');
         if ($id < 1 || ! in_array($type, [PurchaseOrderLine::MATERIAL, PurchaseOrderLine::READY_VARIANT], true) || ! PurchaseOrderLine::itemExists($type, $id)) {
@@ -232,5 +239,37 @@ final class PurchaseController extends ProcurementController
         }
 
         return ['item_type' => $type, 'item_id' => $id, 'quantity' => (string) $request->query('quantity', '')];
+    }
+
+    /**
+     * `?order=&reference=` (ADR-0038): a workshop purchase order for a custom order — its open lines, its branch, the
+     * workshop when the facility has only one, and the flow reference it fulfils. The order must be one the writer
+     * may see (P-16), so the prefill is never an oracle on other branches' orders.
+     *
+     * @return array<string, mixed>|null
+     */
+    private function workshopPrefill(User $actor, int $orderId, mixed $reference): ?array
+    {
+        $order = Order::query()->find($orderId);
+        if ($order === null || ! Access::can($actor, Permission::P16, $order)) {
+            return null;
+        }
+        $lines = OrderLine::query()->where('order_id', $order->id)->whereNull('removed_at')
+            ->whereIn('line_type', [OrderLineType::CustomNeed->value, OrderLineType::CustomProduct->value])->orderBy('position')->get();
+        $workshops = Supplier::query()->where('is_workshop', true)->where('status', Supplier::ACTIVE)->orderBy('id')->get();
+        $workshop = $workshops->count() === 1 ? $workshops->first() : null;
+
+        return [
+            'order' => ['id' => $order->id, 'number' => $order->number],
+            'branch_id' => $order->branch_id,
+            'supplier_id' => $workshop?->id,
+            'expected_on' => $workshop?->lead_days === null ? null : now()->addDays($workshop->lead_days)->toDateString(),
+            'flow_reference' => is_string($reference) && preg_match('/^[a-z0-9_]{1,30}$/', $reference) === 1 ? $reference : null,
+            'lines' => $lines->map(fn (OrderLine $l) => [
+                'item_type' => PurchaseOrderLine::ORDER_LINE, 'item_id' => $l->id, 'order_id' => $order->id,
+                'name' => PurchasePresenter::text(PurchaseLines::orderLineName($l)), 'unit' => PurchaseLines::PIECE,
+                'quantity' => is_numeric($l->quantity) ? (string) (float) $l->quantity : '1',
+            ])->values()->all(),
+        ];
     }
 }

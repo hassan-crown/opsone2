@@ -1,6 +1,10 @@
 import { Head, Link, useForm } from '@inertiajs/react';
 import SupplierController from '@/actions/App/Http/Controllers/Procurement/SupplierController';
-import { TextField, TextareaField } from '@/components/opsone/field';
+import {
+    CheckboxField,
+    TextField,
+    TextareaField,
+} from '@/components/opsone/field';
 import { PageHeader } from '@/components/opsone/page-header';
 import {
     BackLink,
@@ -25,6 +29,11 @@ export default function SupplierForm({ supplier }: Props) {
         vat_number: supplier?.vat_number ?? '',
         supplies: supplier?.supplies ?? '',
         notes: supplier?.notes ?? '',
+        is_workshop: supplier?.is_workshop ?? false,
+        lead_days:
+            supplier?.lead_days === null || supplier?.lead_days === undefined
+                ? ''
+                : String(supplier.lead_days),
     });
     const errors = form.errors as Record<string, string | undefined>;
 
@@ -32,6 +41,7 @@ export default function SupplierForm({ supplier }: Props) {
         event.preventDefault();
         form.transform((data) => ({
             ...data,
+            lead_days: data.lead_days === '' ? null : Number(data.lead_days),
             idempotency_key: key,
             ...(supplier ? { lock_version: supplier.lock_version } : {}),
         }));
@@ -157,6 +167,31 @@ export default function SupplierForm({ supplier }: Props) {
                         optional
                         error={errors.supplies}
                     />
+                    <CheckboxField
+                        label={t('suppliers.is_workshop')}
+                        hint={t('suppliers.is_workshop_hint')}
+                        checked={form.data.is_workshop}
+                        onChange={(e) =>
+                            form.setData('is_workshop', e.target.checked)
+                        }
+                        error={errors.is_workshop}
+                        data-test="supplier-workshop"
+                    />
+                    {form.data.is_workshop && (
+                        <TextField
+                            label={t('suppliers.lead_days')}
+                            hint={t('suppliers.lead_days_hint')}
+                            inputMode="numeric"
+                            dir="ltr"
+                            value={form.data.lead_days}
+                            onChange={(e) =>
+                                form.setData('lead_days', e.target.value)
+                            }
+                            optional
+                            error={errors.lead_days}
+                            className="max-w-48"
+                        />
+                    )}
                     <TextareaField
                         label={t('suppliers.notes')}
                         value={form.data.notes}

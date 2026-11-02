@@ -146,7 +146,7 @@ it('edits only the upcoming work of this order with a reason and surfaces check 
     $get = $this->actingAs($this->owner)->getJson("{$url}/upcoming")->assertOk();
     $keys = collect($get->json('stages'))->pluck('key')->all();
     expect($keys)->toBe(['design', 'agreement', 'manufacture', 'install'])
-        ->and($get->json('options.catalogue'))->toHaveCount(10);
+        ->and($get->json('options.catalogue'))->toHaveCount(11); // ten actions + the workshop order (ADR-0038)
     $this->actingAs($this->f->sales)->getJson("{$url}/upcoming")->assertForbidden();
 
     $stages = $get->json('stages');

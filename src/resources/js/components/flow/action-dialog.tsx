@@ -11,7 +11,7 @@ import {
 import { useLocale, useT } from '@/lib/i18n';
 import type { TranslationKey } from '@/lib/i18n';
 import { INPUT_EDITORS } from './action-editors';
-import { locate, parseTarget, pick, targetValue } from './definition';
+import { locate, pick } from './definition';
 import { TargetSelect } from './target-select';
 import type { ActionDef, Definition, FlowIssue, FlowOptions } from './types';
 
@@ -201,11 +201,12 @@ export function ActionDialog({
                     <div className="grid gap-4 sm:grid-cols-2">
                         <TargetSelect
                             label={t('flow.field.assign')}
-                            value={targetValue(action.assign)}
+                            value={action.assign}
                             options={options}
                             disabled={readOnly}
                             error={err('assign')}
-                            onChange={(v) => patch({ assign: parseTarget(v) })}
+                            allowStage
+                            onChange={(assign) => patch({ assign })}
                         />
                         <SelectField
                             label={t('flow.field.after')}

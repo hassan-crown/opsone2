@@ -6,6 +6,7 @@ use App\EInvoicing\EInvoiceSubmitter;
 use App\Jobs\DeliverOutboxMessage;
 use App\Models\CustomerMessage;
 use App\Models\OutboxMessage;
+use App\Models\Procurement\PurchaseOrderSend;
 use App\Notifications\Channels\EmailChannel;
 use App\Notifications\Channels\SmsChannel;
 use App\Whatsapp\MessageStatus;
@@ -68,6 +69,8 @@ final class OutboxDeliverer
 
             return;
         }
+
+        $this->mirror($message, PurchaseOrderSend::SENT);
 
         $message->forceFill([
             'status' => OutboxStatus::Sent,
@@ -132,6 +135,7 @@ final class OutboxDeliverer
                 $this->whatsapp->fallback($message, 'whatsapp_retries_exhausted');
             } else {
                 $this->follow($message, MessageStatus::Failed, 'delivery_failed');
+                $this->mirror($message, PurchaseOrderSend::FAILED);
             }
         }
         $delay = self::BACKOFF[min($message->attempts, count(self::BACKOFF)) - 1];
@@ -159,6 +163,17 @@ final class OutboxDeliverer
         $id = $message->payload['customer_message_id'] ?? null;
         if (is_int($id)) {
             CustomerMessage::query()->find($id)?->advance($status, $error);
+        }
+    }
+
+    /**
+     * Mirrors a purchase-order email's final status onto its send log (ADR-0038).
+     */
+    private function mirror(OutboxMessage $message, string $status): void
+    {
+        if ($message->kind === 'purchase_order') {
+            PurchaseOrderSend::query()->where('outbox_message_id', $message->id)
+                ->update(['status' => $status, 'sent_at' => $status === PurchaseOrderSend::SENT ? now() : null, 'updated_at' => now()]);
         }
     }
 

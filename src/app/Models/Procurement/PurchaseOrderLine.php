@@ -4,6 +4,7 @@ namespace App\Models\Procurement;
 
 use App\Models\Catalog\CatalogMaterial;
 use App\Models\Catalog\CatalogReadyVariant;
+use App\Models\OrderLine;
 use App\Support\Translatable\TranslatableString;
 use App\Support\Translatable\Translated;
 use Illuminate\Database\Eloquent\Model;
@@ -38,6 +39,11 @@ class PurchaseOrderLine extends Model
 
     public const READY_VARIANT = 'ready_variant';
 
+    /** A line of the customer's order made by a workshop (ADR-0038): followed by the flow, never stocked. */
+    public const ORDER_LINE = 'order_line';
+
+    public const TYPES = [self::MATERIAL, self::READY_VARIANT, self::ORDER_LINE];
+
     protected $guarded = ['id'];
 
     protected $attributes = ['received_milli' => 0, 'accepted_milli' => 0, 'rejected_milli' => 0, 'net_minor' => 0, 'vat_minor' => 0, 'gross_minor' => 0];
@@ -65,6 +71,9 @@ class PurchaseOrderLine extends Model
         if ($this->item_type === self::READY_VARIANT) {
             return true;
         }
+        if ($this->item_type === self::ORDER_LINE) {
+            return false;
+        }
 
         return (bool) CatalogMaterial::query()->whereKey($this->item_id)->value('track_quantity');
     }
@@ -82,6 +91,7 @@ class PurchaseOrderLine extends Model
         return match ($type) {
             self::MATERIAL => CatalogMaterial::query()->whereKey($id)->exists(),
             self::READY_VARIANT => CatalogReadyVariant::query()->whereKey($id)->exists(),
+            self::ORDER_LINE => OrderLine::query()->whereKey($id)->exists(),
             default => false,
         };
     }

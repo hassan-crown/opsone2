@@ -22,6 +22,7 @@ import {
     unitLabel,
     useIdempotencyKey,
 } from '@/components/procurement/shared';
+import { Alert, AlertBody } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { useT } from '@/lib/i18n';
@@ -33,7 +34,29 @@ import type {
     SupplierOption,
 } from '@/types/procurement';
 
-type Prefill = { item_type: string; item_id: number; quantity: string };
+type ItemPrefill = { item_type: string; item_id: number; quantity: string };
+
+/** ADR-0038: a workshop purchase order for a custom order (`?order=&reference=`). */
+type WorkshopPrefill = {
+    order: { id: number; number: string };
+    branch_id: number;
+    supplier_id: number | null;
+    expected_on: string | null;
+    flow_reference: string | null;
+    lines: {
+        item_type: string;
+        item_id: number;
+        order_id: number;
+        name: { label: string };
+        unit: string;
+        quantity: string;
+    }[];
+};
+
+type Prefill = ItemPrefill | WorkshopPrefill;
+
+const isWorkshop = (p: Prefill | null): p is WorkshopPrefill =>
+    p !== null && 'order' in p;
 
 type Props = {
     suppliers: SupplierOption[];
@@ -53,6 +76,7 @@ type LineDraft = {
     unit: string;
     quantity: string;
     unit_cost: string;
+    order_id: number | null;
 };
 
 export default function PurchaseForm({
@@ -80,31 +104,53 @@ export default function PurchaseForm({
                   l.unit_cost_minor != null
                       ? minorToInput(l.unit_cost_minor)
                       : '',
+              order_id: l.order_id,
           }))
-        : prefill
-          ? [
-                {
-                    id: null,
-                    item_type: prefill.item_type,
-                    item_id: prefill.item_id,
-                    name: t('procurement.item_ref', { id: prefill.item_id }),
-                    unit: '',
-                    quantity: prefill.quantity,
-                    unit_cost: '',
-                },
-            ]
-          : [];
+        : isWorkshop(prefill)
+          ? prefill.lines.map((l) => ({
+                id: null,
+                item_type: l.item_type,
+                item_id: l.item_id,
+                name: l.name.label,
+                unit: l.unit,
+                quantity: l.quantity,
+                unit_cost: '',
+                order_id: l.order_id,
+            }))
+          : prefill
+            ? [
+                  {
+                      id: null,
+                      item_type: prefill.item_type,
+                      item_id: prefill.item_id,
+                      name: t('procurement.item_ref', { id: prefill.item_id }),
+                      unit: '',
+                      quantity: prefill.quantity,
+                      unit_cost: '',
+                      order_id: null,
+                  },
+              ]
+            : [];
 
+    const workshop = isWorkshop(prefill) ? prefill : null;
     const form = useForm({
-        supplier_id: purchase ? String(purchase.supplier.id) : '',
+        supplier_id: purchase
+            ? String(purchase.supplier.id)
+            : workshop?.supplier_id
+              ? String(workshop.supplier_id)
+              : '',
         branch_id: purchase
             ? String(purchase.branch.id)
-            : branches.length === 1
-              ? String(branches[0].id)
-              : '',
+            : workshop
+              ? String(workshop.branch_id)
+              : branches.length === 1
+                ? String(branches[0].id)
+                : '',
         location_id:
             purchase?.location_id != null ? String(purchase.location_id) : '',
-        expected_on: purchase?.expected_on ?? '',
+        expected_on: purchase?.expected_on ?? workshop?.expected_on ?? '',
+        flow_reference:
+            purchase?.flow_reference ?? workshop?.flow_reference ?? '',
         responsible_id: purchase?.responsible
             ? String(purchase.responsible.id)
             : '',
@@ -142,6 +188,7 @@ export default function PurchaseForm({
                 unit: item.unit,
                 quantity: '',
                 unit_cost: '',
+                order_id: null,
             },
         ]);
 
@@ -166,10 +213,15 @@ export default function PurchaseForm({
             responsible_id:
                 data.responsible_id === '' ? null : Number(data.responsible_id),
             notes: data.notes,
+            flow_reference:
+                data.flow_reference.trim() === ''
+                    ? null
+                    : data.flow_reference.trim(),
             lines: data.lines.map((l) => ({
                 ...(l.id !== null ? { id: l.id } : {}),
                 item_type: l.item_type,
                 item_id: l.item_id,
+                ...(l.order_id !== null ? { order_id: l.order_id } : {}),
                 quantity: l.quantity.trim(),
                 ...(canCost ? { unit_cost: l.unit_cost.trim() } : {}),
             })),
@@ -322,7 +374,27 @@ export default function PurchaseForm({
                             optional
                             error={errors.responsible_id}
                         />
+                        <TextField
+                            label={t('workshops.flow_reference')}
+                            hint={t('workshops.flow_reference_hint')}
+                            dir="ltr"
+                            value={form.data.flow_reference}
+                            onChange={(e) =>
+                                form.setData('flow_reference', e.target.value)
+                            }
+                            optional
+                            error={errors.flow_reference}
+                        />
                     </div>
+                    {workshop && (
+                        <Alert variant="info" data-test="workshop-prefill">
+                            <AlertBody>
+                                {t('workshops.prefill_note', {
+                                    order: workshop.order.number,
+                                })}
+                            </AlertBody>
+                        </Alert>
+                    )}
                     <TextareaField
                         label={t('procurement.notes')}
                         value={form.data.notes}

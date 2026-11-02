@@ -3,7 +3,7 @@
 namespace App\Workflow\Catalogue;
 
 /**
- * The fixed action catalogue (WF-03, D-03): ten system actions with their inputs, system dependencies and completion
+ * The fixed action catalogue (WF-03, D-03): eleven system actions with their inputs, system dependencies and completion
  * rule. A facility only chooses actions from here and sets required/optional/condition, assignment and reference;
  * it never writes fields, rules or scripts. Renaming a stage or an action never changes what the action means.
  */
@@ -19,6 +19,8 @@ enum ActionType: string
     case PaymentCheck = 'payment_check';
     case RequiredDocument = 'required_document';
     case RecordDelivery = 'record_delivery';
+    // ADR-0038: the order is made by an external workshop; verified from its purchase order (sent, then received).
+    case WorkshopOrder = 'workshop_order';
 
     public const DOCUMENTS = ['quote', 'contract'];
 
@@ -34,12 +36,15 @@ enum ActionType: string
 
     public const MEASUREMENT_KINDS = ['estimated', 'final'];
 
+    /** A workshop order is verified twice from its purchase order: when it is sent (T01) and when fully received. */
+    public const WORKSHOP_MILESTONES = ['sent', 'received'];
+
     public function group(): ActionGroup
     {
         return match ($this) {
             self::CaptureNeeds, self::RecordMeasurements, self::PrepareDesign => ActionGroup::InfoMeasurement,
             self::PrepareDocument, self::CustomerApproval, self::RequiredDocument => ActionGroup::AgreementApproval,
-            self::WorkTask, self::SupplyFollowUp => ActionGroup::ExecutionSupply,
+            self::WorkTask, self::SupplyFollowUp, self::WorkshopOrder => ActionGroup::ExecutionSupply,
             self::PaymentCheck => ActionGroup::Finance,
             self::RecordDelivery => ActionGroup::Delivery,
         };
@@ -51,7 +56,7 @@ enum ActionType: string
             self::CaptureNeeds, self::PrepareDesign, self::WorkTask, self::RequiredDocument => CompletionMode::Task,
             self::RecordMeasurements => CompletionMode::Measurement,
             self::PrepareDocument, self::CustomerApproval, self::SupplyFollowUp, self::PaymentCheck,
-            self::RecordDelivery => CompletionMode::Source,
+            self::RecordDelivery, self::WorkshopOrder => CompletionMode::Source,
         };
     }
 
@@ -88,6 +93,10 @@ enum ActionType: string
                 'requires_attachment' => ['required', 'boolean'],
             ],
             self::SupplyFollowUp => ['reference' => ['required', 'string', 'regex:/^[a-z0-9_]{1,30}$/']],
+            self::WorkshopOrder => [
+                'reference' => ['required', 'string', 'regex:/^[a-z0-9_]{1,30}$/'],
+                'milestone' => ['required', 'in:'.implode(',', self::WORKSHOP_MILESTONES)],
+            ],
             self::PaymentCheck => [
                 'reference' => ['required', 'string', 'regex:/^[a-z0-9_]{1,30}$/'],
                 'basis' => ['required', 'in:'.implode(',', self::PAYMENT_BASES)],
@@ -115,6 +124,7 @@ enum ActionType: string
             self::CustomerApproval => ['subject' => 'quote'],
             self::WorkTask => ['label' => ['ar' => 'مهمة عمل', 'en' => 'Work task'], 'requires_attachment' => false],
             self::SupplyFollowUp => ['reference' => 'materials'],
+            self::WorkshopOrder => ['reference' => 'workshop', 'milestone' => 'sent'],
             self::PaymentCheck => ['reference' => 'first', 'basis' => 'due', 'value' => null],
             self::RequiredDocument => ['document_type' => 'document', 'review_required' => false],
         };
@@ -133,6 +143,7 @@ enum ActionType: string
             self::PrepareDocument => 'document:'.($inputs['document'] ?? ''),
             self::CustomerApproval => 'subject:'.($inputs['subject'] ?? ''),
             self::SupplyFollowUp, self::PaymentCheck => 'reference:'.($inputs['reference'] ?? ''),
+            self::WorkshopOrder => 'reference:'.($inputs['reference'] ?? '').':'.($inputs['milestone'] ?? ''),
             self::RequiredDocument => 'document_type:'.($inputs['document_type'] ?? ''),
             self::RecordDelivery => 'delivery',
             self::CaptureNeeds, self::PrepareDesign, self::WorkTask => null,
@@ -158,6 +169,9 @@ enum ActionType: string
                 && $other === self::CustomerApproval && in_array($otherInputs['subject'] ?? null, self::DOCUMENTS, true),
             // A design is prepared after the measurements it relies on, when the flow takes them.
             self::PrepareDesign => $other === self::RecordMeasurements,
+            // Receiving from a workshop follows sending the same workshop order.
+            self::WorkshopOrder => ($inputs['milestone'] ?? null) === 'received' && $other === self::WorkshopOrder
+                && ($otherInputs['milestone'] ?? null) === 'sent' && ($otherInputs['reference'] ?? null) === ($inputs['reference'] ?? null),
             default => false,
         };
     }
@@ -172,6 +186,7 @@ enum ActionType: string
         return match ($this) {
             self::CustomerApproval => 'approval_before_document',
             self::PaymentCheck => in_array($inputs['basis'] ?? null, ['due', 'percent', 'remaining'], true) ? 'payment_without_agreement' : null,
+            self::WorkshopOrder => ($inputs['milestone'] ?? null) === 'received' ? 'receipt_without_workshop_order' : null,
             default => null,
         };
     }
@@ -192,6 +207,7 @@ enum ActionType: string
             self::PaymentCheck => ['ar' => 'تحقق التحصيل', 'en' => 'Verify collection'],
             self::RequiredDocument => ['ar' => 'إرفاق مستند مطلوب', 'en' => 'Attach a required document'],
             self::RecordDelivery => ['ar' => 'تسجيل تسليم', 'en' => 'Record a delivery'],
+            self::WorkshopOrder => ['ar' => 'طلب من الورشة (إرسال أو استلام)', 'en' => 'Workshop order (sent or received)'],
         };
     }
 

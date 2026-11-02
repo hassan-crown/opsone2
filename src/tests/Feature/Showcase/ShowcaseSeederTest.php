@@ -4,6 +4,7 @@ use App\EInvoicing\Zatca\InvoiceHasher;
 use App\EInvoicing\Zatca\InvoiceSigner;
 use App\Models\Customer;
 use App\Models\EInvoicing\EInvoice;
+use App\Models\Flow;
 use App\Models\Order;
 use Carbon\CarbonImmutable;
 use Database\Seeders\ShowcaseSeeder;
@@ -98,6 +99,16 @@ it('seeds a coherent history and keeps the ledger and stock invariants', functio
     }
     foreach ($einvoices->where('signed', true) as $invoice) {
         expect(InvoiceSigner::verify($invoice->xml)['valid'])->toBeTrue();
+    }
+
+    // ADR-0038: the retail flow with external workshops — workshop purchase orders confirmed (sent) and received,
+    // each verifying its order's workshop actions from the purchase order only.
+    expect(Flow::current()->template_key)->toBe('retail_outsourced')
+        ->and(DB::table('suppliers')->where('is_workshop', true)->count())->toBe(3);
+    $workshopPos = DB::table('purchase_orders')->whereIn('supplier_id', DB::table('suppliers')->where('is_workshop', true)->select('id'))->get();
+    expect($workshopPos->where('status', '!=', 'draft')->count())->toBeGreaterThan(0);
+    foreach (DB::table('order_actions')->where('type', 'workshop_order')->where('status', 'verified')->get() as $action) {
+        expect(json_decode((string) $action->source_reference, true)['type'] ?? null)->toBeIn(['purchase_order', 'purchase_receipt']);
     }
 
     // Payment plans (ADR-0037): two plans, every agreed order copied one of them, and 40/40/20 orders have a second

@@ -29,6 +29,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property list<string>|null $depends_on
  * @property string $assign_type
  * @property int|null $assign_id
+ * @property array<string, mixed>|null $assign_target
  * @property ActionStatus $status
  * @property int|null $held_by_action_id
  * @property int|null $held_by_change_id
@@ -114,6 +115,7 @@ class OrderAction extends Model implements ScopedRecord
             'type' => ActionType::class,
             'name' => TranslatableString::class,
             'inputs' => 'array',
+            'assign_target' => 'array',
             'depends_on' => 'array',
             'status' => ActionStatus::class,
             'source_reference' => 'array',

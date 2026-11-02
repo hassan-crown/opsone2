@@ -1,7 +1,9 @@
 <?php
 
 use App\Http\Controllers\Procurement\PurchaseController;
+use App\Http\Controllers\Procurement\PurchaseDocumentController;
 use App\Http\Controllers\Procurement\SupplierController;
+use App\Http\Controllers\Procurement\WorkshopBoardController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -23,6 +25,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('purchases/{purchase}/receive', [PurchaseController::class, 'receiveScreen'])->whereNumber('purchase')->name('purchases.receive.form');
     Route::get('purchases/{purchase}/cancel', [PurchaseController::class, 'cancelScreen'])->whereNumber('purchase')->name('purchases.cancel.form');
 
+    // ADR-0038: orders at workshops, the purchase-order PDF and the facility's document settings.
+    Route::get('workshops', [WorkshopBoardController::class, 'index'])->name('workshops.index');
+    Route::get('purchases/{purchase}/pdf', [PurchaseDocumentController::class, 'pdf'])->whereNumber('purchase')->name('purchases.pdf');
+    Route::get('settings/purchase-document', [PurchaseDocumentController::class, 'settings'])->name('settings.purchase-document');
+
     Route::middleware('throttle:records-create')->group(function () {
         Route::post('suppliers', [SupplierController::class, 'store'])->name('suppliers.store');
         Route::put('suppliers/{supplier}', [SupplierController::class, 'update'])->whereNumber('supplier')->name('suppliers.update');
@@ -35,5 +42,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('purchases/{purchase}/receive', [PurchaseController::class, 'receive'])->whereNumber('purchase')->name('purchases.receive');
         Route::post('purchases/{purchase}/cancel', [PurchaseController::class, 'cancel'])->whereNumber('purchase')->name('purchases.cancel');
         Route::post('purchases/{purchase}/adjust', [PurchaseController::class, 'adjust'])->whereNumber('purchase')->name('purchases.adjust');
+        Route::post('purchases/{purchase}/email', [PurchaseDocumentController::class, 'email'])->whereNumber('purchase')->name('purchases.email');
+        Route::post('purchases/{purchase}/sends/{send}/retry', [PurchaseDocumentController::class, 'retry'])->whereNumber(['purchase', 'send'])->name('purchases.email.retry');
+        Route::put('settings/purchase-document', [PurchaseDocumentController::class, 'save'])->name('settings.purchase-document.update');
+        Route::post('settings/purchase-document/preview', [PurchaseDocumentController::class, 'preview'])->name('settings.purchase-document.preview');
     });
 });

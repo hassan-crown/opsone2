@@ -1,7 +1,19 @@
 export type Localized = { ar: string; en: string | null };
 
-export type TargetType = 'order_assignee' | 'member' | 'department';
-export type Target = { type: TargetType; id?: number };
+/** ADR-0038 adds a role, a person per branch and (actions only) the stage's responsible. */
+export type TargetType =
+    | 'order_assignee'
+    | 'member'
+    | 'department'
+    | 'role'
+    | 'per_branch'
+    | 'stage';
+export type BranchTarget = { branch_id: number; user_id: number };
+export type Target = {
+    type: TargetType;
+    id?: number;
+    branches?: BranchTarget[];
+};
 
 export type ActionTypeKey =
     | 'capture_needs'
@@ -13,7 +25,8 @@ export type ActionTypeKey =
     | 'supply_follow_up'
     | 'payment_check'
     | 'required_document'
-    | 'record_delivery';
+    | 'record_delivery'
+    | 'workshop_order';
 
 export type GroupKey =
     | 'info_measurement'
@@ -66,6 +79,13 @@ export type FlowOptions = {
     }[];
     members: { id: number; name: string }[];
     departments: { id: number; name: string }[];
+    roles: { id: number; name: string }[];
+    branches: { id: number; name: string }[];
+    addons: {
+        key: string;
+        label: { ar: string; en: string };
+        stages: StageDef[];
+    }[];
 };
 
 export type FlowIssue = {
@@ -116,6 +136,11 @@ export type ProgressAction = {
     allowed_reason: string | null;
     rework_count: number;
     has_source: boolean;
+    workshop: {
+        reference: string;
+        milestone: 'sent' | 'received';
+        can_order: boolean;
+    } | null;
     tasks: ProgressTask[];
     can: { allow: boolean; rework: boolean };
 };
@@ -135,6 +160,8 @@ export type ProgressStage = {
     };
     target_days: number | null;
     due_on: string | null;
+    expected_on: string | null;
+    days_late: number;
     started_at: string | null;
     completed_at: string | null;
     can_complete: boolean;

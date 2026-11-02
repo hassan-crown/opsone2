@@ -68,6 +68,15 @@ final class NotificationCatalogue
             'body' => 'returns.notify.inspected.body',
             'route' => null,
         ],
+        // ADR-0038: a workshop purchase order passed its expected date (once per order and date); opening re-checks
+        // P-46 on the live purchase order.
+        'workshop.late' => [
+            'mandatory' => false,
+            'permission' => Permission::P46,
+            'title' => 'workshops.notify.late.title',
+            'body' => 'workshops.notify.late.body',
+            'route' => null,
+        ],
         'work.assigned' => [
             'mandatory' => false,
             'permission' => null,

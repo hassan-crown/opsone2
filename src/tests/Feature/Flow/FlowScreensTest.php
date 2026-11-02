@@ -26,7 +26,7 @@ beforeEach(function () {
  */
 function flowUiStages(?callable $change = null): array
 {
-    $definition = FlowTemplates::definition(FlowTemplates::DEFAULT);
+    $definition = FlowTemplates::definition(FlowTemplates::IN_HOUSE);
     if ($change !== null) {
         $change($definition);
     }
@@ -54,7 +54,7 @@ it('shows the editor only to P-20 holders and a stage deep link with the same pa
             ->where('flow.version.number', 1)
             ->has('flow.published.stages', 5)
             ->where('flow.draft', null)
-            ->has('options.catalogue', 10)
+            ->has('options.catalogue', 11) // ten actions + the workshop order (ADR-0038)
             ->where('can.publish', true));
     }
     $this->actingAs($this->owner)->get('/settings/flow/stages/design?action=quote')->assertOk()
@@ -190,8 +190,8 @@ it('lets the owner choose a template, asking to discard an open draft first', fu
 it('shows the template choice in the setup wizard to the owner', function () {
     $this->actingAs($this->owner)->get('/org/setup/flow')->assertOk()->assertInertia(fn ($page) => $page
         ->component('org/setup/flow')
-        ->where('flow.template_key', 'default')
-        ->has('flowOptions.templates', 2)
+        ->where('flow.template_key', FlowTemplates::IN_HOUSE)
+        ->has('flowOptions.templates', count(FlowTemplates::keys()))
         ->where('canChooseFlow', true)
         ->where('canEditFlow', true));
 });
