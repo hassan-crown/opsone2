@@ -6,6 +6,7 @@ use App\Enums\DeliveryStatus;
 use App\Files\AttachmentService;
 use App\Inventory\Quantity;
 use App\Models\Attachment;
+use App\Models\Delivery\DeliveryCorrection;
 use App\Models\Delivery\DeliveryNote;
 use App\Models\Order;
 use App\Models\OrderLine;
@@ -70,17 +71,22 @@ final class DeliveryPresenter
         $record = DeliveryAccess::canRecord($viewer, $order);
         $draft = $note->status === DeliveryStatus::Draft;
         $rows = $draft ? DeliveryProgress::lines($order) : [];
+        $confirmed = $note->status === DeliveryStatus::Confirmed;
+        $corrected = $confirmed ? DeliveryCorrections::correctedByNoteLine($note->id) : [];
 
         return self::row($note) + [
             'note' => $note->note, 'lock_version' => $note->lock_version, 'cancel_reason' => $note->cancel_reason,
             'confirmed_by' => $note->confirmer?->name, 'confirmed_at' => $note->confirmed_at?->toIso8601String(),
             'order' => self::orderRef($order),
-            'lines' => $note->lines->map(function ($l) use ($amounts, $rows) {
+            'lines' => $note->lines->map(function ($l) use ($amounts, $rows, $corrected) {
                 /** @var OrderLine $line */
                 $line = $l->orderLine;
 
                 return self::line($line, $amounts) + [
+                    'id' => $l->id,
                     'quantity' => Quantity::format($l->quantity_milli),
+                    'corrected' => Quantity::format($corrected[$l->id] ?? 0),
+                    'net' => Quantity::format($l->quantity_milli - ($corrected[$l->id] ?? 0)),
                     'deliverable' => isset($rows[$line->id]) ? Quantity::format($rows[$line->id]['deliverable']) : null,
                 ] + ($amounts && $line->unit_price_minor !== null ? ['value_minor' => (int) round($l->quantity_milli * $line->unit_price_minor / 1000)] : []);
             })->values()->all(),
@@ -88,9 +94,18 @@ final class DeliveryPresenter
                 'uuid' => $a->uuid, 'name' => $a->original_name,
                 'url' => $this->files->canDownload($viewer, $a) ? $this->files->downloadUrl($a, $viewer) : null,
             ])->values()->all(),
+            'corrections' => $confirmed ? DeliveryCorrection::query()->where('delivery_note_id', $note->id)->with(['lines', 'creator:id,name'])->orderBy('id')->get()
+                ->map(fn (DeliveryCorrection $c) => [
+                    'id' => $c->id, 'destination' => $c->destination, 'reason' => $c->reason, 'by' => $c->creator?->name,
+                    'at' => $c->created_at->toIso8601String(), 'first_delivery_on' => $c->first_delivery_on?->toDateString(),
+                    'lines' => $c->lines->groupBy('delivery_note_line_id')->map(fn ($g, $id) => ['line_id' => (int) $id, 'quantity' => Quantity::format((int) $g->sum('quantity_milli'))])->values()->all(),
+                ])->values()->all() : [],
             'can' => [
                 'confirm' => $draft && $record && DeliveryProgress::accepts($order),
                 'cancel' => $draft && $record,
+                'correct' => $confirmed && $record && DeliveryCorrections::orderAccepts($order),
+                // Ready goods move stock: the person picks where it goes (P-49 is checked on the location when saving).
+                'correct_needs_destination' => $order->isReady(),
             ],
         ];
     }

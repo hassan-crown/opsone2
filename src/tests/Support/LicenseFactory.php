@@ -16,6 +16,13 @@ final class LicenseFactory
     private static array $installed = [];
 
     /**
+     * The latest default `issued_at` handed out in this test. A license issued before the trusted one is refused as
+     * superseded and the app falls back to the older license, so a test that replaces its license must never get an
+     * earlier date — not even when the container clock steps back across a second under parallel load.
+     */
+    private static ?CarbonImmutable $lastIssued = null;
+
+    /**
      * Point the app at a per-test license file and place a valid license (growth plan unless overridden).
      * Removed by TestCase::tearDown via cleanup().
      *
@@ -38,6 +45,7 @@ final class LicenseFactory
             @unlink($path);
         }
         self::$installed = [];
+        self::$lastIssued = null;
     }
 
     /**
@@ -47,6 +55,11 @@ final class LicenseFactory
     public static function payload(array $overrides = []): array
     {
         $now = CarbonImmutable::now('UTC');
+        $issued = $now->subDays(10);
+        if (self::$lastIssued !== null && $issued->lt(self::$lastIssued)) {
+            $issued = self::$lastIssued;
+        }
+        self::$lastIssued = $issued;
 
         return [
             'schema_version' => 1,
@@ -63,7 +76,7 @@ final class LicenseFactory
             'grace_days' => 7,
             'wind_down_days' => 30,
             'retention_days' => 90,
-            'issued_at' => $now->subDays(10)->toIso8601ZuluString(),
+            'issued_at' => $issued->toIso8601ZuluString(),
             ...$overrides,
         ];
     }

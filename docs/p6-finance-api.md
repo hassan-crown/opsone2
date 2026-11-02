@@ -248,6 +248,26 @@ amount_minor?}], documents[{…, status, files (P-44), can{attach, review}, amou
 customer_tax{vat_number, commercial_registration, missing[]}, members[], can{request_refund, execute_refund, correct,
 dispute, documents}`. Without P-37 every `*_minor` key and money files are absent — render «hidden», never 0.
 
+## Debt write-off at closure (ADR-0035)
+
+Code: `app/Actions/Finance/WriteOffDebt.php`, `app/Finance/DebtWriteOffs.php`, `app/Models/Finance/DebtWriteOff*.php`,
+`DebtWriteOffController`. Permission **P-103** (owner by default). Made-to-order orders in a closure state only.
+
+| Method | URL | Body | Answer |
+|---|---|---|---|
+| POST | `/orders/{order}/finance/write-offs` | multipart: `idempotency_key, lock_version (finance head), amount_minor (= owed now), reason, file?` | 201 `{write_off: {id, number WO-YYYY-000123, kind, amount_minor}}`; 409 not in a closure state / ready order; 422 `amount` changed or nothing owed, `reason` |
+| POST | `/finance/write-offs/{id}/reverse` | `idempotency_key, lock_version?, reason` | `{write_off}` of kind `reversal`; 409 already reversed / a reversal |
+
+| Call | Returns | Notes |
+|---|---|---|
+| `DebtWriteOffs::writtenOff(int $orderId)` · `::byDue(array $orderIds)` · `::owedByDue(Order)` | halalas | Net of reversals. Owed = due − allocated − written off. |
+| `DebtWriteOffs::inRange($orderIds, $from, $to)` | halalas | Report metric `collection.written_off_minor`. |
+| `DebtWriteOffs::panel(Order, User)` | array\|null | The order page's write-off card (amounts only with P-37). |
+
+Journal: `debt_write_off_entries` — `receivable` per due (negative) and `bad_debt` (positive), summing to zero; a
+reversal negates them once. Never a money journal: collected, receipts and commissions are unchanged. While a write-off
+stands the schedule is fixed (`finance.write_off.schedule_locked`).
+
 ## 6d — sale ownership and commissions
 
 Decisions: [ADR-0016](decisions/0016-commissions.md). Code: `app/Commissions`, `app/Models/Commissions`,

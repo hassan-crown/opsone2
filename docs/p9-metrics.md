@@ -107,8 +107,9 @@ before launch. No hard-coded hex values in chart code.
 | `collection.transfers_minor` | money | gross | P-37 | money_entries, money_journals | Sum of entries of transfer journals in range, on in-scope orders. |
 | `collection.refunded_minor` | money | gross | P-37 | money_entries, money_journals | Sum of entries of refund journals in range (negative: money that left). |
 | `collection.net_minor` | money | gross | P-37 | money_entries, money_journals | Sum of every entry in range = collected + corrections + transfers + refunded. |
+| `collection.written_off_minor` | money | gross | P-37 | debt_write_offs, debt_write_off_entries | Net debt written off in range (write-offs minus their reversals, ADR-0035); never part of collected or net. |
 | `collection.overdue_minor` | money | gross | P-37 | order_dues, money_entries | Remaining (due − allocated) of dues whose derived date is before today. |
-| `collection.open_minor` | money | gross | P-37 | order_dues, money_entries | Remaining of all open dues (aged or not). |
+| `collection.open_minor` | money | gross | P-37 | order_dues, money_entries, debt_write_off_entries | Remaining of all open dues (aged or not), after write-offs. |
 
 ### `refunds`
 

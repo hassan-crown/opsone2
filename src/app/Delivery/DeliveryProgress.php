@@ -81,17 +81,23 @@ final class DeliveryProgress
     }
 
     /**
-     * Confirmed delivered quantity per order line (the base returns are checked against).
+     * Confirmed delivered quantity per order line, net of delivery corrections (M-14-T03) — the base returns and
+     * cancellation are checked against.
      *
      * @return array<int, int>
      */
     public static function deliveredByLine(int $orderId): array
     {
-        return DeliveryNoteLine::query()
+        $delivered = DeliveryNoteLine::query()
             ->join('delivery_notes', 'delivery_notes.id', '=', 'delivery_note_lines.delivery_note_id')
             ->where('delivery_notes.order_id', $orderId)->where('delivery_notes.status', DeliveryStatus::Confirmed->value)
             ->groupBy('delivery_note_lines.order_line_id')
             ->selectRaw('delivery_note_lines.order_line_id as line_id, SUM(delivery_note_lines.quantity_milli) as total')
             ->pluck('total', 'line_id')->map(fn ($v) => (int) $v)->all();
+        foreach (DeliveryCorrections::correctedByOrderLine($orderId) as $lineId => $back) {
+            $delivered[$lineId] = max(0, ($delivered[$lineId] ?? 0) - $back);
+        }
+
+        return $delivered;
     }
 }
