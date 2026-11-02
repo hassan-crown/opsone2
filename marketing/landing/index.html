@@ -17,12 +17,13 @@
 
 <header class="hero" id="top">
   <nav class="bar" aria-label="الرئيسية">
+    <a class="bar__logo" href="#top" aria-label="OpsOne، أعلى الصفحة"><img src="assets/brand/opsone-logo-reversed.svg" width="131" height="32" alt="OpsOne"></a>
     <ul class="bar__links">
       <li><a class="link" href="#path">مسار الطلب</a></li>
+      <li><a class="link" href="#people">الفريق والعميل</a></li>
       <li><a class="link" href="#modules">الوحدات</a></li>
     </ul>
-    <a class="bar__logo" href="#top" aria-label="OpsOne، أعلى الصفحة"><img src="assets/brand/opsone-logo-reversed.svg" width="131" height="32" alt="OpsOne"></a>
-    <a class="bar__action link" href="#demo">اطلب عرضًا تجريبيًا</a>
+    <a class="btn btn--small" href="#demo">اطلب عرضًا تجريبيًا</a>
   </nav>
 
   <div class="hero__copy">
@@ -30,26 +31,66 @@
       <span class="line"><span data-line style="--i:0">من المعاينة</span></span>
       <span class="line"><span data-line style="--i:1">إلى التركيب</span></span>
     </h1>
-    <p class="lead" data-load style="--d:420ms">OpsOne نظام عربي واحد لمنشآت التصنيع حسب الطلب والتركيب: الطلبات ومراحلها، والفريق، والعميل، والمال، والمعرض والمتجر.</p>
+    <p class="lead" data-load style="--d:380ms">نظام عربي واحد لمنشآت التصنيع حسب الطلب والتركيب: الطلبات ومراحلها، والفريق، والعميل، والمال، والمعرض والمتجر.</p>
+    <div class="hero__actions" data-load style="--d:460ms">
+      <a class="btn btn--solid" href="#demo">اطلب عرضًا تجريبيًا</a>
+      <a class="link hero__second" href="#path">شاهد مسار الطلب</a>
+    </div>
   </div>
 
-  <div class="folders" data-load style="--d:300ms">
-    <div class="folder folder--1"><a class="folder__tab" href="#trades">لمن صُمّم</a></div>
-    <div class="folder folder--2"><a class="folder__tab" href="#one">ملف واحد</a></div>
-    <div class="folder folder--3"><a class="folder__tab" href="#path">مسار الطلب</a></div>
-    <div class="folder folder--4"><a class="folder__tab" href="#people">الفريق والعميل</a></div>
-    <div class="folder folder--5">
-      <a class="folder__tab" href="#modules">كل الوحدات</a>
-      <div class="folder__inside">
-        <div class="folder__head">
-          <a class="btn btn--solid" href="#demo">اطلب عرضًا تجريبيًا</a>
-          <p class="folder__note">هذه صفحة طلب حقيقية من OpsOne: مطبخ تحضيري لمشروع من 6 وحدات سكنية، في فرع الرياض.</p>
+  <div class="hero__stage" data-stage>
+    <div class="app" data-ui role="img" aria-label="واجهة OpsOne لطلب ORD-2026-00178: مراحل الطلب ومهامها، ومالية الطلب، ومواعيد الفريق اليوم">
+      <aside class="app__side" aria-hidden="true">
+        <div class="app__brand"><img src="assets/brand/opsone-logo.svg" width="98" height="24" alt=""></div>
+        <ul class="app__nav">
+          <li>لوحة التحكم</li><li>لوحة المالك</li><li class="is-on">الطلبات</li><li>المهام</li><li>التقويم</li><li>المالية</li><li>العمولات</li><li>التوريد</li><li>العملاء</li><li>المخزون</li><li>الفروع</li>
+        </ul>
+      </aside>
+      <div class="app__main" aria-hidden="true">
+        <div class="app__top"><span class="app__search">ابحث في الطلبات والعملاء</span><span class="app__me">عق</span></div>
+        <div class="app__head">
+          <div>
+            <div class="app__ref">ORD-2026-00178</div>
+            <div class="app__sub">سلطان أحمد الأحمدي، مطبخ أكريليك مطفي بجزيرة، 7.8 م</div>
+          </div>
+          <div class="app__chips"><span class="chip chip--neutral">مخصص</span><span class="chip chip--neutral">فرع الرياض</span><span class="chip chip--info" data-status>قيد التصنيع</span></div>
         </div>
-        <figure class="shot shot--hero">
-          <img src="assets/ui/order.jpg" width="1440" height="900" fetchpriority="high" decoding="async"
-               alt="شاشة الطلب ORD-2026-00178 في OpsOne: ملخص الاحتياج، وبنود الطلب، وأزرار المالية والاتفاق والتسليم والإلغاء">
-        </figure>
+        <div class="app__tabs"><span>نظرة عامة</span><span class="is-on">المراحل والمهام</span><span>المالية</span><span>المستندات</span><span>سجل الحالات</span></div>
+        <div class="app__grid">
+          <div class="panel app__stages">
+            <div class="panel__title">مراحل الطلب</div>
+            <ol class="stg">
+              <li class="stg__row is-done"><span class="stg__name">القياس والمعاينة</span><span class="stg__date">9 سبتمبر</span><span class="chip chip--ok">مكتملة</span></li>
+              <li class="stg__row is-done"><span class="stg__name">التصميم والعرض</span><span class="stg__date">14 سبتمبر</span><span class="chip chip--ok">مكتملة</span></li>
+              <li class="stg__row is-done"><span class="stg__name">الاتفاق والدفعة الأولى</span><span class="stg__date">23 سبتمبر</span><span class="chip chip--ok">مكتملة</span></li>
+              <li class="stg__row is-now" data-stg="make"><span class="stg__name">التصنيع</span><span class="stg__date">6 نوفمبر</span><span class="chip chip--info">جارية</span><span class="stg__bar"><i style="--p:.72"></i></span></li>
+              <li class="stg__row" data-stg="install"><span class="stg__name">التركيب والتسليم</span><span class="stg__date">8 نوفمبر</span><span class="chip chip--neutral">لاحقًا</span><span class="stg__bar"><i style="--p:0"></i></span></li>
+            </ol>
+            <div class="stg__tasks">
+              <div class="task is-done"><span class="task__box"></span>قص ألواح الأكريليك<span class="task__who">ورشة النجارة</span></div>
+              <div class="task is-done"><span class="task__box"></span>تجميع الخزائن السفلية<span class="task__who">ورشة النجارة</span></div>
+              <div class="task" data-task><span class="task__box"></span>تفصيل سطح الكوارتز<span class="task__who">المورد</span></div>
+            </div>
+          </div>
+          <div class="panel app__money">
+            <div class="panel__title">مالية الطلب</div>
+            <div class="money__total"><span class="nums" data-count="48300">48,300.00</span> <small>ر.س</small></div>
+            <div class="money__note">شامل ضريبة القيمة المضافة 15%</div>
+            <div class="money__row"><span>المقبوض</span><span class="nums" data-count="24150">24,150.00</span></div>
+            <div class="money__row"><span>المتبقي</span><span class="nums" data-count="24150">24,150.00</span></div>
+            <div class="money__meter"><i style="--p:.5" data-meter></i></div>
+            <div class="money__pay"><span>الدفعة الأولى</span><span class="chip chip--ok">مسدد</span></div>
+            <div class="money__pay"><span>الدفعة الأخيرة</span><span class="chip chip--warn">عند التركيب</span></div>
+          </div>
+          <div class="panel app__today">
+            <div class="panel__title">مواعيد اليوم</div>
+            <div class="appt"><b class="nums">08:00</b><span>قياس، حي النرجس</span><span class="appt__who">حسن</span></div>
+            <div class="appt"><b class="nums">12:00</b><span>تركيب، فرع جدة</span><span class="appt__who">زياد</span></div>
+            <div class="appt"><b class="nums">14:00</b><span>تسليم بنود جاهزة</span><span class="appt__who">عمر</span></div>
+          </div>
+        </div>
       </div>
+      <div class="app__toast" aria-hidden="true" data-toast><b>واتساب إلى العميل</b><span>طلبك ORD-2026-00178 جاهز للتركيب. موعدنا الأحد 8 نوفمبر الساعة 08:00.</span></div>
     </div>
   </div>
 </header>
@@ -176,35 +217,45 @@
 </section>
 
 <section class="people" id="people" aria-labelledby="people-title">
-  <div class="people__plate" data-reveal>
-    <img src="assets/ui/installer-tasks.jpg" width="390" height="844" loading="lazy" decoding="async" data-panel-img
-         alt="قائمة مهام التركيب على جوال الفني في OpsOne">
-  </div>
   <div class="people__text">
-    <h2 class="sr-only" id="people-title">الفريق والعميل والمالك</h2>
-    <div class="people__tabs" role="tablist" aria-label="من يستخدم OpsOne">
-      <button role="tab" id="tab-team" aria-controls="panel-people" aria-selected="true" data-img="assets/ui/installer-tasks.jpg" data-w="390" data-h="844" data-alt="قائمة مهام التركيب على جوال الفني في OpsOne">الفريق</button>
-      <button role="tab" id="tab-customer" aria-controls="panel-people" aria-selected="false" tabindex="-1" data-img="assets/ui/portal-order.jpg" data-w="390" data-h="844" data-alt="بوابة العميل في OpsOne: رحلة الطلب والمستحق الآن وزر دفع الدفعة">العميل</button>
-      <button role="tab" id="tab-owner" aria-controls="panel-people" aria-selected="false" tabindex="-1" data-img="assets/ui/owner.jpg" data-w="615" data-h="640" data-alt="لوحة المالك في OpsOne: المبيعات والتحصيل والمستحقات والطلبات الجارية">المالك</button>
+    <h2 class="head" id="people-title" data-reveal>كل شخص يرى دوره</h2>
+    <div class="people__tabs" role="tablist" aria-label="من يستخدم OpsOne" data-reveal style="--i:1">
+      <button role="tab" id="tab-team" aria-controls="panel-people" aria-selected="true" data-film="team">الفريق</button>
+      <button role="tab" id="tab-customer" aria-controls="panel-people" aria-selected="false" tabindex="-1" data-film="customer">العميل</button>
+      <button role="tab" id="tab-owner" aria-controls="panel-people" aria-selected="false" tabindex="-1" data-film="owner">المالك</button>
     </div>
-    <div class="people__panel" id="panel-people" role="tabpanel" aria-labelledby="tab-team" tabindex="0">
+    <div class="people__panel" id="panel-people" role="tabpanel" aria-labelledby="tab-team" tabindex="0" data-reveal style="--i:2">
       <div data-panel="team">
-        <h3 class="head">مهام اليوم في جوال الفني</h3>
-        <p>فني القياس وفريق التركيب يفتحون مهامهم ومواعيدهم من الجوال، ويبدؤونها وينهونها من الموقع. التقويم يحجز وقت كل فني، وينبّه عند تعارض موعدين.</p>
+        <h3 class="people__title">مراحل الطلب ومهامها</h3>
+        <p>كل مرحلة بمهامها ومسؤولها وموعدها المستهدف، وما يمنع إكمالها الآن. فني القياس وفريق التركيب يفتحون مهامهم من الجوال ويُنهونها من الموقع.</p>
       </div>
       <div data-panel="customer" hidden>
-        <h3 class="head">العميل يعتمد ويوقّع ويدفع</h3>
-        <p>يدخل العميل بوابته برقم جواله ورمز من 6 أرقام، فيعتمد التصميم أو يطلب تعديله، ويوقّع عرض السعر والعقد، ويدفع، ويتابع رحلة طلبه مرحلة مرحلة.</p>
+        <h3 class="people__title">بوابة العميل على جواله</h3>
+        <p>يدخل العميل برقم جواله ورمز من 6 أرقام، فيتابع رحلة طلبه وماله ومواعيده، ويعتمد التصميم أو يطلب تعديله، ويوقّع العرض والعقد، ويدفع.</p>
       </div>
       <div data-panel="owner" hidden>
-        <h3 class="head">لوحة المالك لكل الفروع</h3>
-        <p>المبيعات المحجوزة، والمحصّل، والمستحقات المتأخرة، والطلبات الجارية في كل مرحلة، مع مقارنة الفروع وأداء المبيعات.</p>
+        <h3 class="people__title">لوحة المالك لكل الفروع</h3>
+        <p>المبيعات المحجوزة، والمحصّل، والمستحقات المتأخرة، والطلبات الجارية، لهذا الشهر أو هذا الربع أو أي مدة، لكل الفروع أو لفرع واحد.</p>
       </div>
     </div>
-    <div class="people__actions">
+    <div class="people__actions" data-reveal style="--i:3">
       <a class="cell cell--ink" href="#demo">اطلب عرضًا تجريبيًا</a>
       <a class="cell cell--tone" href="#path">راجع مسار الطلب</a>
     </div>
+  </div>
+  <div class="film" data-reveal>
+    <figure class="film__item is-on" data-film-item="team">
+      <video muted loop playsinline preload="metadata" width="1280" height="800" poster="assets/video/order-poster.jpg"><source src="assets/video/order.webm" type="video/webm"></video>
+      <figcaption>تسجيل من OpsOne: مراحل طلب ومهامها.</figcaption>
+    </figure>
+    <figure class="film__item film__item--phone" data-film-item="customer" hidden>
+      <video muted loop playsinline preload="none" width="390" height="844" poster="assets/video/portal-poster.jpg"><source src="assets/video/portal.webm" type="video/webm"></video>
+      <figcaption>تسجيل من بوابة العميل: رحلة الطلب، ثم تصميم بانتظار الاعتماد.</figcaption>
+    </figure>
+    <figure class="film__item" data-film-item="owner" hidden>
+      <video muted loop playsinline preload="none" width="1280" height="800" poster="assets/video/owner-poster.jpg"><source src="assets/video/owner.webm" type="video/webm"></video>
+      <figcaption>تسجيل من لوحة المالك: تبديل المدة بين هذا الشهر وهذا الربع.</figcaption>
+    </figure>
   </div>
 </section>
 
@@ -236,7 +287,11 @@
 
     <div class="tile tile--wa t-deep">
       <div class="tile__ui" data-ui aria-hidden="true">
-        <div class="ui-wa">مرحبًا سلطان، موعد القياس يوم الثلاثاء 3 نوفمبر الساعة 08:00، ويزورك الفني حسن.<span class="ui-wa__time">08:12</span></div>
+        <div class="ui-thread">
+          <div class="ui-wa">مرحبًا سلطان، موعد القياس الثلاثاء 3 نوفمبر الساعة 08:00 مع الفني حسن.<span class="ui-wa__time">08:12</span></div>
+          <div class="ui-wa">التصميم جاهز لاعتمادك في بوابتك: DSN-2026-00121.<span class="ui-wa__time">16:40</span></div>
+          <div class="ui-wa">استلمنا الدفعة الأولى 24,150.00 ر.س، وسند القبض RC-2026-000271 في بوابتك.<span class="ui-wa__time">10:05</span></div>
+        </div>
       </div>
       <p class="tile__cap"><strong>إشعارات واتساب</strong><span>تصل العميل عند الموعد والاعتماد والدفعة والتركيب.</span></p>
     </div>
@@ -244,9 +299,13 @@
     <div class="tile tile--commission t-fill">
       <div class="tile__ui" data-ui aria-hidden="true">
         <div class="ui-commission">
+          <div class="ui-commission__who">خالد بن سعود الشمري</div>
           <div class="ui-commission__rate">2.5%</div>
           <div class="ui-commission__row"><span>على الصافي</span><span>42,000.00</span></div>
-          <div class="ui-commission__row"><span>المستحق الآن</span><span>525.00</span></div>
+          <div class="ui-commission__row"><span>المحصّل</span><span>50%</span></div>
+          <div class="ui-commission__meter"><i data-meter style="--p:.5"></i></div>
+          <div class="ui-commission__row"><span>المستحق الآن</span><span data-count="525">525.00</span></div>
+          <div class="ui-commission__row"><span>عند اكتمال التحصيل</span><span>1,050.00</span></div>
         </div>
       </div>
       <p class="tile__cap"><strong>عمولات المبيعات</strong><span>على الصافي قبل الضريبة، وبقدر ما حُصِّل.</span></p>
@@ -384,6 +443,8 @@
 </footer>
 
 <script src="config.js"></script>
+<script src="assets/vendor/gsap.min.js" defer></script>
+<script src="assets/vendor/ScrollTrigger.min.js" defer></script>
 <script src="main.js" defer></script>
 </body>
 </html>

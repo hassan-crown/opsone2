@@ -6,7 +6,7 @@ The folder choice is recorded in `docs/decisions/0034-marketing-landing-folder.m
 
 ## Open it locally
 
-Open `marketing/landing/index.html` directly in a browser, or serve the folder:
+Serve the folder (opening `index.html` straight from disk also works, but Chrome then refuses the font preloads):
 
 ```bash
 python3 -m http.server 8080 --directory marketing/landing
@@ -20,12 +20,14 @@ then visit `http://localhost:8080`.
 | --- | --- |
 | `index.html` | The page. |
 | `styles.css` | Brand tokens (from `docs/design-system/source/tokens.json`), layout and motion. |
-| `main.js` | The live order path, the people tabs, the demo form, the reveals and the scroll-linked diagram. |
+| `main.js` | The live order path, the people tabs and clips, the demo form, the scroll-linked diagram and the GSAP motion. |
 | `config.js` | **The one place to wire the demo form** (see below). |
 | `assets/fonts/` | IBM Plex Sans Arabic 400/500/600/700 from the design system, with `OFL.txt`. |
 | `assets/brand/` | The OpsOne logo and mark, generated from the original geometry in `docs/design-system/source/components/src/logo.js` (not redrawn). |
 | `assets/ui/` | Real OpsOne screens taken from `docs/screenshots/` (showcase data), some cropped. |
 | `assets/photos/` | Three open-licence photographs with `credits.json`. |
+| `assets/video/` | Three muted loops recorded from the running showcase (WebM/VP8) with JPEG posters. |
+| `assets/vendor/` | GSAP 3.13.0 and ScrollTrigger 3.13.0, copied unchanged from cdnjs (GSAP's no-charge standard licence). |
 
 ## Wiring the demo form (before launch)
 
@@ -47,7 +49,8 @@ digits accepted, trade required). The receiving endpoint must validate again on 
 Run of the `design-taste-frontend` skill: direction **One motif** (`one-motif`), seed **142508230**, dealt 2026-11-02 with
 `--sector saas --have product-ui --keep palette,type`. No slot was redrawn. Section blueprints: hero «Tabbed folder stack»,
 «Many into one», «Line-up at one type size», «Square plate, spare text», «Close-ups on a board», «Clip-out coupon form»,
-«The mark, built large». Signature move: «Index with preview».
+«The mark, built large». Signature move: «Index with preview». The redesign round replaced the hero blueprint with the product window (reason: the
+product owner asked for the product in the first screen at Ramp's scale) and pinned the index.
 
 References studied in a browser before building: ramp.com/en-gb (scroll-linked pieces gathering into one product, a step list
 whose demo panel changes beside it, staged entrances) and clerk.com (live product components switched by tabs). What the page
@@ -93,26 +96,51 @@ Live thing: the order path. Choose a trade (مطابخ، ألمنيوم، خزا
 (with VAT) are rewritten; choose a stage and the real OpsOne screen for it opens beside the list (inside the row on a phone or
 tablet). Without JavaScript the kitchen example and the first screen show.
 
+## Redesign round (2026-11-02, after the product owner's review)
+
+The first version was judged not good enough. Changes, against ramp.com/en-gb and clerk.com studied again at desktop and phone width
+(what makes them feel premium: the product itself as the hero at large scale, few words, generous rhythm, motion that shows the
+product working rather than decorating it):
+
+- **Hero = the product.** The folder stack is gone (it read as cluttered tab bars on the phone). The first screen now holds a large
+  OpsOne window rebuilt in HTML from the real order screen (`data-ui`): sidebar, order ORD-2026-00178, its stages and tasks, order
+  money with VAT, today's appointments. It covers about 52% of the first screen at 1440 and starts above the fold on a phone. The
+  active file tab keeps the flag motif.
+- **Choreography (GSAP + ScrollTrigger 3.13.0).** The window rises flat out of a tilt; panels and stages enter in sequence; the amounts
+  count up; then manufacturing completes, installation starts, the status chip turns to «قيد التركيب» and a WhatsApp message to the
+  customer appears. Each section's parts enter in a stagger; the close-up board counts its figures and fills its meters.
+- **Pinned order path.** On wide screens the path holds still for about 2.2 screens while the stages pass and the real screen beside
+  the list changes; clicking a stage scrolls to it. Phones and tablets keep the list with the screen inside the selected row.
+- **Real product film.** Three loops recorded from the showcase at `localhost:8084` with Playwright (headless Chromium) and trimmed with
+  Playwright's bundled ffmpeg: the order's stages and tasks (staff), the customer's journey and a design awaiting approval (portal,
+  phone), and the owner dashboard switching period. They play muted, only while visible and only in the active tab; posters show
+  first; under reduced motion they do not play. Credentials were read at run time from `UserFactory` and the stack's env and were
+  never written to any file.
+- **Fuller close-ups.** The WhatsApp tile is a three-message thread; the commissions tile shows the salesperson, base, collected share,
+  a meter, the amount due now and at full collection.
+
 ## Critique (last round)
 
 ```
-ROUND 3
-Seen in one second: «من المعاينة إلى التركيب» over a stack of coloured folders.
-Idea (one sentence): the slanted flag on the "1" of the OpsOne mark becomes the one motif, from the folder tabs to the mark built large.
-Live thing: the order path (trade switch + the real screen for each stage).
-Layout words by section: hero=folder stack / trades=band split / one=diagram / path=index with preview / people=split plate / modules=mosaic / demo=coupon / footer=mark
-Scores: design 7.5 · usability 8 · creativity 8 · content 8.5 → overall 7.9
-Caps applied: none (inspect 0 FAIL at 1440/768/390; 3 photographs + 11 real product screens; live thing present).
+ROUND 5
+Seen in one second: «من المعاينة إلى التركيب» over a large, working OpsOne order window.
+Idea (one sentence): the slanted flag on the "1" of the OpsOne mark is the one motif (file tab, cut corners, bullets, the mark at the close),
+  and the page shows the product doing the job instead of describing it.
+Live thing: the order path (trade switch, real screen per stage, pinned on wide screens), plus the tabs that switch filmed screens.
+Layout words by section: hero=product window / trades=band split / one=diagram / path=pinned index with preview / people=split film /
+  modules=mosaic / demo=coupon / footer=mark
+Scores: design 8.5 · usability 8.5 · creativity 8.5 · content 8.5 → overall 8.5
+Caps applied: none (inspect 0 FAIL at 1440/768/390; lint 0; 3 photographs, 8 product screens, 3 product clips; live thing present).
 Remaining problems (most visible first):
-1. The first screen carries no picture: the real order screen starts just under the fold inside the front folder (inspector: hero media none).
-2. No moving clip: the only honest clip found (a 71-second band saw) was too long and could not be trimmed here; the moving
-   pictures are the slow drift on the installation photograph and the converging squares.
-3. On desktop the WhatsApp and commission tiles leave their lower halves as flat colour.
-Inspector warnings defended: «ragged-edges» measures left edges, and this page is right-to-left (its text shares the right
-edges); «no-footage» as in 2.
+1. The trade photographs are generic open-licence pictures from outside Saudi Arabia; a pilot customer's own workshop and installation
+   footage would lift the «لمن صُمّم» band most.
+2. The clips are WebM/VP8 only (no H.264 encoder was available); older Safari and iOS show the poster instead of the loop.
+3. The online store is not filmed: the showcase store has letter placeholders instead of product photographs.
+Inspector warnings defended: «ragged-edges» and «off-centre» measure left edges; this page is right-to-left and the 55px left edge
+  is the inner padding of right-aligned tile captions. Both outer margins are equal (35px at 1440).
 ```
 
-Earlier rounds fixed: the demo heading wrapping to three lines at 768; the hero button below the first screen; amounts
+Earlier rounds (1–3, before the redesign) fixed: the demo heading wrapping to three lines at 768; the hero button below the first screen; amounts
 splitting from «ر.س»; close-ups colliding with their captions on tablet and phone; the coupon's notches off the perforation;
 a stage preview too small to read on tablet.
 
@@ -127,7 +155,9 @@ Credited in the footer at body size.
 - `assets/photos/kitchen-cabinet-installation.jpg`: “Kitchen cabinet installation” by Akpeski, CC BY-SA 4.0, via Wikimedia Commons.
   https://commons.wikimedia.org/wiki/File:Kitchen_cabinet_installation.jpg
 
-These show the trade's world; none is presented as a customer or as OpsOne's own work. Product screens in `assets/ui/` are
+Product clips in `assets/video/` are OpsOne itself, recorded from the showcase dataset (no credit needed).
+
+These photographs show the trade's world; none is presented as a customer or as OpsOne's own work. Product screens in `assets/ui/` are
 OpsOne itself with showcase data. The interface close-ups on the board are built in HTML (`data-ui`) from the product's own
 badges and values. The signature in the e-signature tile is drawn in SVG. No bundled stock photographs are used.
 
@@ -139,5 +169,18 @@ badges and values. The signature in the e-signature tile is drawn in SVG. No bun
   still awaiting product-owner confirmation).
 - WhatsApp message text, OTP digits, stock example (ألواح MDF 18 مم، 12، حد الطلب 20), store item (مقبض ستانلس 160 مم، 35.00 ر.س).
 - «والإنجليزية متاحة لمن يحتاجها» and «فروع ومعرض ومتجر إلكتروني في النظام نفسه» as product facts.
-- Names, branches and numbers visible in the screenshots come from the showcase dataset.
+- Hero window content: ORD-2026-00178 for سلطان أحمد الأحمدي, stage dates (9، 14، 23 سبتمبر، 6 و8 نوفمبر), the three tasks,
+  today's appointments (حسن، زياد، عمر) and the WhatsApp message «طلبك ORD-2026-00178 جاهز للتركيب…».
+- WhatsApp thread texts and the commission example for خالد بن سعود الشمري.
+- Names, branches and numbers visible in the screenshots and clips come from the showcase dataset.
 - ZATCA e-invoicing is not mentioned (not merged yet).
+
+## What would raise the page further (needs the product owner)
+
+1. **Real footage and photographs from a pilot customer** (workshop, cutting, assembly, an installation day, a showroom), 10–20 s
+   horizontal clips and a few stills shot on a phone at 4K, with written permission to publish. They replace the Commons photographs
+   and give the band «لمن صُمّم» the customer's own world.
+2. **A full ffmpeg** on the build machine (`brew install ffmpeg`) to add H.264 MP4 versions of the clips for older Safari/iOS and
+   smaller files; the recorder in this round could only write WebM/VP8.
+3. **Product photographs for the showcase store** so the store and checkout can be filmed like the other flows.
+4. **Real customer names, logos or quotes** once a customer agrees; the page has none by design until then.

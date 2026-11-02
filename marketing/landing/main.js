@@ -3,13 +3,6 @@
 (() => {
   const reduce = matchMedia('(prefers-reduced-motion: reduce)');
 
-  /* ---------- reveal once ---------- */
-  const io = 'IntersectionObserver' in window ? new IntersectionObserver((entries) => {
-    for (const e of entries) if (e.isIntersecting) { e.target.classList.add('is-in'); io.unobserve(e.target); }
-  }, { rootMargin: '0px 0px -12% 0px', threshold: 0.08 }) : null;
-  document.querySelectorAll('.board .tile').forEach((t, k) => t.style.setProperty('--k', String(k % 6)));
-  document.querySelectorAll('[data-reveal], .board').forEach((el) => (io ? io.observe(el) : el.classList.add('is-in')));
-
   /* ---------- many into one: the scattered squares settle into one order as the section scrolls ---------- */
   const many = document.querySelector('[data-many]');
   if (many && !reduce.matches) {
@@ -77,29 +70,40 @@
     };
     let warmed = false;
     const warm = () => { if (warmed) return; warmed = true; rows.forEach((r) => { new Image().src = r.dataset.shot; }); };
+    window.__opsPath = { rows, select, warm };
     rows.forEach((row) => {
-      row.addEventListener('click', () => { warm(); select(row); });
+      row.addEventListener('click', () => { warm(); select(row); if (window.__opsPin) window.__opsPin(rows.indexOf(row)); });
       row.addEventListener('focus', () => { warm(); select(row); });
       row.addEventListener('pointerenter', () => { if (fine.matches) { warm(); select(row); } });
     });
   }
 
-  /* ---------- people: tabs ---------- */
+  /* ---------- people: tabs switch the filmed screens ---------- */
   const tablist = document.querySelector('.people__tabs');
+  const films = [...document.querySelectorAll('[data-film-item]')];
+  let filmInView = false;
+  const playActive = () => films.forEach((f) => {
+    const v = f.querySelector('video');
+    if (!f.hidden && filmInView && !reduce.matches) { v.preload = 'auto'; v.play().catch(() => {}); } else v.pause();
+  });
+  if (films.length && 'IntersectionObserver' in window) {
+    new IntersectionObserver(([e]) => { filmInView = e.isIntersecting; playActive(); }, { threshold: 0.25 }).observe(document.querySelector('.film'));
+  }
   if (tablist) {
     const tabs = [...tablist.querySelectorAll('[role="tab"]')];
     const panel = document.getElementById('panel-people');
-    const plate = document.querySelector('.people__plate');
-    const img = plate.querySelector('img');
-    let swap;
     const activate = (tab, focus) => {
       tabs.forEach((t) => { const on = t === tab; t.setAttribute('aria-selected', String(on)); t.tabIndex = on ? 0 : -1; });
       panel.setAttribute('aria-labelledby', tab.id);
-      const key = tab.id.replace('tab-', '');
+      const key = tab.dataset.film;
       panel.querySelectorAll('[data-panel]').forEach((p) => { p.hidden = p.dataset.panel !== key; });
-      clearTimeout(swap);
-      const apply = () => { img.src = tab.dataset.img; img.width = +tab.dataset.w; img.height = +tab.dataset.h; img.alt = tab.dataset.alt; plate.classList.remove('is-swapping'); };
-      if (reduce.matches) apply(); else { plate.classList.add('is-swapping'); swap = setTimeout(apply, 200); }
+      films.forEach((f) => { f.hidden = f.dataset.filmItem !== key; });
+      playActive();
+      if (window.gsap && !reduce.matches) {
+        const on = films.find((f) => !f.hidden);
+        gsap.fromTo(on, { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.6, ease: 'expo.out' });
+        gsap.fromTo(panel.querySelector('[data-panel]:not([hidden])').children, { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.5, stagger: 0.07, ease: 'expo.out' });
+      }
       if (focus) tab.focus();
     };
     tabs.forEach((tab, i) => {
@@ -113,6 +117,81 @@
       });
     });
   }
+
+  /* ---------- GSAP: entrances, the hero window's choreography, the pinned order path, counters ---------- */
+  const fmt = (n, d = 2) => n.toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d });
+  const runMotion = () => {
+    if (!window.gsap || !window.ScrollTrigger || reduce.matches) return;
+    gsap.registerPlugin(ScrollTrigger);
+
+    // hero: the window rises flat out of a tilt, then the order moves on
+    const app = document.querySelector('.app');
+    if (app) {
+      const q = (sel) => app.querySelector(sel);
+      const make = q('[data-stg="make"]'), install = q('[data-stg="install"]');
+      const toast = q('[data-toast]');
+      const counters = [...app.querySelectorAll('[data-count]')];
+      const tl = gsap.timeline({ delay: 0.35 });
+      tl.from(app, { y: 90, rotateX: 16, scale: 0.94, opacity: 0, duration: 1.3, ease: 'expo.out' })
+        .from(app.querySelectorAll('.panel'), { y: 26, opacity: 0, stagger: 0.09, duration: 0.8, ease: 'expo.out' }, 0.45)
+        .from(app.querySelectorAll('.stg__row'), { x: 18, opacity: 0, stagger: 0.06, duration: 0.6, ease: 'expo.out' }, 0.6);
+      counters.forEach((el, i) => {
+        const to = +el.dataset.count, from = i === 2 ? 48300 : 0, o = { v: from };
+        tl.fromTo(o, { v: from }, { v: to, duration: 1.4, ease: 'power3.out', onUpdate: () => { el.textContent = fmt(o.v); } }, 0.8);
+      });
+      tl.from(app.querySelector('[data-meter]'), { scaleX: 0, duration: 1.4, ease: 'power3.out' }, 0.8)
+        .from(make.querySelector('.stg__bar i'), { scaleX: 0, duration: 1.4, ease: 'power3.out' }, 0.8)
+        .from(toast, { y: 40, opacity: 0, duration: 0.7, ease: 'expo.out' }, 1.6)
+        // the second beat: manufacturing finishes, installation starts
+        .to(make.querySelector('.stg__bar i'), { scaleX: 1, duration: 0.9, ease: 'power2.inOut' }, 3.4)
+        .call(() => {
+          app.querySelector('[data-task]').classList.add('is-done');
+          make.classList.replace('is-now', 'is-done');
+          const c1 = make.querySelector('.chip'); c1.className = 'chip chip--ok'; c1.textContent = 'مكتملة';
+          install.classList.add('is-now');
+          const c2 = install.querySelector('.chip'); c2.className = 'chip chip--info'; c2.textContent = 'جارية';
+          const st = app.querySelector('[data-status]'); st.textContent = 'قيد التركيب';
+        }, null, 4.3)
+        .fromTo([make.querySelector('.chip'), install.querySelector('.chip'), app.querySelector('[data-status]')], { scale: 0.7, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.5, stagger: 0.08, ease: 'back.out(1.6)', immediateRender: false }, 4.32)
+        .to(install.querySelector('.stg__bar i'), { scaleX: 0.18, duration: 0.9, ease: 'power2.out' }, 4.5);
+      gsap.to(app, { y: -50, ease: 'none', scrollTrigger: { trigger: '.hero__stage', start: 'top 40%', end: 'bottom top', scrub: true } });
+    }
+
+    // every section: heading, then text, then picture, staggered once
+    document.querySelectorAll('main > section').forEach((sec) => {
+      const parts = sec.querySelectorAll('[data-reveal]');
+      if (!parts.length) return;
+      gsap.from(parts, { y: 32, opacity: 0, duration: 0.9, stagger: 0.08, ease: 'expo.out', scrollTrigger: { trigger: sec, start: 'top 82%', once: true } });
+    });
+    const board = document.querySelector('.board');
+    if (board) {
+      gsap.from(board.querySelectorAll('.tile'), { y: 28, opacity: 0, duration: 0.8, stagger: { each: 0.05, grid: 'auto', from: 'start' }, ease: 'expo.out', scrollTrigger: { trigger: board, start: 'top 80%', once: true } });
+      gsap.from(board.querySelectorAll('.tile__ui'), { xPercent: -8, duration: 1.4, stagger: 0.05, ease: 'expo.out', scrollTrigger: { trigger: board, start: 'top 80%', once: true } });
+      board.querySelectorAll('[data-count]').forEach((el) => {
+        const o = { v: 0 }, to = +el.dataset.count;
+        gsap.to(o, { v: to, duration: 1.6, ease: 'power3.out', onUpdate: () => { el.textContent = fmt(o.v); }, scrollTrigger: { trigger: el, start: 'top 90%', once: true } });
+      });
+      board.querySelectorAll('[data-meter]').forEach((el) => gsap.from(el, { scaleX: 0, duration: 1.6, ease: 'power3.out', scrollTrigger: { trigger: el, start: 'top 90%', once: true } }));
+      gsap.from(board.querySelectorAll('.ui-thread .ui-wa'), { y: 20, opacity: 0, stagger: 0.35, duration: 0.6, ease: 'expo.out', scrollTrigger: { trigger: '.tile--wa', start: 'top 85%', once: true } });
+    }
+
+    // the order path holds still on wide screens while the stages pass, one screen per part of the order
+    const mm = gsap.matchMedia();
+    mm.add('(min-width: 1024px) and (min-height: 700px)', () => {
+      const body = document.querySelector('.path__body');
+      const P = window.__opsPath;
+      if (!body || !P) return;
+      const n = P.rows.length;
+      const st = ScrollTrigger.create({
+        trigger: body, start: 'top 8%', end: () => '+=' + Math.round(innerHeight * 2.2), pin: true, pinSpacing: true,
+        onUpdate: (self) => { const i = Math.min(n - 1, Math.floor(self.progress * n)); if (P.rows[i].getAttribute('aria-pressed') !== 'true') { P.warm(); P.select(P.rows[i]); } },
+      });
+      window.__opsPin = (i) => { const y = st.start + ((i + 0.5) / n) * (st.end - st.start); scrollTo({ top: y, behavior: 'smooth' }); };
+      return () => { window.__opsPin = null; };
+    });
+  };
+  runMotion();
+  addEventListener('load', () => { if (window.ScrollTrigger) ScrollTrigger.refresh(); }, { once: true });
 
   /* ---------- demo request form ---------- */
   const form = document.querySelector('[data-demo-form]');
