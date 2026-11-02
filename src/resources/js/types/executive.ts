@@ -54,6 +54,14 @@ export type ExecutiveDashboardData = {
         completed: number;
         overdue: number;
     }[];
+    /** ADR-0036: installation visits finished in range, by team. */
+    installation_teams: {
+        id: number | null;
+        name: string;
+        visits: number;
+        first_visit_percent: number;
+        avg_minutes: number;
+    }[];
     links: Record<
         | 'sales'
         | 'collection'

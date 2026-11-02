@@ -21,7 +21,7 @@ const PAD_HEIGHT = 180;
  * Drawing surface for the signature: pointer events (mouse, pen, finger), scaled for the screen density. Reports a
  * PNG data URL after each stroke, or null once cleared.
  */
-function SignaturePad({
+export function SignaturePad({
     label,
     clearLabel,
     onChange,

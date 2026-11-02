@@ -84,6 +84,16 @@ it('seeds a coherent history and keeps the ledger and stock invariants', functio
     // E-signatures (ADR-0029): signed quotes/contracts with their signed PDF, and documents awaiting signature with a live link.
     expect(DB::table('document_signatures')->whereNotNull('signed_pdf_id')->count())->toBeGreaterThanOrEqual(3)
         ->and(DB::table('document_sign_links')->whereNull('used_at')->whereNull('revoked_at')->count())->toBeGreaterThanOrEqual(2);
+
+    // Installation field app (ADR-0036): finished visits each with before/after photos and a signature.
+    $finished = DB::table('installation_visits')->whereNotNull('finished_at')->get();
+    expect($finished->count())->toBeGreaterThanOrEqual(1);
+    foreach ($finished as $visit) {
+        expect($visit->signed_at)->not->toBeNull()
+            ->and(DB::table('installation_photos')->where('installation_visit_id', $visit->id)->where('phase', 'before')->exists())->toBeTrue()
+            ->and(DB::table('installation_photos')->where('installation_visit_id', $visit->id)->where('phase', 'after')->exists())->toBeTrue()
+            ->and(DB::table('appointments')->where('id', $visit->appointment_id)->value('status'))->toBe('done');
+    }
 });
 
 it('refuses to run outside the local and testing environments', function () {

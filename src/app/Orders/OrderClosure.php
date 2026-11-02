@@ -15,6 +15,7 @@ use App\Enums\OrderKind;
 use App\Enums\PurchaseStatus;
 use App\Enums\ReadyOrderStatus;
 use App\Enums\RefundStatus;
+use App\Installation\InstallationRemarks;
 use App\Models\Delivery\DeliveryNote;
 use App\Models\Delivery\DeliveryRemark;
 use App\Models\Finance\MoneyEntry;
@@ -93,6 +94,12 @@ final class OrderClosure
         $remarks = DeliveryRemark::query()->where('order_id', $order->id)->where('status', DeliveryRemark::OPEN)->count();
         if ($remarks > 0) {
             $add('remark_open', ['count' => $remarks]);
+        }
+
+        // Blocking remarks from an installation visit (ADR-0036), each resolved on its own.
+        $installation = InstallationRemarks::openCount($order->id);
+        if ($installation > 0) {
+            $add('installation_remark_open', ['count' => $installation]);
         }
 
         return $blockers;

@@ -75,7 +75,8 @@ final class ExecutiveDashboard
         // Summary only: the dashboard never needs a report's row listing.
         $s = new ReportScope($viewerScope->viewer, $viewerScope->from, $viewerScope->to, $viewerScope->branchIds, false);
         $stages = self::stages($s);
-        $m = self::metrics($s, $stages['late']);
+        $installation = InstallationMetrics::build($s);
+        $m = self::metrics($s, $stages['late'], $installation);
 
         return [
             'period' => $period,
@@ -88,6 +89,7 @@ final class ExecutiveDashboard
             'branches' => self::branches($s),
             'salespeople' => self::salespeople($s),
             'executors' => self::executors($s),
+            'installation_teams' => $installation['teams'],
             'links' => DashboardLinks::for($s),
         ];
     }
@@ -95,9 +97,10 @@ final class ExecutiveDashboard
     /**
      * The KPI metrics (existing P9 keys passed through, plus `dashboard.*`) and the funnel counts.
      *
+     * @param  array{count: int, first_visit_percent: float|null, avg_minutes: int|null}  $installation
      * @return array{metrics: list<array{key: string, kind: string, value: int|float}>, funnel: list<array{key: string, value: int}>}
      */
-    private static function metrics(ReportScope $s, int $lateOrders): array
+    private static function metrics(ReportScope $s, int $lateOrders, array $installation): array
     {
         $values = [];
         foreach ([(new SalesReport)->build($s), (new CollectionAgingReport)->build($s), (new WorkflowReport)->build($s)] as $result) {
@@ -125,6 +128,10 @@ final class ExecutiveDashboard
             ->metric('dashboard.interest_conversion_percent', $created === 0 ? 0.0 : round($converted * 100 / $created, 1))
             ->metric('dashboard.orders_late', $lateOrders)
             ->metric('dashboard.installations_next_14d', self::installations($s));
+        if ($installation['count'] > 0) {
+            $r->metric('dashboard.installation_first_visit_percent', (float) $installation['first_visit_percent'])
+                ->metric('dashboard.installation_avg_minutes', (int) $installation['avg_minutes']);
+        }
 
         return [
             'metrics' => $r->toArray()['metrics'],

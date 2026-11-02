@@ -16,6 +16,7 @@ use App\Enums\ReadyOrderStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Orders\CreateOrderRequest;
 use App\Http\Requests\Orders\UpdateOrderRequest;
+use App\Installation\InstallationPanel;
 use App\Inventory\OrderStockPanel;
 use App\Models\Branch;
 use App\Models\Order;
@@ -235,6 +236,8 @@ class OrderController extends Controller
             'delivery' => OrderDeliveryPanel::forOrder($order, $actor),
             // M-04-T07 / M-05-T10 closure and the blocking delivery remarks (M-14-T04).
             'closure' => OrderClosurePanel::forOrder($order, $actor),
+            // ADR-0036: installation visits — status, arrival and duration, photos, signature and remarks.
+            'installation' => app(InstallationPanel::class)->forOrder($order, $actor),
             // P7 cancellation: the CancelReview entry point and the settlement follow-up state (ADR-0020).
             'cancellation' => OrderCancellationPanel::forOrder($order, $actor),
             // Targets for the transfer dialog; the server still checks P-19 over both branches on preview and apply.

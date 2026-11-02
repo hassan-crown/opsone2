@@ -49,6 +49,8 @@ final class Showcase
 
     public Messaging $messaging;
 
+    public Installations $installations;
+
     /** @var array<string, User> */
     public array $users = [];
 
@@ -81,6 +83,7 @@ final class Showcase
         $this->site = new Site($this);
         $this->portal = new Portal($this);
         $this->messaging = new Messaging;
+        $this->installations = new Installations($this);
     }
 
     public function n(int $full): int

@@ -160,6 +160,8 @@ The dashboard also shows `sales.agreed_gross_minor`, `collection.collected_minor
 | `dashboard.interest_conversion_percent` | percent | none | — | interests | Of the interests created in range, the share now converted × 100, one decimal; 0 when none. |
 | `dashboard.orders_late` | count | none | — | order_stages, orders | Active orders whose in-progress stage started more than its target days ago. |
 | `dashboard.installations_next_14d` | count | none | — | appointments | Non-cancelled installations from today through the 14th following day, independent of the range. |
+| `dashboard.installation_first_visit_percent` | percent | none | — | installation_visits | Of the installation visits finished in range, the share that was the order's first installation visit and finished without a blocking remark × 100, one decimal; absent when none finished. Also per team (ADR-0036). |
+| `dashboard.installation_avg_minutes` | count | none | — | installation_visits | Average minutes from arrival to finish of the installation visits finished in range, rounded half up; absent when none finished. Also per team (ADR-0036). |
 
 ### `inventory`
 

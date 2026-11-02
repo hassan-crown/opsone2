@@ -34,9 +34,21 @@
             html.dark { background-color: #08121f; }
         </style>
 
-        <link rel="icon" href="/favicon.ico" sizes="any">
-        <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-        <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+        @if (request()->routeIs('field.*'))
+            {{-- Installation field app (ADR-0036): installable, always OpsOne's identity, never the tenant's. --}}
+            <link rel="manifest" href="/field/manifest.webmanifest">
+            <meta name="theme-color" content="{{ \App\Http\Controllers\Field\FieldController::THEME }}">
+            <meta name="mobile-web-app-capable" content="yes">
+            <meta name="apple-mobile-web-app-capable" content="yes">
+            <meta name="apple-mobile-web-app-title" content="OpsOne">
+            <meta name="apple-mobile-web-app-status-bar-style" content="default">
+            <link rel="icon" href="/field-icons/icon-192.png" type="image/png">
+            <link rel="apple-touch-icon" href="/field-icons/apple-touch-icon.png">
+        @else
+            <link rel="icon" href="/favicon.ico" sizes="any">
+            <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+            <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+        @endif
 
         @viteReactRefresh
         @vite(['resources/css/app.css', 'resources/js/app.tsx', "resources/js/pages/{$page['component']}.tsx"])

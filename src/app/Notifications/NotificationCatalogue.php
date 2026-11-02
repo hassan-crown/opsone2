@@ -97,6 +97,13 @@ final class NotificationCatalogue
             'body' => 'notifications.type.task_unassigned.body',
             'route' => null,
         ],
+        'installation.remark_blocking' => [
+            'mandatory' => true,
+            'permission' => Permission::P16,
+            'title' => 'notifications.type.installation_remark_blocking.title',
+            'body' => 'notifications.type.installation_remark_blocking.body',
+            'route' => null,
+        ],
         'appointment.confirmed' => [
             'mandatory' => false,
             'permission' => Permission::P24,
