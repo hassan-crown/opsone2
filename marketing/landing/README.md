@@ -27,18 +27,88 @@ then visit `http://localhost:8080`.
 | `index.html` | The page. |
 | `styles.css` | Brand tokens (from `docs/design-system/source/tokens.json`), layout and motion. |
 | `main.js` | The live order path, the people tabs and clips, the demo form, the scroll-linked diagram and the GSAP motion. |
-| `config.js` | **The one place to wire the demo form** (see below). |
+| `config.js` | **The one place to fill**: the demo form target and the marketing tag IDs. |
+| `tags.js` | Consent-aware loader for GA4, GTM, Meta, TikTok, Snap and LinkedIn tags. |
+| `robots.txt`, `sitemap.xml`, `site.webmanifest` | Crawling and install metadata (domain placeholder inside). |
+| `HOSTING.md` | Suggested compression, cache and security headers. |
 | `assets/fonts/` | IBM Plex Sans Arabic 400/500/600/700 from the design system, with `OFL.txt`. |
 | `assets/brand/` | The OpsOne logo and mark, generated from the original geometry in `docs/design-system/source/components/src/logo.js` (not redrawn). |
 | `assets/photos/` | Four open-licence photographs with `credits.json`. |
-| `assets/video/` | Three muted loops recorded from the running showcase at 2× (2560×1600 / 780×1688, WebM/VP8) with JPEG posters. |
+| `assets/video/` | Three muted loops recorded from the running showcase at 2× (2560×1600 / 780×1688, WebM/VP8) with WebP posters. |
 | `assets/vendor/` | GSAP 3.13.0 and ScrollTrigger 3.13.0, copied unchanged from cdnjs (GSAP's no-charge standard licence); `LUCIDE-LICENSE.txt` for the icons, which are inlined in `index.html` as an SVG sprite (Lucide 0.475, the app's icon set). |
+
+## Before launch: what to fill
+
+| What | Where | Notes |
+| --- | --- | --- |
+| Domain | `index.html` (head), `robots.txt`, `sitemap.xml` | Every absolute URL uses the placeholder `https://www.opsone.example`. Replace it in those three files, e.g. `grep -rl "https://www.opsone.example" marketing/landing \| xargs sed -i.bak "s#https://www.opsone.example#https://YOUR-DOMAIN#g"` then delete the `.bak` files. |
+| Demo form endpoint | `config.js` → `demoEndpoint` (or `demoEmail`) | See below. |
+| Marketing tag IDs | `config.js` → `tags` | See «Marketing tags». |
+| Contact details | footer «تواصل» column in `index.html` | Email, phone, WhatsApp, address are not on the page yet. |
+| Hosting headers | the host | `HOSTING.md`. |
+
+## Marketing tags (consent-aware)
+
+`tags.js` loads Google Analytics 4, Google Tag Manager, Meta Pixel, TikTok Pixel, Snap Pixel and LinkedIn Insight. Fill
+only the IDs you use in `config.js`:
+
+```js
+tags: {
+  ga4: 'G-XXXXXXXXXX',          // GA4 measurement ID
+  gtm: 'GTM-XXXXXXX',           // GTM container (use GA4 inside GTM or the ga4 field, not both)
+  googleAdsLead: 'AW-123/abc',  // optional Google Ads conversion send_to for the demo request
+  metaPixel: '1234567890',
+  tiktokPixel: 'CXXXXXXXXXXXXXXX',
+  snapPixel: 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx',
+  linkedin: '1234567',          // Insight partner ID
+  linkedinLeadConversion: '7654321',
+}
+```
+
+- Nothing loads while every ID is empty, and no banner shows.
+- With an ID set, a small Arabic banner offers «موافقة» or «رفض». Until the visitor accepts, no tag script is requested and
+  Google Consent Mode v2 stays `denied` (ad_storage, analytics_storage, ad_user_data, ad_personalization). The choice is kept in
+  the browser; «إعدادات الخصوصية» in the footer reopens it.
+- The demo request fires once, when the request is really sent (endpoint 2xx, or the mail app opened): GA4 `generate_lead`,
+  the Google Ads conversion if set, GTM `demo_request`, Meta `Lead`, TikTok `SubmitForm`, Snap `SIGN_UP`, LinkedIn conversion if set.
+- `utm_source`, `utm_medium`, `utm_campaign`, `utm_term`, `utm_content`, `gclid` and `fbclid` are read from the landing URL, kept
+  for the visit, and sent with the form as hidden fields.
+
+Verified in Chrome with test IDs and the network watched: no external request before consent, Google and Meta requested only after
+«موافقة», consent `default` then `update`, `generate_lead` and `Lead` on a successful submit, UTM values and gclid in the posted JSON.
+
+## SEO and sharing
+
+- `lang="ar" dir="rtl"`, one `h1`, section headings in order, descriptive `alt` on every content image (images inside the
+  `aria-hidden` mock-ups are decorative).
+- Title and description in Arabic, canonical and `hreflang="ar"`, `robots` meta, `robots.txt`, `sitemap.xml`.
+- Open Graph (`ar_SA`) and Twitter `summary_large_image` with `assets/og-image.jpg` (1200×630, a capture of the page's own hero).
+- JSON-LD `@graph`: Organization (name, logo), WebSite, SoftwareApplication (BusinessApplication, no price or ratings).
+- Icons: SVG favicon, 32px PNG, 180px apple-touch icon, 192/512 for `site.webmanifest`, `theme-color`.
+
+## Performance (Lighthouse 12.8.2, headless Chrome for Testing)
+
+Measured on a local server that compresses text with Brotli and sends the cache headers in `HOSTING.md`.
+
+| | Performance | Accessibility | Best practices | SEO | LCP | CLS |
+| --- | --- | --- | --- | --- | --- | --- |
+| Mobile, before | 88 | 88 | 100 | 100 | 4.0 s | 0 |
+| Mobile, after | 97 | 100 | 100 | 100 | 2.6 s | 0.001 |
+| Desktop, before | 100 | 88 | 100 | 100 | 0.8 s | 0 |
+| Desktop, after | 100 | 100 | 100 | 100 | 0.6 s | 0.002 |
+
+(On Python's plain server, without compression, the before score was mobile 72 / desktop 98.) Page weight on mobile went from
+1,446 KB to 504 KB. What changed: photographs and posters re-encoded to WebP at their display sizes (85–95% smaller, with
+`srcset` on the large picture); the hero window's entrance animates transform only, so its text paints on the first frame;
+the tab list markup fixed for screen readers. Fonts stay the original IBM Plex files (`font-display: swap`, the two weights
+above the fold preloaded): the licence reserves the name «Plex» for modified fonts and the design system uses them unmodified,
+so they are not subset. GSAP is deferred; reduced motion keeps every element visible and stops autoplay.
 
 ## Wiring the demo form (before launch)
 
 `config.js` holds `window.OPSONE_LANDING = { demoEndpoint: '', demoEmail: '' }`.
 
-- **`demoEndpoint`**: a URL that accepts `POST` with JSON `{ name, company, phone, city, trade, page, sentAt }`. A 2xx
+- **`demoEndpoint`**: a URL that accepts `POST` with JSON `{ name, company, phone, city, trade, utm_source, utm_medium, utm_campaign, utm_term, utm_content, gclid, fbclid, page, sentAt }`. A 2xx
   response shows «وصل طلبك…»; anything else, or a 15-second timeout, shows «تعذّر إرسال الطلب…». The endpoint must allow the
   page's origin (CORS) if it lives elsewhere.
 - **`demoEmail`**: used only while `demoEndpoint` is empty. The form opens the visitor's mail app with the request written out
@@ -171,14 +241,14 @@ a stage preview too small to read on tablet.
 
 Credited in the footer.
 
-- `assets/photos/showroom-customer.jpg`: “Man tests kitchen faucet at home improvement store in modern showroom setting” by Shixart1985,
+- `assets/photos/showroom-customer-1600.webp (and -800)`: “Man tests kitchen faucet at home improvement store in modern showroom setting” by Shixart1985,
   CC BY 2.0, via Wikimedia Commons (resized). https://commons.wikimedia.org/wiki/File:Man_tests_kitchen_faucet_at_home_improvement_store_in_modern_showroom_setting.jpg
-- `assets/photos/home-kitchen-windows.jpg`: “Modern kitchen and dining area with stylish furnishings and natural light in a contemporary
+- `assets/photos/home-kitchen-windows-600.webp`: “Modern kitchen and dining area with stylish furnishings and natural light in a contemporary
   home setting” by Shixart1985, CC BY 2.0, via Wikimedia Commons (resized).
   https://commons.wikimedia.org/wiki/File:Modern_kitchen_and_dining_area_with_stylish_furnishings_and_natural_light_in_a_contemporary_home_setting.jpg
-- `assets/photos/kitchen-cabinet-installation.jpg`: “Kitchen cabinet installation” by Akpeski, CC BY-SA 4.0, via Wikimedia Commons.
+- `assets/photos/kitchen-cabinet-installation-600.webp`: “Kitchen cabinet installation” by Akpeski, CC BY-SA 4.0, via Wikimedia Commons.
   https://commons.wikimedia.org/wiki/File:Kitchen_cabinet_installation.jpg
-- `assets/photos/store-faucet.jpg`: “Kitchen Faucet 1” by Stilfehler, CC0, via Wikimedia Commons (resized).
+- `assets/photos/store-faucet-600.webp`: “Kitchen Faucet 1” by Stilfehler, CC0, via Wikimedia Commons (resized).
   https://commons.wikimedia.org/wiki/File:Kitchen_Faucet_1.jpg
 - Icons: Lucide (ISC).
 

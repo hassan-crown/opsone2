@@ -372,6 +372,13 @@ p { text-wrap: pretty; }
 .coupon__status { padding: 1rem 1.25rem; background: var(--ink); color: #fff; line-height: 1.6; }
 .coupon__status a { color: var(--amber-300); }
 
+/* ---------- consent banner (fixed, it floats over the page) ---------- */
+.consent { position: fixed; inset-inline: var(--margin); bottom: 1rem; z-index: 20; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem 1.5rem; max-width: 46rem; margin-inline: auto; padding: 1rem 1.25rem; border-radius: 14px; background: var(--ink-800); color: var(--on-dark); }
+.consent p { line-height: 1.6; }
+.consent__actions { display: flex; gap: 0.5rem; }
+.btn--quiet { background: var(--ink-700); color: #fff; }
+.foot__privacy { padding: 0; color: inherit; text-decoration-color: transparent; }
+
 /* ---------- tablet ---------- */
 @media (max-width: 1023px) {
   .app[data-ui] { grid-template-columns: 1fr; height: auto; }

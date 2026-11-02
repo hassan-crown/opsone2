@@ -79,9 +79,9 @@
       const toast = q('[data-toast]');
       const counters = [...app.querySelectorAll('[data-count]')];
       const tl = gsap.timeline({ delay: 0.35 });
-      tl.from(app, { y: 90, rotateX: 16, scale: 0.94, opacity: 0, duration: 1.3, ease: 'expo.out' })
-        .from(app.querySelectorAll('.panel'), { y: 26, opacity: 0, stagger: 0.09, duration: 0.8, ease: 'expo.out' }, 0.45)
-        .from(app.querySelectorAll('.stg__row'), { x: 18, opacity: 0, stagger: 0.06, duration: 0.6, ease: 'expo.out' }, 0.6);
+      tl.from(app, { y: 90, rotateX: 16, scale: 0.94, duration: 1.3, ease: 'expo.out' })
+        .from(app.querySelectorAll('.panel'), { y: 26, stagger: 0.09, duration: 0.8, ease: 'expo.out' }, 0.45)
+        .from(app.querySelectorAll('.stg__row'), { x: 18, stagger: 0.06, duration: 0.6, ease: 'expo.out' }, 0.6);
       counters.forEach((el, i) => {
         const to = +el.dataset.count, from = i === 2 ? 48300 : 0, o = { v: from };
         tl.fromTo(o, { v: from }, { v: to, duration: 1.4, ease: 'power3.out', onUpdate: () => { el.textContent = fmt(o.v); } }, 0.8);
@@ -166,6 +166,17 @@
     form.querySelectorAll('input, select').forEach((f) => f.addEventListener('blur', () => { if (f.value || f.getAttribute('aria-invalid')) check(f); }));
     form.querySelectorAll('input, select').forEach((f) => f.addEventListener('input', () => { if (f.getAttribute('aria-invalid') === 'true') check(f); }));
 
+    // campaign parameters: kept for this visit and sent with the request
+    const CAMPAIGN = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content', 'gclid', 'fbclid'];
+    const params = new URLSearchParams(location.search);
+    CAMPAIGN.forEach((k) => {
+      let v = params.get(k) || '';
+      try { if (v) sessionStorage.setItem('ops-' + k, v); else v = sessionStorage.getItem('ops-' + k) || ''; } catch { /* private mode */ }
+      const field = form.querySelector(`input[name="${k}"]`);
+      if (field) field.value = v.slice(0, 200);
+    });
+    const track = () => { if (window.opsTrack) window.opsTrack('lead'); };
+
     const say = (html) => { status.innerHTML = html; status.hidden = false; };
     const esc = (s) => s.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
@@ -192,7 +203,9 @@
             signal: ctrl.signal,
           });
           if (!res.ok) throw new Error(String(res.status));
+          track();
           form.reset();
+          CAMPAIGN.forEach((k) => { try { const f = form.querySelector(`input[name="${k}"]`); f.value = sessionStorage.getItem('ops-' + k) || ''; } catch { /* private mode */ } });
           say(`وصل طلبك. سنتواصل معك على <span dir="ltr">${esc(data.phone)}</span> لتحديد موعد العرض.`);
         } catch {
           say('تعذّر إرسال الطلب. تحقّق من اتصالك وحاول مرة أخرى بعد قليل.');
@@ -206,6 +219,7 @@
 
       if (cfg.demoEmail) {
         const body = [`الاسم: ${data.name}`, `المنشأة: ${data.company}`, `الجوال: ${data.phone}`, `النشاط: ${data.trade}`, `المدينة: ${data.city || '-'}`].join('\n');
+        track();
         location.href = `mailto:${encodeURIComponent(cfg.demoEmail)}?subject=${encodeURIComponent('طلب عرض تجريبي لـ OpsOne')}&body=${encodeURIComponent(body)}`;
         say(`فتحنا بريدك برسالة جاهزة إلى <span dir="ltr">${esc(cfg.demoEmail)}</span>. يصلنا طلبك بعد أن ترسلها من هناك.`);
         return;
