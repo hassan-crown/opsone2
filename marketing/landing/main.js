@@ -1,9 +1,9 @@
-/* OpsOne landing: the live order path, the people tabs, the demo form and the motion layer.
+/* OpsOne landing: the hero order, the people tabs, the demo form and the motion layer.
    Everything works without this file except the switches; the page is complete in the HTML. */
 (() => {
   const reduce = matchMedia('(prefers-reduced-motion: reduce)');
 
-  /* ---------- tabs: one small helper for the feature list and the roles ---------- */
+  /* ---------- tabs: one small helper for the roles ---------- */
   const tabset = (list, onPick) => {
     if (!list) return null;
     const tabs = [...list.querySelectorAll('[role="tab"]')];
@@ -24,16 +24,6 @@
     });
     return { tabs, pick };
   };
-
-  /* ---------- stage control: each feature points at its part of the workflow editor ---------- */
-  const flow = document.querySelector('.flow');
-  const features = tabset(document.querySelector('.features'), (tab) => {
-    flow.dataset.focus = tab.dataset.focus;
-    if (window.gsap && !reduce.matches) {
-      const target = { stages: '.flow__add', owners: '.who i', gates: '.gate', sla: '.flow__alert' }[tab.dataset.focus];
-      gsap.fromTo(flow.querySelectorAll(target), { scale: 0.92 }, { scale: 1, duration: 0.5, ease: 'back.out(2)', stagger: 0.05 });
-    }
-  });
 
   /* ---------- roles: tabs switch the view (film or phone) and the lines ---------- */
   const films = [...document.querySelectorAll('[data-film-item]')];
@@ -65,7 +55,7 @@
     new IntersectionObserver(([e]) => { if (e.isIntersecting && !reduce.matches) { v.preload = 'auto'; v.play().catch(() => {}); } else v.pause(); }, { threshold: 0.3 }).observe(v);
   });
 
-  /* ---------- GSAP: entrances, the hero window's choreography, the pinned order path, counters ---------- */
+  /* ---------- GSAP: entrances, the hero window's choreography, counters ---------- */
   const fmt = (n, d = 2) => n.toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d });
   const runMotion = () => {
     if (!window.gsap || !window.ScrollTrigger || reduce.matches) return;
@@ -119,20 +109,8 @@
     gsap.from('.phone--chat .ui-wa', { y: 18, opacity: 0, stagger: 0.3, duration: 0.6, ease: 'expo.out', scrollTrigger: { trigger: '.tool--wa', start: 'top 80%', once: true } });
     gsap.from('.doc__sign svg path', { strokeDasharray: 600, strokeDashoffset: 600, duration: 1.6, ease: 'power2.inOut', scrollTrigger: { trigger: '.tool--sign', start: 'top 75%', once: true } });
 
-    // stage control holds still on wide screens while the four features take turns
-    const mm = gsap.matchMedia();
-    mm.add('(min-width: 1024px) and (min-height: 700px)', () => {
-      const body = document.querySelector('.control__body');
-      if (!body || !features) return;
-      const n = features.tabs.length;
-      const st = ScrollTrigger.create({
-        trigger: body, start: 'center center', end: () => '+=' + Math.round(innerHeight * 1.4), pin: true, pinSpacing: true,
-        onUpdate: (self) => { const t = features.tabs[Math.min(n - 1, Math.floor(self.progress * n))]; if (t.getAttribute('aria-selected') !== 'true') features.pick(t); },
-      });
-      const jump = (e) => { const i = features.tabs.indexOf(e.currentTarget); scrollTo({ top: st.start + ((i + 0.5) / n) * (st.end - st.start), behavior: 'smooth' }); };
-      features.tabs.forEach((t) => t.addEventListener('click', jump));
-      return () => features.tabs.forEach((t) => t.removeEventListener('click', jump));
-    });
+    // item 9: the draft version waits to be approved
+    gsap.from('.flow__draft', { y: 16, opacity: 0, duration: 0.7, ease: 'expo.out', scrollTrigger: { trigger: '.cfg', start: 'top 70%', once: true } });
   };
   runMotion();
   addEventListener('load', () => { if (window.ScrollTrigger) ScrollTrigger.refresh(); }, { once: true });

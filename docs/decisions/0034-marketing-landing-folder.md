@@ -5,8 +5,8 @@ Status: accepted (2026-11-02).
 ## Context
 
 OpsOne needs a public marketing page that sells the product to owners of Saudi businesses that sell ready and custom
-products from a showroom or an online store, often through outside workshops or suppliers, with one action: a demo
-request. The audience is described by how a business works, not by sector. The repository boundary puts all Laravel code in `src/` and keeps
+products from a showroom or an online store, positioned as sales management from the first contact to the last
+signature, with one action: a demo request. The audience is described by how a business works, not by sector. The repository boundary puts all Laravel code in `src/` and keeps
 infrastructure, scripts and docs at the root. The product's own public website module (`src/`, per-facility site
 and store) belongs to each facility's instance and is not OpsOne's own marketing site.
 

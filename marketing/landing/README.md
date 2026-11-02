@@ -217,15 +217,20 @@ inspector runs with `--allow icon-cards` for the capability grid they asked for.
 ## Audience round (product owner, 2026-11-02)
 
 - All sector naming removed from copy, title, description, Open Graph, JSON-LD, alt text and the share image (re-captured from the
-  new hero). Workshop wording became «الورش والمورّدين» / «المورّد»; owning a workshop stays an option («إن كانت لك ورشتك»).
-- New section **«لمن OpsOne؟»** (`#fit`, first after the hero, in the top bar and the footer «لمن» column): seven business traits,
-  each with a Lucide icon, the OpsOne capability that serves it, and the module name as a chip.
+  new hero). «ورشة/ورش» became «مصنع/مصانع»; no line implies the business relies on outside workshops. Owning a factory is one of
+  the traits, not the core.
+- Positioning is sales management: title «إدارة البيع من أول اتصال إلى آخر توقيع», description, OG and JSON-LD follow it.
+- **«لمن OpsOne؟»** (`#fit`, first after the hero) and **«من أول اتصال إلى آخر توقيع»** (`#sales`) carry the product owner's
+  approved Arabic copy word for word. `#sales` replaced the old «من المعرض إلى بيت العميل» steps and the pinned stage-control
+  section: eight numbered cards with icons, then item 9 as a wide dark panel (`#path`) beside a settings window built from the
+  product's stage editor (side menu of settings areas, stages with owners, durations and gates, a draft version awaiting approval).
 - The demo form's «النشاط» list became «ماذا تبيع؟» (جاهز / مخصص أو حسب الطلب / الاثنان); the field is still sent as `trade`.
 - Visible photo credits removed; the three photographs that required attribution and the faucet were replaced with CC0 pictures.
-- Lighthouse 12.8.2 (Brotli server): mobile 97 / 100 / 100 / 100 (LCP 2.5 s, 467 KB); desktop 100 / 100 / 100 / 100.
-- Inspector at 1440/768/375: lint 0; one FAIL «blank-gap» on the phone is the inspector's own limit (it walks at most 12 screens to
-  fire scroll reveals, and the phone page is now longer, so the capabilities section is still hidden when it measures). A full
-  scroll shows that section rendered; WARNs «off-centre» (right-to-left line ends) and «ragged-edges» defended as before.
+- Lighthouse 12.8.2 (Brotli server): mobile 97 / 100 / 100 / 100 (LCP 2.6 s, 509 KB); desktop 100 / 100 / 100 / 100.
+- Inspector at 1440/768/375: lint 0. The phone «blank-gap» FAIL is the inspector's own limit (it walks at most 12 screens to fire
+  scroll reveals; the phone page is longer, so later sections are still hidden when it measures); a full scroll shows them rendered.
+  WARNs «off-centre» and «ragged-edges» (right-to-left line ends) and «lopsided» on `#sales` (measured before its picture reveals)
+  are defended.
 
 ## Critique (last round)
 
@@ -278,15 +283,15 @@ e-signature tile is drawn in SVG.
 
 ## Sample content to confirm before launch
 
-- Stage editor: stage names, responsible roles, durations (يومان، 3 أيام، يوم، 21 يومًا), the two gates and the overdue alert.
+- Settings window (item 9): stage names, responsible roles, durations (يومان، 3 أيام، 21 يومًا), the two gates, «مسودة الإصدار 4».
 - Roles: the refund request 2,700.00 ر.س and the permission matrix (which role may do what) must match the real role setup.
 - Tools: the quote QUO-2026-00070 (from the showcase PDF), the invoice INV-2026-01187 amounts, the store item «مصباح معلّق بقفص معدني» at 385.00 ر.س.
 - Footer: contact details (email, phone, WhatsApp, address) are missing and needed from the product owner.
-- Hero window tasks for the outsourced stage: «إرسال أمر التنفيذ للمورّد» (المشتريات), «تأكيد موعد الجاهزية 6 نوفمبر» (المورّد المتعاقد),
-  «استلام البنود من المورّد» (المستودع); the order is «طلب مخصص حسب المقاسات، 6 بنود», 48,300 ر.س split 50/50 → 24,150.
+- Hero window tasks for the manufacturing stage: «إصدار أمر التصنيع» (الإنتاج), «تأكيد موعد الجاهزية 6 نوفمبر» (المصنع),
+  «استلام البنود من المصنع» (المستودع); the order is «طلب مخصص حسب المقاسات، 6 بنود», 48,300 ر.س split 50/50 → 24,150.
 - Quote lines: «تصميم وتنفيذ حسب المقاسات» 33,540.00، «منتجات جاهزة من المعرض» 5,070.00، «تركيب وتوصيل وتجهيز الموقع» 1,524.00.
-- «لمن OpsOne؟»: each trait is matched to a module that exists (العروض والعقود، المخزون والتسليم، مسار التشغيل، المشتريات والموردون،
-  المهام والتقويم، الفروع والصلاحيات، المتجر الإلكتروني); confirm each sentence stays true.
+- The approved copy states e-invoices compliant with هيئة الزكاة, while the invoice tile still says «قيد الإطلاق»; align both
+  before launch.
 - Commission example 2.5% on 42,000 = 1,050.00 ر.س, half collected = 525.00 (the basis follows the P6 default, which is
   still awaiting product-owner confirmation).
 - WhatsApp message text, OTP digits, stock example (ألواح MDF 18 مم، 12، حد الطلب 20), store item (مقبض ستانلس 160 مم، 35.00 ر.س).
