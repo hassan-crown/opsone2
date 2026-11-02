@@ -48,7 +48,9 @@ export default function Sla({ settings, types, workingDays, canEdit }: Props) {
             >
                 <p className="text-caption text-weak">
                     {t('rules.sla.working_week', {
-                        days: workingDays
+                        // The Saudi week reads from Sunday.
+                        days: [...workingDays]
+                            .sort((a, b) => (a % 7) - (b % 7))
                             .map((d) =>
                                 t(
                                     `appointments.work.day.${d}` as TranslationKey,

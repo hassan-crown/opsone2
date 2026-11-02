@@ -54,7 +54,7 @@ final class WhatsAppSettings
     }
 
     /**
-     * Saves the approved template names (P-103). An empty name falls back to the environment's.
+     * Saves the approved template names (P-104). An empty name falls back to the environment's.
      *
      * @param  array<string, string|null>  $names
      */

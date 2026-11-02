@@ -19,6 +19,7 @@ use App\Models\Finance\PaymentProof;
 use App\Models\FinanceSettings;
 use App\Models\Order;
 use App\Models\User;
+use App\Money\Money;
 use App\Orders\OrderAccess;
 use App\Workflow\AppointmentBooking;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
@@ -45,21 +46,25 @@ final class FinancePresenter
 
         $dues = Allocator::openDues($order->id);
         $allocated = MoneyLedger::allocatedByDue($order->id);
+        $written = DebtWriteOffs::byDue([$order->id]);
         $dates = DueCalendar::dates($order, $dues);
         $dueNow = 0;
         $scheduled = 0;
         $dueRows = [];
         foreach ($dues as $due) {
             $held = $allocated[$due->id] ?? 0;
-            $status = DueCalendar::status($due->amount_minor, $held, $dates[$due->id], graceDays: $due->grace_days);
+            $off = $written[$due->id] ?? 0;
+            $status = DueCalendar::status($due->amount_minor, $held + $off, $dates[$due->id], graceDays: $due->grace_days);
             if (in_array($status, [DueStatus::Due, DueStatus::Overdue], true) || ($status === DueStatus::PartiallyPaid && $dates[$due->id] !== null && $dates[$due->id] <= AppointmentBooking::today())) {
-                $dueNow += max(0, $due->amount_minor - $held);
+                $dueNow += max(0, $due->amount_minor - $held - $off);
             }
             $scheduled += $due->amount_minor;
-            $dueRows[] = self::due($due, $held, $dates[$due->id], $status, $amounts);
+            $dueRows[] = self::due($due, $held, $off, $dates[$due->id], $status, $amounts);
         }
 
-        $remaining = $value?->minus($collected);
+        // Written off is not collected: collections stay what really came in (ADR-0035).
+        $writtenOff = array_sum($written);
+        $remaining = $value?->minus($collected)->minus(Money::of($writtenOff));
         $summary = [
             'agreed_minor' => $value?->minor,
             'collected_minor' => $collected->minor,
@@ -69,6 +74,7 @@ final class FinancePresenter
             'credit_minor' => $credit->minor,
             'unscheduled_minor' => $value === null ? null : max(0, $value->minor - $scheduled),
             'settlement_needed_minor' => $agreement?->settlement_needed_minor,
+            'written_off_minor' => $writtenOff,
         ];
 
         $payload = [
@@ -124,7 +130,7 @@ final class FinancePresenter
     /**
      * @return array<string, mixed>
      */
-    private static function due(OrderDue $due, int $held, ?string $dueOn, DueStatus $status, bool $amounts): array
+    private static function due(OrderDue $due, int $held, int $writtenOff, ?string $dueOn, DueStatus $status, bool $amounts): array
     {
         $row = [
             'id' => $due->id,
@@ -145,7 +151,8 @@ final class FinancePresenter
             'basis_value' => $due->basis_value,
             'amount_minor' => $due->amount_minor,
             'allocated_minor' => $held,
-            'remaining_minor' => max(0, $due->amount_minor - $held),
+            'written_off_minor' => $writtenOff,
+            'remaining_minor' => max(0, $due->amount_minor - $held - $writtenOff),
         ] : $row;
     }
 

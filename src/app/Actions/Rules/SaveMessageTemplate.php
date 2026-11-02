@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 
 /**
- * Rewords one event's message on one channel and language, or resets it to the built-in text (P-103, ADR-0037). Only
+ * Rewords one event's message on one channel and language, or resets it to the built-in text (P-104, ADR-0037). Only
  * catalogue events and their channels; placeholders only from the event's variables. It applies to messages queued
  * from now on; queued and sent ones keep their text.
  */

@@ -6,6 +6,8 @@ use App\Operations\Upgrade\MigrationCatalogue;
 use App\Operations\Upgrade\MigrationKind;
 use App\Operations\Upgrade\Preflight;
 use App\Operations\Upgrade\PreflightCheck;
+use Illuminate\Contracts\Foundation\MaintenanceMode as MaintenanceModeContract;
+use Illuminate\Foundation\CacheBasedMaintenanceMode;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
@@ -26,6 +28,9 @@ beforeEach(function () {
         'ops.backup.key' => BackupKey::generate(),
     ]);
     useCatalogue([database_path('migrations'), $this->extra]);
+    // The default driver writes storage/framework/down, one file shared by every parallel test process: another
+    // process's requests would answer 503 while this test is «down». Keep this test's maintenance mode in memory.
+    app()->instance(MaintenanceModeContract::class, new CacheBasedMaintenanceMode(app('cache'), 'array', 'preflight-maintenance'));
 });
 
 afterEach(function () {

@@ -6,7 +6,7 @@ use App\Actions\Rules\UpdateReminderSettings;
 use Illuminate\Foundation\Http\FormRequest;
 
 /**
- * The collection reminder policy (ADR-0037). Authorization is the action's (P-103).
+ * The collection reminder policy (ADR-0037). Authorization is the action's (P-104).
  */
 class ReminderSettingsRequest extends FormRequest
 {

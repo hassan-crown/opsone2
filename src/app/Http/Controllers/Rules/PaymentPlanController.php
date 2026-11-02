@@ -18,7 +18,7 @@ use Inertia\Response;
 
 /**
  * Settings › payment plans (ADR-0037): the plans with their lines, starting templates, the trigger catalogue and the
- * flow stages a «stage started» trigger may name. Reading needs P-103 or P-02; changes need P-103.
+ * flow stages a «stage started» trigger may name. Reading needs P-104 or P-02; changes need P-104.
  */
 class PaymentPlanController extends Controller
 {

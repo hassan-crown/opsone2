@@ -15,6 +15,7 @@ use App\Enums\DueStatus;
 use App\Enums\ProofStatus;
 use App\Enums\ReadyOrderStatus;
 use App\Finance\Allocator;
+use App\Finance\DebtWriteOffs;
 use App\Finance\DueCalendar;
 use App\Finance\MoneyLedger;
 use App\Models\Agreements\Agreement;
@@ -338,13 +339,15 @@ final class PortalPresenter
         $collected = MoneyLedger::collected($order->id);
         $dues = Allocator::openDues($order->id);
         $allocated = MoneyLedger::allocatedByDue($order->id);
+        // A written-off part is no longer asked of the customer (ADR-0035); it is not shown as collected either.
+        $written = DebtWriteOffs::byDue([$order->id]);
         $dates = DueCalendar::dates($order, $dues);
         $today = AppointmentBooking::today();
         $dueNow = 0;
         $rows = [];
         foreach ($dues as $due) {
             /** @var OrderDue $due */
-            $held = (int) ($allocated[$due->id] ?? 0);
+            $held = (int) ($allocated[$due->id] ?? 0) + ($written[$due->id] ?? 0);
             $on = $dates[$due->id];
             $status = DueCalendar::status($due->amount_minor, $held, $on, graceDays: $due->grace_days);
             if (in_array($status, [DueStatus::Due, DueStatus::Overdue], true) || ($status === DueStatus::PartiallyPaid && $on !== null && $on <= $today)) {
@@ -361,7 +364,7 @@ final class PortalPresenter
         return [
             'agreed_minor' => $total,
             'collected_minor' => $collected->minor,
-            'remaining_minor' => $total === null ? null : max(0, $total - $collected->minor),
+            'remaining_minor' => $total === null ? null : max(0, $total - $collected->minor - array_sum($written)),
             'due_now_minor' => $dueNow,
             'pending_proofs_minor' => $pending,
             'dues' => $rows,

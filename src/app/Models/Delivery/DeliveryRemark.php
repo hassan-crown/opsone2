@@ -3,12 +3,14 @@
 namespace App\Models\Delivery;
 
 use App\Models\Order;
+use App\Models\User;
 use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * A blocking remark on a confirmed delivery (M-14-T04): the delivery stands, the order cannot close until it is resolved.
+ * An order may hold several; each is resolved on its own, keeping who resolved it, when and the resolution note.
  *
  * @property int $id
  * @property int $delivery_note_id
@@ -21,6 +23,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int|null $resolved_by
  * @property CarbonInterface|null $resolved_at
  * @property int $lock_version
+ * @property CarbonInterface|null $created_at
  */
 class DeliveryRemark extends Model
 {
@@ -52,5 +55,23 @@ class DeliveryRemark extends Model
     public function order(): BelongsTo
     {
         return $this->belongsTo(Order::class);
+    }
+
+    /** @return BelongsTo<User, $this> */
+    public function creator(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
+    /** @return BelongsTo<User, $this> */
+    public function resolver(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'resolved_by');
+    }
+
+    /** @return BelongsTo<User, $this> */
+    public function followUp(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'follow_up_user_id');
     }
 }

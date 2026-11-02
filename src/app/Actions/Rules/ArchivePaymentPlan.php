@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
 /**
- * Archives a plan (P-103): it is no longer offered, and an order that chose it before its agreement gets the default.
+ * Archives a plan (P-104): it is no longer offered, and an order that chose it before its agreement gets the default.
  * The default plan cannot be archived — mark another one first. Orders whose schedule was copied keep it.
  */
 final class ArchivePaymentPlan

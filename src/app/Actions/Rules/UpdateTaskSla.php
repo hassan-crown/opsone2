@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
 /**
- * Task SLA settings (P-103, ADR-0037): on/off, default working days, days per action type, holidays (up to 60
+ * Task SLA settings (P-104, ADR-0037): on/off, default working days, days per action type, holidays (up to 60
  * dates) and the working days late before escalation. The working week itself stays in the work settings (P-02).
  * New tasks only: existing tasks keep their due time.
  */

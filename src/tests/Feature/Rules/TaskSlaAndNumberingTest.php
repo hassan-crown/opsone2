@@ -4,7 +4,7 @@
  * Task SLA in working days and document numbering formats (ADR-0037): due times skip rest days and holidays and are
  * fixed at creation; `work.reminder` and the escalation go out once each inside the reminder hours; numbers follow
  * the facility's prefix, Gregorian/Hijri/no year, branch segment and starting number while staying gapless and
- * unique; tax invoice sequences are never configurable. P-103 only.
+ * unique; tax invoice sequences are never configurable. P-104 only.
  */
 
 use App\Actions\Rules\SaveNumberFormat;
@@ -99,7 +99,7 @@ it('sends work.reminder on the due day and escalates a late task once, inside th
     expect($sla->run(now()))->toBe(0);
 });
 
-it('validates SLA settings and lets only P-103 change them, audited', function () {
+it('validates SLA settings and lets only P-104 change them, audited', function () {
     expect(fn () => setSla($this->f, ['holidays' => ['05/11/2026']]))->toThrow(ValidationException::class)
         ->and(fn () => setSla($this->f, ['default_days' => 61]))->toThrow(ValidationException::class)
         ->and(fn () => app(UpdateTaskSla::class)->handle($this->f->manager, ['enabled' => true, 'default_days' => 1, 'by_type' => [], 'holidays' => [], 'escalate_after_days' => 1]))
@@ -152,7 +152,7 @@ it('puts the branch code in order numbers with a counter per branch', function (
         ->and(Order::query()->distinct()->count('number'))->toBe(Order::query()->count());
 });
 
-it('never formats tax invoices, refuses a taken or reserved prefix and a branch segment elsewhere, and needs P-103', function () {
+it('never formats tax invoices, refuses a taken or reserved prefix and a branch segment elsewhere, and needs P-104', function () {
     $save = app(SaveNumberFormat::class);
     $format = fn (array $data) => $save->handle($this->f->owner, ['prefix' => 'ABC', 'year_mode' => 'gregorian', 'per_branch' => false, 'pad' => 5, 'start_at' => null, ...$data]);
 

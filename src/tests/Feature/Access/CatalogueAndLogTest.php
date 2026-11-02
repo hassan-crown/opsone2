@@ -16,8 +16,11 @@ use Tests\Support\Org;
 
 uses(RefreshDatabase::class);
 
-it('catalogues P-01..P-103 with bilingual labels, scopes and default roles', function () {
-    expect(Permission::cases())->toHaveCount(103)
+it('catalogues P-01..P-102 with bilingual labels, scopes and default roles, plus P-103 (debt write-off, ADR-0035) and P-104 (business rules, ADR-0037)', function () {
+    expect(Permission::cases())->toHaveCount(104)
+        ->and(PermissionCatalogue::definition(Permission::P104)['roles'])->toBe(['owner'])
+        ->and(Permission::P103->allowedScopes())->not->toBeEmpty()
+        ->and(PermissionCatalogue::definition(Permission::P103)['roles'])->toBe(['owner'])
         ->and(array_keys(PermissionCatalogue::DEFINITIONS))->toBe(array_map(fn (Permission $p) => $p->value, Permission::cases()));
 
     foreach (Permission::cases() as $permission) {

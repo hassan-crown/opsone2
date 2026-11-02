@@ -6,7 +6,7 @@ use App\Actions\Rules\UpdateTaskSla;
 use Illuminate\Foundation\Http\FormRequest;
 
 /**
- * Task SLA settings (ADR-0037). Authorization is the action's (P-103).
+ * Task SLA settings (ADR-0037). Authorization is the action's (P-104).
  */
 class TaskSlaRequest extends FormRequest
 {

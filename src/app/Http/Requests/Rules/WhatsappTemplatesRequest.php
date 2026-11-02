@@ -5,7 +5,7 @@ namespace App\Http\Requests\Rules;
 use Illuminate\Foundation\Http\FormRequest;
 
 /**
- * Approved WhatsApp template names per event (ADR-0037). Authorization is the action's (P-103).
+ * Approved WhatsApp template names per event (ADR-0037). Authorization is the action's (P-104).
  */
 class WhatsappTemplatesRequest extends FormRequest
 {

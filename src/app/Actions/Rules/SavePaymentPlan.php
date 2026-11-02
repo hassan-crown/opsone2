@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 
 /**
- * Creates or edits a payment plan (P-103, ADR-0037). The lines are checked by PaymentPlans (100%, one `rest` last,
+ * Creates or edits a payment plan (P-104, ADR-0037). The lines are checked by PaymentPlans (100%, one `rest` last,
  * closed triggers, existing stages, every flow gate reference present). One active plan is the default: marking
  * one moves the mark, and the first plan becomes the default. Orders already holding a schedule never change.
  */

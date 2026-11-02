@@ -69,6 +69,7 @@ final class OrderSchedule
         $value = $agreement->total();
         $dues = Allocator::openDues($order->id);
         $before = self::summary($dues);
+        self::refuseWhileWrittenOff($order);
         if ($dues->isEmpty() && $head->agreement_id === null) {
             // The plan's lines are copied here, once: later edits of the plan never reach this order.
             $plan = PaymentPlans::forOrder($head->payment_plan_id);
@@ -110,6 +111,7 @@ final class OrderSchedule
      */
     public function replace(Order $order, Agreement $agreement, array $rows, User $actor, string $source): void
     {
+        self::refuseWhileWrittenOff($order);
         $parsed = [];
         foreach ($rows as $i => $row) {
             $event = DueEvent::from($row['event']);
@@ -135,6 +137,7 @@ final class OrderSchedule
      */
     public function applyPlan(Order $order, OrderFinance $head, Agreement $agreement, PaymentPlan $plan, User $actor, string $source): void
     {
+        self::refuseWhileWrittenOff($order);
         $parsed = array_map(fn (array $l) => [
             'reference' => $l['key'], 'name' => $l['name'], 'basis' => DueBasis::from($l['basis']), 'value' => $l['value'],
             'event' => DueEvent::from($l['event']), 'due_date' => null, 'stage_key' => $l['stage_key'],
@@ -206,6 +209,17 @@ final class OrderSchedule
     public static function preview(array $lines, Money $value): array
     {
         return self::fit(self::amounts(array_map(fn (array $l) => ['basis' => DueBasis::from($l['basis']), 'value' => $l['value']], $lines), $value), $value);
+    }
+
+    /**
+     * A written-off debt (P-103, ADR-0035) fixes the dues it settled: the schedule changes only after the write-off is
+     * reversed, so a written-off amount never lands on a due that no longer lacks it.
+     */
+    private static function refuseWhileWrittenOff(Order $order): void
+    {
+        if (DebtWriteOffs::writtenOff($order->id) > 0) {
+            throw ValidationException::withMessages(['dues' => __('finance.write_off.schedule_locked')]);
+        }
     }
 
     /**

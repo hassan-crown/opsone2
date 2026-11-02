@@ -6,7 +6,7 @@ use App\Actions\Rules\SaveNumberFormat;
 use Illuminate\Foundation\Http\FormRequest;
 
 /**
- * One sequence number format (ADR-0037). Authorization is the action's (P-103).
+ * One sequence number format (ADR-0037). Authorization is the action's (P-104).
  */
 class NumberFormatRequest extends FormRequest
 {

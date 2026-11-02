@@ -9,7 +9,7 @@
   escalation, document numbering formats. Owner pages, Arabic first (RTL).
 - Related: ADR-0005 (access), ADR-0006 (audit), ADR-0007 (outbox), ADR-0012 (workflow), ADR-0013/0014 (money,
   schedule, collections), ADR-0028 (expand/contract migrations), ADR-0029 (documents), ADR-0030 (WhatsApp),
-  ADR-0033 (ZATCA). Analysis: `docs/analysis/no-code-configurability.md` (PR 21).
+  ADR-0033 (ZATCA), ADR-0035 (debt write-off; it took P-103, so this ADR uses P-104). Analysis: `docs/analysis/no-code-configurability.md` (PR 21).
 
 ## Context
 
@@ -62,6 +62,8 @@ is the pure rule; the outbox key `due:{id}:{soon|today|overdue}:{due_on}:{step}`
 reminder hours still apply and disputed amounts are still excluded. Escalation is an in-app notice
 (`finance.due_escalated`) sent once per due and due date, only to people who may see the order's money (P-37).
 Reminder policies are not pinned to orders: communication follows the latest settings.
+A written-off part (ADR-0035) counts as settled in `OpenDues`, so it is never reminded nor escalated; while a
+write-off stands, choosing a plan cannot replace the order's schedule (same lock as FinSchedule).
 
 ### 4. Contract and quote clause library
 
@@ -104,8 +106,8 @@ period. **Tax invoices (INV/CRN/DBN) are not in the list**: ZATCA sequencing sta
 
 ### 8. Access and audit
 
-New permission **P-103** «configure business rules» (owner template; any member can be granted it). Reading the pages
-needs P-103 or P-02. Every change is audited (`payment_plan.*`, `reminder_settings.updated`, `document_clause.*`,
+New permission **P-104** «configure business rules» (owner template; any member can be granted it). Reading the pages
+needs P-104 or P-02. Every change is audited (`payment_plan.*`, `reminder_settings.updated`, `document_clause.*`,
 `message_template.*`, `integrations.whatsapp_templates_saved`, `task_sla.updated`, `number_format.saved`, and
 `payment_plan.chosen` on the order). Pages: `settings/payment-plans`, `reminders`, `clauses`, `messages`,
 `task-sla`, `numbering`, linked from the settings home («قواعد العمل»).

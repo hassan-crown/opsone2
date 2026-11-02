@@ -3,7 +3,7 @@
 /**
  * Collection reminder policy (ADR-0037): «before» reminders, on the due date, overdue reminders at an interval after
  * the grace days and up to a cap, escalation to a role or the order's responsible person, only inside the reminder
- * hours, through the outbox and never twice; the appointment reminder lead time is configurable. P-103 only.
+ * hours, through the outbox and never twice; the appointment reminder lead time is configurable. P-104 only.
  */
 
 use App\Access\Access;
@@ -129,7 +129,7 @@ it('escalates an overdue due to the members holding the chosen role, once, only 
         ->toBe(Access::can($assignee, Permission::P37, $order) ? 1 : 0);
 });
 
-it('validates the policy and lets only P-103 change it, audited', function () {
+it('validates the policy and lets only P-104 change it, audited', function () {
     expect(fn () => setPolicy($this->f, ['before_days' => [1, 2, 3, 4]]))->toThrow(ValidationException::class)
         ->and(fn () => setPolicy($this->f, ['max_after' => 7]))->toThrow(ValidationException::class)
         ->and(fn () => setPolicy($this->f, ['escalate_after_days' => 5, 'escalate_to' => 'nobody']))->toThrow(ValidationException::class)

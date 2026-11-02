@@ -6,7 +6,7 @@ use App\Actions\Rules\SaveDocumentClause;
 use Illuminate\Foundation\Http\FormRequest;
 
 /**
- * A library clause (ADR-0037). Authorization is the action's (P-103).
+ * A library clause (ADR-0037). Authorization is the action's (P-104).
  */
 class DocumentClauseRequest extends FormRequest
 {

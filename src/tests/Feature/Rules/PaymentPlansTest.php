@@ -5,7 +5,7 @@
  * references), copying the lines into the order's dues at the agreement (later plan edits never reach it), the order's
  * own choice before and after the agreement, money integrity (amounts always add up to the agreement), the single
  * source of the first payment share (`payment_check` basis `due`), trigger evaluation with offsets and grace, and
- * authorization (P-103 / P-38) with audit.
+ * authorization (P-104 / P-38) with audit.
  */
 
 use App\Actions\Finance\ChoosePaymentPlan;
@@ -212,7 +212,7 @@ it('moves the default mark, never archives the default and audits every change',
     ], $b->lock_version + 5))->toThrow(StaleRecord::class);
 });
 
-it('serves the plans page to P-103 and P-02 holders and refuses changes without P-103', function () {
+it('serves the plans page to P-104 and P-02 holders and refuses changes without P-104', function () {
     $lines = [planLine('first', 'percent', '50'), planLine('final', 'rest', null)];
     $this->actingAs($this->f->owner)->get('/settings/payment-plans')->assertOk()
         ->assertInertia(fn ($page) => $page->component('rules/payment-plans')->where('canEdit', true)->has('templates', 4)->where('gateReferences', ['first', 'final']));

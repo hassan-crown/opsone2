@@ -7,6 +7,7 @@ use App\Access\Permission;
 use App\Actions\StateMachines\M14Delivery\T00CreateDraft;
 use App\Actions\StateMachines\M14Delivery\T01ConfirmDelivery;
 use App\Actions\StateMachines\M14Delivery\T02CancelDraft;
+use App\Actions\StateMachines\M14Delivery\T03CorrectDelivery;
 use App\Delivery\DeliveryAccess;
 use App\Delivery\DeliveryPresenter;
 use App\Delivery\DeliveryProgress;
@@ -16,6 +17,7 @@ use App\Enums\OrderKind;
 use App\Enums\ReadyOrderStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Delivery\ConfirmRequest;
+use App\Http\Requests\Delivery\CorrectionRequest;
 use App\Http\Requests\Delivery\DeliveryRequest;
 use App\Http\Requests\Delivery\ReasonRequest;
 use App\Models\Delivery\DeliveryNote;
@@ -29,7 +31,7 @@ use Inertia\Response;
 
 /**
  * Deliveries (M-14, FUL-09/FUL-10): DelList (what is owed and the notes), DelNew (draft on an order), DelRecord (the note
- * page that records or withdraws). Writes are Actions that authorize P-52 on the order; this class reads, validates the
+ * page that records, withdraws or corrects). Writes are Actions that authorize P-52 on the order; this class reads, validates the
  * envelope and answers (JSON for API callers, Inertia redirects for the screens).
  */
 final class DeliveryController extends Controller
@@ -101,6 +103,14 @@ final class DeliveryController extends Controller
         $done = $cancel->handle($this->actor($request), $note, (string) $request->validated('reason'), $request->lockVersion(), $request->key());
 
         return $this->answer($request, $done, __('delivery.cancelled'));
+    }
+
+    /** M-14-T03: take part of a confirmed delivery back (P-52, + P-49 where stock moves). */
+    public function correct(CorrectionRequest $request, DeliveryNote $note, T03CorrectDelivery $correct): RedirectResponse|JsonResponse
+    {
+        $correct->handle($this->actor($request), $note, $request->correctionData(), $request->lockVersion(), $request->key());
+
+        return $this->answer($request, $note, __('delivery.correction.recorded'), 201);
     }
 
     private function answer(Request $request, DeliveryNote $note, string $message, int $status = 200): RedirectResponse|JsonResponse

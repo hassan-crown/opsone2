@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Route;
 
 /*
 | No-Code phase 1a (ADR-0037): the owner's business rules — payment plans, reminders, clauses, messages, task SLA and
-| numbering. Reading needs P-103 or P-02, every change P-103 (checked in the actions) and is audited.
+| numbering. Reading needs P-104 or P-02, every change P-104 (checked in the actions) and is audited.
 */
 
 Route::middleware(['auth', 'verified'])->prefix('settings')->name('rules.')->group(function () {

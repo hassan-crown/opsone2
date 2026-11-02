@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 
 /**
- * Collection reminder policy (P-103, ADR-0037): up to 3 «before» reminders, one on the due date, up to 6 overdue
+ * Collection reminder policy (P-104, ADR-0037): up to 3 «before» reminders, one on the due date, up to 6 overdue
  * reminders at a fixed interval, optional escalation to the order's responsible person or a role after N overdue
  * days, and the appointment reminder lead time (1..168 hours). It applies to the next scheduler run.
  */

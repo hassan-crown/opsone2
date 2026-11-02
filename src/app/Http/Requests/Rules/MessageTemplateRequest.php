@@ -6,7 +6,7 @@ use App\Actions\Rules\SaveMessageTemplate;
 use Illuminate\Foundation\Http\FormRequest;
 
 /**
- * One message wording (ADR-0037). Authorization is the action's (P-103).
+ * One message wording (ADR-0037). Authorization is the action's (P-104).
  */
 class MessageTemplateRequest extends FormRequest
 {

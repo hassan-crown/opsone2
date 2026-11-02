@@ -18,7 +18,7 @@ function planLine(string $key, string $basis, ?string $value, string $event = 'a
 }
 
 /**
- * Saves a plan through the owner's action (P-103).
+ * Saves a plan through the owner's action (P-104).
  *
  * @param  list<array<string, mixed>>  $lines
  */

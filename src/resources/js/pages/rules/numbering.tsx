@@ -66,10 +66,9 @@ function FormatRow({ format, canEdit }: { format: Format; canEdit: boolean }) {
                     {t(
                         `rules.numbering.seq.${format.sequence}` as TranslationKey,
                     )}
-                    <span className="text-weak" dir="ltr">
-                        {t('rules.numbering.example', {
-                            number: format.example,
-                        })}
+                    <span className="text-weak">
+                        {t('rules.numbering.example', { number: '' })}
+                        <bdi dir="ltr">{format.example}</bdi>
                     </span>
                 </legend>
                 <TextField

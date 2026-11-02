@@ -262,9 +262,11 @@ export default function Clauses({
                             })
                         }
                     />
-                    <p className="text-caption text-weak" dir="ltr">
+                    <p className="text-caption text-weak">
                         {t('rules.variables')}:{' '}
-                        {variables.map((v) => `{${v}}`).join(' ')}
+                        <span dir="ltr">
+                            {variables.map((v) => `{${v}}`).join(' ')}
+                        </span>
                     </p>
                     <div className="rounded-md bg-neutral-bg p-3">
                         <p className="text-label">{t('rules.preview')}</p>

@@ -4,7 +4,7 @@
  * Clause library and message templates (ADR-0037): clauses rendered with the closed variables and copied into the
  * prepared document with their version (immutable once sent; a library edit adds a version and never reaches it), the
  * seller tax profile in the contract's parties, facility wordings for SMS / mail / in-app with closed variables, a
- * preview that writes nothing, reset to the built-in text, and per-facility WhatsApp template names. P-103 only.
+ * preview that writes nothing, reset to the built-in text, and per-facility WhatsApp template names. P-104 only.
  */
 
 use App\Actions\Rules\SaveDocumentClause;
@@ -91,7 +91,7 @@ it('keeps the built-in clauses without a library, and re-renders a quote draft f
         ->and($quote->content['clauses'][0])->toBe('السعر 2300.00 لا يشمل الكهرباء.');
 });
 
-it('refuses clause variables outside the closed set and changes by anyone without P-103', function () {
+it('refuses clause variables outside the closed set and changes by anyone without P-104', function () {
     expect(fn () => saveClause($this->f, 'bad', 'قيمة {price}'))->toThrow(ValidationException::class)
         ->and(fn () => app(SaveDocumentClause::class)->handle($this->f->manager, null, [
             'key' => 'x', 'title' => ['ar' => 'x'], 'body' => ['ar' => 'x'], 'applies_to' => ['quote'], 'included_by_default' => true,
@@ -124,7 +124,7 @@ it('sends customer reminders and staff notices in the facility wording, then the
         ->and(AuditEvent::query()->whereIn('action', ['message_template.saved', 'message_template.reset'])->count())->toBe(3);
 });
 
-it('refuses unknown variables, events and channels, previews without writing, and needs P-103', function () {
+it('refuses unknown variables, events and channels, previews without writing, and needs P-104', function () {
     $save = app(SaveMessageTemplate::class);
     expect(fn () => $save->handle($this->f->owner, ['event' => 'finance.due_soon', 'channel' => 'sms', 'locale' => 'ar', 'body' => 'رقم {iban}']))->toThrow(ValidationException::class)
         ->and(fn () => $save->handle($this->f->owner, ['event' => 'finance.due_soon', 'channel' => 'in_app', 'locale' => 'ar', 'body' => 'x']))->toThrow(ValidationException::class)

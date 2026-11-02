@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * Collection reminder policy and the appointment reminder lead time (ADR-0037, P-103). Reminders go out only inside
+ * Collection reminder policy and the appointment reminder lead time (ADR-0037, P-104). Reminders go out only inside
  * the reminder hours (WorkSettings) and through the outbox. One row; current() falls back to the defaults, which
  * reproduce the behaviour before the policy existed (2 days before, weekly after) with a cap and no escalation.
  *

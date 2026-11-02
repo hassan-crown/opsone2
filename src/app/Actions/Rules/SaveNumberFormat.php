@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 
 /**
- * Sets the format of one document sequence (P-103, ADR-0037). Only sequences in NumberFormats (never tax invoices);
+ * Sets the format of one document sequence (P-104, ADR-0037). Only sequences in NumberFormats (never tax invoices);
  * a prefix unique among all sequences; a starting number above the counter's current value for this period — so
  * numbers stay unique and gapless from the start number on. Applies to the next number taken.
  */

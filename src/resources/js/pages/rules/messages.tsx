@@ -84,7 +84,11 @@ export default function Messages({ events, whatsapp, canEdit }: Props) {
                                             )
                                         }
                                     >
-                                        <span dir="ltr">{e.event}</span>
+                                        <span>
+                                            {t(
+                                                `rules.messages.event.${e.event}` as TranslationKey,
+                                            )}
+                                        </span>
                                         {e.texts.some(
                                             (x) => x.body !== null,
                                         ) && (
@@ -95,14 +99,13 @@ export default function Messages({ events, whatsapp, canEdit }: Props) {
                                     </button>
                                     {open === e.event && (
                                         <div className="mt-3 space-y-4">
-                                            <p
-                                                className="text-caption text-weak"
-                                                dir="ltr"
-                                            >
+                                            <p className="text-caption text-weak">
                                                 {t('rules.variables')}:{' '}
-                                                {e.variables
-                                                    .map((v) => `{${v}}`)
-                                                    .join(' ')}
+                                                <span dir="ltr">
+                                                    {e.variables
+                                                        .map((v) => `{${v}}`)
+                                                        .join(' ')}
+                                                </span>
                                             </p>
                                             {e.texts.map((text) => (
                                                 <TextEditor
@@ -133,7 +136,9 @@ export default function Messages({ events, whatsapp, canEdit }: Props) {
                     {whatsapp.map((w) => (
                         <TextField
                             key={w.event}
-                            label={w.event}
+                            label={t(
+                                `rules.messages.whatsapp_event.${w.event}` as TranslationKey,
+                            )}
                             dir="ltr"
                             placeholder={w.default}
                             value={names[w.event] ?? ''}

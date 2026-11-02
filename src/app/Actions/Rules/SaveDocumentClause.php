@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 
 /**
- * Adds or edits a library clause (P-103, ADR-0037). A text change adds a new immutable version; documents already
+ * Adds or edits a library clause (P-104, ADR-0037). A text change adds a new immutable version; documents already
  * prepared keep the version they copied. Placeholders come from DocumentClauses::VARIABLES only.
  */
 final class SaveDocumentClause
