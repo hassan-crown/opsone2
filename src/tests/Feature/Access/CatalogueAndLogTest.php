@@ -16,7 +16,7 @@ use Tests\Support\Org;
 
 uses(RefreshDatabase::class);
 
-it('catalogues P-01..P-102 with bilingual labels, scopes and default roles, plus P-103 (debt write-off, ADR-0034)', function () {
+it('catalogues P-01..P-102 with bilingual labels, scopes and default roles, plus P-103 (debt write-off, ADR-0035)', function () {
     expect(Permission::cases())->toHaveCount(103)
         ->and(Permission::P103->allowedScopes())->not->toBeEmpty()
         ->and(PermissionCatalogue::definition(Permission::P103)['roles'])->toBe(['owner'])

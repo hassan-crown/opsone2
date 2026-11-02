@@ -3,14 +3,14 @@
 /**
  * Binding scenario 18 «معاينة ثيم وتطبيقها» («اختبارات ترابط ملزمة»): the preview covers the site pages only; applying
  * reflects on the facility-facing surfaces (site, store, customer portal) — never on the staff administration, which keeps
- * OpsOne's identity (Q-03 a, decided by the product owner, ADR-0034) — and never changes a price, an access or a user's
+ * OpsOne's identity (Q-03 a, decided by the product owner, ADR-0035) — and never changes a price, an access or a user's
  * own preference.
  *
  * Traces: SRS-THM-04 (preview of the facility's site pages — home, catalogue, product, interest form, cart — on phone and
  * desktop, ar and en, before applying; visitors never see the draft; the admin panel is not shown in the preview),
  * SRS-THM-06 (the theme changes no permission, price, route or ready-goods availability; a user's light/dark/system
  * choice stays theirs), the «where it reflects» table (brand colour: site, store and customer space; the administration
- * keeps OpsOne's identity per Q-03 a); M-35, P-100, P-101, ADR-0021, ADR-0034.
+ * keeps OpsOne's identity per Q-03 a); M-35, P-100, P-101, ADR-0021, ADR-0035.
  *
  * Actors over HTTP: the owner (P-100 edit, P-101 apply) on `/site-admin/theme`, a manager and a sales member on the
  * staff screens, visitors on `/{ar|en}` and `/{ar|en}/store`.
@@ -143,7 +143,7 @@ it('applying reflects on the site and the store, and changes no price, access, r
     $this->get('/ar/store/p/'.$this->variant->ready_product_id)->assertOk()->assertSee('45.00');
 });
 
-it('the applied brand reaches the facility-facing surfaces only; staff screens keep OpsOne\'s identity (Q-03 a, ADR-0034)', function () {
+it('the applied brand reaches the facility-facing surfaces only; staff screens keep OpsOne\'s identity (Q-03 a, ADR-0035)', function () {
     accPStaff($this->owner);
     $this->put(route('site.admin.theme.save'), ['brand_color' => ACC18_BRAND, 'font' => 'plex-sans'])->assertSessionHasNoErrors();
     $this->post(route('site.admin.theme.apply'))->assertSessionHasNoErrors();

@@ -14,7 +14,7 @@ use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 
 /**
- * Read side of debt write-offs (P-103, ADR-0034). A write-off journal credits the receivable of each due it settles and
+ * Read side of debt write-offs (P-103, ADR-0035). A write-off journal credits the receivable of each due it settles and
  * debits `bad_debt` by the same total; a reversal negates it. «Written off» on a due is minus the sum of its
  * receivable entries, so a reversed write-off counts zero. Every reader of what is still owed subtracts it: closure
  * blockers, open dues (work list, reminders, aging), the order and portal money cards and the allocator.

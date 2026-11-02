@@ -22,7 +22,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::middleware('throttle:records-create')->group(function () {
         Route::post('orders/{order}/finance/payments', [OrderFinanceController::class, 'recordPayment'])->whereNumber('order')->name('orders.finance.payments.store');
         Route::put('orders/{order}/finance/schedule', [OrderFinanceController::class, 'updateSchedule'])->whereNumber('order')->name('orders.finance.schedule');
-        // Debt write-off at closure and its reversal (P-103, ADR-0034).
+        // Debt write-off at closure and its reversal (P-103, ADR-0035).
         Route::post('orders/{order}/finance/write-offs', [DebtWriteOffController::class, 'store'])->whereNumber('order')->name('orders.finance.write-offs.store');
         Route::post('finance/write-offs/{writeOff}/reverse', [DebtWriteOffController::class, 'reverse'])->whereNumber('writeOff')->name('finance.write-offs.reverse');
         Route::post('orders/{order}/finance/transfers', [OrderFinanceController::class, 'transferCredit'])->whereNumber('order')->name('orders.finance.transfers');

@@ -54,7 +54,7 @@ export type WriteOffPanel = {
     }[];
 };
 
-/** Debt at closure (P-103, ADR-0034): write off what is still owed, with a reason and an optional file; reversal only by a reversal entry. */
+/** Debt at closure (P-103, ADR-0035): write off what is still owed, with a reason and an optional file; reversal only by a reversal entry. */
 function WriteOffSection({
     orderId,
     panel,

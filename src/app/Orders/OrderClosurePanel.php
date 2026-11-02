@@ -13,7 +13,7 @@ use App\Models\User;
 
 /**
  * The closure card of the order page (M-04-T07 / M-05-T10): what still blocks the closure, the open delivery remarks
- * (M-14-T04, each resolved on its own), the debt write-off (P-103, ADR-0034) and who may close, write off or record a remark. Null when the order cannot close or hold remarks from here.
+ * (M-14-T04, each resolved on its own), the debt write-off (P-103, ADR-0035) and who may close, write off or record a remark. Null when the order cannot close or hold remarks from here.
  */
 final class OrderClosurePanel
 {

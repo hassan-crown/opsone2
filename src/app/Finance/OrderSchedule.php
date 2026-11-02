@@ -165,7 +165,7 @@ final class OrderSchedule
     }
 
     /**
-     * A written-off debt (P-103, ADR-0034) fixes the dues it settled: the schedule changes only after the write-off is
+     * A written-off debt (P-103, ADR-0035) fixes the dues it settled: the schedule changes only after the write-off is
      * reversed, so a written-off amount never lands on a due that no longer lacks it.
      */
     private static function refuseWhileWrittenOff(Order $order): void

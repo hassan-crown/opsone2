@@ -248,7 +248,7 @@ amount_minor?}], documents[{…, status, files (P-44), can{attach, review}, amou
 customer_tax{vat_number, commercial_registration, missing[]}, members[], can{request_refund, execute_refund, correct,
 dispute, documents}`. Without P-37 every `*_minor` key and money files are absent — render «hidden», never 0.
 
-## Debt write-off at closure (ADR-0034)
+## Debt write-off at closure (ADR-0035)
 
 Code: `app/Actions/Finance/WriteOffDebt.php`, `app/Finance/DebtWriteOffs.php`, `app/Models/Finance/DebtWriteOff*.php`,
 `DebtWriteOffController`. Permission **P-103** (owner by default). Made-to-order orders in a closure state only.

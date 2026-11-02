@@ -108,7 +108,7 @@ it('shows the closure card with the blockers to the closer and none to a member 
         ->assertInertia(fn ($p) => $p->where('closure.can_close', false));
 });
 
-it('holds several remarks on one order, each resolved on its own with who, when and how; closure waits for all (ADR-0034)', function () {
+it('holds several remarks on one order, each resolved on its own with who, when and how; closure waits for all (ADR-0035)', function () {
     $keeper = $this->d->keeper;
     $ids = [];
     foreach (['خدش في الواجهة', 'نقص مسمار تثبيت', 'تغليف ممزق'] as $text) {

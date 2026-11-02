@@ -15,7 +15,7 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
 use LogicException;
 
 /**
- * An authorized write-off of what a customer still owes on an order (P-103, ADR-0034), or its reversal. Append-only:
+ * An authorized write-off of what a customer still owes on an order (P-103, ADR-0035), or its reversal. Append-only:
  * a write-off is undone only by a reversal row that negates its entries, once (`reverses_id` is unique).
  *
  * @property int $id

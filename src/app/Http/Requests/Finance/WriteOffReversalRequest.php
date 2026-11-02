@@ -5,7 +5,7 @@ namespace App\Http\Requests\Finance;
 use App\Http\Requests\Agreements\AgreementWriteRequest;
 
 /**
- * Reversal of a debt write-off (P-103, ADR-0034): a mandatory reason. Money-affecting: the idempotency key is required.
+ * Reversal of a debt write-off (P-103, ADR-0035): a mandatory reason. Money-affecting: the idempotency key is required.
  */
 class WriteOffReversalRequest extends AgreementWriteRequest
 {

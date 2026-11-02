@@ -1,7 +1,7 @@
 <?php
 
 /**
- * M-14-T03 correction of a confirmed delivery (ADR-0034, product owner's decision): the delivered quantity is corrected
+ * M-14-T03 correction of a confirmed delivery (ADR-0035, product owner's decision): the delivered quantity is corrected
  * with a reason; for ready goods the person chooses general stock or this customer's reservation. P-52 on the order and
  * P-49 on each location that moves; stock and audit stay consistent; the «first delivery» date does not move.
  */

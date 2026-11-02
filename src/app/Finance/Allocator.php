@@ -31,7 +31,7 @@ final class Allocator
             return 0;
         }
         $allocated = MoneyLedger::allocatedByDue($order->id);
-        // A written-off part (P-103, ADR-0034) is settled: money never goes there until the write-off is reversed.
+        // A written-off part (P-103, ADR-0035) is settled: money never goes there until the write-off is reversed.
         $written = DebtWriteOffs::byDue([$order->id]);
         $lacking = [];
         foreach ($dues as $due) {

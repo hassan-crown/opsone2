@@ -6,7 +6,7 @@ use App\Models\Delivery\DeliveryRemark;
 use App\Models\Order;
 
 /**
- * Read side of the blocking delivery remarks of an order (M-14-T04, ADR-0032/0034): an order holds any number of them,
+ * Read side of the blocking delivery remarks of an order (M-14-T04, ADR-0032/0035): an order holds any number of them,
  * each resolved on its own with who, when and how. Shared by the order page and the JSON contract other clients use
  * (the installation field app reuses it; see docs/p7-inventory-api.md «Delivery remarks»).
  */

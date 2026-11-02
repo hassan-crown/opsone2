@@ -36,7 +36,7 @@ use Illuminate\Validation\ValidationException;
 use InvalidArgumentException;
 
 /**
- * M-14-T03 (P-52, + P-49 on each stock location that moves; ADR-0034): correct the delivered quantity of a confirmed
+ * M-14-T03 (P-52, + P-49 on each stock location that moves; ADR-0035): correct the delivered quantity of a confirmed
  * delivery with a reason. The note and its lines stay as recorded; a correction row takes quantity back per line.
  * For ready goods the person chooses where it goes:
  * - `reservation`: back into the customer's reservation it was issued from (on hand and reserved rise together), so the

@@ -9,7 +9,7 @@ return new #[Expand] class extends Migration
 {
     public function up(): void
     {
-        // M-14-T03 (ADR-0034): a correction of a confirmed delivery. The note and its lines stay as recorded; the
+        // M-14-T03 (ADR-0035): a correction of a confirmed delivery. The note and its lines stay as recorded; the
         // correction takes part of a line's quantity back and says where ready stock went (general stock or the
         // customer's reservation). The first-delivery date it saw is kept for a future due-rule engine.
         Schema::create('delivery_corrections', function (Blueprint $table) {
@@ -42,7 +42,7 @@ return new #[Expand] class extends Migration
             $table->index('order_line_id');
         });
 
-        // Debt write-off at closure (ADR-0034): an append-only, balanced journal. A write-off credits the receivable
+        // Debt write-off at closure (ADR-0035): an append-only, balanced journal. A write-off credits the receivable
         // of each open due and debits `bad_debt` by the same total; a reversal is its exact negation, once.
         Schema::create('debt_write_offs', function (Blueprint $table) {
             $table->id();

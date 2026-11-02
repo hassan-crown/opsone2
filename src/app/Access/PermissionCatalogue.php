@@ -6,7 +6,7 @@ use App\Access\Enums\Audience;
 use App\Access\Enums\Scope;
 
 /**
- * Permission catalogue generated from «مصفوفة الصلاحيات» v1.1 (P-01..P-102, plus P-103 from ADR-0034).
+ * Permission catalogue generated from «مصفوفة الصلاحيات» v1.1 (P-01..P-102, plus P-103 from ADR-0035).
  *
  * - `audience`: who the action belongs to. Only `staff` and `self` are evaluated by the facility Gate;
  *   `customer`, `public` and `platform` actions are served by their own guards (customer portal, public site,
@@ -943,7 +943,7 @@ final class PermissionCatalogue
             'roles' => ['owner', 'manager'],
             'capability' => 'ready_goods',
         ],
-        // Added after matrix v1.1 by the product owner's decision on debt at closure (ADR-0034).
+        // Added after matrix v1.1 by the product owner's decision on debt at closure (ADR-0035).
         'P-103' => [
             'group' => 'finance',
             'audience' => 'staff',

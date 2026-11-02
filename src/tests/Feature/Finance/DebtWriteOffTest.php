@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Debt at closure (ADR-0034, product owner's decision): an authorised write-off of what the customer still owes — P-103,
+ * Debt at closure (ADR-0035, product owner's decision): an authorised write-off of what the customer still owes — P-103,
  * a mandatory reason, an optional file, a balanced journal, an audit entry, visible in collections and reports. After it
  * the order may close; it is undone only by a reversal entry, never by editing.
  */

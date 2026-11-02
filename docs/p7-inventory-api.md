@@ -87,7 +87,7 @@ header, 8–100 chars, reused on retry) and the note's `lock_version`; errors as
 | GET | `/deliveries/{note}` | — | P-52 on the order → `{note: {id, number, status, order, lines[{…, quantity, deliverable?, value_minor?}], proofs[{uuid, name, url}], can{confirm, cancel}, lock_version}}` |
 | POST | `/deliveries/{note}/confirm` | multipart: `idempotency_key, lock_version, delivered_on (≤ today), receiver_name, note?, proofs[1..5]` | P-52 → `{note}` with `number = DN-YYYY-000123` |
 | POST | `/deliveries/{note}/cancel` | `reason, lock_version?` | P-52, drafts only |
-| POST | `/deliveries/{note}/corrections` | `idempotency_key, lock_version?, lines[{line_id (note line), quantity}], destination stock\|reservation (required for ready lines), reason` | P-52 on the order **and P-49 on each stock location that moves** → 201 `{note}` (M-14-T03, ADR-0034) |
+| POST | `/deliveries/{note}/corrections` | `idempotency_key, lock_version?, lines[{line_id (note line), quantity}], destination stock\|reservation (required for ready lines), reason` | P-52 on the order **and P-49 on each stock location that moves** → 201 `{note}` (M-14-T03, ADR-0035) |
 
 PHP seams:
 
@@ -116,7 +116,7 @@ Contracts to other domains:
   `source_id = note id`, key `delivery:{note}:{line}:{reservation}`).
 - **Numbers**: `DN-YYYY-000123` (gapless per year, taken at recording; drafts and withdrawn drafts have none).
 
-### Delivery remarks (M-14-T04, ADR-0032 / ADR-0034) — stable contract
+### Delivery remarks (M-14-T04, ADR-0032 / ADR-0035) — stable contract
 
 An order holds any number of blocking remarks (on its confirmed notes); each is resolved on its own. The order cannot
 close while one is open. **Stable for other clients (the installation field app):** routes, names and payload keys

@@ -28,7 +28,7 @@ use Illuminate\Validation\ValidationException;
 use LogicException;
 
 /**
- * Debt write-off at closure (P-103, ADR-0034): the person forgives what the customer still owes on a finished or
+ * Debt write-off at closure (P-103, ADR-0035): the person forgives what the customer still owes on a finished or
  * cancelled made-to-order order, with a mandatory reason and an optional file. One balanced journal: each open due's
  * receivable is credited by what it still lacks and `bad_debt` is debited by the total; the amount the screen showed
  * must still be the amount owed (otherwise 422, nothing written). Collections stay what was really collected. A

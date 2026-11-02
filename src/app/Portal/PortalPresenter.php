@@ -339,7 +339,7 @@ final class PortalPresenter
         $collected = MoneyLedger::collected($order->id);
         $dues = Allocator::openDues($order->id);
         $allocated = MoneyLedger::allocatedByDue($order->id);
-        // A written-off part is no longer asked of the customer (ADR-0034); it is not shown as collected either.
+        // A written-off part is no longer asked of the customer (ADR-0035); it is not shown as collected either.
         $written = DebtWriteOffs::byDue([$order->id]);
         $dates = DueCalendar::dates($order, $dues);
         $today = AppointmentBooking::today();

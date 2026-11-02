@@ -22,7 +22,7 @@ enum MovementKind: string
     case ReturnIn = 'return_in';
     case ReturnDamaged = 'return_damaged';
     case ReturnReclass = 'return_reclass';
-    // M-14-T03 delivery correction (ADR-0034): a quantity recorded as delivered comes back, either to the general
+    // M-14-T03 delivery correction (ADR-0035): a quantity recorded as delivered comes back, either to the general
     // stock (free again) or into the customer's reservation (held for this order line again).
     case CorrectionIn = 'correction_in';
     case CorrectionReserve = 'correction_reserve';

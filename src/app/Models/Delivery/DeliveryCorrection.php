@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use LogicException;
 
 /**
- * M-14-T03: a correction of a confirmed delivery (ADR-0034). Append-only: the note keeps what was recorded, the
+ * M-14-T03: a correction of a confirmed delivery (ADR-0035). Append-only: the note keeps what was recorded, the
  * correction takes part of it back and the stock goes to `destination` (general stock or the customer's reservation).
  *
  * @property int $id

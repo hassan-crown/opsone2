@@ -1,4 +1,4 @@
-# ADR-0034: Delivery correction, staff identity, multiple delivery remarks and debt write-off (product owner's decisions)
+# ADR-0035: Delivery correction, staff identity, multiple delivery remarks and debt write-off (product owner's decisions)
 
 Status: accepted (2026-11-02). Implements the product owner's answers to the four questions ADR-0032 and
 `docs/acceptance-report.md` §8 left open: M-14-T03, Q-03, M-14-T04 (several remarks) and the debt at closure (M-04-T07 /

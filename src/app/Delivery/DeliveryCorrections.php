@@ -13,7 +13,7 @@ use App\Models\Inventory\StockMovement;
 use App\Models\Order;
 
 /**
- * Read side of delivery corrections (M-14-T03, ADR-0034): how much of each note line / order line was taken back,
+ * Read side of delivery corrections (M-14-T03, ADR-0035): how much of each note line / order line was taken back,
  * which reservation issues a note line can still give back, and when a correction is accepted.
  */
 final class DeliveryCorrections

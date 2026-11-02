@@ -37,7 +37,7 @@ final class OpenDues
         $dues = OrderDue::query()->whereIn('order_id', $orderIds)->whereNull('removed_at')->orderBy('position')->get()->groupBy('order_id');
         $allocated = MoneyEntry::query()->whereIn('order_id', $orderIds)->whereNotNull('order_due_id')->groupBy('order_due_id')
             ->selectRaw('order_due_id, SUM(amount_minor) as allocated')->pluck('allocated', 'order_due_id')->all();
-        // Written off (P-103, ADR-0034) is no longer to collect: not in the work list, the reminders or the aging.
+        // Written off (P-103, ADR-0035) is no longer to collect: not in the work list, the reminders or the aging.
         $written = DebtWriteOffs::byDue($orderIds);
 
         $dates = DueCalendar::datesFor($models, $dues);

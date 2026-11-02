@@ -2,7 +2,7 @@
     $locale = app()->getLocale();
     $appearance = $appearance ?? 'system';
     $theme = $appearance === 'system' ? 'light' : $appearance;
-    // Q-03 (a, ADR-0034): facility colours on the customer portal only; staff screens keep OpsOne's identity.
+    // Q-03 (a, ADR-0035): facility colours on the customer portal only; staff screens keep OpsOne's identity.
     $facilityBrand = \App\Site\Theme\PortalBrand::css(request());
 @endphp
 <!DOCTYPE html>

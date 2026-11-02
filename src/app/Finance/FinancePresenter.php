@@ -59,7 +59,7 @@ final class FinancePresenter
             $dueRows[] = self::due($due, $held, $off, $dates[$due->id], $status, $amounts);
         }
 
-        // Written off is not collected: collections stay what really came in (ADR-0034).
+        // Written off is not collected: collections stay what really came in (ADR-0035).
         $writtenOff = array_sum($written);
         $remaining = $value?->minus($collected)->minus(Money::of($writtenOff));
         $summary = [

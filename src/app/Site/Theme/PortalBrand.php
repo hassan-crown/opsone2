@@ -6,7 +6,7 @@ use App\Models\Site\SiteTheme;
 use Illuminate\Http\Request;
 
 /**
- * Q-03 (a), decided by the product owner (ADR-0034): the facility's applied theme colours reach the facility-facing
+ * Q-03 (a), decided by the product owner (ADR-0035): the facility's applied theme colours reach the facility-facing
  * surfaces only — the public site, the store and the customer portal. The portal is an Inertia page in the shared
  * shell, so it gets the live palette scoped to `[data-brand='facility']`; every staff, manager and admin screen keeps
  * OpsOne's own identity (logo, colours, fonts) and never receives it. Drafts never leak here (live settings only).

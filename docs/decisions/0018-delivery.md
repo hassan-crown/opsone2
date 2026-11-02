@@ -1,7 +1,7 @@
 # ADR-0018: Delivery — delivery notes, proof, stock issue and the «at delivery» due (P7c)
 
 - Status: accepted (2026-10-28) — Q-44 (a): proof of delivery = receiver name + photo/file + note; on-screen signature later.
-  M-14-T03 (correction) and several T04 remarks were added later by ADR-0034.
+  M-14-T03 (correction) and several T04 remarks were added later by ADR-0035.
 - Scope: domain 06 (SRS-FUL-09, FUL-10), machine M-14 (T00 draft, T01 record, T02 withdraw a draft), the delivery side
   of M-05-T08, the P5 `record_delivery` action result, scenarios 6 and 7 (the delivered base) and «توريد وتسليم جزئيان».
   Permission P-52 over the **order** (scopes assigned / department / branches / region / tenant).

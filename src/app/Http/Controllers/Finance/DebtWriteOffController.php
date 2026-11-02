@@ -15,7 +15,7 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 /**
- * Debt write-off at closure and its reversal (P-103, ADR-0034). The Action authorizes on the order, locks it and
+ * Debt write-off at closure and its reversal (P-103, ADR-0035). The Action authorizes on the order, locks it and
  * writes the balanced journal; this class only validates the envelope and answers.
  */
 final class DebtWriteOffController extends Controller

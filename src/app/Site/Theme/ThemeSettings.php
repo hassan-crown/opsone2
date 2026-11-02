@@ -56,7 +56,7 @@ final class ThemeSettings
     /**
      * A `<style>` body that overrides the brand roles on the site surface only. Empty for the default theme.
      *
-     * The staff administration never receives it (Q-03 a, ADR-0034): it keeps OpsOne's own logo, colours and fonts.
+     * The staff administration never receives it (Q-03 a, ADR-0035): it keeps OpsOne's own logo, colours and fonts.
      * `$scope` narrows it to another facility-facing surface — the customer portal passes `[data-brand='facility']`
      * and `fonts: false` (colours only; the portal keeps the panel's type).
      *

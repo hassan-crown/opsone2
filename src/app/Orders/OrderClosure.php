@@ -35,7 +35,7 @@ use Illuminate\Validation\ValidationException;
  * Comprehensive closure of an order (M-04-T07 for a made-to-order order, M-05-T10 for a ready one): the order moves to
  * `closed` only when money, refunds, purchasing, delivery, returns and blocking remarks are all settled. The agreement
  * stays as it is and the reason is kept; closing never forgives a debt (a due still owed blocks it until it is paid
- * or written off by P-103, ADR-0034). Authorized by P-25
+ * or written off by P-103, ADR-0035). Authorized by P-25
  * for a finished order and P-18 for a cancelled one («الصلاحية P-18 أو P-25 بحسب القرار»).
  */
 final class OrderClosure
@@ -44,7 +44,7 @@ final class OrderClosure
 
     /**
      * Why the order cannot close now (empty when it can). Keys are stable; `details` carry numbers only; `items` name
-     * each unresolved delivery remark (M-14-T04, ADR-0034).
+     * each unresolved delivery remark (M-14-T04, ADR-0035).
      *
      * @return list<array{key: string, details: array<string, int>, items?: list<array{id: int, note: string|null, description: string}>}>
      */
@@ -59,7 +59,7 @@ final class OrderClosure
             $blockers[] = ['key' => $key, 'details' => $details] + ($items === null ? [] : ['items' => $items]);
         };
 
-        // A write-off (P-103, ADR-0034) settles what it wrote off; closing alone never forgives a debt.
+        // A write-off (P-103, ADR-0035) settles what it wrote off; closing alone never forgives a debt.
         $owed = (int) OrderDue::query()->where('order_id', $order->id)->whereNull('removed_at')->sum('amount_minor')
             - (int) MoneyEntry::query()->where('order_id', $order->id)->whereNotNull('order_due_id')->sum('amount_minor')
             - DebtWriteOffs::writtenOff($order->id);

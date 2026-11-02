@@ -7,7 +7,7 @@ use App\Http\Requests\Agreements\AgreementWriteRequest;
 use Illuminate\Http\UploadedFile;
 
 /**
- * Debt write-off (P-103, ADR-0034): the amount the screen showed as owed, a mandatory reason and an optional file.
+ * Debt write-off (P-103, ADR-0035): the amount the screen showed as owed, a mandatory reason and an optional file.
  * Money-affecting: the idempotency key is required.
  */
 class WriteOffRequest extends AgreementWriteRequest
