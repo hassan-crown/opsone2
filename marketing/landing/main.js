@@ -3,120 +3,67 @@
 (() => {
   const reduce = matchMedia('(prefers-reduced-motion: reduce)');
 
-  /* ---------- many into one: the scattered squares settle into one order as the section scrolls ---------- */
-  const many = document.querySelector('[data-many]');
-  if (many && !reduce.matches) {
-    let seed = 7;
-    const rnd = () => ((seed = (seed * 1664525 + 1013904223) % 4294967296) / 4294967296);
-    const sets = [...many.querySelectorAll('svg')].map((svg) => {
-      const [, , w, h] = svg.getAttribute('viewBox').split(' ').map(Number);
-      return [...svg.querySelectorAll('rect')].map((r) => {
-        const x = +r.getAttribute('x'), y = +r.getAttribute('y');
-        return { r, dx: rnd() * (w - 12) - x, dy: rnd() * (h - 12) - y, lag: rnd() * 0.25 };
+  /* ---------- tabs: one small helper for the feature list and the roles ---------- */
+  const tabset = (list, onPick) => {
+    if (!list) return null;
+    const tabs = [...list.querySelectorAll('[role="tab"]')];
+    const pick = (tab, focus) => {
+      tabs.forEach((t) => { const on = t === tab; t.setAttribute('aria-selected', String(on)); t.tabIndex = on ? 0 : -1; });
+      onPick(tab);
+      if (focus) tab.focus();
+    };
+    tabs.forEach((tab, i) => {
+      tab.addEventListener('click', () => pick(tab));
+      tab.addEventListener('keydown', (e) => {
+        // right-to-left: ArrowLeft moves forward; vertical lists also take up and down
+        const step = { ArrowLeft: 1, ArrowDown: 1, ArrowRight: -1, ArrowUp: -1, Home: -i, End: tabs.length - 1 - i }[e.key];
+        if (step == null) return;
+        e.preventDefault();
+        pick(tabs[(i + step + tabs.length) % tabs.length], true);
       });
     });
-    let ticking = false, visible = false;
-    const ease = (t) => 1 - Math.pow(1 - t, 3);
-    const draw = () => {
-      ticking = false;
-      const box = many.getBoundingClientRect();
-      const vh = innerHeight;
-      const p = Math.min(1, Math.max(0, (vh - box.top) / (vh * 0.75 + box.height * 0.2)));
-      for (const set of sets) for (const s of set) {
-        const t = ease(Math.min(1, Math.max(0, (p - s.lag) / (1 - s.lag))));
-        s.r.style.transform = t >= 1 ? '' : `translate(${(s.dx * (1 - t)).toFixed(1)}px, ${(s.dy * (1 - t)).toFixed(1)}px)`;
-      }
-    };
-    const onScroll = () => { if (visible && !ticking) { ticking = true; requestAnimationFrame(draw); } };
-    new IntersectionObserver(([e]) => { visible = e.isIntersecting; if (visible) onScroll(); }, { rootMargin: '20% 0px' }).observe(many);
-    addEventListener('scroll', onScroll, { passive: true });
-    addEventListener('resize', onScroll);
-    draw();
-  }
-
-  /* ---------- the live order path: trade switch ---------- */
-  const trades = {
-    kitchen: { item: 'مطبخ أكريليك مطفي بجزيرة وسطح كوارتز، 7.8 م', total: '48,300', vat: '6,300', half: '24,150', designer: 'المصمم', shop: 'ورشة المطابخ المتعاقدة' },
-    aluminium: { item: 'نوافذ وأبواب ألمنيوم بقطع حراري لفيلا، 14 فتحة', total: '62,100', vat: '8,100', half: '31,050', designer: 'مهندس التصميم', shop: 'مصنع الألمنيوم المتعاقد' },
-    furniture: { item: 'غرفة نوم بخزانة أبواب منزلقة، 4.2 م', total: '18,400', vat: '2,400', half: '9,200', designer: 'المصمم', shop: 'ورشة الأثاث المتعاقدة' },
+    return { tabs, pick };
   };
-  const path = document.querySelector('#path');
-  if (path) {
-    path.querySelectorAll('input[name="trade"]').forEach((input) => input.addEventListener('change', () => {
-      const t = trades[input.value];
-      if (!t) return;
-      path.querySelectorAll('[data-t]').forEach((el) => { if (t[el.dataset.t] != null) el.textContent = t[el.dataset.t]; });
-    }));
 
-    /* a stage opens its real screen beside the list (in its row on a phone) */
-    const frame = path.querySelector('.path__shot');
-    const frameImg = frame && frame.querySelector('img');
-    const caption = path.querySelector('.path__frame figcaption');
-    const rows = [...path.querySelectorAll('.stage__row')];
-    const fine = matchMedia('(hover: hover) and (pointer: fine)');
-    let current = rows[0];
-    let swap;
-    const select = (row) => {
-      if (row === current) return;
-      current = row;
-      rows.forEach((r) => r.setAttribute('aria-pressed', String(r === row)));
-      if (!frameImg) return;
-      caption.textContent = row.dataset.cap;
-      clearTimeout(swap);
-      const apply = () => { frameImg.src = row.dataset.shot; frameImg.style.objectPosition = row.dataset.pos; frame.classList.remove('is-swapping'); };
-      if (reduce.matches) { apply(); return; }
-      frame.classList.add('is-swapping');
-      swap = setTimeout(apply, 180);
-    };
-    let warmed = false;
-    const warm = () => { if (warmed) return; warmed = true; rows.forEach((r) => { new Image().src = r.dataset.shot; }); };
-    window.__opsPath = { rows, select, warm };
-    rows.forEach((row) => {
-      row.addEventListener('click', () => { warm(); select(row); if (window.__opsPin) window.__opsPin(rows.indexOf(row)); });
-      row.addEventListener('focus', () => { warm(); select(row); });
-      row.addEventListener('pointerenter', () => { if (fine.matches) { warm(); select(row); } });
-    });
-  }
+  /* ---------- stage control: each feature points at its part of the workflow editor ---------- */
+  const flow = document.querySelector('.flow');
+  const features = tabset(document.querySelector('.features'), (tab) => {
+    flow.dataset.focus = tab.dataset.focus;
+    if (window.gsap && !reduce.matches) {
+      const target = { stages: '.flow__add', owners: '.who i', gates: '.gate', sla: '.flow__alert' }[tab.dataset.focus];
+      gsap.fromTo(flow.querySelectorAll(target), { scale: 0.92 }, { scale: 1, duration: 0.5, ease: 'back.out(2)', stagger: 0.05 });
+    }
+  });
 
-  /* ---------- people: tabs switch the filmed screens ---------- */
-  const tablist = document.querySelector('.people__tabs');
+  /* ---------- roles: tabs switch the view (film or phone) and the lines ---------- */
   const films = [...document.querySelectorAll('[data-film-item]')];
   let filmInView = false;
   const playActive = () => films.forEach((f) => {
     const v = f.querySelector('video');
+    if (!v) return;
     if (!f.hidden && filmInView && !reduce.matches) { v.preload = 'auto'; v.play().catch(() => {}); } else v.pause();
   });
   if (films.length && 'IntersectionObserver' in window) {
-    new IntersectionObserver(([e]) => { filmInView = e.isIntersecting; playActive(); }, { threshold: 0.25 }).observe(document.querySelector('.film'));
+    new IntersectionObserver(([e]) => { filmInView = e.isIntersecting; playActive(); }, { threshold: 0.2 }).observe(document.querySelector('.roles__media'));
   }
-  if (tablist) {
-    const tabs = [...tablist.querySelectorAll('[role="tab"]')];
-    const panel = document.getElementById('panel-people');
-    const activate = (tab, focus) => {
-      tabs.forEach((t) => { const on = t === tab; t.setAttribute('aria-selected', String(on)); t.tabIndex = on ? 0 : -1; });
-      panel.setAttribute('aria-labelledby', tab.id);
-      const key = tab.dataset.film;
-      panel.querySelectorAll('[data-panel]').forEach((p) => { p.hidden = p.dataset.panel !== key; });
-      films.forEach((f) => { f.hidden = f.dataset.filmItem !== key; });
-      playActive();
-      if (window.gsap && !reduce.matches) {
-        const on = films.find((f) => !f.hidden);
-        gsap.fromTo(on, { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.6, ease: 'expo.out' });
-        gsap.fromTo(panel.querySelector('[data-panel]:not([hidden])').children, { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.5, stagger: 0.07, ease: 'expo.out' });
-      }
-      if (focus) tab.focus();
-    };
-    tabs.forEach((tab, i) => {
-      tab.addEventListener('click', () => activate(tab));
-      tab.addEventListener('keydown', (e) => {
-        // right-to-left: ArrowLeft moves forward
-        const step = { ArrowLeft: 1, ArrowRight: -1, Home: -i, End: tabs.length - 1 - i }[e.key];
-        if (step == null) return;
-        e.preventDefault();
-        activate(tabs[(i + step + tabs.length) % tabs.length], true);
-      });
-    });
-  }
+  const panel = document.getElementById('panel-roles');
+  tabset(document.querySelector('.roles__tabs'), (tab) => {
+    const key = tab.dataset.film;
+    panel.setAttribute('aria-labelledby', tab.id);
+    panel.querySelectorAll('[data-panel]').forEach((p) => { p.hidden = p.dataset.panel !== key; });
+    films.forEach((f) => { f.hidden = f.dataset.filmItem !== key; });
+    playActive();
+    if (window.gsap && !reduce.matches) {
+      gsap.fromTo(films.find((f) => !f.hidden), { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.6, ease: 'expo.out' });
+      gsap.fromTo(panel.querySelectorAll('[data-panel]:not([hidden]) li'), { opacity: 0, x: 16 }, { opacity: 1, x: 0, duration: 0.5, stagger: 0.07, ease: 'expo.out' });
+    }
+  });
+
+  /* ---------- the portal clip plays while it is on screen ---------- */
+  document.querySelectorAll('video[data-autoplay]').forEach((v) => {
+    if (!('IntersectionObserver' in window)) return;
+    new IntersectionObserver(([e]) => { if (e.isIntersecting && !reduce.matches) { v.preload = 'auto'; v.play().catch(() => {}); } else v.pause(); }, { threshold: 0.3 }).observe(v);
+  });
 
   /* ---------- GSAP: entrances, the hero window's choreography, the pinned order path, counters ---------- */
   const fmt = (n, d = 2) => n.toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d });
@@ -163,31 +110,28 @@
       if (!parts.length) return;
       gsap.from(parts, { y: 32, opacity: 0, duration: 0.9, stagger: 0.08, ease: 'expo.out', scrollTrigger: { trigger: sec, start: 'top 82%', once: true } });
     });
-    const board = document.querySelector('.board');
-    if (board) {
-      gsap.from(board.querySelectorAll('.tile'), { y: 28, opacity: 0, duration: 0.8, stagger: { each: 0.05, grid: 'auto', from: 'start' }, ease: 'expo.out', scrollTrigger: { trigger: board, start: 'top 80%', once: true } });
-      gsap.from(board.querySelectorAll('.tile__ui'), { xPercent: -8, duration: 1.4, stagger: 0.05, ease: 'expo.out', scrollTrigger: { trigger: board, start: 'top 80%', once: true } });
-      board.querySelectorAll('[data-count]').forEach((el) => {
-        const o = { v: 0 }, to = +el.dataset.count;
-        gsap.to(o, { v: to, duration: 1.6, ease: 'power3.out', onUpdate: () => { el.textContent = fmt(o.v); }, scrollTrigger: { trigger: el, start: 'top 90%', once: true } });
-      });
-      board.querySelectorAll('[data-meter]').forEach((el) => gsap.from(el, { scaleX: 0, duration: 1.6, ease: 'power3.out', scrollTrigger: { trigger: el, start: 'top 90%', once: true } }));
-      gsap.from(board.querySelectorAll('.ui-thread .ui-wa'), { y: 20, opacity: 0, stagger: 0.35, duration: 0.6, ease: 'expo.out', scrollTrigger: { trigger: '.tile--wa', start: 'top 85%', once: true } });
-    }
+    // counters and meters in the money tile
+    document.querySelectorAll('.tools [data-count]').forEach((el) => {
+      const o = { v: 0 }, to = +el.dataset.count;
+      gsap.to(o, { v: to, duration: 1.6, ease: 'power3.out', onUpdate: () => { el.textContent = fmt(o.v); }, scrollTrigger: { trigger: el, start: 'top 90%', once: true } });
+    });
+    document.querySelectorAll('.tools [data-meter]').forEach((el) => gsap.from(el, { scaleX: 0, duration: 1.6, ease: 'power3.out', scrollTrigger: { trigger: el, start: 'top 90%', once: true } }));
+    gsap.from('.phone--chat .ui-wa', { y: 18, opacity: 0, stagger: 0.3, duration: 0.6, ease: 'expo.out', scrollTrigger: { trigger: '.tool--wa', start: 'top 80%', once: true } });
+    gsap.from('.doc__sign svg path', { strokeDasharray: 600, strokeDashoffset: 600, duration: 1.6, ease: 'power2.inOut', scrollTrigger: { trigger: '.tool--sign', start: 'top 75%', once: true } });
 
-    // the order path holds still on wide screens while the stages pass, one screen per part of the order
+    // stage control holds still on wide screens while the four features take turns
     const mm = gsap.matchMedia();
     mm.add('(min-width: 1024px) and (min-height: 700px)', () => {
-      const body = document.querySelector('.path__body');
-      const P = window.__opsPath;
-      if (!body || !P) return;
-      const n = P.rows.length;
+      const body = document.querySelector('.control__body');
+      if (!body || !features) return;
+      const n = features.tabs.length;
       const st = ScrollTrigger.create({
-        trigger: body, start: 'top 8%', end: () => '+=' + Math.round(innerHeight * 2.2), pin: true, pinSpacing: true,
-        onUpdate: (self) => { const i = Math.min(n - 1, Math.floor(self.progress * n)); if (P.rows[i].getAttribute('aria-pressed') !== 'true') { P.warm(); P.select(P.rows[i]); } },
+        trigger: body, start: 'center center', end: () => '+=' + Math.round(innerHeight * 1.4), pin: true, pinSpacing: true,
+        onUpdate: (self) => { const t = features.tabs[Math.min(n - 1, Math.floor(self.progress * n))]; if (t.getAttribute('aria-selected') !== 'true') features.pick(t); },
       });
-      window.__opsPin = (i) => { const y = st.start + ((i + 0.5) / n) * (st.end - st.start); scrollTo({ top: y, behavior: 'smooth' }); };
-      return () => { window.__opsPin = null; };
+      const jump = (e) => { const i = features.tabs.indexOf(e.currentTarget); scrollTo({ top: st.start + ((i + 0.5) / n) * (st.end - st.start), behavior: 'smooth' }); };
+      features.tabs.forEach((t) => t.addEventListener('click', jump));
+      return () => features.tabs.forEach((t) => t.removeEventListener('click', jump));
     });
   };
   runMotion();

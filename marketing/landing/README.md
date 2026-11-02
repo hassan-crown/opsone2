@@ -30,10 +30,9 @@ then visit `http://localhost:8080`.
 | `config.js` | **The one place to wire the demo form** (see below). |
 | `assets/fonts/` | IBM Plex Sans Arabic 400/500/600/700 from the design system, with `OFL.txt`. |
 | `assets/brand/` | The OpsOne logo and mark, generated from the original geometry in `docs/design-system/source/components/src/logo.js` (not redrawn). |
-| `assets/ui/` | Real OpsOne screens taken from `docs/screenshots/` (showcase data), some cropped. |
-| `assets/photos/` | Three open-licence photographs with `credits.json`. |
-| `assets/video/` | Three muted loops recorded from the running showcase (WebM/VP8) with JPEG posters. |
-| `assets/vendor/` | GSAP 3.13.0 and ScrollTrigger 3.13.0, copied unchanged from cdnjs (GSAP's no-charge standard licence). |
+| `assets/photos/` | Four open-licence photographs with `credits.json`. |
+| `assets/video/` | Three muted loops recorded from the running showcase at 2× (2560×1600 / 780×1688, WebM/VP8) with JPEG posters. |
+| `assets/vendor/` | GSAP 3.13.0 and ScrollTrigger 3.13.0, copied unchanged from cdnjs (GSAP's no-charge standard licence); `LUCIDE-LICENSE.txt` for the icons, which are inlined in `index.html` as an SVG sprite (Lucide 0.475, the app's icon set). |
 
 ## Wiring the demo form (before launch)
 
@@ -125,25 +124,43 @@ product working rather than decorating it):
 - **Fuller close-ups.** The WhatsApp tile is a three-message thread; the commissions tile shows the salesperson, base, collected share,
   a meter, the amount due now and at full collection.
 
+## Section-by-section round (product owner review, 2026-11-02)
+
+The product owner's direction overrides the skill's house rules where they conflict: icons and graphical devices are wanted. The
+inspector runs with `--allow icon-cards` for the capability grid they asked for. Changes:
+
+- Hero kept.
+- **Benefits** («نظام واحد يدير معرضك كله»): eight short owner benefits with Lucide icons; no architecture talk; for all showrooms.
+- **One strong picture** (a customer trying faucets in a showroom, 2400px) beside four ordered steps with icons, replacing the moving squares.
+- **Stage control** («تحكّم في مراحل العمل»): a workflow editor rebuilt in HTML at native resolution: stages, a responsible person per
+  stage, target durations, gates (no sending to the workshop before the first payment, no closing before the last receipt), an overdue
+  alert. Four features take turns while the section is pinned on wide screens; clicking one jumps to it.
+- **Roles and permissions per branch**: manager, sales and technician tabs (owner dashboard clip, order clip, an HTML technician
+  phone with photos), a refund approval waiting for the branch manager, and a permission matrix scoped to a branch.
+- **Tools** («من عرض السعر إلى الفاتورة»): WhatsApp in a phone, a quote page with an electronic signature, a simplified tax invoice
+  with a QR mark (labelled «قيد الإطلاق»), a store product card, the portal clip in a phone, payments.
+- **Capability grid** with icons and one-line benefits replaces the old module list.
+- **Footer**: final call to action, normal-size logo, product / audience / contact columns, small credits.
+- Clips re-recorded at 2× (CSS zoom on a double-size viewport) so they are sharp; the old low-resolution screenshots were removed.
+
 ## Critique (last round)
 
 ```
-ROUND 5
+ROUND 7
 Seen in one second: «من المعاينة إلى التركيب» over a large, working OpsOne order window.
-Idea (one sentence): the slanted flag on the "1" of the OpsOne mark is the one motif (file tab, cut corners, bullets, the mark at the close),
-  and the page shows the product doing the job instead of describing it.
-Live thing: the order path (trade switch, real screen per stage, pinned on wide screens), plus the tabs that switch filmed screens.
-Layout words by section: hero=product window / trades=band split / one=diagram / path=pinned index with preview / people=split film /
-  modules=mosaic / demo=coupon / footer=mark
-Scores: design 8.5 · usability 8.5 · creativity 8.5 · content 8.5 → overall 8.5
-Caps applied: none (inspect 0 FAIL at 1440/768/390; lint 0; 3 photographs, 8 product screens, 3 product clips; live thing present).
-Remaining problems (most visible first):
-1. The showroom and home pictures are generic open-licence pictures from outside Saudi Arabia; a pilot customer's own showroom,
-   finished projects and installation days would lift the «لمعارض البيع حسب الطلب» band most.
-2. The clips are WebM/VP8 only (no H.264 encoder was available); older Safari and iOS show the poster instead of the loop.
-3. The online store is not filmed: the showcase store has letter placeholders instead of product photographs.
-Inspector warnings defended: «ragged-edges» and «off-centre» measure left edges; this page is right-to-left and the 55px left edge
-  is the inner padding of right-aligned tile captions. Both outer margins are equal (35px at 1440).
+Idea: the slanted flag of the "1" in the mark is the motif (file tab, cut corners of pictures, clips and buttons), and the page shows
+  the product doing the showroom's work.
+Live things: the stage-control features (pinned, switch on scroll or click), the roles tabs with real clips, the order choreography in the hero.
+Layout words by section: hero=product window / benefits=icon grid / journey=picture split / control=pinned editor / roles=tabs+film+matrix /
+  tools=mosaic of mock-ups / capabilities=icon grid / demo=coupon / footer=columns
+Scores: design 8.5 · usability 8.5 · creativity 8 · content 8.5 → overall 8.4
+Caps applied: none (inspect 0 FAIL at 1440/768/390 with --allow icon-cards per the product owner; lint 0).
+Remaining problems:
+1. The pictures are open-licence pictures from outside Saudi Arabia; a pilot customer's showroom and installations would be stronger.
+2. Two icon grids (benefits, capabilities) on one page; they differ in treatment but a stricter designer would keep one.
+3. The QR on the invoice mock-up is a drawn mark, not a scannable ZATCA code, and e-invoicing is still «قيد الإطلاق».
+4. Clips are WebM/VP8 only; older Safari shows the poster.
+Inspector warning defended: «off-centre» measures left edges; on this right-to-left page those are the ends of right-aligned lines.
 ```
 
 Earlier rounds (1–3, before the redesign) fixed: the demo heading wrapping to three lines at 768; the hero button below the first screen; amounts
@@ -152,17 +169,18 @@ a stage preview too small to read on tablet.
 
 ## Pictures and credits
 
-Credited in the footer at body size.
+Credited in the footer.
 
-- `assets/photos/showroom-kitchen.jpg`: “Interior of FAURA showroom, Westminster, London 02” by Fauraglobal, CC BY 4.0, via Wikimedia
-  Commons. https://commons.wikimedia.org/wiki/File:Interior_of_FAURA_showroom,_Westminster,_London_02.jpg
+- `assets/photos/showroom-customer.jpg`: “Man tests kitchen faucet at home improvement store in modern showroom setting” by Shixart1985,
+  CC BY 2.0, via Wikimedia Commons (resized). https://commons.wikimedia.org/wiki/File:Man_tests_kitchen_faucet_at_home_improvement_store_in_modern_showroom_setting.jpg
 - `assets/photos/home-kitchen-windows.jpg`: “Modern kitchen and dining area with stylish furnishings and natural light in a contemporary
   home setting” by Shixart1985, CC BY 2.0, via Wikimedia Commons (resized).
   https://commons.wikimedia.org/wiki/File:Modern_kitchen_and_dining_area_with_stylish_furnishings_and_natural_light_in_a_contemporary_home_setting.jpg
 - `assets/photos/kitchen-cabinet-installation.jpg`: “Kitchen cabinet installation” by Akpeski, CC BY-SA 4.0, via Wikimedia Commons.
   https://commons.wikimedia.org/wiki/File:Kitchen_cabinet_installation.jpg
-
-The workshop photograph and the aluminium section drawing were removed after the positioning correction.
+- `assets/photos/store-faucet.jpg`: “Kitchen Faucet 1” by Stilfehler, CC0, via Wikimedia Commons (resized).
+  https://commons.wikimedia.org/wiki/File:Kitchen_Faucet_1.jpg
+- Icons: Lucide (ISC).
 
 Product clips in `assets/video/` are OpsOne itself, recorded from the showcase dataset (no credit needed).
 
@@ -172,6 +190,10 @@ badges and values. The signature in the e-signature tile is drawn in SVG. No bun
 
 ## Sample content to confirm before launch
 
+- Stage editor: stage names, responsible roles, durations (يومان، 3 أيام، يوم، 21 يومًا), the two gates and the overdue alert.
+- Roles: the refund request 2,700.00 ر.س and the permission matrix (which role may do what) must match the real role setup.
+- Tools: the quote QUO-2026-00070 (from the showcase PDF), the invoice INV-2026-01187 amounts, the faucet price 1,150.00 ر.س.
+- Footer: contact details (email, phone, WhatsApp, address) are missing and needed from the product owner.
 - Hero window tasks for the outsourced stage: «إرسال أمر التصنيع للورشة» (المشتريات), «تأكيد موعد الجاهزية 6 نوفمبر» (الورشة المتعاقدة),
   «استلام البنود من الورشة» (المستودع); executors per trade: ورشة المطابخ المتعاقدة، مصنع الألمنيوم المتعاقد، ورشة الأثاث المتعاقدة.
 - Example orders and splits: مطبخ 42,000 + 6,300 ضريبة = 48,300 ر.س (50/50 → 24,150)؛ ألمنيوم 54,000 + 8,100 = 62,100
