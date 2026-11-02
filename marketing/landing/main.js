@@ -36,9 +36,9 @@
 
   /* ---------- the live order path: trade switch ---------- */
   const trades = {
-    kitchen: { item: 'مطبخ أكريليك مطفي بجزيرة وسطح كوارتز، 7.8 م', total: '48,300', vat: '6,300', half: '24,150', designer: 'المصمم', shop: 'ورشة النجارة' },
-    aluminium: { item: 'نوافذ وأبواب ألمنيوم بقطع حراري لفيلا، 14 فتحة', total: '62,100', vat: '8,100', half: '31,050', designer: 'مهندس التصميم', shop: 'ورشة القص والتجميع' },
-    wardrobe: { item: 'خزانة ملابس بأبواب منزلقة وغرفة تبديل، 4.2 م', total: '18,400', vat: '2,400', half: '9,200', designer: 'المصمم', shop: 'ورشة النجارة' },
+    kitchen: { item: 'مطبخ أكريليك مطفي بجزيرة وسطح كوارتز، 7.8 م', total: '48,300', vat: '6,300', half: '24,150', designer: 'المصمم', shop: 'ورشة المطابخ المتعاقدة' },
+    aluminium: { item: 'نوافذ وأبواب ألمنيوم بقطع حراري لفيلا، 14 فتحة', total: '62,100', vat: '8,100', half: '31,050', designer: 'مهندس التصميم', shop: 'مصنع الألمنيوم المتعاقد' },
+    furniture: { item: 'غرفة نوم بخزانة أبواب منزلقة، 4.2 م', total: '18,400', vat: '2,400', half: '9,200', designer: 'المصمم', shop: 'ورشة الأثاث المتعاقدة' },
   };
   const path = document.querySelector('#path');
   if (path) {

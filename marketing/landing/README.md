@@ -1,7 +1,13 @@
 # OpsOne landing page
 
-A self-contained static page (HTML, CSS, JS; no build step; fonts and pictures local) that sells OpsOne to owners
-and managers of Saudi businesses that make to order and install. Arabic only, right to left. One action: request a demo.
+A self-contained static page (HTML, CSS, JS; no build step; fonts and pictures local) that sells OpsOne to owners and
+managers of Saudi **retailers and showrooms** that sell custom and ready products (kitchens, aluminium, furniture,
+accessories). Arabic only, right to left. One action: request a demo.
+
+**Positioning (product owner, 2026-11-02):** OpsOne is for the retailer, not the workshop. Most retailers outsource
+manufacturing; OpsOne tracks the order around it (sending to the workshop, the expected date, receiving), the customer, the
+payments, delivery and installation. A retailer that owns a workshop can add its own manufacturing stages and a responsible
+person per stage without code; the page presents that as an option, not the core.
 The folder choice is recorded in `docs/decisions/0034-marketing-landing-folder.md`.
 
 ## Open it locally
@@ -72,7 +78,7 @@ on the display size so Arabic marks are not clipped, one family (IBM Plex Sans A
 6. One isolated instance per facility.
 7. Customer portal: phone number and a 6-digit code; approve design, e-sign quote and contract, pay.
 8. WhatsApp notifications to the customer at each stage.
-9. Executors and their tools: فني القياس، المصمم، المبيعات، الورشة، فريق التركيب; the calendar flags clashes (تعارض).
+9. The people around an order: فني القياس، المصمم، المبيعات، الورشة المتعاقدة، فريق التركيب; the calendar flags clashes (تعارض).
 10. Showroom, branches (الرياض، جدة، الدمام), online store for ready products.
 11. Commission on the pre-VAT amount, in proportion to what is collected.
 12. Arabic first, right to left; English available in the app.
@@ -80,7 +86,7 @@ on the display size so Arabic marks are not clipped, one family (IBM Plex Sans A
 ### Argument
 
 1. One Arabic system for businesses that make to order and install. → h1 and the real order screen in the front folder.
-2. Built for this trade. → trade photographs and four product facts.
+2. Built for showrooms that sell custom and ready products and usually outsource manufacturing. → showroom and in-home pictures, product facts, the own-workshop option.
 3. Today an order is scattered across paper, WhatsApp and notebooks; here it is one file. → the many-into-one diagram.
 4. The path from معاينة to تسليم, who does what and what the customer gets. → the live order path.
 5. Each person sees their part: team, customer, owner. → three real screens in tabs.
@@ -92,7 +98,7 @@ on the display size so Arabic marks are not clipped, one family (IBM Plex Sans A
 On this page, **the slanted flag on the "1" of the OpsOne mark** becomes **the one motif**: the hero's folder tabs, the cut
 corner of every button, picture and plate, the bullets, the active-row marker, and the mark built large at the close.
 
-Live thing: the order path. Choose a trade (مطابخ، ألمنيوم، خزائن وأبواب) and the example order, executors and amounts
+Live thing: the order path. Choose a trade (مطابخ، ألمنيوم، أثاث) and the example order, executors and amounts
 (with VAT) are rewritten; choose a stage and the real OpsOne screen for it opens beside the list (inside the row on a phone or
 tablet). Without JavaScript the kitchen example and the first screen show.
 
@@ -132,8 +138,8 @@ Layout words by section: hero=product window / trades=band split / one=diagram /
 Scores: design 8.5 · usability 8.5 · creativity 8.5 · content 8.5 → overall 8.5
 Caps applied: none (inspect 0 FAIL at 1440/768/390; lint 0; 3 photographs, 8 product screens, 3 product clips; live thing present).
 Remaining problems (most visible first):
-1. The trade photographs are generic open-licence pictures from outside Saudi Arabia; a pilot customer's own workshop and installation
-   footage would lift the «لمن صُمّم» band most.
+1. The showroom and home pictures are generic open-licence pictures from outside Saudi Arabia; a pilot customer's own showroom,
+   finished projects and installation days would lift the «لمعارض البيع حسب الطلب» band most.
 2. The clips are WebM/VP8 only (no H.264 encoder was available); older Safari and iOS show the poster instead of the loop.
 3. The online store is not filmed: the showcase store has letter placeholders instead of product photographs.
 Inspector warnings defended: «ragged-edges» and «off-centre» measure left edges; this page is right-to-left and the 55px left edge
@@ -148,12 +154,15 @@ a stage preview too small to read on tablet.
 
 Credited in the footer at body size.
 
-- `assets/photos/carpentry-workshop-full-of-machines-and-wood.jpg`: “Carpentry workshop full of machines and wood” by Shixart1985,
-  CC BY 2.0, via Wikimedia Commons. https://commons.wikimedia.org/wiki/File:Carpentry_workshop_full_of_machines_and_wood.jpg
-- `assets/photos/aluminium-window-detail.jpg`: “Aluminium window detail” by ProfDEH, CC BY-SA 3.0, via Wikimedia Commons
-  (converted from PNG to JPEG and resized, otherwise unaltered). https://commons.wikimedia.org/wiki/File:Aluminium_window_detail.png
+- `assets/photos/showroom-kitchen.jpg`: “Interior of FAURA showroom, Westminster, London 02” by Fauraglobal, CC BY 4.0, via Wikimedia
+  Commons. https://commons.wikimedia.org/wiki/File:Interior_of_FAURA_showroom,_Westminster,_London_02.jpg
+- `assets/photos/home-kitchen-windows.jpg`: “Modern kitchen and dining area with stylish furnishings and natural light in a contemporary
+  home setting” by Shixart1985, CC BY 2.0, via Wikimedia Commons (resized).
+  https://commons.wikimedia.org/wiki/File:Modern_kitchen_and_dining_area_with_stylish_furnishings_and_natural_light_in_a_contemporary_home_setting.jpg
 - `assets/photos/kitchen-cabinet-installation.jpg`: “Kitchen cabinet installation” by Akpeski, CC BY-SA 4.0, via Wikimedia Commons.
   https://commons.wikimedia.org/wiki/File:Kitchen_cabinet_installation.jpg
+
+The workshop photograph and the aluminium section drawing were removed after the positioning correction.
 
 Product clips in `assets/video/` are OpsOne itself, recorded from the showcase dataset (no credit needed).
 
@@ -163,8 +172,10 @@ badges and values. The signature in the e-signature tile is drawn in SVG. No bun
 
 ## Sample content to confirm before launch
 
+- Hero window tasks for the outsourced stage: «إرسال أمر التصنيع للورشة» (المشتريات), «تأكيد موعد الجاهزية 6 نوفمبر» (الورشة المتعاقدة),
+  «استلام البنود من الورشة» (المستودع); executors per trade: ورشة المطابخ المتعاقدة، مصنع الألمنيوم المتعاقد، ورشة الأثاث المتعاقدة.
 - Example orders and splits: مطبخ 42,000 + 6,300 ضريبة = 48,300 ر.س (50/50 → 24,150)؛ ألمنيوم 54,000 + 8,100 = 62,100
-  (→ 31,050)؛ خزائن 16,000 + 2,400 = 18,400 (→ 9,200). Item descriptions and executor names per trade.
+  (→ 31,050)؛ أثاث (غرفة نوم بخزانة أبواب منزلقة) 16,000 + 2,400 = 18,400 (→ 9,200). Item descriptions and executor names per trade.
 - Commission example 2.5% on 42,000 = 1,050.00 ر.س, half collected = 525.00 (the basis follows the P6 default, which is
   still awaiting product-owner confirmation).
 - WhatsApp message text, OTP digits, stock example (ألواح MDF 18 مم، 12، حد الطلب 20), store item (مقبض ستانلس 160 مم، 35.00 ر.س).
@@ -177,7 +188,8 @@ badges and values. The signature in the e-signature tile is drawn in SVG. No bun
 
 ## What would raise the page further (needs the product owner)
 
-1. **Real footage and photographs from a pilot customer** (workshop, cutting, assembly, an installation day, a showroom), 10–20 s
+1. **Real footage and photographs from a pilot customer** (their showroom, a customer choosing finishes, finished kitchens and installed
+   aluminium windows and doors in homes, an installation day), 10–20 s
    horizontal clips and a few stills shot on a phone at 4K, with written permission to publish. They replace the Commons photographs
    and give the band «لمن صُمّم» the customer's own world.
 2. **A full ffmpeg** on the build machine (`brew install ffmpeg`) to add H.264 MP4 versions of the clips for older Safari/iOS and
