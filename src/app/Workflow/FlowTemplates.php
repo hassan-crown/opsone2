@@ -55,7 +55,7 @@ final class FlowTemplates
                     self::action('quote_approval', 'customer_approval', inputs: ['subject' => 'quote'], name: ['ar' => 'موافقة العميل على العرض', 'en' => 'Customer approves the quote']),
                     self::action('contract', 'prepare_document', requirement: 'optional', inputs: ['document' => 'contract'], name: ['ar' => 'إعداد العقد', 'en' => 'Prepare the contract']),
                     self::action('contract_approval', 'customer_approval', requirement: 'optional', inputs: ['subject' => 'contract'], name: ['ar' => 'موافقة العميل على العقد', 'en' => 'Customer approves the contract']),
-                    self::action('first_payment', 'payment_check', inputs: ['reference' => 'first', 'basis' => 'percent', 'value' => 50], name: ['ar' => 'الدفعة الأولى', 'en' => 'First payment']),
+                    self::action('first_payment', 'payment_check', inputs: ['reference' => 'first', 'basis' => 'due', 'value' => null], name: ['ar' => 'الدفعة الأولى', 'en' => 'First payment']),
                 ]),
                 self::stage('manufacture', 'التصنيع', 'Manufacturing', 'التصنيع', 'Manufacturing', 21, [
                     self::action('materials', 'supply_follow_up', requirement: 'optional', inputs: ['reference' => 'materials'], name: ['ar' => 'خامات الطلب', 'en' => 'Order materials']),
@@ -65,7 +65,7 @@ final class FlowTemplates
                 self::stage('install', 'التركيب والتسليم', 'Installation and delivery', 'التركيب والتسليم', 'Installation and delivery', 3, [
                     self::action('tax_invoice', 'required_document', requirement: 'optional', inputs: ['document_type' => 'tax_invoice', 'review_required' => false], name: ['ar' => 'الفاتورة الضريبية', 'en' => 'Tax invoice']),
                     self::action('installation', 'work_task', inputs: ['label' => ['ar' => 'التركيب', 'en' => 'Installation'], 'requires_attachment' => false], name: ['ar' => 'التركيب', 'en' => 'Installation']),
-                    self::action('final_payment', 'payment_check', inputs: ['reference' => 'final', 'basis' => 'remaining', 'value' => null], name: ['ar' => 'الدفعة الأخيرة', 'en' => 'Final payment']),
+                    self::action('final_payment', 'payment_check', inputs: ['reference' => 'final', 'basis' => 'due', 'value' => null], name: ['ar' => 'الدفعة الأخيرة', 'en' => 'Final payment']),
                     self::action('delivery', 'record_delivery', name: ['ar' => 'تسليم البنود', 'en' => 'Deliver the items']),
                 ]),
             ]],
@@ -74,13 +74,13 @@ final class FlowTemplates
                     self::action('needs', 'capture_needs'),
                     self::action('quote', 'prepare_document', inputs: ['document' => 'quote'], name: ['ar' => 'إعداد عرض السعر', 'en' => 'Prepare the quote']),
                     self::action('quote_approval', 'customer_approval', inputs: ['subject' => 'quote'], name: ['ar' => 'موافقة العميل على العرض', 'en' => 'Customer approves the quote']),
-                    self::action('first_payment', 'payment_check', inputs: ['reference' => 'first', 'basis' => 'percent', 'value' => 50], name: ['ar' => 'الدفعة الأولى', 'en' => 'First payment']),
+                    self::action('first_payment', 'payment_check', inputs: ['reference' => 'first', 'basis' => 'due', 'value' => null], name: ['ar' => 'الدفعة الأولى', 'en' => 'First payment']),
                 ]),
                 self::stage('execution', 'التنفيذ', 'Execution', 'التنفيذ', 'Execution', 14, [
                     self::action('execution', 'work_task', inputs: ['label' => ['ar' => 'التنفيذ', 'en' => 'Execution'], 'requires_attachment' => false], name: ['ar' => 'التنفيذ', 'en' => 'Execution']),
                 ]),
                 self::stage('delivery', 'التسليم', 'Delivery', 'التسليم', 'Delivery', 3, [
-                    self::action('final_payment', 'payment_check', inputs: ['reference' => 'final', 'basis' => 'remaining', 'value' => null], name: ['ar' => 'الدفعة الأخيرة', 'en' => 'Final payment']),
+                    self::action('final_payment', 'payment_check', inputs: ['reference' => 'final', 'basis' => 'due', 'value' => null], name: ['ar' => 'الدفعة الأخيرة', 'en' => 'Final payment']),
                     self::action('delivery', 'record_delivery', name: ['ar' => 'تسليم البنود', 'en' => 'Deliver the items']),
                 ]),
             ]],

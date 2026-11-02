@@ -16,6 +16,9 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $reminder_from HH:MM
  * @property string $reminder_until HH:MM
  * @property string $conflicting_appointments allow_with_reason | block
+ * @property list<string>|null $holidays `Y-m-d` days off on top of the weekly rest days (ADR-0037)
+ * @property array{enabled?: bool, default?: int, by_type?: array<string, int>}|null $task_sla working days per action type
+ * @property int $task_escalate_after_days working days late before a task is escalated
  * @property int|null $updated_by
  */
 class WorkSettings extends Model
@@ -36,6 +39,8 @@ class WorkSettings extends Model
     ];
 
     protected $guarded = ['id'];
+
+    protected $attributes = ['task_escalate_after_days' => 1];
 
     public static function current(): self
     {
@@ -66,6 +71,9 @@ class WorkSettings extends Model
     {
         return [
             'working_days' => 'array',
+            'holidays' => 'array',
+            'task_sla' => 'array',
+            'task_escalate_after_days' => 'integer',
             'appointment_slot_minutes' => 'integer',
         ];
     }

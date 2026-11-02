@@ -13,6 +13,7 @@ use App\Models\Customer;
 use App\Models\CustomerMessage;
 use App\Models\Facility;
 use App\Models\Order;
+use App\Models\ReminderSettings;
 use App\Models\WorkSettings;
 use Carbon\CarbonInterface;
 use Illuminate\Support\Facades\URL;
@@ -20,8 +21,8 @@ use Throwable;
 
 /**
  * Turns domain changes into customer notifications (ADR-0030): measurement/installation booked, quote or design ready,
- * order completed (with the link to leave feedback in the customer's workspace) and, from the scheduler, the 24-hour
- * reminders. Reacting to the saved models keeps the workflow actions untouched; a failure here is reported and never
+ * order completed (with the link to leave feedback in the customer's workspace) and, from the scheduler, the
+ * appointment reminders. Reacting to the saved models keeps the workflow actions untouched; a failure here is reported and never
  * undoes the business change. The messages themselves are idempotent (see CustomerMessenger).
  */
 final class CustomerEvents
@@ -31,8 +32,6 @@ final class CustomerEvents
         'measurement' => [WhatsAppEvent::MeasurementBooked, WhatsAppEvent::MeasurementReminder],
         'installation' => [WhatsAppEvent::InstallationScheduled, WhatsAppEvent::InstallationReminder],
     ];
-
-    public const REMINDER_HOURS = 24;
 
     public static function appointmentSaved(Appointment $appointment): void
     {
@@ -96,8 +95,9 @@ final class CustomerEvents
     }
 
     /**
-     * The scheduler's run: 24-hour reminders for confirmed measurements and installations, only inside the
-     * facility's reminder hours. Returns how many were queued.
+     * The scheduler's run: reminders for confirmed measurements and installations starting within the facility's
+     * lead time (ReminderSettings::appointment_hours, 24 by default, ADR-0037), only inside the reminder hours.
+     * Returns how many were queued.
      */
     public static function remindDue(CarbonInterface $now): int
     {
@@ -110,7 +110,7 @@ final class CustomerEvents
             ->whereIn('kind', array_keys(self::APPOINTMENTS))
             ->where('status', AppointmentStatus::Confirmed->value)
             ->where('starts_at', '>', $now)
-            ->where('starts_at', '<=', $now->copy()->addHours(self::REMINDER_HOURS))
+            ->where('starts_at', '<=', $now->copy()->addHours(ReminderSettings::current()->appointment_hours))
             ->with('order.customer')
             ->get();
 

@@ -3,6 +3,7 @@
 namespace App\Whatsapp;
 
 use App\Enums\ContactChannel;
+use App\Messages\MessageTemplates;
 use App\Models\Customer;
 use App\Models\CustomerMessage;
 use App\Models\Facility;
@@ -39,7 +40,7 @@ final class CustomerMessenger
 
         $locale = self::locale($customer);
         $params = ['name' => $customer->name, 'facility' => self::facilityName($locale), ...$params];
-        $body = $smsText ?? __($event->textKey(), $params, $locale);
+        $body = $smsText ?? MessageTemplates::body('customer.'.$event->value, 'sms', $locale, $params, $event->textKey());
         $whatsapp = $this->usesWhatsApp($customer, $event);
 
         try {

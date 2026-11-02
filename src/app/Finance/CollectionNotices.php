@@ -4,13 +4,21 @@ namespace App\Finance;
 
 use App\Access\Access;
 use App\Access\Permission;
+use App\Enums\MembershipStatus;
+use App\Messages\MessageCatalogue;
+use App\Messages\MessageTemplates;
 use App\Models\Customer;
 use App\Models\Facility;
 use App\Models\Finance\OrderDue;
 use App\Models\Finance\PaymentProof;
 use App\Models\Finance\Receipt;
+use App\Models\Membership;
+use App\Models\MembershipRole;
 use App\Models\Order;
+use App\Models\ReminderSettings;
+use App\Models\RoleTemplate;
 use App\Models\User;
+use App\Models\UserNotification;
 use App\Money\Money;
 use App\Notifications\NotificationCatalogue;
 use App\Notifications\Notifier;
@@ -32,6 +40,8 @@ final class CollectionNotices
 
     public const LATE_GATEWAY_RESULT = 'finance.late_gateway_result';
 
+    public const DUE_ESCALATED = 'finance.due_escalated';
+
     public function __construct(
         private readonly Outbox $outbox,
         private readonly Notifier $notifier,
@@ -40,7 +50,7 @@ final class CollectionNotices
 
     public static function define(): void
     {
-        foreach ([self::RECEIPT_RECORDED, self::PROOF_SUBMITTED, self::LATE_GATEWAY_RESULT] as $type) {
+        foreach ([self::RECEIPT_RECORDED, self::PROOF_SUBMITTED, self::LATE_GATEWAY_RESULT, self::DUE_ESCALATED] as $type) {
             $slug = str_replace('.', '_', $type);
             NotificationCatalogue::define($type, [
                 'mandatory' => false,
@@ -93,13 +103,45 @@ final class CollectionNotices
     }
 
     /**
-     * @param  'soon'|'overdue'  $kind
+     * @param  'soon'|'today'|'overdue'  $kind
      */
     public function dueReminder(OrderDue $due, Order $order, Money $remaining, string $kind, string $period): bool
     {
         return $this->toCustomer($order->customer, "finance.message.due_{$kind}", [
             'order' => $order->number, 'amount' => $remaining->toInput(), 'due' => (string) $due->name->get(self::locale($order->customer)),
         ], "due:{$due->id}:{$kind}:{$period}", WhatsAppEvent::PaymentDue, $order);
+    }
+
+    /**
+     * An overdue due past the policy's escalation days (ADR-0037): an in-app notice (and its mail) to the order's
+     * responsible person or the active members holding the role, each only when they may see the order's money.
+     * Once per due and due date.
+     */
+    public function dueEscalated(OrderDue $due, Order $order, Money $remaining, string $to, string $dueOn): int
+    {
+        $params = ['order' => $order->number, 'amount' => $remaining->toInput(), 'due' => (string) $due->name->get(), 'date' => $dueOn];
+        $sent = 0;
+        foreach (self::escalationTargets($order, $to) as $user) {
+            $sent += (int) ($this->toStaffNotice($user, self::DUE_ESCALATED, $params, $order, "due:{$due->id}:escalated:{$dueOn}") !== null);
+        }
+
+        return $sent;
+    }
+
+    /**
+     * @return list<User>
+     */
+    public static function escalationTargets(Order $order, string $to): array
+    {
+        if ($to === ReminderSettings::ORDER_ASSIGNEE) {
+            $assignee = $order->loadMissing('assignee')->assignee;
+
+            return $assignee === null ? [] : [$assignee];
+        }
+
+        return array_values(User::query()->whereIn('id', Membership::query()->where('status', MembershipStatus::Active->value)
+            ->whereIn('id', MembershipRole::query()->whereIn('role_template_id', RoleTemplate::query()->where('key', $to)->select('id'))->select('membership_id'))
+            ->select('user_id'))->orderBy('id')->get()->all());
     }
 
     /**
@@ -110,9 +152,15 @@ final class CollectionNotices
      */
     private function toStaff(User $user, string $type, array $params, Order $order, string $key): void
     {
-        if (Access::can($user, Permission::P37, $order)) {
-            $this->notifier->send($user, $type, $params, $order, $key);
-        }
+        $this->toStaffNotice($user, $type, $params, $order, $key);
+    }
+
+    /**
+     * @param  array<string, string>  $params
+     */
+    private function toStaffNotice(User $user, string $type, array $params, Order $order, string $key): ?UserNotification
+    {
+        return Access::can($user, Permission::P37, $order) ? $this->notifier->send($user, $type, $params, $order, $key) : null;
     }
 
     /**
@@ -121,13 +169,17 @@ final class CollectionNotices
     private function toCustomer(Customer $customer, string $key, array $params, string $idempotency, ?WhatsAppEvent $event = null, ?Order $order = null): bool
     {
         $locale = self::locale($customer);
-        $text = __($key, $params, $locale);
+        $wording = MessageCatalogue::forFinanceKey($key);
+        $params = [...$params, 'facility' => self::facilityName($locale)];
+        $text = MessageTemplates::body($wording, 'sms', $locale, $params, $key);
         // Receipts and due reminders ride the customer's channel (WhatsApp, SMS as the fallback); the other notices stay SMS.
         $sent = $event === null
             ? $this->outbox->enqueueSms($customer->mobile, $text, "{$idempotency}:sms") !== null
             : $this->messenger->send($customer, $event, $this->whatsappParams($event, $params, $order), $idempotency, $order, $text) !== null;
         if ($customer->email !== null && $customer->email !== '') {
-            $sent = $this->outbox->enqueueMail($customer->email, __('finance.message.subject', ['facility' => self::facilityName($locale)], $locale), [$text], null, $locale, "{$idempotency}:mail") !== null || $sent;
+            $subject = MessageTemplates::subject($wording, 'mail', $locale, $params) ?? __('finance.message.subject', ['facility' => self::facilityName($locale)], $locale);
+            $mail = MessageTemplates::find($wording, 'mail', $locale) === null ? $text : MessageTemplates::body($wording, 'mail', $locale, $params, $key);
+            $sent = $this->outbox->enqueueMail($customer->email, $subject, [$mail], null, $locale, "{$idempotency}:mail") !== null || $sent;
         }
 
         return $sent;

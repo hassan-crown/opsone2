@@ -10,6 +10,7 @@ use App\Audit\AuditAction;
 use App\Enums\DueStatus;
 use App\Models\Finance\OrderDue;
 use App\Models\Order;
+use App\Models\ReminderSettings;
 use App\Models\User;
 use App\Models\WorkSettings;
 use App\Money\Money;
@@ -19,19 +20,51 @@ use Carbon\CarbonImmutable;
 use Carbon\CarbonInterface;
 
 /**
- * Collection reminders to customers (FIN-11, SHR-06), through the outbox: automatic ones on the scheduler — «due soon»
- * (within 2 days, once per due date) and «overdue» (once a week) — only inside the facility's reminder hours, and the
- * bulk reminder a P-37 holder previews and sends (FinReminder). The amount is re-read at send time; the part held by
- * an open dispute is never reminded (DisputedAmounts, 6c) and a due of a closed order is not chased by the scheduler.
+ * Collection reminders to customers (FIN-11, SHR-06), through the outbox: automatic ones on the scheduler, following
+ * the facility's policy (ReminderSettings, ADR-0037) — «due soon» N days before, on the due date, then «overdue» at
+ * a fixed interval after the due's grace days, at most `max_after` times — and an escalation to staff after N overdue
+ * days; only inside the facility's reminder hours. Plus the bulk reminder a P-37 holder previews and sends
+ * (FinReminder). The amount is re-read at send time; the part held by an open dispute is never reminded
+ * (DisputedAmounts, 6c) and a due of a closed order is not chased by the scheduler. Every message key carries the due,
+ * its date and the step, so a run repeated in the same hour or day sends nothing twice.
  */
 final class CollectionReminders
 {
-    public const SOON_DAYS = 2;
-
     public function __construct(
         private readonly CollectionNotices $notices,
         private readonly DisputedAmounts $disputes,
     ) {}
+
+    /**
+     * Which customer reminder the policy asks for today, or null: `['soon', step]`, `['today', 0]`, `['overdue', n]`.
+     *
+     * @return array{0: 'soon'|'today'|'overdue', 1: int}|null
+     */
+    public static function step(ReminderSettings $policy, string $dueOn, int $graceDays, string $today): ?array
+    {
+        $daysBefore = (int) CarbonImmutable::parse($today)->diffInDays(CarbonImmutable::parse($dueOn), false);
+        if ($daysBefore > 0) {
+            $steps = array_filter($policy->before_days, fn (int $d) => $d >= $daysBefore);
+
+            return $steps === [] ? null : ['soon', min($steps)];
+        }
+        if ($daysBefore === 0) {
+            return $policy->on_due ? ['today', 0] : null;
+        }
+        $late = self::daysLate($dueOn, $graceDays, $today);
+        if ($late < 1) {
+            return null;
+        }
+        $n = intdiv($late - 1, max(1, $policy->after_every_days)) + 1;
+
+        return $n <= $policy->max_after ? ['overdue', $n] : null;
+    }
+
+    /** Days past the due date and its grace days (0 while inside them). */
+    public static function daysLate(string $dueOn, int $graceDays, string $today): int
+    {
+        return max(0, (int) CarbonImmutable::parse($dueOn)->addDays($graceDays)->diffInDays(CarbonImmutable::parse($today), false));
+    }
 
     /**
      * The scheduler's run. Returns how many reminders were queued.
@@ -42,10 +75,9 @@ final class CollectionReminders
             return 0;
         }
         $today = AppointmentBooking::today();
-        $soonUntil = CarbonImmutable::parse($today)->addDays(self::SOON_DAYS)->toDateString();
-        $week = CarbonImmutable::parse($today)->format('o-\WW');
+        $policy = ReminderSettings::current();
 
-        return LockingTransaction::run(function () use ($today, $soonUntil, $week) {
+        return LockingTransaction::run(function () use ($today, $policy) {
             $sent = 0;
             foreach (OpenDues::of(Order::query()) as $row) {
                 if ($row['due_on'] === null || $row['order']->state()->isFinal()) {
@@ -55,11 +87,14 @@ final class CollectionReminders
                 if ($remaining->isZero()) {
                     continue;
                 }
-                $sent += (int) match (true) {
-                    $row['due_on'] < $today => $this->notices->dueReminder($row['due'], $row['order'], $remaining, 'overdue', $week),
-                    $row['due_on'] <= $soonUntil => $this->notices->dueReminder($row['due'], $row['order'], $remaining, 'soon', $row['due_on']),
-                    default => false,
-                };
+                $grace = $row['due']->grace_days;
+                $step = self::step($policy, $row['due_on'], $grace, $today);
+                if ($step !== null) {
+                    $sent += (int) $this->notices->dueReminder($row['due'], $row['order'], $remaining, $step[0], "{$row['due_on']}:{$step[1]}");
+                }
+                if ($policy->escalate_after_days !== null && self::daysLate($row['due_on'], $grace, $today) >= $policy->escalate_after_days) {
+                    $this->notices->dueEscalated($row['due'], $row['order'], $remaining, (string) $policy->escalate_to, $row['due_on']);
+                }
             }
 
             return $sent;

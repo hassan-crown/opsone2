@@ -10,7 +10,6 @@ use App\Commissions\SaleOwnership;
 use App\Delivery\DeliveryProgress;
 use App\Enums\AppointmentStatus;
 use App\Enums\CustomOrderStatus;
-use App\Enums\DueBasis;
 use App\Enums\PurchaseStatus;
 use App\Enums\ReadyOrderStatus;
 use App\Enums\RefundStatus;
@@ -20,6 +19,7 @@ use App\Enums\TaskStatus;
 use App\Finance\Allocator;
 use App\Finance\MoneyLedger;
 use App\Finance\OrderSchedule;
+use App\Finance\Plans\PaymentPlans;
 use App\Inventory\MovementKind;
 use App\Inventory\OrderStock;
 use App\Inventory\Quantity;
@@ -366,14 +366,13 @@ final class CancellationImpact
     {
         $dues = Allocator::openDues($order->id);
         if ($dues->isEmpty()) {
-            $template = OrderSchedule::TEMPLATES[OrderSchedule::DEFAULT_TEMPLATE];
-            $rows = array_map(fn (array $r) => ['basis' => DueBasis::from($r['basis']), 'value' => $r['value']], $template);
-            $amounts = OrderSchedule::fit(OrderSchedule::amounts($rows, $value), $value);
+            $lines = PaymentPlans::pending($order->id)['lines'];
+            $amounts = OrderSchedule::preview($lines, $value);
 
-            return array_map(fn (array $r, int $amount) => [
-                'id' => null, 'reference' => $r['reference'], 'name' => $r['name'][app()->getLocale()] ?? $r['name']['ar'],
+            return array_map(fn (array $l, int $amount) => [
+                'id' => null, 'reference' => $l['key'], 'name' => $l['name'][app()->getLocale()] ?? $l['name']['ar'],
                 'amount_before_minor' => 0, 'amount_after_minor' => $amount,
-            ], $template, $amounts);
+            ], $lines, $amounts);
         }
         $amounts = OrderSchedule::fit(OrderSchedule::amounts(array_values($dues->map(fn (OrderDue $d) => ['basis' => $d->basis, 'value' => $d->basis_value])->all()), $value), $value);
 

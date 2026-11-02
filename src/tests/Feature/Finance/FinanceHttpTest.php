@@ -68,7 +68,8 @@ it('hides every amount from a viewer without P-37 (supervisor): statuses only, n
         ->and(finMinorKeys($payload))->toBe([])
         ->and($payload['dues'][0]['status'])->toBe('partially_paid')
         ->and($payload['payments'][0]['evidence'])->toBe([])
-        ->and($payload['can'])->toBe(['record' => false, 'review' => false, 'schedule' => false, 'allocate' => false]);
+        ->and($payload['can'])->toBe(['record' => false, 'review' => false, 'schedule' => false, 'allocate' => false, 'plan' => false])
+        ->and($payload['plans'])->toBe([]);
 });
 
 it('never puts money in an executor\'s task payload', function () {

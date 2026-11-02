@@ -16,8 +16,8 @@ use Tests\Support\Org;
 
 uses(RefreshDatabase::class);
 
-it('catalogues P-01..P-102 with bilingual labels, scopes and default roles', function () {
-    expect(Permission::cases())->toHaveCount(102)
+it('catalogues P-01..P-103 with bilingual labels, scopes and default roles', function () {
+    expect(Permission::cases())->toHaveCount(103)
         ->and(array_keys(PermissionCatalogue::DEFINITIONS))->toBe(array_map(fn (Permission $p) => $p->value, Permission::cases()));
 
     foreach (Permission::cases() as $permission) {

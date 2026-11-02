@@ -113,6 +113,10 @@ final class T01ConfirmDelivery
             }
 
             $complete = DeliveryProgress::complete($order);
+            if ($complete && ! DeliveryNote::query()->where('order_id', $order->id)->where('completes_order', true)->exists()) {
+                // The trigger `delivery.completed` of payment plans (ADR-0037) reads the first completing note.
+                $locked->forceFill(['completes_order' => true])->save();
+            }
             if ($order->isReady()) {
                 $to = collect(DeliveryProgress::lines($order))->every(fn (array $r) => $r['deliverable'] === 0) ? ReadyOrderStatus::Delivered : ReadyOrderStatus::PartiallyDelivered;
                 $order->forceFill(['status' => $to->value, 'lock_version' => $order->lock_version + 1])->save();

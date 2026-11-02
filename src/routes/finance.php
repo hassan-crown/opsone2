@@ -21,6 +21,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::middleware('throttle:records-create')->group(function () {
         Route::post('orders/{order}/finance/payments', [OrderFinanceController::class, 'recordPayment'])->whereNumber('order')->name('orders.finance.payments.store');
         Route::put('orders/{order}/finance/schedule', [OrderFinanceController::class, 'updateSchedule'])->whereNumber('order')->name('orders.finance.schedule');
+        Route::put('orders/{order}/finance/plan', [OrderFinanceController::class, 'choosePlan'])->whereNumber('order')->name('orders.finance.plan');
         Route::post('orders/{order}/finance/transfers', [OrderFinanceController::class, 'transferCredit'])->whereNumber('order')->name('orders.finance.transfers');
 
         Route::post('finance/payments/{payment}/allocation', [PaymentController::class, 'reallocate'])->whereNumber('payment')->name('finance.payments.allocation');

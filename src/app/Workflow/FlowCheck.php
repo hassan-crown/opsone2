@@ -237,7 +237,7 @@ final class FlowCheck
         $ok = match ($inputs['basis'] ?? null) {
             'amount' => is_int($value) && $value > 0,
             'percent' => is_int($value) && $value >= 1 && $value <= 100,
-            'remaining' => $value === null,
+            'remaining', 'due' => $value === null,
             default => true, // already reported as invalid_input
         };
         if (! $ok) {

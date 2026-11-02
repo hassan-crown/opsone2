@@ -3,6 +3,7 @@
 namespace Database\Seeders\ShowcaseKit;
 
 use App\Access\Exceptions\InvalidTransition;
+use App\Actions\Finance\ChoosePaymentPlan;
 use App\Actions\Orders\CreateOrders;
 use App\Actions\Orders\ManageOrderLines;
 use App\Actions\Orders\UpdateOrder;
@@ -39,6 +40,8 @@ use App\Models\Agreements\AgreementDocument;
 use App\Models\Agreements\DiscountDecision;
 use App\Models\Appointment;
 use App\Models\Customer;
+use App\Models\Finance\OrderDue;
+use App\Models\Finance\PaymentPlan;
 use App\Models\Finance\PaymentProof;
 use App\Models\Order;
 use App\Models\OrderLine;
@@ -117,7 +120,10 @@ final class CustomOrders
         foreach (['viaPortal', 'proofByCustomer', 'deposit'] as $flag) {
             ${$flag} = $opts[$flag] ?? ${$flag};
         }
-        $st->data += compact('product', 'length', 'mult', 'discount', 'viaPortal', 'proofByCustomer', 'deposit') + ['branch' => $branch, 'stopAfter' => $opts['stopAfter'] ?? null, 'unconfirmed' => $opts['unconfirmed'] ?? [],
+        // Payment plans (ADR-0037): most orders follow the default 50/50 plan; about one in three takes 40/40/20 with the
+        // second payment due when installation starts (derived from the length, so the random sequence is unchanged).
+        $installments = $opts['installments'] ?? ((int) round($length * 10) % 3 === 0);
+        $st->data += compact('product', 'length', 'mult', 'discount', 'viaPortal', 'proofByCustomer', 'deposit', 'installments') + ['branch' => $branch, 'stopAfter' => $opts['stopAfter'] ?? null, 'unconfirmed' => $opts['unconfirmed'] ?? [],
             'esign' => $opts['esign'] ?? null, 'contract' => $opts['contract'] ?? null, 'signer' => $opts['signer'] ?? null];
 
         $this->step($st, $at(0.02), 'lines', fn () => $this->setupLines($st));
@@ -148,6 +154,9 @@ final class CustomOrders
         $d += 0.1;
         $this->step($st, $at($d, 11), 'quote-send', fn () => $this->sendQuote($st));
         $d += $rng->int(1, 4);
+        if ($installments) {
+            $this->step($st, $at($d - 0.2, 12), 'payment-plan', fn () => $this->choosePlan($st, Foundation::PLAN_INSTALLMENTS));
+        }
         $this->step($st, $at($d, 13), 'quote-approve', fn () => $this->approveQuote($st));
         $this->step($st, $at($d + 0.3, 11), 'stage-design', fn () => $this->completeStage($st, 'design'));
         // Agreement and first payment
@@ -168,6 +177,9 @@ final class CustomOrders
         $d += 1;
         $this->step($st, $at($d, 13), 'qc-done', fn () => $this->doTaskNamed($st, 'quality_check'));
         $this->step($st, $at($d + 0.2, 14), 'stage-manufacture', fn () => $this->completeStage($st, 'manufacture'));
+        if ($installments) {
+            $this->step($st, $at($d + 0.25, 15), 'second-payment', fn () => $this->payDue($st, 'second', 'الدفعة الثانية قبل التركيب'));
+        }
         // Installation
         $d += 0.3;
         $installDay = $d + $rng->int(2, 6);
@@ -583,11 +595,40 @@ final class CustomOrders
         $this->pay($st, (string) ($this->s->rng->int(10, 30) * 100), 'عربون عند اعتماد التصميم');
     }
 
+    private function choosePlan(Story $st, string $key): void
+    {
+        $order = $this->order($st);
+        $planId = (int) PaymentPlan::query()->where('key', $key)->value('id');
+        app(ChoosePaymentPlan::class)->handle($this->finance($st), $order, $planId, null, $this->key());
+    }
+
+    /** The open part of one due of the order's schedule (copied from its payment plan at the agreement). */
+    private function dueLeft(Order $order, string $reference): Money
+    {
+        $due = OrderDue::query()->where('order_id', $order->id)->where('reference', $reference)->whereNull('removed_at')->first();
+        if ($due === null) {
+            return Money::zero();
+        }
+        $held = (int) (MoneyLedger::allocatedByDue($order->id)[$due->id] ?? 0);
+
+        return Money::of(max(0, $due->amount_minor - $held));
+    }
+
+    private function payDue(Story $st, string $reference, string $note): void
+    {
+        $amount = $this->dueLeft($this->order($st), $reference);
+        if (! $amount->isZero()) {
+            $this->pay($st, $amount->toInput(), $note);
+        }
+    }
+
     private function payFirst(Story $st): void
     {
         $order = $this->order($st);
-        $total = $this->agreementTotal($order);
-        $amount = Money::of((int) round($total * 0.5));
+        $amount = $this->dueLeft($order, 'first');
+        if ($amount->isZero()) {
+            return;
+        }
         if ($st->data['proofByCustomer']) {
             $customer = $this->customerActor($order);
             $proof = app(CustomerProofs::class)->submit($customer, $order, [
@@ -598,7 +639,7 @@ final class CustomOrders
 
             return;
         }
-        $this->pay($st, $amount->toInput(), 'الدفعة الأولى 50%');
+        $this->pay($st, $amount->toInput(), 'الدفعة الأولى');
     }
 
     private function confirmProof(Story $st): void

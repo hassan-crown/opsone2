@@ -6,7 +6,7 @@ use App\Access\Enums\Audience;
 use App\Access\Enums\Scope;
 
 /**
- * Permission catalogue generated from «مصفوفة الصلاحيات» v1.1 (P-01..P-102).
+ * Permission catalogue generated from «مصفوفة الصلاحيات» v1.1 (P-01..P-102), plus P-103 (ADR-0037).
  *
  * - `audience`: who the action belongs to. Only `staff` and `self` are evaluated by the facility Gate;
  *   `customer`, `public` and `platform` actions are served by their own guards (customer portal, public site,
@@ -942,6 +942,17 @@ final class PermissionCatalogue
             'scopes' => ['own', 'assigned', 'department', 'branches', 'region', 'tenant'],
             'roles' => ['owner', 'manager'],
             'capability' => 'ready_goods',
+        ],
+        // ADR-0037: owner-level business rules (payment plans, reminders, clauses, message templates, task SLA,
+        // numbering). Owner only by default; every change is audited.
+        'P-103' => [
+            'group' => 'organization',
+            'audience' => 'staff',
+            'ar' => 'تهيئة قواعد العمل (خطط الدفع، التذكير، البنود، الرسائل، المهلة، الترقيم)',
+            'en' => 'Configure business rules (payment plans, reminders, clauses, messages, SLA, numbering)',
+            'scopes' => ['tenant'],
+            'roles' => ['owner'],
+            'capability' => null,
         ],
     ];
 

@@ -7,6 +7,7 @@ use App\Access\Permission;
 use App\Access\TransitionRecorder;
 use App\Agreements\AgreementLock;
 use App\Agreements\AgreementWrite;
+use App\Agreements\DocumentClauses;
 use App\Agreements\Numbers;
 use App\Agreements\OrderAgreement;
 use App\Agreements\QuoteInput;
@@ -56,6 +57,11 @@ final class T00CreateQuote
                 'terms' => null,
                 'execution_days' => null,
             ], $settings);
+            // The facility's quote clauses, copied with their versions (ADR-0037).
+            $clauses = DocumentClauses::forDocument(DocumentKind::Quote, $order, $content, DocumentClauses::language());
+            if ($clauses['clause_versions'] !== []) {
+                $content = [...$content, ...$clauses];
+            }
 
             $document = AgreementDocument::query()->create([
                 'order_id' => $order->id,

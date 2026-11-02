@@ -53,7 +53,7 @@ final class OpenDues
                 }
                 $rows[] = [
                     'due' => $due, 'order' => $order, 'due_on' => $dates[$due->id],
-                    'status' => DueCalendar::status($due->amount_minor, $held, $dates[$due->id]), 'remaining' => $remaining,
+                    'status' => DueCalendar::status($due->amount_minor, $held, $dates[$due->id], graceDays: $due->grace_days), 'remaining' => $remaining,
                 ];
             }
         }
