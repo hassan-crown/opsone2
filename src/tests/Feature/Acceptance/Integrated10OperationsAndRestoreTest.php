@@ -22,6 +22,8 @@ use App\Operations\Backup\BackupStore;
 use App\Operations\Backup\DatabaseSnapshot;
 use App\Operations\Upgrade\MigrationCatalogue;
 use App\Operations\Upgrade\Preflight;
+use Illuminate\Contracts\Foundation\MaintenanceMode as MaintenanceModeContract;
+use Illuminate\Foundation\CacheBasedMaintenanceMode;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
@@ -37,6 +39,8 @@ uses(RefreshDatabase::class);
 beforeEach(function () {
     $this->root = storage_path('framework/testing/acc10-'.getmypid().'-'.bin2hex(random_bytes(4)));
     File::ensureDirectoryExists($this->root);
+    // Maintenance mode in memory: the default driver's storage/framework/down is shared by every parallel test process.
+    app()->instance(MaintenanceModeContract::class, new CacheBasedMaintenanceMode(app('cache'), 'array', 'acc10-maintenance'));
 });
 
 afterEach(function () {
