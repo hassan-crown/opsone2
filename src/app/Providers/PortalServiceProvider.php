@@ -27,6 +27,7 @@ use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Routing\Router;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
@@ -42,6 +43,11 @@ final class PortalServiceProvider extends ServiceProvider
 
     public function boot(Router $router): void
     {
+        // The fixed demo code is ignored outside demo environments; make a misconfiguration visible (never the value).
+        if (filled(config('portal.demo_otp')) && ! $this->app->environment((array) config('portal.demo_otp_environments'))) {
+            Log::warning('PORTAL_DEMO_OTP is set in a non-demo environment and is ignored; remove it.', ['environment' => $this->app->environment()]);
+        }
+
         Auth::provider('portal-customers', fn (Application $app) => new EloquentUserProvider($app->make('hash'), Customer::class));
 
         $router->middlewareGroup('customer', [
