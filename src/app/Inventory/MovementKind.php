@@ -22,6 +22,10 @@ enum MovementKind: string
     case ReturnIn = 'return_in';
     case ReturnDamaged = 'return_damaged';
     case ReturnReclass = 'return_reclass';
+    // M-14-T03 delivery correction (ADR-0035): a quantity recorded as delivered comes back, either to the general
+    // stock (free again) or into the customer's reservation (held for this order line again).
+    case CorrectionIn = 'correction_in';
+    case CorrectionReserve = 'correction_reserve';
 
     /**
      * @return array{0: int, 1: int} signs of (on hand, reserved)
@@ -29,9 +33,10 @@ enum MovementKind: string
     public function signs(): array
     {
         return match ($this) {
-            self::Receipt, self::TransferIn, self::AdjustmentIn, self::ReturnIn => [1, 0],
+            self::Receipt, self::TransferIn, self::AdjustmentIn, self::ReturnIn, self::CorrectionIn => [1, 0],
             self::Issue, self::TransferOut, self::AdjustmentOut, self::ReturnReclass => [-1, 0],
             self::Reserve => [0, 1],
+            self::CorrectionReserve => [1, 1],
             self::Release => [0, -1],
             self::IssueReserved => [-1, -1],
             self::ReturnDamaged => [0, 0],
