@@ -27,7 +27,8 @@ itself. OpsOne is pre-launch with no tenants, so the new default simply replaces
   `measure, design, agreement, workshop, receiving, install`; action keys of the shared stages are unchanged.
 - Industry variants on the same skeleton: `retail_kitchens` (an optional second workshop order `countertop` for the
   stone supplier, 18-day receiving stage), `retail_aluminium` (measurement always required before cutting, 10 days),
-  `retail_furniture` (30% first payment, 30 days, warehouse wording).
+  `retail_furniture` (30 days, warehouse wording). Payment checks use basis `due` (ADR-0037): the shares (for
+  example 30/70 for furniture) come from the facility's payment plan, not from the flow.
 - The former default stays as the template `in_house`; `compact` is unchanged.
 - **Add-on `addon_in_house_manufacturing`**: a stage pack (materials, fabrication, assembly, workshop QC) the owner
   inserts into a draft from the existing flow editor (`options.addons`, keys renamed when taken), then edits, checks

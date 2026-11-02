@@ -99,7 +99,6 @@ final class FlowTemplates
             self::RETAIL_FURNITURE => ['stages' => self::retail(
                 workshopDays: 30,
                 workshopName: ['ar' => 'الطلب من المورّد أو الاستيراد', 'en' => 'Order from the supplier or import'],
-                firstPercent: 30,
                 receiveName: ['ar' => 'الاستلام في المستودع وفحص الجودة', 'en' => 'Warehouse receipt and quality check'],
                 installName: ['ar' => 'التوصيل والتركيب', 'en' => 'Delivery and installation'],
             )],
@@ -157,6 +156,7 @@ final class FlowTemplates
      * installation. The workshop stages are followed by the procurement role when the facility has it; every action
      * goes to its stage's responsible person. `workshop_order` is verified only from the purchase order (sent on
      * confirmation, received once fully accepted), and the receipt stage's due date becomes the workshop's date.
+     * Payments check the order's payment-plan dues (basis `due`, ADR-0037): the plan, not the flow, holds the shares.
      *
      * @param  array{ar: string, en: string}|null  $workshopName
      * @param  array{ar: string, en: string}|null  $receiveName
@@ -168,7 +168,6 @@ final class FlowTemplates
         ?array $workshopName = null,
         bool $countertop = false,
         bool $measureAlways = false,
-        int $firstPercent = 50,
         ?array $receiveName = null,
         ?array $installName = null,
     ): array {
@@ -200,14 +199,14 @@ final class FlowTemplates
                 self::action('quote_approval', 'customer_approval', inputs: ['subject' => 'quote'], name: ['ar' => 'موافقة العميل على العرض', 'en' => 'Customer approves the quote'], assign: 'stage'),
                 self::action('contract', 'prepare_document', requirement: 'optional', inputs: ['document' => 'contract'], name: ['ar' => 'إعداد العقد', 'en' => 'Prepare the contract'], assign: 'stage'),
                 self::action('contract_approval', 'customer_approval', requirement: 'optional', inputs: ['subject' => 'contract'], name: ['ar' => 'موافقة العميل على العقد', 'en' => 'Customer approves the contract'], assign: 'stage'),
-                self::action('first_payment', 'payment_check', inputs: ['reference' => 'first', 'basis' => 'percent', 'value' => $firstPercent], name: ['ar' => 'الدفعة الأولى', 'en' => 'First payment'], assign: 'stage'),
+                self::action('first_payment', 'payment_check', inputs: ['reference' => 'first', 'basis' => 'due', 'value' => null], name: ['ar' => 'الدفعة الأولى', 'en' => 'First payment'], assign: 'stage'),
             ]),
             self::stage('workshop', $workshopName['ar'], $workshopName['en'], 'قيد التصنيع', 'In production', 2, $send, $workshop),
             self::stage('receiving', $receiveName['ar'], $receiveName['en'], 'قيد التصنيع', 'In production', $workshopDays, $receive, $workshop),
             self::stage('install', $installName['ar'], $installName['en'], $installName['ar'], $installName['en'], 3, [
                 self::action('tax_invoice', 'required_document', requirement: 'optional', inputs: ['document_type' => 'tax_invoice', 'review_required' => false], name: ['ar' => 'الفاتورة الضريبية', 'en' => 'Tax invoice'], assign: 'stage'),
                 self::action('installation', 'work_task', inputs: ['label' => ['ar' => 'التركيب', 'en' => 'Installation'], 'requires_attachment' => false], name: ['ar' => 'التركيب', 'en' => 'Installation'], assign: 'stage'),
-                self::action('final_payment', 'payment_check', inputs: ['reference' => 'final', 'basis' => 'remaining', 'value' => null], name: ['ar' => 'الدفعة الأخيرة', 'en' => 'Final payment'], assign: 'stage'),
+                self::action('final_payment', 'payment_check', inputs: ['reference' => 'final', 'basis' => 'due', 'value' => null], name: ['ar' => 'الدفعة الأخيرة', 'en' => 'Final payment'], assign: 'stage'),
                 self::action('delivery', 'record_delivery', name: ['ar' => 'تسليم البنود', 'en' => 'Deliver the items'], assign: 'stage'),
             ]),
         ];

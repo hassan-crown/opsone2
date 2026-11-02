@@ -61,7 +61,8 @@ it('ships industry variants and keeps in-house manufacturing as a template and a
     expect(array_column($kitchens[3]['actions'], 'key'))->toBe(['workshop_sent', 'countertop_sent'])
         ->and($kitchens[4]['target_days'])->toBe(18)
         ->and($aluminium[0]['actions'][1]['applies_when'])->toBe('always')
-        ->and($furniture[2]['actions'][3]['inputs']['value'])->toBe(30)
+        // Payments follow the order's payment plan (ADR-0037): the share lives in the plan, not in the flow.
+        ->and($furniture[2]['actions'][3]['inputs'])->toBe(['reference' => 'first', 'basis' => 'due', 'value' => null])
         ->and(array_column(FlowTemplates::definition(FlowTemplates::IN_HOUSE)['stages'], 'key'))->toContain('manufacture');
 
     // The add-on goes into a draft after the agreement, and the result checks and publishes like any change.
