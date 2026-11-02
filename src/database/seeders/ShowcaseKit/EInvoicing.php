@@ -20,13 +20,16 @@ use Carbon\CarbonImmutable;
 /**
  * ZATCA e-invoicing for the showcase (ADR-0033), on the in-process `fake` gateway only (no ZATCA call, no real CSID):
  * the tax profile is on from the first historical day, so the real flows issue phase 1 invoices on first payments and
- * credit notes on executed refunds while the clock walks; on 1 August the owner onboards the EGS device and every later
+ * credit notes on executed refunds while the clock walks; from 1 August (once phase 1 has an invoice) the owner onboards the EGS device and every later
  * document is signed and reported/cleared. Afterwards most VAT-registered customers get their national address (their
  * standard invoices are issued by the sweep, a few stay "missing" to show that list), and two manual credit notes and
  * one debit note document after-sale corrections.
  */
 final class EInvoicing
 {
+    /** The latest day onboarding may wait for a phase 1 invoice (leaves weeks of signed documents after it). */
+    private const ONBOARD_BY = '2026-09-15 09:00 Asia/Riyadh';
+
     public function __construct(private readonly Showcase $s) {}
 
     public function enable(): void
@@ -50,8 +53,25 @@ final class EInvoicing
             'updated_by' => $this->s->users['owner']->id,
         ]);
 
-        $this->s->timeline->at(CarbonImmutable::parse('2026-08-01 09:00', 'Asia/Riyadh'), new Story('zatca-onboarding'), 'onboard',
-            fn () => app(ZatcaOnboarding::class)->start($this->s->users['owner'], '123456'));
+        $this->onboardAt(CarbonImmutable::parse('2026-08-01 09:00', 'Asia/Riyadh'), new Story('zatca-onboarding'));
+    }
+
+    /**
+     * Onboarding waits until phase 1 has at least one document, so the dataset always shows both phases whatever the
+     * scale or the order of the stories: first the sweep (orders paid while blocked), then a day later if still none.
+     */
+    private function onboardAt(CarbonImmutable $when, Story $story): void
+    {
+        $this->s->timeline->at($when, $story, 'onboard', function (Story $st) use ($when) {
+            app(MissingInvoices::class)->sweep();
+            $phaseOne = EInvoice::query()->whereNull('device_id')->where('kind', EInvoice::KIND_INVOICE)->exists();
+            if (! $phaseOne && $when->lt(CarbonImmutable::parse(self::ONBOARD_BY))) {
+                $this->onboardAt($when->addDay(), $st);
+
+                return;
+            }
+            app(ZatcaOnboarding::class)->start($this->s->users['owner'], '123456');
+        });
     }
 
     public function settle(): void
