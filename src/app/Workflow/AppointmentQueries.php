@@ -30,7 +30,7 @@ final class AppointmentQueries
     public static function between(User $user, CarbonInterface $from, CarbonInterface $to, ?array $memberIds = null, ?int $branchId = null): Collection
     {
         // The rows feed the Gate (order scope) and the calendar row (branch, customer): loaded once, not per row.
-        return Appointment::query()->with(['order.branch', 'order.customer', 'members'])
+        return Appointment::query()->with(['order.branch', 'order.customer', 'members', 'installationVisit'])
             ->whereIn('status', [AppointmentStatus::Proposed->value, AppointmentStatus::AwaitingConfirmation->value, AppointmentStatus::Confirmed->value, AppointmentStatus::Done->value])
             ->where('starts_at', '<', $to->copy()->utc())
             // Same rows as ends_at > from alone, but the (status, starts_at) index now reads a bounded range.

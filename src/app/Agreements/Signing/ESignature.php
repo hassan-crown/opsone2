@@ -168,7 +168,7 @@ final class ESignature
     /**
      * The drawn signature as PNG bytes from its data URL, or a validation error.
      */
-    private static function signatureImage(string $dataUrl): string
+    public static function signatureImage(string $dataUrl): string
     {
         $error = ValidationException::withMessages(['signature' => __('esign.error.signature')]);
         if (! str_starts_with($dataUrl, 'data:image/png;base64,')) {

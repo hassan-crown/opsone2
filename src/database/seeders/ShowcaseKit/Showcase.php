@@ -51,6 +51,8 @@ final class Showcase
 
     public EInvoicing $einvoicing;
 
+    public Installations $installations;
+
     /** @var array<string, User> */
     public array $users = [];
 
@@ -84,6 +86,7 @@ final class Showcase
         $this->portal = new Portal($this);
         $this->messaging = new Messaging;
         $this->einvoicing = new EInvoicing($this);
+        $this->installations = new Installations($this);
     }
 
     public function n(int $full): int

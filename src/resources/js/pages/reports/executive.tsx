@@ -183,6 +183,16 @@ export default function ExecutiveDashboard({
             'executive.kpi.installations',
             links.installations,
         ),
+        tile(
+            'dashboard.installation_first_visit_percent',
+            'executive.kpi.first_visit',
+            links.installations,
+        ),
+        tile(
+            'dashboard.installation_avg_minutes',
+            'executive.kpi.install_minutes',
+            links.installations,
+        ),
     ].filter((x) => x !== null);
 
     const funnelHref: Record<string, string> = {
@@ -252,6 +262,20 @@ export default function ExecutiveDashboard({
                 : undefined,
         href: links.workflow,
         color: 2,
+    }));
+    const teams: RankRow[] = dashboard.installation_teams.map((team) => ({
+        key: String(team.id ?? 'none'),
+        label: team.name,
+        value: team.first_visit_percent,
+        text: t('executive.installation.first_visit', {
+            percent: format(team.first_visit_percent, 'percent'),
+        }),
+        sub: t('executive.installation.team_sub', {
+            visits: formatNumber(team.visits),
+            minutes: formatNumber(team.avg_minutes),
+        }),
+        href: links.installations,
+        color: 3,
     }));
     const empty = <p className="m-0 text-weak">{t('executive.empty')}</p>;
 
@@ -431,6 +455,20 @@ export default function ExecutiveDashboard({
                         <RankBars
                             rows={sales}
                             label={t('executive.chart.salespeople')}
+                        />
+                    ) : (
+                        empty
+                    )}
+                </Section>
+
+                <Section
+                    id="installation-teams"
+                    title={t('executive.chart.installation_teams')}
+                >
+                    {teams.length > 0 ? (
+                        <RankBars
+                            rows={teams}
+                            label={t('executive.chart.installation_teams')}
                         />
                     ) : (
                         empty

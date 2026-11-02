@@ -186,7 +186,12 @@ final class CustomOrders
         $this->step($st, $at($d, 11), 'install-appt', fn () => $this->bookVisit($st, 'installation', $installDay));
         $this->step($st, $at($d + 0.1, 12), 'install-claim', fn () => $this->claimOrAssign($st, 'installation'));
         $d = $installDay + 0.5;
-        $this->step($st, $at($d, 16), 'install-done', fn () => $this->doTaskNamed($st, 'installation'));
+        // Normally the field app's «انتهى» already completed it; otherwise its holder closes it as before.
+        $this->step($st, $at($d, 16), 'install-done', function () use ($st) {
+            if ($this->openTask($this->order($st), 'installation') !== null) {
+                $this->doTaskNamed($st, 'installation');
+            }
+        });
         $d += 0.4;
         $this->step($st, $at($d, 10), 'final-payment', fn () => $this->payFinal($st));
         $d += 0.2;
@@ -302,7 +307,9 @@ final class CustomOrders
         }
         // By user id, so the seeded pick never depends on the database's row order.
         usort($eligible, fn (array $a, array $b) => $a['user_id'] <=> $b['user_id']);
-        $userId = (int) $this->s->rng->pick($eligible)['user_id'];
+        $installer = $actionKey === 'installation' ? ($st->data['installer'] ?? null) : null;
+        $userId = $installer !== null && in_array($installer, array_column($eligible, 'user_id'), true)
+            ? (int) $installer : (int) $this->s->rng->pick($eligible)['user_id'];
         // Department inbox work is handed out by the department supervisor (production) or the branch manager.
         $assigner = in_array($actionKey, ['manufacturing', 'quality_check'], true) ? $this->s->users['sup_prod'] : $this->manager($st);
         app(T01AssignTask::class)->handle($assigner, $task, $userId, null);
@@ -380,7 +387,12 @@ final class CustomOrders
             $start = $start->addDay();
         }
         $sales = $this->sales($st);
+        $task = $kind === 'installation' ? $this->openTask($order, 'installation') : null;
+        if ($kind === 'installation') {
+            $st->data['installer'] = $tech->id;
+        }
         $res = app(T00ProposeAppointment::class)->handle($sales, $order, [
+            'task_id' => $task?->id,
             'kind' => $kind, 'starts_at' => $start->format('Y-m-d H:i').' Asia/Riyadh', 'ends_at' => $start->addHours(2)->format('Y-m-d H:i').' Asia/Riyadh',
             'address' => 'حي '.$this->s->people->district($branch).'، '.People::CITY[$branch].' — شارع '.$this->s->rng->int(5, 60),
             'member_ids' => [$tech->id],
@@ -394,7 +406,10 @@ final class CustomOrders
         }
         $appointment = app(T02ConfirmAppointment::class)->handle($sales, Appointment::query()->with('order')->findOrFail($appointment->id), 'phone', 'تنسيق مع فنيين آخرين في اليوم نفسه');
         $st->data['appt_'.$kind] = $appointment->id;
-        if ($start->lessThanOrEqualTo($this->s->end)) {
+        if ($kind === 'installation') {
+            // ADR-0036: the installer works the visit in the field app (arrive, photos, signature, finish).
+            $this->s->installations->schedule($st, $appointment->id, $tech, $start);
+        } elseif ($start->lessThanOrEqualTo($this->s->end)) {
             $this->s->timeline->at($start->addHours(3), $st, 'visit-'.$kind, function () use ($st, $kind, $tech) {
                 $appt = Appointment::query()->findOrFail($st->int('appt_'.$kind));
                 app(T05CompleteVisit::class)->handle($tech, $appt, $kind === 'measurement' ? 'تمت المعاينة وأُخذت القياسات.' : 'تم التركيب وسُلّم الموقع نظيفًا.', false);
