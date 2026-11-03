@@ -6,6 +6,7 @@ use App\Access\Contracts\LicensedRecord;
 use App\Access\Contracts\ScopedRecord;
 use App\Access\Contracts\StatefulRecord;
 use App\Access\Permission;
+use App\Configuration\ConfigReleases;
 use App\Enums\CustomOrderStatus;
 use App\Enums\OrderKind;
 use App\Enums\ReadyOrderStatus;
@@ -22,6 +23,7 @@ use LogicException;
  *
  * @property int $id
  * @property string $number
+ * @property int|null $config_release_id the configuration release current when the order was created (ADR-0040)
  * @property OrderKind $kind
  * @property string $status
  * @property int $customer_id
@@ -52,8 +54,8 @@ class Order extends Model implements LicensedRecord, ScopedRecord, StatefulRecor
 
     protected $attributes = ['lock_version' => 1];
 
-    /** Identity of the order, fixed once written: its number, kind (COM-10: no kind change), customer and creator. */
-    private const IMMUTABLE = ['number', 'kind', 'customer_id', 'created_by'];
+    /** Identity of the order, fixed once written: its number, kind (COM-10: no kind change), customer, creator and configuration release. */
+    private const IMMUTABLE = ['number', 'kind', 'customer_id', 'created_by', 'config_release_id'];
 
     /** The active stage's department read for a whole list at once (primeAccessDepartments); false = not primed. */
     private int|false|null $primedDepartment = false;
@@ -87,9 +89,13 @@ class Order extends Model implements LicensedRecord, ScopedRecord, StatefulRecor
 
     protected static function booted(): void
     {
+        // ADR-0040: the order keeps the configuration release current at its creation (plans, clauses).
+        static::creating(function (self $order) {
+            $order->config_release_id ??= ConfigReleases::currentId();
+        });
         static::updating(function (self $order) {
             if (array_intersect(array_keys($order->getDirty()), self::IMMUTABLE) !== []) {
-                throw new LogicException('An order keeps its number, kind, customer and creator.');
+                throw new LogicException('An order keeps its number, kind, customer, creator and configuration release.');
             }
         });
     }

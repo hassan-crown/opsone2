@@ -4,6 +4,7 @@ namespace App\Tasks;
 
 use App\Access\Access;
 use App\Access\Permission;
+use App\Configuration\ConfigReleases;
 use App\Enums\TaskStatus;
 use App\Models\Facility;
 use App\Models\Task;
@@ -14,8 +15,8 @@ use Carbon\CarbonInterface;
 
 /**
  * Task SLA (ADR-0037): a new task's `due_at` is N working days after its creation — N per action type, else the
- * facility default (WorkSettings `task_sla`; 3 working days before it is saved). It is fixed at creation: changing
- * the setting never moves existing tasks. The scheduler sends the defined `work.reminder` to the assignee on the due
+ * facility default (`task_sla` of the current configuration release, ADR-0040; 3 working days before any release).
+ * It is fixed at creation: changing the setting never moves existing tasks. The scheduler sends the defined `work.reminder` to the assignee on the due
  * day and, once a task is `task_escalate_after_days` working days late, `work.escalated` to its follower (else the
  * order's responsible person, else the owner). Each message once per task and due time, inside the reminder hours.
  */
@@ -30,7 +31,7 @@ final class TaskSla
      */
     public static function days(?string $type): ?int
     {
-        $sla = WorkSettings::current()->task_sla;
+        $sla = ConfigReleases::current()['task_sla']['task_sla'];
         if ($sla === null) {
             return self::DEFAULT_DAYS;
         }
@@ -69,7 +70,7 @@ final class TaskSla
                 $sent += (int) ($this->notifier->send($task->assignee, 'work.reminder', $params, $task, "task:{$task->id}:reminder:{$stamp}") !== null);
             }
             $late = $task->due_at->isPast() ? $days->between($task->due_at, $now) : 0;
-            if ($late >= max(1, $settings->task_escalate_after_days)) {
+            if ($late >= max(1, (int) ConfigReleases::current()['task_sla']['task_escalate_after_days'])) {
                 $to = $this->escalationTarget($task);
                 if ($to !== null) {
                     $sent += (int) ($this->notifier->send($to, 'work.escalated', [...$params, 'assignee' => (string) ($task->assignee->name ?? '—')], $task, "task:{$task->id}:escalated:{$stamp}") !== null);

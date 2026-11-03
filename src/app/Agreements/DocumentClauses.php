@@ -2,6 +2,7 @@
 
 namespace App\Agreements;
 
+use App\Configuration\ConfigReleases;
 use App\Enums\DocumentKind;
 use App\Models\Agreements\DocumentClause;
 use App\Models\Agreements\DocumentClauseVersion;
@@ -12,8 +13,8 @@ use App\Money\Money;
 use Illuminate\Validation\ValidationException;
 
 /**
- * The clause library in documents (ADR-0037). When a quote or contract is prepared, the active clauses for its kind
- * that are «included by default» are rendered with the closed variable set and copied into the document content
+ * The clause library in documents (ADR-0037). When a quote or contract is prepared, the clauses for its kind that
+ * the order's configuration release (ADR-0040) holds «included by default» are rendered with the closed variable set and copied into the document content
  * (`clauses`: texts; `clause_versions`: key and version of each), so they enter the content hash and stay as they
  * were once the document is sent or signed. A contract with no library clauses keeps the built-in v1 clauses.
  */
@@ -31,13 +32,16 @@ final class DocumentClauses
      */
     public static function forDocument(DocumentKind $kind, Order $order, array $content, string $language): array
     {
-        $clauses = DocumentClause::query()->whereNull('archived_at')->where('included_by_default', true)->orderBy('position')->orderBy('id')->get()
-            ->filter(fn (DocumentClause $c) => in_array($kind->value, $c->applies_to, true))->values();
+        /** @var list<array<string, mixed>> $released */
+        $released = ConfigReleases::forOrder($order)['clauses'] ?? [];
+        $clauses = collect($released)
+            ->filter(fn (array $c) => $c['included_by_default'] && in_array($kind->value, $c['applies_to'], true))
+            ->sortBy([['position', 'asc'], ['id', 'asc']])->values();
         $values = self::values($order, $content, $language);
 
         return [
-            'clauses' => array_values($clauses->map(fn (DocumentClause $c) => self::render((string) $c->body->get($language), $values))->all()),
-            'clause_versions' => array_values($clauses->map(fn (DocumentClause $c) => ['key' => $c->key, 'version' => $c->version])->all()),
+            'clauses' => array_values($clauses->map(fn (array $c) => self::render(self::text($c['body'], $language), $values))->all()),
+            'clause_versions' => array_values($clauses->map(fn (array $c) => ['key' => (string) $c['key'], 'version' => (int) $c['version']])->all()),
         ];
     }
 
@@ -66,6 +70,14 @@ final class DocumentClauses
         }
 
         return ['clauses' => $texts, 'clause_versions' => array_values(array_map(fn (array $r) => ['key' => (string) $r['key'], 'version' => (int) $r['version']], $pinned))];
+    }
+
+    /**
+     * @param  array{ar: string, en?: string|null}  $body
+     */
+    private static function text(array $body, string $language): string
+    {
+        return $language === 'en' && isset($body['en']) && $body['en'] !== '' ? (string) $body['en'] : (string) $body['ar'];
     }
 
     public static function language(): string

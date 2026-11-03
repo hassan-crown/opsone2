@@ -350,3 +350,24 @@ Decisions: [ADR-0037](decisions/0037-no-code-phase-1a.md). Code: `app/Finance/Pl
 Plan line: `{key, name{ar,en?}, basis percent|amount|rest, value "40"|"1500.00"|null, event, stage_key?, offset_days,
 grace_days}`. Refusals (422 on `lines`/`lines.N.*`): sum ≠ 100% without a final `rest`, an amount without a `rest`, more
 than one `rest` or not last, unknown trigger or stage, a missing flow gate reference, 1..12 lines, 20 active plans.
+
+## No-Code phase 2 — configuration releases (ADR-0040)
+
+Decisions: [ADR-0040](decisions/0040-configuration-releases.md). Code: `app/Configuration` (`ConfigSnapshot`,
+`ConfigReleases`, `ConfigCheck`, `ConfigDiff`, `ConfigPreview`, `ConfigRestorer`), `app/Actions/Rules/PublishConfigRelease`,
+`ConfigReleaseController`. The phase-1a pages above (and `settings/purchase-document`) now save a **draft**; the
+application reads the published release (`ConfigReleases::current()`, or `forOrder($order)` for plans and clauses).
+Orders record `config_release_id` at creation.
+
+| Method & path | Name | Action |
+|---|---|---|
+| `GET settings/releases` | `rules.releases` | draft change log + `ConfigCheck` issues, history (P-104 or P-02) |
+| `GET settings/releases/{release}` | `rules.releases.show` | change log against the previous release, pinned orders, rollback preview |
+| `POST settings/releases/preview` `{value: "37500.00", locale}` (JSON, writes nothing) | `rules.releases.preview` | `ConfigPreview::run()` — draft vs release in force |
+| `POST settings/releases` `{base, draft_hash, notes?}` | `rules.releases.publish` | `PublishConfigRelease::publish()` (P-104) |
+| `POST settings/releases/{release}/rollback` `{base, notes?}` | `rules.releases.rollback` | publishes a copy as release N+1 (P-104) |
+| `POST settings/releases/discard` `{base}` | `rules.releases.discard` | draft back to the release in force (P-104) |
+
+A stale `base` or a `draft_hash` that no longer matches the draft → 409 `stale_version` (JSON) or a `lock_version`
+error (Inertia). Bundle refusals are 422 keyed `payment_plans.<key>`, `numbering.<sequence>`, `messages.<event>…`.
+Audit: `config_release.published`, `config_release.rolled_back`, `config_release.draft_discarded` (area `settings`).

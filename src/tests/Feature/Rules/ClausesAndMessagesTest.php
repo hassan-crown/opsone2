@@ -49,6 +49,7 @@ function saveClause(object $f, string $key, string $ar, array $kinds = ['contrac
 it('copies the rendered clauses and their versions into a contract, which keeps them after the library changes', function () {
     ZatcaSettings::query()->create(['seller_name_ar' => 'معرض', 'vat_number' => '300000000000003', 'commercial_registration' => '1010101010']);
     $clause = saveClause($this->f, 'warranty', 'تضمن {facility} الطلب {order} للعميل {customer} بقيمة {total}.');
+    publishRules($this->f->owner);
     finAgree($this->f, '11500');
 
     $contract = app(T00PrepareContract::class)->handle($this->f->sales, $this->f->order->refresh(), null, null, agrKey());
@@ -82,9 +83,11 @@ it('keeps the built-in clauses without a library, and re-renders a quote draft f
 
     $other = openCustomOrder($this->f->sales, $this->f->inA);
     saveClause($this->f, 'site', 'السعر {total} لا يشمل الكهرباء.', ['quote']);
+    publishRules($this->f->owner);
     $quote = agrQuote($this->f->sales, $other);
     expect($quote->content['clause_versions'])->toBe([['key' => 'site', 'version' => 1]]);
     saveClause($this->f, 'site', 'نص آخر {total}.', ['quote'], DocumentClause::query()->where('key', 'site')->sole());
+    publishRules($this->f->owner);
 
     $quote = app(UpdateDocumentDraft::class)->handle($this->f->sales, $quote->refresh(), agrQuoteData(lines: [finLine('مطبخ', '2300')]), $quote->lock_version);
     expect($quote->content['clause_versions'])->toBe([['key' => 'site', 'version' => 1]])
@@ -105,6 +108,7 @@ it('sends customer reminders and staff notices in the facility wording, then the
     WorkSettings::query()->create([...WorkSettings::DEFAULTS, 'reminder_from' => '00:00', 'reminder_until' => '23:59']);
     $save = app(SaveMessageTemplate::class);
     $save->handle($this->f->owner, ['event' => 'finance.due_overdue', 'channel' => 'sms', 'locale' => 'ar', 'body' => 'عزيزنا، {due} للطلب {order} بمبلغ {amount} ريال متأخرة. {facility}']);
+    publishRules($this->f->owner);
     finAgree($this->f, '20000');
     $this->travel(3)->days();
     app(CollectionReminders::class)->runDue(now());
@@ -114,10 +118,12 @@ it('sends customer reminders and staff notices in the facility wording, then the
 
     // In-app: rendered in the recipient's language at send time.
     $save->handle($this->f->owner, ['event' => 'task.assigned', 'channel' => 'in_app', 'locale' => 'ar', 'subject' => 'مهمة: {task}', 'body' => 'الطلب {order}']);
+    publishRules($this->f->owner);
     $notice = app(Notifier::class)->send($this->f->sales, 'task.assigned', ['order' => 'ORD-1', 'task' => 'قياس']);
     expect($notice->data['title'])->toBe('مهمة: قياس')->and($notice->data['body'])->toBe('الطلب ORD-1');
 
     $save->reset($this->f->owner, 'task.assigned', 'in_app', 'ar');
+    publishRules($this->f->owner);
     $again = app(Notifier::class)->send($this->f->sales, 'task.assigned', ['order' => 'ORD-2', 'task' => 'قياس']);
     expect($again->data['title'])->toBe('notifications.type.task_assigned.title')
         ->and(MessageTemplate::query()->count())->toBe(1)

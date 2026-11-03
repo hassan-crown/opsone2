@@ -36,6 +36,8 @@ beforeEach(function () {
 });
 
 /**
+ * Saves the policy and publishes it (ADR-0040: the draft applies once released).
+ *
  * @param  array<string, mixed>  $overrides
  */
 function setPolicy(object $f, array $overrides = []): void
@@ -44,6 +46,7 @@ function setPolicy(object $f, array $overrides = []): void
         'before_days' => [7, 2], 'on_due' => true, 'after_every_days' => 3, 'max_after' => 2,
         'escalate_after_days' => null, 'escalate_to' => null, 'appointment_hours' => 24, ...$overrides,
     ], null);
+    publishRules($f->owner);
 }
 
 /** Outbox keys of one due's customer reminders (SMS rows). */

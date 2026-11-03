@@ -2,8 +2,8 @@
 
 namespace App\Numbering;
 
+use App\Configuration\ConfigReleases;
 use App\Models\NumberFormat;
-use App\Support\RequestCache;
 use Carbon\CarbonInterface;
 use IntlDateFormatter;
 
@@ -48,9 +48,8 @@ final class NumberFormats
         if (! isset(self::SEQUENCES[$sequence])) {
             return null;
         }
-        $all = app(RequestCache::class)->remember('number_formats', fn () => NumberFormat::query()->get()->keyBy('sequence')->all());
 
-        return $all[$sequence] ?? null;
+        return ConfigReleases::numberFormats()[$sequence] ?? null;
     }
 
     /**

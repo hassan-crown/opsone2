@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Configuration\ConfigReleases;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -37,7 +38,18 @@ class ReminderSettings extends Model
 
     protected $attributes = ['lock_version' => 1];
 
+    /**
+     * The policy in force: the current configuration release's (ADR-0040).
+     */
     public static function current(): self
+    {
+        return new self(ConfigReleases::current()['reminders']);
+    }
+
+    /**
+     * The draft the settings page edits.
+     */
+    public static function working(): self
     {
         return self::query()->orderBy('id')->first() ?? new self(self::DEFAULTS);
     }

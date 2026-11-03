@@ -4,6 +4,8 @@ namespace App\Http\Middleware;
 
 use App\Access\Access;
 use App\Access\Permission;
+use App\Configuration\ConfigReleases;
+use App\Configuration\ConfigSnapshot;
 use App\Delivery\DeliveryAccess;
 use App\Inventory\StockAccess;
 use App\Notifications\NotificationFeed;
@@ -60,6 +62,21 @@ class HandleInertiaRequests extends Middleware
             'orgNav' => fn () => $this->orgNav($request),
             // Bell data (SHR-05); the client polls it with a partial reload instead of a socket (Q-26).
             'notifications' => fn () => app(NotificationFeed::class)->for($request->user()),
+            // ADR-0040: on the business-rules pages, whether the draft differs from the release in force.
+            'configDraft' => fn () => $request->routeIs('rules.*', 'settings.purchase-document') ? self::configDraft() : null,
+        ];
+    }
+
+    /**
+     * @return array{pending: bool, release: int|null}
+     */
+    private static function configDraft(): array
+    {
+        $current = ConfigReleases::latest();
+
+        return [
+            'pending' => $current === null || $current->snapshot_hash !== ConfigSnapshot::hash(ConfigSnapshot::capture()),
+            'release' => $current?->number,
         ];
     }
 

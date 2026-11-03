@@ -43,15 +43,6 @@ beforeEach(function () {
     $this->f = financeFixture();
 });
 
-/**
- * @return list<array{reference: string, amount: int, event: string, stage: string|null, offset: int, grace: int}>
- */
-function planDues(int $orderId): array
-{
-    return array_values(OrderDue::query()->where('order_id', $orderId)->whereNull('removed_at')->orderBy('position')->get()
-        ->map(fn (OrderDue $d) => ['reference' => $d->reference, 'amount' => $d->amount_minor, 'event' => $d->due_event->value, 'stage' => $d->stage_key, 'offset' => $d->offset_days, 'grace' => $d->grace_days])->all());
-}
-
 it('refuses plans that do not make 100%, misplace or repeat the rest, or name unknown triggers and stages', function () {
     $owner = $this->f->owner;
     $refused = fn (array $lines) => expect(fn () => savePlan($owner, 'bad', $lines))->toThrow(ValidationException::class);
@@ -78,6 +69,7 @@ it('refuses plans that do not make 100%, misplace or repeat the rest, or name un
 
 it('copies the plan lines into the dues at the agreement; later plan edits never change the order', function () {
     $plan = installmentPlan($this->f->owner);
+    publishRules($this->f->owner);
     finAgree($this->f, '10000.01');
 
     expect(planDues($this->f->order->id))->toBe([
@@ -88,8 +80,9 @@ it('copies the plan lines into the dues at the agreement; later plan edits never
     $head = OrderFinance::query()->where('order_id', $this->f->order->id)->sole();
     expect($head->payment_plan_id)->toBe($plan->id)->and($head->payment_plan_key)->toBe('forty_forty');
 
-    // The owner changes the plan to 50/50: the order keeps its copied 40/40/20.
+    // The owner changes the plan to 50/50 and publishes it: the order keeps its copied 40/40/20.
     savePlan($this->f->owner, 'forty_forty', [planLine('first', 'percent', '50'), planLine('final', 'rest', null)], true, $plan->refresh());
+    publishRules($this->f->owner);
     expect(array_column(planDues($this->f->order->id), 'amount'))->toBe([400_000, 400_000, 200_001]);
 
     // An agreement change re-prices from the same copied lines.
@@ -100,6 +93,7 @@ it('copies the plan lines into the dues at the agreement; later plan edits never
 
 it('keeps every halala: the dues always add up to the agreement, whatever the shares', function () {
     savePlan($this->f->owner, 'thirds', [planLine('first', 'percent', '33.33'), planLine('mid', 'percent', '33.33'), planLine('final', 'percent', '33.34')], true);
+    publishRules($this->f->owner);
     finAgree($this->f, '10000.01');
     $amounts = array_column(planDues($this->f->order->id), 'amount');
     expect(array_sum($amounts))->toBe(1_000_001)->and($amounts)->toBe([333_300, 333_300, 333_401]);
@@ -110,6 +104,7 @@ it('keeps every halala: the dues always add up to the agreement, whatever the sh
 it('lets the order choose its plan before the agreement and replace its schedule from a plan after it (P-38)', function () {
     savePlan($this->f->owner, 'half_half', [planLine('first', 'percent', '50'), planLine('final', 'rest', null)], true);
     $installments = installmentPlan($this->f->owner, false);
+    publishRules($this->f->owner);
     $choose = app(ChoosePaymentPlan::class);
 
     expect(fn () => $choose->handle($this->f->executor, $this->f->order, $installments->id, null, agrKey()))->toThrow(AuthorizationException::class);
@@ -131,13 +126,15 @@ it('lets the order choose its plan before the agreement and replace its schedule
         ->toThrow(ValidationException::class);
     expect(array_column(planDues($this->f->order->id), 'amount'))->toBe([1_000_000, 1_000_000]);
 
-    // An archived plan is no longer offered.
+    // An archived plan is no longer offered once the release without it is published.
     app(ArchivePaymentPlan::class)->handle($this->f->owner, $installments);
+    publishRules($this->f->owner);
     expect(fn () => $choose->handle($this->f->finance, $this->f->order->refresh(), $installments->id, null, agrKey()))->toThrow(ValidationException::class);
 });
 
 it('takes the first payment share from the plan only: the flow gate waits for the due, not for its own percentage', function () {
     savePlan($this->f->owner, 'thirty', [planLine('first', 'percent', '30'), planLine('final', 'rest', null)], true);
+    publishRules($this->f->owner);
     finAgree($this->f, '20000');
 
     $first = collect(CollectionConditions::overview($this->f->order))->firstWhere('reference', 'first');
@@ -156,6 +153,7 @@ it('takes the first payment share from the plan only: the flow gate waits for th
 
 it('evaluates each trigger with its offset days, and grace days only delay «overdue»', function () {
     installmentPlan($this->f->owner);
+    publishRules($this->f->owner);
     finAgree($this->f, '10000');
     $order = $this->f->order;
     $dues = fn () => OrderDue::query()->where('order_id', $order->id)->orderBy('position')->get();
@@ -184,6 +182,7 @@ it('reads contract and design approvals as triggers', function () {
         planLine('first', 'percent', '50', 'contract.approved', ['offset_days' => 2]),
         planLine('final', 'rest', null, 'design.approved'),
     ], true);
+    publishRules($this->f->owner);
     finAgree($this->f, '10000');
     $order = $this->f->order;
     $dues = OrderDue::query()->where('order_id', $order->id)->orderBy('position')->get();

@@ -20,6 +20,8 @@ declare module '@inertiajs/core' {
             translations: Record<string, string>;
             license?: LicenseBanner | null;
             notifications?: NotificationFeed | null;
+            /** ADR-0040: on business-rules pages, the draft against the release in force. */
+            configDraft?: { pending: boolean; release: number | null } | null;
             orgNav?: {
                 team: boolean;
                 branches: boolean;

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Rules\ConfigReleaseController;
 use App\Http\Controllers\Rules\DocumentClauseController;
 use App\Http\Controllers\Rules\MessageTemplateController;
 use App\Http\Controllers\Rules\NumberFormatController;
@@ -11,6 +12,7 @@ use Illuminate\Support\Facades\Route;
 /*
 | No-Code phase 1a (ADR-0037): the owner's business rules — payment plans, reminders, clauses, messages, task SLA and
 | numbering. Reading needs P-104 or P-02, every change P-104 (checked in the actions) and is audited.
+| Changes are a draft until published as a configuration release (ADR-0040, settings/releases).
 */
 
 Route::middleware(['auth', 'verified'])->prefix('settings')->name('rules.')->group(function () {
@@ -20,6 +22,9 @@ Route::middleware(['auth', 'verified'])->prefix('settings')->name('rules.')->gro
     Route::get('messages', [MessageTemplateController::class, 'index'])->name('messages');
     Route::get('task-sla', [TaskSlaController::class, 'edit'])->name('sla');
     Route::get('numbering', [NumberFormatController::class, 'index'])->name('numbering');
+    Route::get('releases', [ConfigReleaseController::class, 'index'])->name('releases');
+    Route::get('releases/{release}', [ConfigReleaseController::class, 'show'])->whereNumber('release')->name('releases.show');
+    Route::post('releases/preview', [ConfigReleaseController::class, 'preview'])->middleware('throttle:records-create')->name('releases.preview');
 
     Route::middleware('throttle:records-create')->group(function () {
         Route::post('payment-plans', [PaymentPlanController::class, 'store'])->name('plans.store');
@@ -35,5 +40,8 @@ Route::middleware(['auth', 'verified'])->prefix('settings')->name('rules.')->gro
         Route::put('messages/whatsapp', [MessageTemplateController::class, 'whatsapp'])->name('messages.whatsapp');
         Route::put('task-sla', [TaskSlaController::class, 'update'])->name('sla.update');
         Route::put('numbering', [NumberFormatController::class, 'update'])->name('numbering.update');
+        Route::post('releases', [ConfigReleaseController::class, 'publish'])->name('releases.publish');
+        Route::post('releases/discard', [ConfigReleaseController::class, 'discard'])->name('releases.discard');
+        Route::post('releases/{release}/rollback', [ConfigReleaseController::class, 'rollback'])->whereNumber('release')->name('releases.rollback');
     });
 });

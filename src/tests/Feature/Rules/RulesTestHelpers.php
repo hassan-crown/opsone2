@@ -1,6 +1,11 @@
 <?php
 
+use App\Actions\Rules\PublishConfigRelease;
 use App\Actions\Rules\SavePaymentPlan;
+use App\Configuration\ConfigReleases;
+use App\Configuration\ConfigSnapshot;
+use App\Models\ConfigRelease;
+use App\Models\Finance\OrderDue;
 use App\Models\Finance\PaymentPlan;
 use App\Models\User;
 
@@ -37,4 +42,21 @@ function installmentPlan(User $actor, bool $default = true): PaymentPlan
         planLine('second', 'percent', '40', 'stage.started', ['stage_key' => 'install']),
         planLine('final', 'rest', null, 'delivery.completed', ['offset_days' => 15, 'grace_days' => 3]),
     ], $default);
+}
+
+/**
+ * Publishes the draft rules as the next configuration release (ADR-0040): drafts take effect only once published.
+ */
+function publishRules(User $actor, ?string $notes = null): ConfigRelease
+{
+    return app(PublishConfigRelease::class)->publish($actor, $notes, ConfigReleases::latest()->number ?? 0, ConfigSnapshot::hash(ConfigSnapshot::capture()));
+}
+
+/**
+ * @return list<array{reference: string, amount: int, event: string, stage: string|null, offset: int, grace: int}>
+ */
+function planDues(int $orderId): array
+{
+    return array_values(OrderDue::query()->where('order_id', $orderId)->whereNull('removed_at')->orderBy('position')->get()
+        ->map(fn (OrderDue $d) => ['reference' => $d->reference, 'amount' => $d->amount_minor, 'event' => $d->due_event->value, 'stage' => $d->stage_key, 'offset' => $d->offset_days, 'grace' => $d->grace_days])->all());
 }

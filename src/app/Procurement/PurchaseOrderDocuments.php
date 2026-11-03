@@ -82,7 +82,7 @@ final class PurchaseOrderDocuments
         $po = PurchaseAccess::scoped(PurchaseOrder::query(), $actor)->orderByDesc('id')->first() ?? self::sample();
         $prices = $layout['flags']['prices'] && ($po->exists ? PurchaseAccess::canSeeCosts($actor, $po) : true);
 
-        return $this->pdf->render($po, $layout, PurchaseDocumentLayout::current()['version'] + 1, $locale, $prices);
+        return $this->pdf->render($po, $layout, PurchaseDocumentLayout::draft()['version'] + 1, $locale, $prices);
     }
 
     /**
@@ -145,7 +145,7 @@ final class PurchaseOrderDocuments
             if ($currentNumber !== $baseVersion) {
                 throw new StaleRecord($currentNumber);
             }
-            $before = PurchaseDocumentLayout::current();
+            $before = PurchaseDocumentLayout::draft();
             if ($before['layout'] == $clean['layout'] && $before['email'] == $clean['email']) {
                 return $currentNumber;
             }

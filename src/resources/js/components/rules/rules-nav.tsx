@@ -1,4 +1,4 @@
-import { Link, router } from '@inertiajs/react';
+import { Link, router, usePage } from '@inertiajs/react';
 import { useState } from 'react';
 import { Alert, AlertBody, AlertDescription } from '@/components/ui/alert';
 import { useT } from '@/lib/i18n';
@@ -10,6 +10,7 @@ import {
     messages,
     numbering,
     plans,
+    releases,
     reminders,
     sla,
 } from '@/routes/rules';
@@ -20,7 +21,8 @@ export type RulesPage =
     | 'clauses'
     | 'messages'
     | 'sla'
-    | 'numbering';
+    | 'numbering'
+    | 'releases';
 
 export const RULES_PAGES: {
     key: RulesPage;
@@ -32,6 +34,7 @@ export const RULES_PAGES: {
     { key: 'messages', href: messages },
     { key: 'sla', href: sla },
     { key: 'numbering', href: numbering },
+    { key: 'releases', href: releases },
 ];
 
 /** The business-rules pages (ADR-0037) as tabs, plus the view-only and audit notes. */
@@ -75,7 +78,41 @@ export function RulesNav({
                     </AlertDescription>
                 </AlertBody>
             </Alert>
+            {current !== 'releases' && <DraftBanner />}
         </div>
+    );
+}
+
+/**
+ * ADR-0040: changes on these pages are a draft until published as a configuration release. Shown on every rules page
+ * (and the purchase-order document settings) while the draft differs from the release in force.
+ */
+export function DraftBanner() {
+    const t = useT();
+    const draft = usePage().props.configDraft;
+    if (!draft) {
+        return null;
+    }
+
+    return (
+        <Alert
+            variant={draft.pending ? 'warning' : 'success'}
+            className="max-w-3xl"
+            data-test="config-draft-banner"
+        >
+            <AlertBody>
+                <AlertDescription>
+                    {draft.pending
+                        ? t('rules.releases.banner_pending')
+                        : t('rules.releases.banner_live', {
+                              number: draft.release ?? 0,
+                          })}{' '}
+                    <Link href={releases()} className="text-link underline">
+                        {t('rules.releases.banner_link')}
+                    </Link>
+                </AlertDescription>
+            </AlertBody>
+        </Alert>
     );
 }
 

@@ -90,7 +90,7 @@ final class FinancePresenter
             'shortfalls' => CollectionConditions::shortfalls($order),
             'plan' => self::plan($order),
             // Plan lines may carry fixed amounts: only for whoever may change the schedule (P-38).
-            'plans' => Access::can($viewer, Permission::P38, $order) ? PaymentPlans::options() : [],
+            'plans' => Access::can($viewer, Permission::P38, $order) ? PaymentPlans::options($order) : [],
             'stages' => PaymentPlans::stageOptions(),
             'cash_proof_required' => FinanceSettings::current()->cashProofRequired(),
             'can' => [
@@ -115,7 +115,7 @@ final class FinancePresenter
     {
         $head = OrderFinance::query()->where('order_id', $order->id)->first(['payment_plan_id', 'payment_plan_key', 'agreement_id']);
         $copied = $head?->agreement_id !== null;
-        $plan = $copied ? null : PaymentPlans::forOrder($head?->payment_plan_id);
+        $plan = $copied ? null : PaymentPlans::forOrder($head?->payment_plan_id, $order);
         $key = $copied ? (string) $head->payment_plan_key : $plan['key'];
         $row = $copied ? PaymentPlan::query()->find($head->payment_plan_id) : $plan['plan'];
 

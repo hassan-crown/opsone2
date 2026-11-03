@@ -153,6 +153,9 @@ enum AuditAction: string
     case WhatsappTemplateNamesSaved = 'integrations.whatsapp_templates_saved';
     case TaskSlaSettingsUpdated = 'task_sla.updated';
     case NumberFormatSaved = 'number_format.saved';
+    case ConfigReleasePublished = 'config_release.published';
+    case ConfigReleaseRolledBack = 'config_release.rolled_back';
+    case ConfigDraftDiscarded = 'config_release.draft_discarded';
     case DocumentCreated = 'agreement_document.created';
     case DocumentDraftUpdated = 'agreement_document.draft_updated';
     case DocumentSent = 'agreement_document.sent';
@@ -373,7 +376,8 @@ enum AuditAction: string
             self::AppointmentProposed, self::AppointmentSent, self::AppointmentConfirmed, self::AppointmentChangeRequested, self::AppointmentChangeDiscarded, self::AppointmentChanged, self::AppointmentCompleted, self::AppointmentCancelled, self::AppointmentCustomerChangeRequested => 'appointments',
             self::WorkSettingsUpdated, self::FinanceSettingsUpdated, self::CashProofPolicyUpdated, self::DiscountLimitsUpdated,
             self::PaymentPlanSaved, self::PaymentPlanArchived, self::ReminderSettingsUpdated, self::DocumentClauseSaved, self::DocumentClauseArchived,
-            self::MessageTemplateSaved, self::MessageTemplateReset, self::WhatsappTemplateNamesSaved, self::TaskSlaSettingsUpdated, self::NumberFormatSaved => 'settings',
+            self::MessageTemplateSaved, self::MessageTemplateReset, self::WhatsappTemplateNamesSaved, self::TaskSlaSettingsUpdated, self::NumberFormatSaved,
+            self::ConfigReleasePublished, self::ConfigReleaseRolledBack, self::ConfigDraftDiscarded => 'settings',
             self::DocumentCreated, self::DocumentDraftUpdated, self::DocumentSent, self::DocumentApproved, self::DocumentChangesRequested,
             self::DocumentReplaced, self::DocumentExpired, self::DocumentExtended, self::DocumentCancelled, self::AgreementActivated,
             self::DocumentSigned, self::DocumentSignLinkSent, self::DocumentSignLinksRevoked,

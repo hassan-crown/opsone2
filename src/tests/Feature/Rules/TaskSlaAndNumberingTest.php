@@ -36,6 +36,8 @@ beforeEach(function () {
 });
 
 /**
+ * Saves the SLA settings and publishes them (ADR-0040).
+ *
  * @param  array<string, mixed>  $overrides
  */
 function setSla(object $f, array $overrides = []): void
@@ -43,6 +45,7 @@ function setSla(object $f, array $overrides = []): void
     app(UpdateTaskSla::class)->handle($f->owner, [
         'enabled' => true, 'default_days' => 2, 'by_type' => [], 'holidays' => [], 'escalate_after_days' => 1, ...$overrides,
     ]);
+    publishRules($f->owner);
 }
 
 function takeNumber(string $sequence, string $prefix, int $pad = 5, ?int $branchId = null): string
@@ -118,6 +121,8 @@ it('formats numbers with the facility prefix and a Hijri or no year, gapless and
     expect(takeNumber('receipt', 'RC', 6))->toBe('RC-'.now()->format('Y').'-000001');
 
     $save->handle($this->f->owner, ['sequence' => 'receipt', 'prefix' => 'SND', 'year_mode' => 'hijri', 'per_branch' => false, 'pad' => 4, 'start_at' => 3500]);
+    expect(takeNumber('receipt', 'RC', 6))->toBe('RC-'.now()->format('Y').'-000002'); // a draft until published (ADR-0040)
+    publishRules($this->f->owner);
     $hijri = NumberFormats::hijriYear(now('Asia/Riyadh'));
     expect($hijri)->toBeGreaterThan(1440)->toBeLessThan(1500)
         ->and(takeNumber('receipt', 'RC', 6))->toBe("SND-{$hijri}-3500")
@@ -128,6 +133,7 @@ it('formats numbers with the facility prefix and a Hijri or no year, gapless and
         ->toThrow(ValidationException::class);
 
     $save->handle($this->f->owner, ['sequence' => 'refund', 'prefix' => 'RFD', 'year_mode' => 'none', 'per_branch' => false, 'pad' => 3, 'start_at' => null]);
+    publishRules($this->f->owner);
     expect(takeNumber('refund', 'RF', 6))->toBe('RFD-001')->and(takeNumber('refund', 'RF', 6))->toBe('RFD-002');
 
     // A rolled-back number is given back: still gapless.
@@ -144,6 +150,7 @@ it('formats numbers with the facility prefix and a Hijri or no year, gapless and
 it('puts the branch code in order numbers with a counter per branch', function () {
     Branch::query()->whereKey($this->f->org->a->id)->update(['code' => 'ryd']);
     app(SaveNumberFormat::class)->handle($this->f->owner, ['sequence' => 'orders', 'prefix' => 'KIT', 'year_mode' => 'gregorian', 'per_branch' => true, 'pad' => 5, 'start_at' => null]);
+    publishRules($this->f->owner);
     $year = now('Asia/Riyadh')->format('Y');
 
     $first = openCustomOrder($this->f->sales, $this->f->inA);

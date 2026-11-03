@@ -71,7 +71,7 @@ final class SaveDocumentClause
             $clause->forceFill([
                 'key' => $data['key'], 'title' => $title, 'body' => $body, 'applies_to' => array_values($data['applies_to']),
                 'included_by_default' => (bool) $data['included_by_default'], 'position' => (int) ($data['position'] ?? $clause->position ?? 0),
-                'version' => $clause->exists ? $clause->version + ($textChanged ? 1 : 0) : 1,
+                'version' => $clause->exists ? ($textChanged ? (int) DocumentClauseVersion::query()->where('document_clause_id', $clause->id)->max('version') + 1 : $clause->version) : 1,
                 'lock_version' => $clause->exists ? $clause->lock_version + 1 : 1, 'updated_by' => $actor->id,
             ])->save();
             if ($textChanged) {

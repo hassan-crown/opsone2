@@ -2,6 +2,7 @@
 
 namespace App\Tasks;
 
+use App\Configuration\ConfigReleases;
 use App\Models\WorkSettings;
 use App\Workflow\AppointmentBooking;
 use Carbon\CarbonImmutable;
@@ -17,7 +18,12 @@ final class WorkingDays
 
     public static function current(): self
     {
-        return new self(WorkSettings::current());
+        // Working weekdays are a calendar fact (immediate); holidays belong to the task SLA rules and follow the current
+        // configuration release (ADR-0040).
+        $settings = clone WorkSettings::current();
+        $settings->holidays = ConfigReleases::current()['task_sla']['holidays'];
+
+        return new self($settings);
     }
 
     public function isWorkingDay(CarbonInterface $day): bool

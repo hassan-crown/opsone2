@@ -2,12 +2,14 @@
 
 namespace App\Finance\Plans;
 
+use App\Configuration\ConfigReleases;
 use App\Enums\DueBasis;
 use App\Enums\DueEvent;
 use App\Finance\OrderSchedule;
 use App\Models\Finance\OrderFinance;
 use App\Models\Finance\PaymentPlan;
 use App\Models\Flow;
+use App\Models\Order;
 use App\Money\Money;
 use App\Workflow\FlowTemplates;
 use Illuminate\Validation\ValidationException;
@@ -168,15 +170,16 @@ final class PaymentPlans
     }
 
     /**
-     * The plan an order gets at its first agreement: the one it chose (still active), else the default, else the
-     * built-in fallback.
+     * The plan an order gets at its first agreement, from the configuration release the order pinned (ADR-0040): the
+     * one it chose (still in that release), else the release's default, else the built-in fallback.
      *
      * @return array{plan: PaymentPlan|null, key: string, lines: list<array{key: string, name: array{ar: string, en?: string|null}, basis: string, value: int|null, event: string, stage_key: string|null, offset_days: int, grace_days: int}>}
      */
-    public static function forOrder(?int $chosenId): array
+    public static function forOrder(?int $chosenId, Order|int|null $order): array
     {
-        $plan = $chosenId === null ? null : PaymentPlan::query()->active()->find($chosenId);
-        $plan ??= PaymentPlan::query()->active()->where('is_default', true)->first();
+        $plans = self::released($order);
+        $plan = $chosenId === null ? null : self::inRelease($order, $chosenId);
+        $plan ??= collect($plans)->first(fn (PaymentPlan $p) => $p->is_default);
         if ($plan !== null) {
             return ['plan' => $plan, 'key' => $plan->key, 'lines' => $plan->lines];
         }
@@ -191,7 +194,22 @@ final class PaymentPlans
      */
     public static function pending(int $orderId): array
     {
-        return self::forOrder(OrderFinance::query()->where('order_id', $orderId)->value('payment_plan_id'));
+        return self::forOrder(OrderFinance::query()->where('order_id', $orderId)->value('payment_plan_id'), $orderId);
+    }
+
+    /**
+     * The plans of the release an order pinned (the current release for an order without a pin).
+     *
+     * @return list<PaymentPlan>
+     */
+    public static function released(Order|int|null $order): array
+    {
+        return ConfigReleases::plans(ConfigReleases::forOrder($order));
+    }
+
+    public static function inRelease(Order|int|null $order, int $planId): ?PaymentPlan
+    {
+        return collect(self::released($order))->first(fn (PaymentPlan $p) => $p->id === $planId);
     }
 
     /**
@@ -225,14 +243,14 @@ final class PaymentPlans
     }
 
     /**
-     * Active plans as screens show them (the default first).
+     * The plans an order may choose, from its release, as screens show them (the default first).
      *
      * @return list<array<string, mixed>>
      */
-    public static function options(): array
+    public static function options(Order|int|null $order): array
     {
-        return array_values(PaymentPlan::query()->active()->orderByDesc('is_default')->orderBy('key')->get()
-            ->map(fn (PaymentPlan $p) => self::present($p))->all());
+        return array_values(collect(self::released($order))->sortBy([['is_default', 'desc'], ['key', 'asc']])
+            ->map(fn (PaymentPlan $p) => self::present($p))->values()->all());
     }
 
     /**
