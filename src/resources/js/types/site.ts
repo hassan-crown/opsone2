@@ -15,6 +15,7 @@ export type SectionType =
     | 'testimonials'
     | 'faq'
     | 'contact'
+    | 'appointment'
     | 'ready_goods';
 
 export type Section = {

@@ -121,6 +121,29 @@ final class NotificationCatalogue
             'body' => 'notifications.type.installation_remark_blocking.body',
             'route' => null,
         ],
+        // ADR-0039: a customer appointment request handed to someone, a new one for the order's responsible person and
+        // one still not booked when its response time passed; opening re-checks P-54 on the request.
+        'appointment_request.assigned' => [
+            'mandatory' => false,
+            'permission' => Permission::P54,
+            'title' => 'notifications.type.appointment_request_assigned.title',
+            'body' => 'notifications.type.appointment_request_assigned.body',
+            'route' => null,
+        ],
+        'appointment_request.new' => [
+            'mandatory' => false,
+            'permission' => Permission::P54,
+            'title' => 'notifications.type.appointment_request_new.title',
+            'body' => 'notifications.type.appointment_request_new.body',
+            'route' => null,
+        ],
+        'appointment_request.overdue' => [
+            'mandatory' => false,
+            'permission' => Permission::P54,
+            'title' => 'notifications.type.appointment_request_overdue.title',
+            'body' => 'notifications.type.appointment_request_overdue.body',
+            'route' => null,
+        ],
         'appointment.confirmed' => [
             'mandatory' => false,
             'permission' => Permission::P24,

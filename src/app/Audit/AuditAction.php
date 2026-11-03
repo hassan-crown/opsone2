@@ -269,6 +269,12 @@ enum AuditAction: string
     case PortalSignInLocked = 'portal.sign_in_locked';
     case CancellationWithdrawn = 'cancellation.withdrawn';
     case AppointmentCustomerChangeRequested = 'appointment.customer_change_requested';
+    // Customer appointment requests (ADR-0039).
+    case AppointmentRequestSubmitted = 'appointment_request.submitted';
+    case AppointmentRequestAssigned = 'appointment_request.assigned';
+    case AppointmentRequestScheduled = 'appointment_request.scheduled';
+    case AppointmentRequestClosed = 'appointment_request.closed';
+    case AppointmentRequestSettingsUpdated = 'appointment_request.settings_updated';
     // P9 reports and exports (domain 09, SHR-12).
     case ReportExportRequested = 'report_export.requested';
     case ReportExportGenerated = 'report_export.generated';
@@ -370,10 +376,11 @@ enum AuditAction: string
             self::StockReleased, self::StockIssued, self::StockTransferCreated, self::StockTransferMoved, self::StockCountRecorded, self::StockCorrectionReturned => 'stock',
             self::FlowTemplateChosen, self::FlowDraftSaved, self::FlowPublished, self::FlowDraftDiscarded, self::OrderPaused, self::OrderResumed, self::OrderExecutionFinished, self::OrderClosed, self::OrderReopenedForCorrection, self::StageCompleted, self::ActionAllowed, self::ActionReworked, self::ActionNeedChanged, self::UpcomingWorkEdited, self::MeasurementRecorded, self::MeasurementCorrected => 'workflow',
             self::TaskAssigned, self::TaskRouted, self::TaskReassigned, self::TaskClaimed, self::TaskCompleted, self::TaskCancelled, self::TaskReleased => 'tasks',
-            self::AppointmentProposed, self::AppointmentSent, self::AppointmentConfirmed, self::AppointmentChangeRequested, self::AppointmentChangeDiscarded, self::AppointmentChanged, self::AppointmentCompleted, self::AppointmentCancelled, self::AppointmentCustomerChangeRequested => 'appointments',
+            self::AppointmentProposed, self::AppointmentSent, self::AppointmentConfirmed, self::AppointmentChangeRequested, self::AppointmentChangeDiscarded, self::AppointmentChanged, self::AppointmentCompleted, self::AppointmentCancelled, self::AppointmentCustomerChangeRequested,
+            self::AppointmentRequestSubmitted, self::AppointmentRequestAssigned, self::AppointmentRequestScheduled, self::AppointmentRequestClosed => 'appointments',
             self::WorkSettingsUpdated, self::FinanceSettingsUpdated, self::CashProofPolicyUpdated, self::DiscountLimitsUpdated,
             self::PaymentPlanSaved, self::PaymentPlanArchived, self::ReminderSettingsUpdated, self::DocumentClauseSaved, self::DocumentClauseArchived,
-            self::MessageTemplateSaved, self::MessageTemplateReset, self::WhatsappTemplateNamesSaved, self::TaskSlaSettingsUpdated, self::NumberFormatSaved => 'settings',
+            self::MessageTemplateSaved, self::MessageTemplateReset, self::WhatsappTemplateNamesSaved, self::TaskSlaSettingsUpdated, self::NumberFormatSaved, self::AppointmentRequestSettingsUpdated => 'settings',
             self::DocumentCreated, self::DocumentDraftUpdated, self::DocumentSent, self::DocumentApproved, self::DocumentChangesRequested,
             self::DocumentReplaced, self::DocumentExpired, self::DocumentExtended, self::DocumentCancelled, self::AgreementActivated,
             self::DocumentSigned, self::DocumentSignLinkSent, self::DocumentSignLinksRevoked,

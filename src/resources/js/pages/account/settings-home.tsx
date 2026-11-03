@@ -20,6 +20,7 @@ import {
     ScrollText,
     MessageSquareText,
     Timer,
+    CalendarPlus,
     Hash,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
@@ -38,6 +39,7 @@ import { show as closure } from '@/routes/closure';
 import { edit as einvoicing } from '@/routes/einvoicing';
 import { edit as profile } from '@/routes/profile';
 import {
+    appointment_requests as appointmentRequests,
     clauses,
     messages,
     numbering,
@@ -237,6 +239,11 @@ export default function SettingsHome({
               { key: 'messages', href: messages(), icon: MessageSquareText },
               { key: 'sla', href: sla(), icon: Timer },
               { key: 'numbering', href: numbering(), icon: Hash },
+              {
+                  key: 'appointment_requests',
+                  href: appointmentRequests(),
+                  icon: CalendarPlus,
+              },
           ].map((c) => ({
               ...c,
               title: t(`rules.nav.${c.key}` as TranslationKey),

@@ -5,6 +5,7 @@ import {
     ListChecks,
     Receipt,
     CalendarDays,
+    CalendarPlus,
     Inbox,
     LayoutGrid,
     Package,
@@ -23,6 +24,7 @@ import {
     Factory,
 } from 'lucide-react';
 import CommissionController from '@/actions/App/Http/Controllers/Commissions/CommissionController';
+import AppointmentRequestController from '@/actions/App/Http/Controllers/AppointmentRequests/AppointmentRequestController';
 import CalendarController from '@/actions/App/Http/Controllers/Calendar/CalendarController';
 import CatalogHomeController from '@/actions/App/Http/Controllers/Catalog/CatalogHomeController';
 import SitePageController from '@/actions/App/Http/Controllers/Site/SitePageController';
@@ -61,6 +63,7 @@ export type LocalizedNavItem = Omit<NavItem, 'title'> & {
         | 'flow'
         | 'tasks'
         | 'calendar'
+        | 'appointmentRequests'
         | 'finance'
         | 'commissions'
         | 'stock'
@@ -100,6 +103,12 @@ export const mainNav: LocalizedNavItem[] = [
         href: CalendarController.index(),
         icon: CalendarDays,
         access: 'calendar',
+    },
+    {
+        label: 'appointment_requests.nav',
+        href: AppointmentRequestController.index(),
+        icon: CalendarPlus,
+        access: 'appointmentRequests',
     },
     {
         label: 'finance.nav',

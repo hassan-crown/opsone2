@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Models\Appointment;
+use App\Models\AppointmentRequest;
 use App\Models\Order;
 use App\Models\Procurement\PurchaseOrder;
 use App\Models\Task;
@@ -35,6 +36,12 @@ class WorkflowServiceProvider extends ServiceProvider
             (new Appointment)->getMorphClass(),
             fn (int $id) => Appointment::query()->with('order')->find($id),
             fn (object $appointment) => route('appointments.show', ['appointment' => $appointment instanceof Appointment ? $appointment->id : 0]),
+        );
+        // ADR-0039: a customer appointment request opens its queue page (P-54 re-checked on open).
+        $targets->register(
+            (new AppointmentRequest)->getMorphClass(),
+            fn (int $id) => AppointmentRequest::query()->find($id),
+            fn (object $request) => route('appointment-requests.show', ['appointmentRequest' => $request instanceof AppointmentRequest ? $request->id : 0]),
         );
         // An order's own page (installation remarks to follow up, ADR-0036); the link re-checks the type's permission on it.
         $targets->register(
