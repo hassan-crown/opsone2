@@ -183,6 +183,6 @@
 /* roles: a grid where the screen is wide enough, a swipeable reel below that */
 @media (min-width: 1100px) {
   .reel { overflow: visible; }
-  .reel__track { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); width: auto; max-width: 85rem; margin-inline: auto; padding: 0.5rem var(--margin) 0; }
+  .reel__track { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); width: auto; max-width: 85rem; margin-inline: auto; padding: 0.5rem var(--margin) 0; }
   .role { width: auto; }
 }
