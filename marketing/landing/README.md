@@ -287,6 +287,15 @@ where noted.
 - Footer credit «تطوير Available Solutions»; the SoftwareApplication in the JSON-LD names Available Solutions as `author` and
   `creator` (name only until the URL is confirmed). Share image re-captured.
 
+## Demo names (user correction, 2026-11-04)
+
+Every person on the page has a generic two-part name (first name and father's name), with no family, tribe or nickname:
+محمد صالح (the journey's client), عبدالله علي (the signed-in owner), سارة أحمد (the signed quote), ناصر خالد، هيفاء سعد، حمد سعود،
+منيرة علي (sales opportunities), ريم يوسف، فهد ناصر (appointment requests), نورة محمد، خالد إبراهيم (staff following up), حسن علي،
+زياد سالم، عمر يوسف (field team). The recorded clips still show full showcase names and must be re-recorded with the other pending
+clips: the order clip and poster («عبدالله بن سعد القحطاني», «ريم بنت محمد السبيعي», «ياسر بن فهد القحطاني») and the owner clip
+and poster («عبدالله بن سعد القحطاني»). The portal poster shows no person's name.
+
 ## Critique (round before the redesign)
 
 ```
@@ -364,9 +373,9 @@ e-signature tile is drawn in SVG.
   still awaiting product-owner confirmation).
 - WhatsApp message text, OTP digits, stock example (ألواح MDF 18 مم، 12، حد الطلب 20), store item (مقبض ستانلس 160 مم، 35.00 ر.س).
 - «والإنجليزية متاحة لمن يحتاجها» and «فروع ومعرض ومتجر إلكتروني في النظام نفسه» as product facts.
-- Hero window content: ORD-2026-00178 for سلطان أحمد الأحمدي, stage dates (9، 14، 23 سبتمبر، 6 و8 نوفمبر), the three tasks,
-  today's appointments (حسن، زياد، عمر) and the WhatsApp message «طلبك ORD-2026-00178 جاهز للتركيب…».
-- WhatsApp thread texts and the commission example for خالد بن سعود الشمري.
+- Hero window content: ORD-2026-00178 for محمد صالح, stage dates (9، 14، 23 سبتمبر، 6 و8 نوفمبر), the three tasks,
+  today's appointments (زياد سالم، حسن علي، عمر يوسف) and the WhatsApp message «طلبك ORD-2026-00178 جاهز للتركيب…».
+- WhatsApp thread texts.
 - Names, branches and numbers visible in the screenshots and clips come from the showcase dataset.
 - ZATCA e-invoicing is not mentioned (not merged yet).
 
