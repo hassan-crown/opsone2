@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Calendar;
 
 use App\Access\Access;
 use App\Access\Permission;
+use App\Actions\AppointmentRequests\LinkScheduledAppointment;
 use App\Actions\StateMachines\M16Appointment\T00ProposeAppointment;
 use App\Actions\StateMachines\M16Appointment\T01SendToCustomer;
 use App\Actions\StateMachines\M16Appointment\T02ConfirmAppointment;
@@ -38,25 +39,31 @@ use Inertia\Response;
  */
 class AppointmentController extends Controller
 {
-    public function store(StoreAppointmentRequest $request, T00ProposeAppointment $propose, T01SendToCustomer $send, T02ConfirmAppointment $confirm): RedirectResponse
+    public function store(StoreAppointmentRequest $request, T00ProposeAppointment $propose, T01SendToCustomer $send, T02ConfirmAppointment $confirm, LinkScheduledAppointment $link): RedirectResponse
     {
         $data = $request->validated();
         abort_unless(Access::can($request->user(), Permission::P54), 403);
         $order = OrderAccess::visible($request->user())->findOrFail((int) $data['order_id']);
 
         // One transaction: a refused confirmation (policy «block», missing reason) leaves no stray proposal behind.
-        $appointment = $this->refusable(fn () => LockingTransaction::run(function () use ($data, $order, $request, $propose, $send, $confirm) {
+        $appointment = $this->refusable(fn () => LockingTransaction::run(function () use ($data, $order, $request, $propose, $send, $confirm, $link) {
             $created = $propose->handle($request->user(), $order, [
                 ...$data,
                 'starts_at' => CalendarPresenter::parseLocal($data['starts_at'])->toIso8601String(),
                 'ends_at' => CalendarPresenter::parseLocal($data['ends_at'])->toIso8601String(),
             ])['appointment'];
 
-            return match ($data['confirm_mode']) {
+            $booked = match ($data['confirm_mode']) {
                 'send' => $send->handle($request->user(), $created),
                 'confirm' => $confirm->handle($request->user(), $created, $data['confirmation_method'], $data['conflict_reason'] ?? null),
                 default => $created,
             };
+            // ADR-0039: booked from a customer request — linked in the same transaction, so a refusal keeps it open.
+            if (isset($data['appointment_request_id'])) {
+                $link->handle($request->user(), (int) $data['appointment_request_id'], $booked);
+            }
+
+            return $booked;
         }));
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('appointments.saved')]);

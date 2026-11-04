@@ -5,6 +5,7 @@ use App\Actions\StateMachines\M08Document\T05ExpireDocuments;
 use App\Actions\StateMachines\M37OwnershipTransfer\T04ExpireOwnershipTransfer;
 use App\Actions\StateMachines\M38SupportAccess\T00RequestSupportAccess;
 use App\Actions\StateMachines\M38SupportAccess\T04ExpireSupportAccess;
+use App\AppointmentRequests\AppointmentRequestSla;
 use App\EInvoicing\MissingInvoices;
 use App\Finance\CollectionReminders;
 use App\Models\Membership;
@@ -54,6 +55,13 @@ Artisan::command('tasks:remind', function (TaskSla $sla) {
 })->purpose('Remind assignees of tasks due and escalate late ones (inside the reminder hours)');
 
 Schedule::command('tasks:remind')->hourly()->withoutOverlapping();
+
+// Appointment requests (ADR-0039): `appointment_request.overdue` once an assigned request passed its response time.
+Artisan::command('appointment-requests:remind', function (AppointmentRequestSla $sla) {
+    $this->info(sprintf('Created %d appointment request notice(s).', $sla->run(now())));
+})->purpose('Alert assignees of appointment requests past their response time (inside the reminder hours)');
+
+Schedule::command('appointment-requests:remind')->hourly()->withoutOverlapping();
 
 // Outbox safety net: re-queue messages whose delivery job was lost, and drop delivered ones after 30 days.
 Artisan::command('outbox:process', function (OutboxDeliverer $deliverer) {

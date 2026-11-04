@@ -26,6 +26,7 @@ class StoreAppointmentRequest extends FormRequest
             'confirm_mode' => ['required', 'in:propose,send,confirm'],
             'confirmation_method' => ['required_if:confirm_mode,confirm', 'nullable', 'in:'.implode(',', Appointment::CONFIRMATION_METHODS)],
             'conflict_reason' => ['nullable', 'string', 'max:1000'],
+            'appointment_request_id' => ['nullable', 'integer'],
         ];
     }
 }

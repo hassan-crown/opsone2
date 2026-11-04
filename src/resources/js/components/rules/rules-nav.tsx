@@ -1,5 +1,6 @@
 import { Link, router } from '@inertiajs/react';
 import { useState } from 'react';
+import AppointmentRequestSettingsController from '@/actions/App/Http/Controllers/AppointmentRequests/AppointmentRequestSettingsController';
 import { Alert, AlertBody, AlertDescription } from '@/components/ui/alert';
 import { useT } from '@/lib/i18n';
 import type { TranslationKey } from '@/lib/i18n';
@@ -20,7 +21,8 @@ export type RulesPage =
     | 'clauses'
     | 'messages'
     | 'sla'
-    | 'numbering';
+    | 'numbering'
+    | 'appointment_requests';
 
 export const RULES_PAGES: {
     key: RulesPage;
@@ -32,6 +34,10 @@ export const RULES_PAGES: {
     { key: 'messages', href: messages },
     { key: 'sla', href: sla },
     { key: 'numbering', href: numbering },
+    {
+        key: 'appointment_requests',
+        href: () => AppointmentRequestSettingsController.edit(),
+    },
 ];
 
 /** The business-rules pages (ADR-0037) as tabs, plus the view-only and audit notes. */

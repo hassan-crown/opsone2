@@ -17,6 +17,7 @@ import { Spinner } from '@/components/ui/spinner';
 import { useT } from '@/lib/i18n';
 import type { TranslationKey } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
+import { create as newAppointmentRequest } from '@/routes/customer/appointment-requests';
 import { change, confirm } from '@/routes/customer/appointments';
 import { withdraw as withdrawCancellation } from '@/routes/customer/cancellations';
 import { show as showDocument } from '@/routes/customer/documents';
@@ -26,7 +27,13 @@ import { create as newTicket } from '@/routes/customer/tickets';
 import type { PortalAppointment, PortalOrderDetail } from '@/types/portal';
 
 /** CustOrder (WEB-09/10/11/13): journey, money, documents, appointments, receipts and the cancellation request. */
-export default function PortalOrder({ order }: { order: PortalOrderDetail }) {
+export default function PortalOrder({
+    order,
+    canRequestAppointment,
+}: {
+    order: PortalOrderDetail;
+    canRequestAppointment: boolean;
+}) {
     const t = useT();
     const f = order.finance;
 
@@ -252,6 +259,25 @@ export default function PortalOrder({ order }: { order: PortalOrderDetail }) {
                             />
                         ))}
                     </div>
+                </Section>
+            )}
+
+            {canRequestAppointment && (
+                <Section title={t('appointment_requests.portal.section')}>
+                    <p className="mb-3 text-body text-weak">
+                        {t('appointment_requests.portal.lead')}
+                    </p>
+                    <Link
+                        href={
+                            newAppointmentRequest({
+                                query: { order: order.id },
+                            }).url
+                        }
+                        className={buttonVariants({ variant: 'outline' })}
+                        data-test="request-appointment"
+                    >
+                        {t('appointment_requests.portal.request')}
+                    </Link>
                 </Section>
             )}
 

@@ -56,6 +56,8 @@ final class Showcase
 
     public Installations $installations;
 
+    public AppointmentRequests $appointmentRequests;
+
     /** @var array<string, User> */
     public array $users = [];
 
@@ -91,6 +93,7 @@ final class Showcase
         $this->messaging = new Messaging;
         $this->einvoicing = new EInvoicing($this);
         $this->installations = new Installations($this);
+        $this->appointmentRequests = new AppointmentRequests($this);
     }
 
     public function n(int $full): int
@@ -139,6 +142,7 @@ final class Showcase
         $this->specials->run();
         $this->support->run();
         $this->portal->run();
+        $this->appointmentRequests->run();
         $this->timeline->run();
         $this->messaging->settle();
         $this->einvoicing->settle();

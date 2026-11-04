@@ -38,30 +38,13 @@ final class SubmitLead
             return Interest::query()->findOrFail($existing->interest_id);
         }
 
-        $branch = Branch::query()->where('status', OrganizationUnitStatus::Active)->orderBy('id')->first();
-        if ($branch === null) {
-            throw ValidationException::withMessages(['form' => __('site.public.lead.unavailable')]);
-        }
+        $branch = self::intakeBranch();
 
         try {
             return LockingTransaction::run(function () use ($submissionKey, $data, $branch) {
-                $mobile = isset($data['mobile']) && $data['mobile'] !== '' ? (Phone::normalize($data['mobile']) ?? $data['mobile']) : null;
-                $email = isset($data['email']) && $data['email'] !== '' ? mb_strtolower(trim($data['email'])) : null;
-
-                $interest = new Interest([
-                    'name' => $data['name'], 'mobile' => $mobile, 'email' => $email, 'need' => $data['need'],
-                    'channel' => InterestChannel::Website, 'branch_id' => $branch->id,
-                ]);
-                $interest->status = InterestStatus::New;
-                $interest->save();
-                $interest->forceFill(['reference' => sprintf('INT-%04d', $interest->id)])->save();
+                $interest = $this->open($data, $branch);
 
                 SiteLeadSubmission::query()->create(['submission_key' => $submissionKey, 'interest_id' => $interest->id]);
-                $this->transitions->record(StateMachine::M03, 'T00', $interest, null, InterestStatus::New, null, self::SOURCE);
-                Audit::record(
-                    AuditAction::InterestCreated, $interest, null,
-                    after: $interest->only(['reference', 'channel', 'branch_id']), source: self::SOURCE,
-                );
 
                 return $interest;
             });
@@ -71,5 +54,42 @@ final class SubmitLead
 
             return Interest::query()->findOrFail($row->interest_id);
         }
+    }
+
+    /**
+     * The branch where public submissions land: the first active one (none = the form is unavailable).
+     */
+    public static function intakeBranch(): Branch
+    {
+        return Branch::query()->where('status', OrganizationUnitStatus::Active)->orderBy('id')->first()
+            ?? throw ValidationException::withMessages(['form' => __('site.public.lead.unavailable')]);
+    }
+
+    /**
+     * Opens a new website interest (M-03-T00, audited). Must run inside the caller's transaction; the appointment
+     * request form (ADR-0039) uses it too.
+     *
+     * @param  array{name: string, mobile?: string|null, email?: string|null, need: string}  $data
+     */
+    public function open(array $data, Branch $branch): Interest
+    {
+        $mobile = isset($data['mobile']) && $data['mobile'] !== '' ? (Phone::normalize($data['mobile']) ?? $data['mobile']) : null;
+        $email = isset($data['email']) && $data['email'] !== '' ? mb_strtolower(trim($data['email'])) : null;
+
+        $interest = new Interest([
+            'name' => $data['name'], 'mobile' => $mobile, 'email' => $email, 'need' => $data['need'],
+            'channel' => InterestChannel::Website, 'branch_id' => $branch->id,
+        ]);
+        $interest->status = InterestStatus::New;
+        $interest->save();
+        $interest->forceFill(['reference' => sprintf('INT-%04d', $interest->id)])->save();
+
+        $this->transitions->record(StateMachine::M03, 'T00', $interest, null, InterestStatus::New, null, self::SOURCE);
+        Audit::record(
+            AuditAction::InterestCreated, $interest, null,
+            after: $interest->only(['reference', 'channel', 'branch_id']), source: self::SOURCE,
+        );
+
+        return $interest;
     }
 }

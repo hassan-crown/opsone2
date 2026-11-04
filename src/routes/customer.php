@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Portal\ActivationController;
 use App\Http\Controllers\Portal\AppointmentController;
+use App\Http\Controllers\Portal\AppointmentRequestController;
 use App\Http\Controllers\Portal\CancellationController;
 use App\Http\Controllers\Portal\DocumentController;
 use App\Http\Controllers\Portal\FileController;
@@ -61,6 +62,10 @@ Route::middleware(AuthenticateCustomer::class)->group(function () {
 
     Route::post('appointments/{appointment}/confirm', [AppointmentController::class, 'confirm'])->middleware(['throttle:portal-write', RefuseCustomerWritesWhenReadOnly::class])->name('appointments.confirm');
     Route::post('appointments/{appointment}/change', [AppointmentController::class, 'requestChange'])->middleware(['throttle:portal-write', RefuseCustomerWritesWhenReadOnly::class])->name('appointments.change');
+
+    // ADR-0039: ask for an appointment; staff call back to book it (no booking from the customer).
+    Route::get('appointment-requests/new', [AppointmentRequestController::class, 'create'])->name('appointment-requests.create');
+    Route::post('appointment-requests', [AppointmentRequestController::class, 'store'])->middleware(['throttle:portal-write', RefuseCustomerWritesWhenReadOnly::class])->name('appointment-requests.store');
 
     Route::get('orders/{order}/cancel', [CancellationController::class, 'create'])->name('orders.cancel');
     Route::post('orders/{order}/cancellation', [CancellationController::class, 'store'])->middleware(['throttle:portal-write', RefuseCustomerWritesWhenReadOnly::class])->name('cancellations.store');

@@ -30,6 +30,8 @@ declare module '@inertiajs/core' {
                 orders: boolean;
                 tasks: boolean;
                 calendar: boolean;
+                /** ADR-0039: P-54, the customer appointment request queue. */
+                appointmentRequests?: boolean;
                 finance: boolean;
                 commissions: boolean;
                 stock: boolean;

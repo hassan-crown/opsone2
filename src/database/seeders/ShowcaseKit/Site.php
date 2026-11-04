@@ -178,12 +178,17 @@ final class Site
             ? ['heading' => 'ابدأ مشروع مطبخك اليوم', 'text' => 'اترك بياناتك وسيتصل بك مستشار من أقرب فرع خلال يوم عمل لتحديد موعد المعاينة المجانية.', 'show_form' => true]
             : ['heading' => 'Start your kitchen project today', 'text' => 'Leave your details and an adviser from your nearest branch will call you within one working day to book the free survey.', 'show_form' => true]];
 
+        // ADR-0039: the visitor asks for a survey or a showroom visit; the branch calls back to book it.
+        $appointment = fn (string $l) => ['id' => 'home-appointment', 'type' => 'appointment', 'visible' => true, 'data' => $l === 'ar'
+            ? ['heading' => 'اطلب موعد معاينة أو زيارة', 'text' => 'اختر نوع الموعد ووقتك المفضل، ويتصل بك فريق أقرب فرع لتثبيت الموعد.']
+            : ['heading' => 'Request a survey or a showroom visit', 'text' => 'Choose the type and your preferred time; your nearest branch will call you to fix it.']];
+
         $build = fn (string $l) => [
             'title' => $l === 'ar' ? 'مطابخ مفصّلة وإكسسوارات مطابخ' : 'Custom kitchens and kitchen accessories',
             'meta_description' => $l === 'ar'
                 ? 'أوبس ون: تصميم وتصنيع وتركيب مطابخ مفصّلة في الرياض وجدة والدمام، مع متجر إكسسوارات مطابخ بأسعار شاملة الضريبة. اطلب معاينة مجانية.'
                 : 'OpsOne designs, manufactures and installs custom kitchens in Riyadh, Jeddah and Dammam, with a kitchen accessories store. Prices include VAT. Book a free survey.',
-            'sections' => [$l === 'ar' ? $heroAr : $heroEn, $services($l), $gal($l), $goods($l), $process($l), $testimonials($l), $faq($l), $contactSection($l)],
+            'sections' => [$l === 'ar' ? $heroAr : $heroEn, $services($l), $gal($l), $goods($l), $process($l), $testimonials($l), $faq($l), $appointment($l), $contactSection($l)],
         ];
 
         return ['ar' => $build('ar'), 'en' => $build('en')];
