@@ -290,7 +290,7 @@ where noted.
 ## Demo names (user correction, 2026-11-04)
 
 Every person on the page has a generic two-part name (first name and father's name), with no family, tribe or nickname:
-محمد صالح (the journey's client), عبدالله علي (the signed-in owner), سارة أحمد (the signed quote), ناصر خالد، هيفاء سعد، حمد سعود،
+عبدالله سعد (the journey's client), عبدالله علي (the signed-in owner), سارة أحمد (the signed quote), ناصر خالد، هيفاء سعد، حمد سعود،
 منيرة علي (sales opportunities), ريم يوسف، فهد ناصر (appointment requests), نورة محمد، خالد إبراهيم (staff following up), حسن علي،
 زياد سالم، عمر يوسف (field team). The recorded clips still show full showcase names and must be re-recorded with the other pending
 clips: the order clip and poster («عبدالله بن سعد القحطاني», «ريم بنت محمد السبيعي», «ياسر بن فهد القحطاني») and the owner clip
@@ -300,7 +300,7 @@ and poster («عبدالله بن سعد القحطاني»). The portal poster 
 
 - The consultation photograph beside «من أول اتصال إلى آخر توقيع» was replaced by two OpsOne screens on one desk, built like the
   other fragments.
-  - On the desktop, the lead INT-0231 for محمد صالح (showroom visit on 2 Sep, follow-up by خالد إبراهيم) converts into
+  - On the desktop, the lead INT-0231 for عبدالله سعد (showroom visit on 2 Sep, follow-up by خالد إبراهيم) converts into
     ORD-2026-00178.
   - On the client's phone, the contract CON-2026-00031 for the same order is signed with the verification code and a drawn
     signature.
@@ -314,6 +314,12 @@ and poster («عبدالله بن سعد القحطاني»). The portal poster 
     already listed for re-recording under «Demo names».
 - Lighthouse after the change: mobile 96 / 100 / 100 / 100 (LCP 2.8 s), desktop 100 / 100 / 100 / 100. There is no
   horizontal overflow at 375, 768 or 1440.
+
+## Avatar initials (user correction, 2026-11-04)
+
+The journey's client is «عبدالله سعد». Every avatar for an Arabic name shows one letter: the first letter of the first name,
+skipping a leading «ال». Two Arabic letters can join into an awkward word, so they are not used; two letters remain allowed
+for Latin names only.
 
 ## Critique (round before the redesign)
 
@@ -391,7 +397,7 @@ e-signature tile is drawn in SVG.
   still awaiting product-owner confirmation).
 - WhatsApp message text, OTP digits, stock example (ألواح MDF 18 مم، 12، حد الطلب 20), store item (مقبض ستانلس 160 مم، 35.00 ر.س).
 - «والإنجليزية متاحة لمن يحتاجها» and «فروع ومعرض ومتجر إلكتروني في النظام نفسه» as product facts.
-- Hero window content: ORD-2026-00178 for محمد صالح, stage dates (9، 14، 23 سبتمبر، 6 و8 نوفمبر), the three tasks,
+- Hero window content: ORD-2026-00178 for عبدالله سعد, stage dates (9، 14، 23 سبتمبر، 6 و8 نوفمبر), the three tasks,
   today's appointments (زياد سالم، حسن علي، عمر يوسف) and the WhatsApp message «طلبك ORD-2026-00178 جاهز للتركيب…».
 - WhatsApp thread texts.
 - Names, branches and numbers visible in the screenshots and clips come from the showcase dataset.
