@@ -49,6 +49,19 @@
     }
   });
 
+  /* ---------- footer credit: the developer's name links out only once its URL is set in config.js ---------- */
+  const devUrl = ((window.OPSONE_LANDING || {}).developerUrl || '').trim();
+  const dev = document.querySelector('[data-developer]');
+  if (dev && /^https:\/\//.test(devUrl)) {
+    const link = document.createElement('a');
+    link.className = 'link';
+    link.href = devUrl;
+    link.target = '_blank';
+    link.rel = 'noopener';
+    link.textContent = dev.textContent;
+    dev.replaceWith(link);
+  }
+
   /* ---------- the eight steps: the step at the middle of the screen owns the stage ---------- */
   const steps = [...document.querySelectorAll('.step')];
   if (steps.length && 'IntersectionObserver' in window) {

@@ -21,10 +21,16 @@
  *     snapPixel    Snap Pixel ID
  *     linkedin     LinkedIn Insight partner ID, digits
  *     linkedinLeadConversion  LinkedIn conversion ID for the demo request, digits
+ *
+ * DEVELOPER CREDIT
+ *   developerUrl  Available Solutions' site (https://…). While empty, the footer credit «تطوير Available Solutions»
+ *                 is plain text; once set, the name links to it in a new tab. Add the same URL as "url" on the
+ *                 author/creator Organization in index.html's JSON-LD.
  */
 window.OPSONE_LANDING = {
   demoEndpoint: '',
   demoEmail: '',
+  developerUrl: '',
   tags: {
     ga4: '',
     gtm: '',

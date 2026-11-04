@@ -46,6 +46,7 @@ then visit `http://localhost:8080`.
 | Domain | `index.html` (head), `robots.txt`, `sitemap.xml` | Every absolute URL uses the placeholder `https://www.opsone.example`. Replace it in those three files, e.g. `grep -rl "https://www.opsone.example" marketing/landing \| xargs sed -i.bak "s#https://www.opsone.example#https://YOUR-DOMAIN#g"` then delete the `.bak` files. |
 | Demo form endpoint | `config.js` → `demoEndpoint` (or `demoEmail`) | See below. |
 | Marketing tag IDs | `config.js` → `tags` | See «Marketing tags». |
+| Developer link | `config.js` → `developerUrl`, and `"url"` on the author/creator Organization in the JSON-LD | Footer credit «تطوير Available Solutions» is plain text until an `https://` URL is set; then it opens in a new tab (`rel="noopener"`). |
 | Contact details | footer «تواصل» column in `index.html` | Email, phone, WhatsApp, address are not on the page yet. |
 | Hosting headers | the host | `HOSTING.md`. |
 
@@ -275,6 +276,16 @@ where noted.
   on the sticky bar and the consent banner (`viewport-fit=cover`).
 - **break-ui:** no overflow at 320, 375, 768 or 1440, nor at 200% text (the settings window lost its side menu below 1024 px to
   make that hold); a long name, a long company and Arabic-digit phone input in the form; a long email in the status line wraps.
+
+## Hero copy and developer credit (2026-11-04, approved by the user)
+
+- Headline «عملياتك كلها، في مكان واحد», always on two lines (checked at 320, 375, 768 and 1440); supporting line «من البيع في
+  المعرض وعرض السعر والدفعات، إلى التصنيع والتسليم والتركيب والمتجر الإلكتروني.»
+- «عربي» no longer describes the system anywhere: title «OpsOne | عملياتك كلها، في مكان واحد»; description, Open Graph,
+  Twitter and JSON-LD start «OpsOne يجمع عملياتك كلها في مكان واحد، من أول اتصال إلى آخر توقيع». The benefit «عربي وإنجليزي» stays:
+  it names the interface languages, not the system.
+- Footer credit «تطوير Available Solutions»; the SoftwareApplication in the JSON-LD names Available Solutions as `author` and
+  `creator` (name only until the URL is confirmed). Share image re-captured.
 
 ## Critique (round before the redesign)
 
