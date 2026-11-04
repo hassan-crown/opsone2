@@ -6578,5 +6578,15 @@
     "notifications.type.field_sales_team_overdue.title": "Late work in your field team",
     "notifications.type.field_sales_team_overdue.body": ":rep: :what is past its time.",
     "automation.trigger.lead.dispatched_to_rep": "A lead was dispatched to a field rep",
-    "automation.trigger.field_visit.completed": "A field rep finished a sales visit"
+    "automation.trigger.field_visit.completed": "A field rep finished a sales visit",
+    "field.net.offline_title": "No internet connection",
+    "field.net.offline_body": "You are viewing the last copy saved on this device. Photos are kept and sent automatically when the connection returns; the other steps need the connection.",
+    "field.net.step": "This step needs an internet connection.",
+    "field.net.stale": "Showing data saved on this device; the connection is weak and it may not be the latest.",
+    "field.net.reload": "Refresh",
+    "field.photos.gallery": "From gallery",
+    "field.photos.save_failed": "The photo could not be saved on this device",
+    "field.photos.save_failed_hint": "Check the free storage, then try again.",
+    "field.empty.sales_title": "No visits booked for you",
+    "field.empty.sales_desc": "Sales visits and measurements booked for you today and over the next six days appear here."
 }

@@ -1,6 +1,6 @@
 import { Head, Link, router, useForm, usePage } from '@inertiajs/react';
 import {
-    Camera,
+    ArrowLeft,
     Check,
     CircleAlert,
     Flag,
@@ -8,17 +8,24 @@ import {
     MapPinned,
     PenLine,
     Send,
-    Trash2,
 } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import FieldController from '@/actions/App/Http/Controllers/Field/FieldController';
 import FieldVisitController from '@/actions/App/Http/Controllers/Field/FieldVisitController';
 import {
     ReachButtons,
     StatusBadge,
+    isolate,
     useDuration,
+    useFieldDates,
 } from '@/components/field/field-bits';
-import { Step, extensionOf, useQueued } from '@/components/field/field-steps';
+import {
+    PendingThumb,
+    PhotoButtons,
+    Step,
+    queuePhoto,
+    useQueued,
+} from '@/components/field/field-steps';
 import {
     CheckboxField,
     FieldError,
@@ -30,7 +37,8 @@ import { Icon } from '@/components/opsone/icon';
 import { SignaturePad } from '@/components/portal/sign-panel';
 import { Alert, AlertBody } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
-import { compressImage, discard, enqueue, flush } from '@/lib/field-queue';
+import { useOnline } from '@/layouts/field-layout';
+import { discard } from '@/lib/field-queue';
 import type { QueuedUpload } from '@/lib/field-queue';
 import { useT } from '@/lib/i18n';
 import type { TranslationKey } from '@/lib/i18n';
@@ -60,7 +68,6 @@ function PhotoStrip({
     disabled: boolean;
 }) {
     const t = useT();
-    const input = useRef<HTMLInputElement>(null);
     const stored = visit.photos.filter((p) => p.phase === phase);
     const waiting = pending.filter(
         (p) => p.phase === phase && !stored.some((s) => s.client_uuid === p.id),
@@ -87,63 +94,19 @@ function PhotoStrip({
                     />
                 ))}
                 {waiting.map((item) => (
-                    <div key={item.id} className="relative">
-                        <img
-                            src={item.preview}
-                            alt=""
-                            className="aspect-square w-full rounded-md border border-dashed border-stroke-control object-cover opacity-70"
-                        />
-                        <span
-                            className={cn(
-                                'absolute inset-x-1 bottom-1 rounded-sm px-1 text-center text-caption',
-                                item.failed
-                                    ? 'bg-danger-bg text-danger-text'
-                                    : 'bg-surface/90 text-weak',
-                            )}
-                        >
-                            {item.failed
-                                ? t('field.photos.refused')
-                                : t('field.photos.waiting')}
-                        </span>
-                        {item.failed && (
-                            <button
-                                type="button"
-                                onClick={() => onDiscard(item.id)}
-                                className="absolute end-1 top-1 rounded-full bg-surface p-1"
-                                aria-label={t('field.photos.discard')}
-                            >
-                                <Icon icon={Trash2} size="sm" />
-                            </button>
-                        )}
-                    </div>
+                    <PendingThumb
+                        key={item.id}
+                        item={item}
+                        onDiscard={onDiscard}
+                    />
                 ))}
             </div>
-            <input
-                ref={input}
-                type="file"
-                accept="image/*"
-                capture="environment"
-                className="sr-only"
-                tabIndex={-1}
-                onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    e.target.value = '';
-                    if (file) {
-                        onTake(phase, file);
-                    }
-                }}
-            />
-            <Button
-                type="button"
-                variant="secondary"
-                block
-                loading={busy}
+            <PhotoButtons
+                label={t(`field.photos.take_${phase}` as TranslationKey)}
+                busy={busy}
                 disabled={disabled}
-                onClick={() => input.current?.click()}
-            >
-                <Icon icon={Camera} />
-                {t(`field.photos.take_${phase}` as TranslationKey)}
-            </Button>
+                onPick={(file) => onTake(phase, file)}
+            />
         </div>
     );
 }
@@ -155,6 +118,8 @@ function PhotoStrip({
 export default function FieldVisit({ visit }: Props) {
     const t = useT();
     const duration = useDuration();
+    const { day, stamp } = useFieldDates();
+    const online = useOnline();
     const { errors } = usePage().props;
     const site = visit.visit;
     const finished = site?.finished_at != null;
@@ -164,6 +129,7 @@ export default function FieldVisit({ visit }: Props) {
     const [locate, setLocate] = useState(true);
     const [arriving, setArriving] = useState(false);
     const [signMode, setSignMode] = useState<'here' | null>(null);
+    const [linking, setLinking] = useState(false);
 
     const remark = useForm({
         kind: 'missing_part' as RemarkKind,
@@ -216,21 +182,21 @@ export default function FieldVisit({ visit }: Props) {
     const take = async (phase: Phase, file: File) => {
         setBusyPhase(phase);
         try {
-            const blob = await compressImage(file);
-            await enqueue({
-                id: crypto.randomUUID(),
-                url: FieldVisitController.photo.url({ appointment: visit.id }),
-                appointmentId: visit.id,
-                phase,
-                blob,
-                name: `${phase}.${extensionOf(blob, file)}`,
-                xsrf: '',
-                created: Date.now(),
-            });
-            await refresh();
-            await flush();
-            await refresh();
-            router.reload({ only: ['visit'] });
+            await queuePhoto(
+                file,
+                {
+                    url: FieldVisitController.photo.url({
+                        appointment: visit.id,
+                    }),
+                    appointmentId: visit.id,
+                    phase,
+                },
+                refresh,
+                {
+                    title: t('field.photos.save_failed'),
+                    message: t('field.photos.save_failed_hint'),
+                },
+            );
         } finally {
             setBusyPhase(null);
         }
@@ -248,12 +214,12 @@ export default function FieldVisit({ visit }: Props) {
         <>
             <Head title={visit.customer.name} />
             <div className="mb-4 flex flex-wrap items-center gap-2">
-                <Link
-                    href={FieldController.index.url()}
-                    className="text-label text-link"
-                >
-                    {t('field.back')}
-                </Link>
+                <Button asChild variant="ghost" className="-ms-3">
+                    <Link href={FieldController.index.url()}>
+                        <Icon icon={ArrowLeft} />
+                        {t('field.back')}
+                    </Link>
+                </Button>
                 <span className="ms-auto">
                     <StatusBadge status={visit.status} />
                 </span>
@@ -278,11 +244,19 @@ export default function FieldVisit({ visit }: Props) {
                             })}
                         </p>
                     )}
-                    <p className="mt-1 mb-0 text-caption text-weak">
-                        <span dir="ltr">
-                            {visit.date} · {visit.start}–{visit.end}
-                        </span>{' '}
-                        · {visit.order.number}
+                    <p className="mt-1 mb-0 text-body text-strong">
+                        {day(visit.date)} ·{' '}
+                        <bdi
+                            dir="isolate"
+                            className="whitespace-nowrap tabular-nums"
+                        >
+                            {visit.start}–{visit.end}
+                        </bdi>
+                    </p>
+                    <p className="m-0 text-caption text-weak">
+                        <bdi className="whitespace-nowrap">
+                            {visit.order.number}
+                        </bdi>
                     </p>
                     <p className="mt-2 mb-3 text-body">{visit.address}</p>
                     <ReachButtons visit={visit} />
@@ -295,8 +269,10 @@ export default function FieldVisit({ visit }: Props) {
                                 {visit.items.map((item, i) => (
                                     <li key={i}>
                                         {item.name} ×{' '}
-                                        <span dir="ltr">{item.quantity}</span>
-                                        {item.unit ? ` ${item.unit}` : ''}
+                                        <bdi dir="isolate">
+                                            {item.quantity}
+                                            {item.unit ? ` ${item.unit}` : ''}
+                                        </bdi>
                                     </li>
                                 ))}
                             </ul>
@@ -321,7 +297,12 @@ export default function FieldVisit({ visit }: Props) {
                     )}
                 </section>
 
-                <Step n={1} title={t('field.step.arrive')} done={site !== null}>
+                <Step
+                    n={1}
+                    title={t('field.step.arrive')}
+                    done={site !== null}
+                    needsNetwork
+                >
                     {site === null ? (
                         <div className="flex flex-col gap-3">
                             <CheckboxField
@@ -335,6 +316,7 @@ export default function FieldVisit({ visit }: Props) {
                                 block
                                 loading={arriving}
                                 disabled={
+                                    !online ||
                                     visit.appointment_status !== 'confirmed'
                                 }
                                 onClick={arrive}
@@ -351,7 +333,9 @@ export default function FieldVisit({ visit }: Props) {
                         </div>
                     ) : (
                         <p className="m-0 text-body">
-                            {t('field.arrive.done', { at: site.arrived_at })}
+                            {t('field.arrive.done', {
+                                at: isolate(stamp(site.arrived_at)),
+                            })}
                             {site.located && ` · ${t('field.arrive.located')}`}
                         </p>
                     )}
@@ -389,6 +373,7 @@ export default function FieldVisit({ visit }: Props) {
                     title={t('field.step.remarks')}
                     done={visit.remarks.length > 0}
                     disabled={site === null}
+                    needsNetwork={open}
                 >
                     {visit.remarks.length > 0 && (
                         <ul className="mt-0 mb-3 flex list-none flex-col gap-2 p-0">
@@ -473,6 +458,7 @@ export default function FieldVisit({ visit }: Props) {
                                 type="submit"
                                 variant="secondary"
                                 loading={remark.processing}
+                                disabled={!online}
                             >
                                 <Icon icon={Flag} />
                                 {t('field.remark.add')}
@@ -486,13 +472,16 @@ export default function FieldVisit({ visit }: Props) {
                     title={t('field.step.signature')}
                     done={signed}
                     disabled={site === null}
+                    needsNetwork={open}
                 >
                     {signed && site ? (
                         <div className="flex flex-col gap-2">
                             <p className="m-0 text-body">
                                 {t('field.signature.done', {
                                     name: site.signer_name ?? '',
-                                    at: site.signed_at ?? '',
+                                    at: site.signed_at
+                                        ? isolate(stamp(site.signed_at))
+                                        : '',
                                 })}
                             </p>
                             <p className="m-0 text-caption text-weak">
@@ -522,15 +511,24 @@ export default function FieldVisit({ visit }: Props) {
                                     <Button
                                         type="button"
                                         variant="secondary"
-                                        onClick={() =>
+                                        loading={linking}
+                                        disabled={!online}
+                                        onClick={() => {
+                                            // One message per tap: the button stays busy until the server answers.
+                                            setLinking(true);
                                             router.post(
                                                 FieldVisitController.signatureLink.url(
                                                     { appointment: visit.id },
                                                 ),
                                                 {},
-                                                { preserveScroll: true },
-                                            )
-                                        }
+                                                {
+                                                    preserveScroll: true,
+                                                    onFinish: () =>
+                                                        setLinking(false),
+                                                },
+                                            );
+                                        }}
+                                        data-test="signature-link"
                                     >
                                         <Icon icon={Send} />
                                         {site?.signature_requested
@@ -612,6 +610,7 @@ export default function FieldVisit({ visit }: Props) {
                                             type="submit"
                                             loading={sign.processing}
                                             disabled={
+                                                !online ||
                                                 !sign.data.signature ||
                                                 !sign.data.consent
                                             }
@@ -630,11 +629,14 @@ export default function FieldVisit({ visit }: Props) {
                     title={t('field.step.finish')}
                     done={finished}
                     disabled={!open && !finished}
+                    needsNetwork={open}
                 >
                     {finished && site ? (
                         <p className="m-0 text-body">
                             {t('field.finish.done', {
-                                at: site.finished_at ?? '',
+                                at: site.finished_at
+                                    ? isolate(stamp(site.finished_at))
+                                    : '',
                                 duration: duration(site.duration_minutes),
                             })}
                         </p>
@@ -702,7 +704,7 @@ export default function FieldVisit({ visit }: Props) {
                                 type="submit"
                                 block
                                 loading={finish.processing}
-                                disabled={!ready}
+                                disabled={!ready || !online}
                                 data-test="finish"
                             >
                                 <Icon icon={Check} />
