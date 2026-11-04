@@ -2,7 +2,9 @@
 
 namespace App\Configuration;
 
+use App\FieldSales\FieldSalesConfig;
 use App\Models\Agreements\DocumentClause;
+use App\Models\FieldSales\FieldSalesSettings;
 use App\Models\Finance\PaymentPlan;
 use App\Models\MessageTemplate;
 use App\Models\NumberFormat;
@@ -16,14 +18,14 @@ use App\Procurement\PurchaseDocumentLayout;
  * release, never the draft. `defaults()` is what applies before the first release: the built-in rules, exactly as
  * empty phase-1 tables behaved.
  *
- * Sections: payment_plans, reminders, clauses, messages, task_sla, numbering, purchase_document. WhatsApp template
+ * Sections: payment_plans, reminders, clauses, messages, task_sla, numbering, purchase_document, field_sales (ADR-0041). WhatsApp template
  * names stay immediate (they must match what Meta approved) and the flow keeps its own versions (M-23).
  */
 final class ConfigSnapshot
 {
     public const SCHEMA = 1;
 
-    public const SECTIONS = ['payment_plans', 'reminders', 'clauses', 'messages', 'task_sla', 'numbering', 'purchase_document'];
+    public const SECTIONS = ['payment_plans', 'reminders', 'clauses', 'messages', 'task_sla', 'numbering', 'purchase_document', 'field_sales'];
 
     /**
      * @return array<string, mixed>
@@ -56,6 +58,7 @@ final class ConfigSnapshot
                 'pad' => $f->pad, 'start_at' => $f->start_at, 'start_period' => $f->start_period,
             ])->all()),
             'purchase_document' => PurchaseDocumentLayout::draft(),
+            'field_sales' => FieldSalesConfig::capture(FieldSalesSettings::working()),
         ];
     }
 
@@ -75,6 +78,7 @@ final class ConfigSnapshot
             'task_sla' => ['task_sla' => null, 'task_escalate_after_days' => 1, 'holidays' => []],
             'numbering' => [],
             'purchase_document' => ['version' => 0, 'layout' => PurchaseDocumentLayout::defaultLayout(), 'email' => PurchaseDocumentLayout::defaultEmail()],
+            'field_sales' => FieldSalesConfig::defaults(),
         ];
     }
 

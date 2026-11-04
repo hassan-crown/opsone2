@@ -14,7 +14,9 @@ use App\Enums\CustomerKind;
 use App\Enums\InterestStatus;
 use App\Enums\OrderKind;
 use App\Enums\StateMachine;
+use App\FieldSales\FieldDispatch;
 use App\Models\Customer;
+use App\Models\FieldSales\FieldAssignment;
 use App\Models\Interest;
 use App\Models\Order;
 use App\Models\User;
@@ -86,7 +88,9 @@ final class T02ConvertInterest
      */
     private function openOrder(User $actor, Interest $interest, Customer $customer, string $source): Order
     {
-        $probe = new Order(['branch_id' => $interest->branch_id, 'customer_id' => $customer->id]);
+        // A lead dispatched to a field rep (ADR-0041) becomes the rep's field sale and is followed by the rep.
+        $dispatched = FieldDispatch::openFor(FieldAssignment::INTEREST, $interest->id);
+        $probe = new Order(['branch_id' => $interest->branch_id, 'customer_id' => $customer->id, 'assignee_id' => $interest->assignee_id]);
         $assignee = $interest->assignee_id !== null && OrderAccess::isValidAssignee($interest->assignee_id, $probe) ? $interest->assignee_id : $actor->id;
 
         return $this->orders->open($actor, OrderKind::Custom, [
@@ -94,6 +98,7 @@ final class T02ConvertInterest
             'branch_id' => $interest->branch_id,
             'assignee_id' => $assignee,
             'need_summary' => mb_substr($interest->need, 0, 2000),
+            'field_seller_id' => $dispatched?->rep_id,
         ], null, $source);
     }
 

@@ -16,7 +16,7 @@ beforeEach(function () {
 
 it('shows the role editor grouped by matrix group and locks the owner role', function () {
     $this->actingAs($this->org->owner)->get(route('org.roles.edit', $this->sales))
-        ->assertInertia(fn (Assert $p) => $p->component('org/roles')->where('canEdit', true)->has('catalogue')->has('roles', 8));
+        ->assertInertia(fn (Assert $p) => $p->component('org/roles')->where('canEdit', true)->has('catalogue')->has('roles', 9));
     $owner = RoleTemplate::query()->where('is_owner', true)->firstOrFail();
     $this->get(route('org.roles.edit', $owner))->assertInertia(fn (Assert $p) => $p->where('canEdit', false));
     $this->put(route('org.roles.update', $owner), ['role' => []])->assertSessionHasErrors('grants');

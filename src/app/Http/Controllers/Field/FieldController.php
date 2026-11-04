@@ -3,6 +3,9 @@
 namespace App\Http\Controllers\Field;
 
 use App\Calendar\CalendarPresenter;
+use App\FieldSales\FieldReps;
+use App\FieldSales\FieldSalesConfig;
+use App\FieldSales\FieldSalesPresenter;
 use App\Http\Controllers\Controller;
 use App\Installation\FieldAccess;
 use App\Installation\FieldPresenter;
@@ -16,8 +19,9 @@ use Inertia\Inertia;
 use Inertia\Response;
 
 /**
- * The installation field app (ADR-0036): the technician's own visits for today and the next days, one screen per
- * visit, and the install instructions. Only the booked members of an appointment open it (FieldAccess).
+ * The field app: the technician's installation visits (ADR-0036) and the sales rep's visits, leads and appointment
+ * requests (ADR-0041) for today and the next days, one screen per visit, and the install instructions. Only the
+ * booked members of an appointment open it (FieldAccess).
  */
 class FieldController extends Controller
 {
@@ -34,19 +38,30 @@ class FieldController extends Controller
         $today = CarbonImmutable::parse(AppointmentBooking::today(), AppointmentBooking::timezone());
         $visits = FieldAccess::mine($user, $today->startOfDay()->utc(), $today->addDays(self::AHEAD_DAYS)->endOfDay()->utc())
             ->with(FieldPresenter::with())->limit(100)->get();
+        // ADR-0041: a field sales rep also sees the leads and appointment requests that follow them.
+        $rep = FieldSalesConfig::enabled() && FieldReps::isRep($user);
 
         return Inertia::render('field/index', [
             'today' => $today->toDateString(),
-            'visits' => array_values($visits->map(fn (Appointment $a) => FieldPresenter::row($a))->all()),
+            'visits' => array_values($visits->map(fn (Appointment $a) => $a->kind === FieldAccess::INSTALLATION
+                ? FieldPresenter::row($a) + ['kind' => $a->kind]
+                : FieldSalesPresenter::visitRow($a))->all()),
+            'work' => $rep ? FieldSalesPresenter::work($user) : null,
         ]);
     }
 
-    public function show(Request $request, Appointment $appointment, FieldPresenter $presenter): Response
+    public function show(Request $request, Appointment $appointment, FieldPresenter $presenter, FieldSalesPresenter $sales): Response
     {
         /** @var User $user */
         $user = $request->user();
         $appointment->load(FieldPresenter::with());
         FieldAccess::authorize($user, $appointment);
+        if ($appointment->kind !== FieldAccess::INSTALLATION) {
+            return Inertia::render('field/sales-visit', [
+                'visit' => $sales->visit($appointment, $user),
+                'today' => CalendarPresenter::local(now())->toDateString(),
+            ]);
+        }
 
         return Inertia::render('field/visit', [
             'visit' => $presenter->visit($appointment, $user),

@@ -4,6 +4,7 @@ namespace App\Configuration;
 
 use App\Models\Agreements\DocumentClause;
 use App\Models\Agreements\DocumentClauseVersion;
+use App\Models\FieldSales\FieldSalesSettings;
 use App\Models\Finance\PaymentPlan;
 use App\Models\MessageTemplate;
 use App\Models\NumberFormat;
@@ -34,6 +35,7 @@ final class ConfigRestorer
         $this->taskSla($snapshot['task_sla'] ?? ConfigSnapshot::defaults()['task_sla'], $actor);
         $this->numbering($snapshot['numbering'] ?? [], $actor);
         $this->purchaseDocument($snapshot['purchase_document'] ?? ConfigSnapshot::defaults()['purchase_document'], $actor);
+        $this->fieldSales($snapshot['field_sales'] ?? ConfigSnapshot::defaults()['field_sales'], $actor);
         ConfigReleases::forget();
     }
 
@@ -114,6 +116,18 @@ final class ConfigRestorer
         $settings->forceFill([
             'task_sla' => $values['task_sla'], 'task_escalate_after_days' => (int) $values['task_escalate_after_days'],
             'holidays' => $values['holidays'], 'updated_by' => $actor->id,
+        ])->save();
+    }
+
+    /**
+     * @param  array<string, mixed>  $values
+     */
+    private function fieldSales(array $values, User $actor): void
+    {
+        $settings = FieldSalesSettings::query()->lockForUpdate()->orderBy('id')->first() ?? new FieldSalesSettings;
+        $settings->forceFill([
+            'enabled' => (bool) $values['enabled'], 'kinds' => array_values($values['kinds']), 'response_hours' => $values['response_hours'],
+            'updated_by' => $actor->id, 'lock_version' => ($settings->exists ? $settings->lock_version : 0) + 1,
         ])->save();
     }
 

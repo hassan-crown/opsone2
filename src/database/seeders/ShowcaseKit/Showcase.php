@@ -58,6 +58,8 @@ final class Showcase
 
     public AppointmentRequests $appointmentRequests;
 
+    public FieldSales $fieldSales;
+
     /** @var array<string, User> */
     public array $users = [];
 
@@ -94,6 +96,7 @@ final class Showcase
         $this->einvoicing = new EInvoicing($this);
         $this->installations = new Installations($this);
         $this->appointmentRequests = new AppointmentRequests($this);
+        $this->fieldSales = new FieldSales($this);
     }
 
     public function n(int $full): int
@@ -143,6 +146,7 @@ final class Showcase
         $this->support->run();
         $this->portal->run();
         $this->appointmentRequests->run();
+        $this->fieldSales->run();
         $this->timeline->run();
         $this->messaging->settle();
         $this->einvoicing->settle();

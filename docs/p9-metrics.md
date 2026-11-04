@@ -211,3 +211,25 @@ The dashboard also shows `sales.agreed_gross_minor`, `collection.collected_minor
 | `store.paid_total_minor` | money | gross | P-37 | store_checkouts | Σ total_minor of checkouts paid in range. |
 | `store.discount_minor` | money | gross | P-37 | store_checkouts | Σ discount_minor of those checkouts. |
 | `store.conversion_percent` | percent | none | — | store_checkouts | paid ÷ created in range × 100, one decimal. |
+
+### `channels` (ADR-0041)
+
+| Metric | Kind | VAT | Grant | Sources | Formula |
+|---|---|---|---|---|---|
+| `channels.orders_created` | count | none | — | orders | Orders created in range (every channel); per channel in the table. |
+| `channels.booked_minor` | money | gross | P-37 | agreements, store_checkouts | Booked sales = sales.agreed_gross_minor (custom orders first approved in range) + store.paid_total_minor (checkouts paid in range); per channel by orders.sales_channel. |
+| `channels.collected_minor` | money | gross | P-37 | money_entries, money_journals | collection.net_minor (every entry in range: collected + corrections + transfers + refunded); per channel by orders.sales_channel. |
+| `channels.field_sales_share_percent` | percent | none | P-37 | agreements, store_checkouts | Booked of field_sales orders ÷ booked of every channel × 100, one decimal (0 when nothing was booked). |
+
+### `field_sales` (ADR-0041)
+
+| Metric | Kind | VAT | Grant | Sources | Formula |
+|---|---|---|---|---|---|
+| `field_sales.leads_assigned` | count | none | — | field_assignments | Leads dispatched to a rep in range (assigned_at), a re-dispatch counting again for the new rep. |
+| `field_sales.requests_assigned` | count | none | — | field_assignments | Appointment requests dispatched to a rep in range. |
+| `field_sales.visits_done` | count | none | — | sales_visits | Sales visits finished in range (finished_at), by the rep who started them. |
+| `field_sales.conversions` | count | none | — | field_assignments | Dispatched leads whose assignment ended as converted in range (ended_at), credited to the assignment's rep. |
+| `field_sales.conversion_percent` | percent | none | — | field_assignments | conversions ÷ leads_assigned in range × 100, one decimal (0 without assigned leads). |
+| `field_sales.orders` | count | none | — | orders | Orders with sales_channel field_sales created in range, by seller. |
+| `field_sales.booked_minor` | money | gross | P-37 | agreements | channels.booked_minor restricted to field_sales orders, by seller. |
+| `field_sales.commission_minor` | money | none | P-94 | commission_entries | commissions.accrued_minor of field_sales orders whose entry belongs to the order's seller, created in range. |

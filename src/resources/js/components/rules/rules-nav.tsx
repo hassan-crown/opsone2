@@ -1,6 +1,7 @@
 import { Link, router, usePage } from '@inertiajs/react';
 import { useState } from 'react';
 import AppointmentRequestSettingsController from '@/actions/App/Http/Controllers/AppointmentRequests/AppointmentRequestSettingsController';
+import FieldSalesSettingsController from '@/actions/App/Http/Controllers/FieldSales/FieldSalesSettingsController';
 import { Alert, AlertBody, AlertDescription } from '@/components/ui/alert';
 import { useT } from '@/lib/i18n';
 import type { TranslationKey } from '@/lib/i18n';
@@ -24,6 +25,7 @@ export type RulesPage =
     | 'sla'
     | 'numbering'
     | 'appointment_requests'
+    | 'field_sales'
     | 'releases';
 
 export const RULES_PAGES: {
@@ -40,6 +42,7 @@ export const RULES_PAGES: {
         key: 'appointment_requests',
         href: () => AppointmentRequestSettingsController.edit(),
     },
+    { key: 'field_sales', href: () => FieldSalesSettingsController.edit() },
     { key: 'releases', href: releases },
 ];
 

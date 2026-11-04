@@ -7,6 +7,9 @@ use App\Access\Permission;
 use App\Configuration\ConfigReleases;
 use App\Configuration\ConfigSnapshot;
 use App\Delivery\DeliveryAccess;
+use App\FieldSales\FieldDispatch;
+use App\FieldSales\FieldReps;
+use App\FieldSales\FieldSalesConfig;
 use App\Inventory\StockAccess;
 use App\Notifications\NotificationFeed;
 use App\Reports\Dashboard\ExecutiveDashboard;
@@ -118,6 +121,8 @@ class HandleInertiaRequests extends Middleware
             'tasks' => Access::can($user, Permission::P24) || Access::can($user, Permission::P22),
             'calendar' => Access::can($user, Permission::P54) || Access::can($user, Permission::P24),
             'appointmentRequests' => Access::can($user, Permission::P54),
+            'fieldSales' => FieldDispatch::canDispatch($user),
+            'fieldApp' => FieldSalesConfig::enabled() && FieldReps::isRep($user),
             'finance' => Access::can($user, Permission::P37),
             'commissions' => Access::can($user, Permission::P94),
             'reports' => Access::can($user, Permission::P60),

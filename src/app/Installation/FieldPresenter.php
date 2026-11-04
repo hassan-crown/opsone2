@@ -27,7 +27,7 @@ final class FieldPresenter
      */
     public static function with(): array
     {
-        return ['order.customer', 'order.contact', 'order.lines', 'members', 'installationVisit'];
+        return ['order.customer', 'order.contact', 'order.lines', 'members', 'installationVisit', 'salesVisit'];
     }
 
     /**

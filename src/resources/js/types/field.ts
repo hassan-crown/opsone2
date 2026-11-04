@@ -6,6 +6,8 @@ export type InstallationStatus =
 
 export type FieldVisitRow = {
     id: number;
+    /** installation (ADR-0036) or a sales kind — visit | measurement (ADR-0041). */
+    kind?: string;
     date: string;
     start: string;
     end: string;
@@ -91,4 +93,86 @@ export const STATUS_VARIANT: Record<
     in_progress: 'info',
     finished: 'success',
     finished_with_remarks: 'warning',
+};
+
+/** ADR-0041: what the field app lists for a field sales rep. */
+export type FieldDue = { due_at: string | null; overdue: boolean };
+
+export type FieldLeadRow = FieldDue & {
+    id: number;
+    reference: string | null;
+    status: string;
+    name: string;
+    mobile: string | null;
+    need: string;
+    channel: string;
+    branch: string;
+    note: string | null;
+};
+
+export type FieldRequestRow = FieldDue & {
+    id: number;
+    reference: string | null;
+    kind: string;
+    name: string;
+    phone: string;
+    city: string | null;
+    address: string | null;
+    note: string | null;
+    preferred_from: string | null;
+    preferred_to: string | null;
+    time_of_day: string | null;
+};
+
+export type FieldWork = { leads: FieldLeadRow[]; requests: FieldRequestRow[] };
+
+export type FieldLeadDetail = FieldLeadRow & {
+    email: string | null;
+    close_reason: string | null;
+    converted_order_id: number | null;
+    can: { follow: boolean; close: boolean; convert: boolean };
+};
+
+export type SalesVisitDetail = Omit<FieldVisitRow, 'order'> & {
+    kind: string;
+    order: { id: number; number: string; channel: string };
+    visit: {
+        id: number;
+        lock_version: number;
+        note: string | null;
+        outcome: string | null;
+        arrived_at: string;
+        finished_at: string | null;
+    } | null;
+    photos: { id: number; client_uuid: string; url: string }[];
+    max_photos: number;
+    measurements: {
+        id: number;
+        location: string;
+        name: string;
+        value: string;
+        unit: string;
+        kind: string;
+    }[];
+    units: string[];
+    documents: {
+        id: number;
+        kind: 'quote' | 'contract';
+        number: string;
+        status: string;
+        lock_version: number;
+        valid_until: string | null;
+        can_send: boolean;
+        can_sign_link: boolean;
+    }[];
+    lead: { id: number; reference: string | null } | null;
+    customer_portal: boolean;
+    can: {
+        start: boolean;
+        work: boolean;
+        measure: boolean;
+        create_quote: boolean;
+        edit_quote: boolean;
+        portal_invite: boolean;
+    };
 };

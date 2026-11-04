@@ -12,8 +12,8 @@ use Illuminate\Support\Facades\DB;
 use LogicException;
 
 /**
- * Pins «صاحب المبيعة» of a made-to-order order when its agreement is first approved (SAL-11, SAL-12): the member
- * following the order (its assignee, else its creator) — never whoever edited the record last — with the rate that
+ * Pins «صاحب المبيعة» of a made-to-order order when its agreement is first approved (SAL-11, SAL-12): the field
+ * rep who sold it (ADR-0041), else the member following the order (its assignee, else its creator) — never whoever edited the record last — with the rate that
  * applies to them at that moment. Later rate or policy changes never reach a pinned sale (SAL-19); only a sale
  * correction does (SAL-16). Ready orders and basket links arrive with the store (P7).
  */
@@ -32,7 +32,7 @@ final class SaleOwnership
             return $existing;
         }
         $agreement = OrderAgreement::current($order);
-        $ownerId = $order->assignee_id ?? $order->created_by;
+        $ownerId = $order->seller_id ?? $order->assignee_id ?? $order->created_by;
         $owner = $ownerId === null ? null : User::query()->find($ownerId);
         if ($agreement === null || $owner === null) {
             return null;
@@ -45,7 +45,7 @@ final class SaleOwnership
             'rate_bp' => $rate['rate_bp'],
             'rate_source' => $rate['source'],
             'manual_lines_eligible' => CommissionSettings::current()->manual_lines_eligible,
-            'owner_source' => $order->assignee_id !== null ? 'assignee' : 'creator',
+            'owner_source' => $order->seller_id !== null ? 'seller' : ($order->assignee_id !== null ? 'assignee' : 'creator'),
             'agreement_id' => $agreement->id,
             'status' => OrderSale::ACTIVE,
             'active_key' => $order->id,

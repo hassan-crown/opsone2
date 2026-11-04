@@ -32,6 +32,8 @@ import type { OrderCancellation } from '@/components/cancellation/order-cancel-c
 import { OrderDeliveryCard } from '@/components/delivery/order-delivery-card';
 import type { OrderDelivery } from '@/components/delivery/order-delivery-card';
 import { InstallationCard } from '@/components/orders/installation-card';
+import { SalesChannelCard } from '@/components/orders/sales-channel-card';
+import type { OrderSalesChannel } from '@/components/orders/sales-channel-card';
 import { OrderClosureCard } from '@/components/orders/order-closure-card';
 import type { OrderClosure } from '@/components/orders/order-closure-card';
 import type { OrderInstallation } from '@/types/field';
@@ -72,6 +74,7 @@ type Props = {
     closure?: OrderClosure | null;
     installation?: OrderInstallation | null;
     cancellation?: OrderCancellation | null;
+    salesChannel?: OrderSalesChannel;
 };
 
 // Loaded on demand: keeps the page's preload `Link` header (one entry per static chunk) within nginx's buffer.
@@ -110,6 +113,7 @@ export default function OrderShow({
     closure,
     installation,
     cancellation,
+    salesChannel,
 }: Props) {
     const t = useT();
     const { locale } = useLocale();
@@ -571,6 +575,12 @@ export default function OrderShow({
                             )}
                             {installation && (
                                 <InstallationCard installation={installation} />
+                            )}
+                            {salesChannel && (
+                                <SalesChannelCard
+                                    orderId={order.id}
+                                    sales={salesChannel}
+                                />
                             )}
                             {closure && (
                                 <OrderClosureCard
