@@ -4,7 +4,10 @@ import type { TranslationKey } from '@/lib/i18n';
 
 export type ReleaseChange = {
     section: string;
+    /** Internal key: matches items across releases, never shown. */
     item: string | null;
+    /** The item's name in the interface language (the plan's name, the clause's title…). */
+    label?: string | null;
     change: 'added' | 'removed' | 'changed';
     fields: { field: string; before: string | null; after: string | null }[];
 };
@@ -25,6 +28,10 @@ function useLabel() {
         return text === key ? fallback : text;
     };
 }
+
+/** An empty list reads as nothing, not as an empty «before» with an arrow. */
+const filled = (value: string | null): value is string =>
+    value !== null && value !== '';
 
 /** The readable change log between two configuration snapshots (ADR-0040), grouped by section. */
 export function ReleaseChanges({
@@ -49,22 +56,22 @@ export function ReleaseChanges({
                     key={`${c.section}-${c.item ?? ''}-${i}`}
                     className="rounded-lg border border-stroke-weak p-3"
                 >
-                    <div className="flex flex-wrap items-center gap-2">
+                    <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
                         <Badge variant={CHANGE_VARIANT[c.change]}>
                             {t(
                                 `rules.releases.change.${c.change}` as TranslationKey,
                             )}
                         </Badge>
-                        <span className="text-label text-strong">
+                        <span className="text-label text-weak">
                             {label(
                                 `rules.releases.section.${c.section}`,
                                 c.section,
                             )}
                         </span>
-                        {c.item !== null && (
-                            <bdi className="text-caption text-weak" dir="ltr">
-                                {c.item}
-                            </bdi>
+                        {c.label && (
+                            <span className="min-w-0 text-body break-words text-strong">
+                                {c.label}
+                            </span>
                         )}
                     </div>
                     {c.fields.length > 0 && (
@@ -81,20 +88,20 @@ export function ReleaseChanges({
                                         )}
                                     </dt>
                                     <dd className="m-0 min-w-0 break-words">
-                                        {f.before !== null && (
+                                        {filled(f.before) && (
                                             <del className="text-danger-text">
                                                 {f.before}
                                             </del>
                                         )}
-                                        {f.before !== null &&
-                                            f.after !== null && (
+                                        {filled(f.before) &&
+                                            filled(f.after) && (
                                                 <span aria-hidden>
                                                     {dir === 'rtl'
                                                         ? ' ← '
                                                         : ' → '}
                                                 </span>
                                             )}
-                                        {f.after !== null && (
+                                        {filled(f.after) && (
                                             <ins className="text-success-text no-underline">
                                                 {f.after}
                                             </ins>
@@ -124,12 +131,13 @@ export function ChangeSummary({
 
     return (
         <span>
-            {entries
-                .map(
-                    ([section, count]) =>
-                        `${label(`rules.releases.section.${section}`, section)} (${count})`,
-                )
-                .join(' · ')}
+            {entries.map(([section, count], i) => (
+                <span key={section}>
+                    {i > 0 && ' · '}
+                    {label(`rules.releases.section.${section}`, section)}{' '}
+                    <bdi className="tabular-nums">({count})</bdi>
+                </span>
+            ))}
         </span>
     );
 }

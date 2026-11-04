@@ -4,6 +4,7 @@ import FieldSalesSettingsController from '@/actions/App/Http/Controllers/FieldSa
 import Heading from '@/components/heading';
 import { CheckboxField, TextField } from '@/components/opsone/field';
 import { PageHeader } from '@/components/opsone/page-header';
+import { StickyActions } from '@/components/opsone/sticky-actions';
 import { RulesNav, useRulesWrite } from '@/components/rules/rules-nav';
 import { Button } from '@/components/ui/button';
 import { useT } from '@/lib/i18n';
@@ -130,20 +131,22 @@ export default function FieldSalesSettings({
                     }
                 />
                 {canEdit && (
-                    <Button
-                        type="button"
-                        onClick={() =>
-                            write.send(
-                                'put',
-                                FieldSalesSettingsController.update().url,
-                                { ...form },
-                            )
-                        }
-                        loading={write.busy}
-                        data-test="save-field-sales-settings"
-                    >
-                        {t('rules.save')}
-                    </Button>
+                    <StickyActions>
+                        <Button
+                            type="button"
+                            onClick={() =>
+                                write.send(
+                                    'put',
+                                    FieldSalesSettingsController.update().url,
+                                    { ...form },
+                                )
+                            }
+                            loading={write.busy}
+                            data-test="save-field-sales-settings"
+                        >
+                            {t('rules.save')}
+                        </Button>
+                    </StickyActions>
                 )}
             </fieldset>
         </>

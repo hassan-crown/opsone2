@@ -8,6 +8,7 @@ import {
     TextareaField,
 } from '@/components/opsone/field';
 import { PageHeader } from '@/components/opsone/page-header';
+import { StickyActions } from '@/components/opsone/sticky-actions';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -128,6 +129,7 @@ const PROFILE_FIELDS: ReadonlyArray<
 
 function NoteForm({ row, onDone }: { row: Row; onDone: () => void }) {
     const t = useT();
+    const { locale } = useLocale();
 
     return (
         <Form
@@ -160,9 +162,8 @@ function NoteForm({ row, onDone }: { row: Row; onDone: () => void }) {
                         hint={
                             row.creditable_minor !== null
                                 ? t('einvoicing.note.creditable', {
-                                      amount: (
-                                          row.creditable_minor / 100
-                                      ).toFixed(2),
+                                      // U+2068/U+2069 keep the amount whole inside the sentence.
+                                      amount: `\u2068${formatAmount(row.creditable_minor / 100, locale)}\u2069`,
                                   })
                                 : undefined
                         }
@@ -306,14 +307,16 @@ export default function SettingsEInvoicing({
                                     error={errors.enabled}
                                     data-test="zatca-enabled"
                                 />
-                                <Button
-                                    type="submit"
-                                    loading={processing}
-                                    data-test="save-zatca"
-                                >
-                                    {processing && <Spinner />}
-                                    {t('einvoicing.save')}
-                                </Button>
+                                <StickyActions>
+                                    <Button
+                                        type="submit"
+                                        loading={processing}
+                                        data-test="save-zatca"
+                                    >
+                                        {processing && <Spinner />}
+                                        {t('einvoicing.save')}
+                                    </Button>
+                                </StickyActions>
                             </>
                         )}
                     </Form>

@@ -54,6 +54,13 @@ import { basic, home, sales, work } from '@/routes/settings';
 import { index as sessions } from '@/routes/sessions';
 import { index as supportAccess } from '@/routes/support-access';
 
+/** Plan keys from the signed license; an unknown key (a plan added later) shows as it is. */
+const PLAN_NAMES: Record<string, TranslationKey> = {
+    basic: 'account.plan.name.basic',
+    growth: 'account.plan.name.growth',
+    scale: 'account.plan.name.scale',
+};
+
 type Props = {
     facility: {
         name_ar: string;
@@ -146,11 +153,11 @@ export default function SettingsHome({
     const t = useT();
 
     const planName =
-        planInfo.name === 'basic'
-            ? t('account.plan.name.basic')
-            : planInfo.name === 'growth'
-              ? t('account.plan.name.growth')
-              : (planInfo.name ?? t('account.plan.name.none'));
+        planInfo.name === null
+            ? t('account.plan.name.none')
+            : planInfo.name in PLAN_NAMES
+              ? t(PLAN_NAMES[planInfo.name])
+              : planInfo.name;
 
     const facilityCards: Card[] = [];
     if (can.editProfile || can.viewPlan) {

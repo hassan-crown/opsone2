@@ -6644,5 +6644,12 @@
     "home.orders_attention.none": "لا طلبات متأخرة الآن.",
     "home.orders_attention.open_all": "كل الطلبات",
     "home.open_executive": "لوحة المالك",
-    "appointment_requests.range_to": "إلى"
+    "appointment_requests.range_to": "إلى",
+    "account.plan.name.scale": "توسّع",
+    "finance.home.filter.label": "تصفية المتابعة المالية",
+    "coupons.uses_unlimited": "الاستخدام :uses · بلا حد",
+    "links.url": "رابط السلة",
+    "links.copied": "نُسخ الرابط",
+    "links.copy_failed": "تعذّر نسخ الرابط",
+    "links.copy_failed_hint": "حدّد الرابط من الحقل وانسخه يدويًا."
 }

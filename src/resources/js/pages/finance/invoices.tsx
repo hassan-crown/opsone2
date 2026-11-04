@@ -4,6 +4,8 @@ import FinanceHomeController from '@/actions/App/Http/Controllers/Finance/Financ
 import OrderFinanceController from '@/actions/App/Http/Controllers/Finance/OrderFinanceController';
 import { EmptyState } from '@/components/opsone/empty-state';
 import { PageHeader } from '@/components/opsone/page-header';
+import { Ref } from '@/components/opsone/ref';
+import { Table, TableWrap, Td, Th } from '@/components/org/data-table';
 import { SettlementMoney } from '@/components/settlement/dialogs';
 import type {
     DocumentStatus,
@@ -136,42 +138,31 @@ export default function FinanceInvoices({ documents }: Props) {
                             title={t('invoices.linked.empty')}
                         />
                     ) : (
-                        <div className="overflow-x-auto">
-                            <table className="w-full text-start text-body">
-                                <thead className="text-label text-weak">
+                        <TableWrap>
+                            <Table caption={t('invoices.linked.title')}>
+                                <thead>
                                     <tr>
-                                        <th className="py-2 text-start">
-                                            {t('invoices.field.number')}
-                                        </th>
-                                        <th className="py-2 text-start">
-                                            {t('invoices.field.kind')}
-                                        </th>
-                                        <th className="py-2 text-start">
-                                            {t('invoices.field.order')}
-                                        </th>
-                                        <th className="py-2 text-start">
-                                            {t('invoices.field.event')}
-                                        </th>
-                                        <th className="py-2 text-start">
-                                            {t('invoices.field.date')}
-                                        </th>
-                                        <th className="py-2 text-start">
-                                            {t('invoices.field.amount')}
-                                        </th>
-                                        <th className="py-2 text-start">
-                                            {t('invoices.field.review')}
-                                        </th>
+                                        <Th>{t('invoices.field.number')}</Th>
+                                        <Th>{t('invoices.field.kind')}</Th>
+                                        <Th>{t('invoices.field.order')}</Th>
+                                        <Th>{t('invoices.field.event')}</Th>
+                                        <Th>{t('invoices.field.date')}</Th>
+                                        <Th>{t('invoices.field.amount')}</Th>
+                                        <Th>{t('invoices.field.review')}</Th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {linked.map((d) => (
                                         <tr
                                             key={d.id}
-                                            className="border-t border-stroke-weak"
                                             data-test="linked-document"
                                         >
-                                            <td className="py-2">
-                                                <bdi dir="ltr">{d.number}</bdi>
+                                            <Td>
+                                                {d.number ? (
+                                                    <Ref>{d.number}</Ref>
+                                                ) : (
+                                                    '—'
+                                                )}
                                                 {d.files[0]?.url && (
                                                     <a
                                                         href={d.files[0].url}
@@ -182,54 +173,57 @@ export default function FinanceInvoices({ documents }: Props) {
                                                         {t('invoices.file')}
                                                     </a>
                                                 )}
-                                            </td>
-                                            <td className="py-2">
+                                            </Td>
+                                            <Td>
                                                 {t(
                                                     `invoices.kind.${d.kind}` as TranslationKey,
                                                 )}
-                                            </td>
-                                            <td className="py-2">
+                                            </Td>
+                                            <Td>
                                                 <Link
                                                     href={OrderFinanceController.show.url(
                                                         d.order.id,
                                                     )}
                                                     className="text-link underline"
                                                 >
-                                                    <bdi dir="ltr">
+                                                    <bdi
+                                                        dir="ltr"
+                                                        className="whitespace-nowrap"
+                                                    >
                                                         {d.order.number}
                                                     </bdi>
                                                 </Link>
-                                            </td>
-                                            <td className="py-2">
+                                            </Td>
+                                            <Td>
                                                 {t(
                                                     `invoices.event.${d.event}` as TranslationKey,
                                                 )}
-                                            </td>
-                                            <td className="py-2">
+                                            </Td>
+                                            <Td>
                                                 {d.issued_on
                                                     ? formatDate(
                                                           d.issued_on,
                                                           locale,
                                                       )
                                                     : '—'}
-                                            </td>
-                                            <td className="py-2">
+                                            </Td>
+                                            <Td>
                                                 <SettlementMoney
                                                     minor={d.amount_minor}
                                                 />
-                                            </td>
-                                            <td className="py-2">
+                                            </Td>
+                                            <Td>
                                                 <Badge variant={TONE[d.status]}>
                                                     {t(
                                                         `invoices.status.${d.status}` as TranslationKey,
                                                     )}
                                                 </Badge>
-                                            </td>
+                                            </Td>
                                         </tr>
                                     ))}
                                 </tbody>
-                            </table>
-                        </div>
+                            </Table>
+                        </TableWrap>
                     )}
                 </Card>
             </div>

@@ -6644,5 +6644,12 @@
     "home.orders_attention.none": "No late orders right now.",
     "home.orders_attention.open_all": "All orders",
     "home.open_executive": "Owner dashboard",
-    "appointment_requests.range_to": "to"
+    "appointment_requests.range_to": "to",
+    "account.plan.name.scale": "Scale",
+    "finance.home.filter.label": "Filter the finance follow-up",
+    "coupons.uses_unlimited": "Used :uses · no limit",
+    "links.url": "Basket link",
+    "links.copied": "Link copied",
+    "links.copy_failed": "Couldn't copy the link",
+    "links.copy_failed_hint": "Select the link in the field and copy it yourself."
 }

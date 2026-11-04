@@ -7,6 +7,7 @@ import type { Correction, MemberRow } from '@/components/commissions/types';
 import { EmptyState } from '@/components/opsone/empty-state';
 import { Icon } from '@/components/opsone/icon';
 import { PageHeader } from '@/components/opsone/page-header';
+import { Ref } from '@/components/opsone/ref';
 import { Table, TableWrap, Td, Th } from '@/components/org/data-table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -92,7 +93,7 @@ export default function Commissions({
                             <tbody>
                                 {members.map((m) => (
                                     <tr key={m.id} data-test="member-row">
-                                        <Td className="font-semibold">
+                                        <Td className="min-w-44 font-semibold">
                                             <Link
                                                 href={CommissionController.member.url(
                                                     m.id,
@@ -192,9 +193,9 @@ export default function Commissions({
                                 className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-stroke-weak p-3"
                             >
                                 <span className="flex flex-wrap items-center gap-2">
-                                    <bdi dir="ltr" className="font-semibold">
+                                    <Ref className="font-semibold">
                                         {c.order.number}
-                                    </bdi>
+                                    </Ref>
                                     <Badge variant="warning">
                                         {t(
                                             `commissions.corrections.kind.${c.kind}` as TranslationKey,
