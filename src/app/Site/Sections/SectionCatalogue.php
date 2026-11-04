@@ -13,7 +13,7 @@ use Illuminate\Validation\ValidationException;
  */
 final class SectionCatalogue
 {
-    public const TYPES = ['hero', 'text', 'services', 'gallery', 'testimonials', 'faq', 'contact', 'ready_goods'];
+    public const TYPES = ['hero', 'text', 'services', 'gallery', 'testimonials', 'faq', 'contact', 'appointment', 'ready_goods'];
 
     /** type => [scalar text fields => [max length, required to publish]] */
     private const TEXT = [
@@ -24,6 +24,8 @@ final class SectionCatalogue
         'testimonials' => ['heading' => [160, false]],
         'faq' => ['heading' => [160, false]],
         'contact' => ['heading' => [160, true], 'text' => [400, false]],
+        // ADR-0039: «request an appointment»; its fields come from the appointment request settings.
+        'appointment' => ['heading' => [160, true], 'text' => [400, false]],
         'ready_goods' => ['heading' => [160, true], 'text' => [400, false]],
     ];
 

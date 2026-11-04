@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Site\AppointmentRequestController;
 use App\Http\Controllers\Site\LeadController;
 use App\Http\Controllers\Site\MediaController;
 use App\Http\Controllers\Site\PublicSiteController;
@@ -30,6 +31,7 @@ Route::middleware([SiteLocale::class, SitePreviewMode::class])->group(function (
     Route::prefix('{locale}')->where(['locale' => 'ar|en'])->group(function () {
         Route::get('/', [PublicSiteController::class, 'show'])->name('site.home');
         Route::post('contact', [LeadController::class, 'store'])->middleware(['throttle:site-lead', RefuseCustomerWritesWhenReadOnly::class])->name('site.lead');
+        Route::post('appointment-request', [AppointmentRequestController::class, 'store'])->middleware(['throttle:site-appointment', RefuseCustomerWritesWhenReadOnly::class])->name('site.appointment');
         Route::get('{slug}', [PublicSiteController::class, 'show'])->where('slug', '[a-z0-9][a-z0-9-]*')->name('site.page');
     });
 });

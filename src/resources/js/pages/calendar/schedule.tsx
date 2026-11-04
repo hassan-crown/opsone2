@@ -32,11 +32,29 @@ type Props = {
     allowsConflicts: boolean;
     timezone: string;
     date: string | null;
+    /** ADR-0039: opened from a customer appointment request (prefilled; the booking links back to it). */
+    fromRequest: {
+        id: number;
+        reference: string | null;
+        kind: string;
+        name: string;
+        phone: string;
+        address: string;
+        preferred_from: string | null;
+        preferred_to: string | null;
+        time_of_day: string | null;
+        note: string | null;
+    } | null;
 };
 
 const KINDS = ['measurement', 'installation', 'delivery', 'visit'] as const;
 const METHODS = ['phone', 'in_person', 'message', 'other'] as const;
 const DURATIONS = [30, 45, 60, 90, 120, 150, 180, 240, 360, 480];
+const TIME_OF_DAY: Record<string, string> = {
+    morning: '09:00',
+    afternoon: '13:00',
+    evening: '17:00',
+};
 
 export default function ApptSchedule({
     orders,
@@ -45,6 +63,7 @@ export default function ApptSchedule({
     slotMinutes,
     timezone,
     date,
+    fromRequest,
 }: Props) {
     const t = useT();
     const durationLabel = useDurationLabel();
@@ -53,16 +72,22 @@ export default function ApptSchedule({
     );
 
     const form = useForm({
-        order_id: orderId !== null ? String(orderId) : '',
-        kind: 'measurement',
+        order_id:
+            orderId !== null
+                ? String(orderId)
+                : fromRequest && orders.length === 1
+                  ? String(orders[0].id)
+                  : '',
+        kind: fromRequest?.kind ?? 'measurement',
         date: date ?? '',
-        time: '09:00',
+        time: TIME_OF_DAY[fromRequest?.time_of_day ?? ''] ?? '09:00',
         duration: String(slotMinutes),
-        address: '',
+        address: fromRequest?.address ?? '',
         latitude: '',
         longitude: '',
         member_ids: [] as string[],
-        confirm_mode: 'propose',
+        // The customer already agreed on the phone (ADR-0039): no approval step, the booking is confirmed.
+        confirm_mode: fromRequest ? 'confirm' : 'propose',
         confirmation_method: 'phone',
         conflict_reason: '',
     });
@@ -104,6 +129,7 @@ export default function ApptSchedule({
                 d.confirm_mode === 'confirm' && d.conflict_reason
                     ? d.conflict_reason
                     : null,
+            appointment_request_id: fromRequest?.id ?? null,
         }));
         form.post(AppointmentController.store.url(), { preserveScroll: true });
     };
@@ -134,6 +160,56 @@ export default function ApptSchedule({
                 className="max-w-2xl space-y-6"
                 data-test="schedule-form"
             >
+                {fromRequest && (
+                    <Alert variant="info" data-test="from-request">
+                        <AlertBody>
+                            <p className="font-semibold">
+                                {t(
+                                    'appointment_requests.schedule.from_request',
+                                    {
+                                        ref: fromRequest.reference ?? '',
+                                        name: fromRequest.name,
+                                    },
+                                )}{' '}
+                                <bdi dir="ltr">{fromRequest.phone}</bdi>
+                            </p>
+                            {(fromRequest.preferred_from ||
+                                fromRequest.time_of_day) && (
+                                <p>
+                                    {t(
+                                        'appointment_requests.schedule.request_window',
+                                        {
+                                            window: [
+                                                fromRequest.preferred_from,
+                                                fromRequest.preferred_to,
+                                            ]
+                                                .filter(Boolean)
+                                                .join(' → ')
+                                                .concat(
+                                                    fromRequest.time_of_day
+                                                        ? ` · ${t(`appointment_requests.time.${fromRequest.time_of_day}` as TranslationKey)}`
+                                                        : '',
+                                                ),
+                                        },
+                                    )}
+                                </p>
+                            )}
+                            {fromRequest.note && (
+                                <p>
+                                    {t(
+                                        'appointment_requests.schedule.request_note',
+                                        { note: fromRequest.note },
+                                    )}
+                                </p>
+                            )}
+                        </AlertBody>
+                    </Alert>
+                )}
+                {errors.appointment_request_id && (
+                    <Alert variant="danger" role="alert">
+                        <AlertBody>{errors.appointment_request_id}</AlertBody>
+                    </Alert>
+                )}
                 <SelectField
                     label={t('appointments.schedule.order')}
                     value={data.order_id}

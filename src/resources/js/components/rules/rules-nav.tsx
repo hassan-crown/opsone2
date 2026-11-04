@@ -1,5 +1,6 @@
 import { Link, router, usePage } from '@inertiajs/react';
 import { useState } from 'react';
+import AppointmentRequestSettingsController from '@/actions/App/Http/Controllers/AppointmentRequests/AppointmentRequestSettingsController';
 import { Alert, AlertBody, AlertDescription } from '@/components/ui/alert';
 import { useT } from '@/lib/i18n';
 import type { TranslationKey } from '@/lib/i18n';
@@ -22,6 +23,7 @@ export type RulesPage =
     | 'messages'
     | 'sla'
     | 'numbering'
+    | 'appointment_requests'
     | 'releases';
 
 export const RULES_PAGES: {
@@ -34,8 +36,15 @@ export const RULES_PAGES: {
     { key: 'messages', href: messages },
     { key: 'sla', href: sla },
     { key: 'numbering', href: numbering },
+    {
+        key: 'appointment_requests',
+        href: () => AppointmentRequestSettingsController.edit(),
+    },
     { key: 'releases', href: releases },
 ];
+
+/** Settings that apply when saved: not part of a configuration release (ADR-0040). */
+const LIVE_PAGES: RulesPage[] = ['appointment_requests'];
 
 /** The business-rules pages (ADR-0037) as tabs, plus the view-only and audit notes. */
 export function RulesNav({
@@ -74,11 +83,17 @@ export function RulesNav({
             <Alert variant="info" className="max-w-3xl">
                 <AlertBody>
                     <AlertDescription>
-                        {canEdit ? t('rules.audited') : t('rules.view_only')}
+                        {!canEdit
+                            ? t('rules.view_only')
+                            : LIVE_PAGES.includes(current)
+                              ? t('rules.audited_live')
+                              : t('rules.audited')}
                     </AlertDescription>
                 </AlertBody>
             </Alert>
-            {current !== 'releases' && <DraftBanner />}
+            {current !== 'releases' && !LIVE_PAGES.includes(current) && (
+                <DraftBanner />
+            )}
         </div>
     );
 }

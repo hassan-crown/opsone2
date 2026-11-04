@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Portal;
 
+use App\Models\AppointmentRequest;
+use App\Models\AppointmentRequestSettings;
 use App\Portal\PortalAccess;
 use App\Portal\PortalPresenter;
 use Inertia\Inertia;
@@ -37,9 +39,12 @@ final class WorkspaceController extends PortalController
     public function order(string $order): Response
     {
         $customer = $this->customer();
+        $record = PortalAccess::order($customer, $order);
 
         return Inertia::render('portal/order', [
-            'order' => PortalPresenter::orderDetail($customer, PortalAccess::order($customer, $order)),
+            'order' => PortalPresenter::orderDetail($customer, $record),
+            // ADR-0039: the customer may ask for an appointment on an open order when the workspace form is on.
+            'canRequestAppointment' => ! $record->state()->isFinal() && AppointmentRequestSettings::current()->enabledFor(AppointmentRequest::SOURCE_PORTAL),
         ]);
     }
 
