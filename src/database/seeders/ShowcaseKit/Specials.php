@@ -88,7 +88,7 @@ final class Specials
                 'en' => 'This quote is valid for {validity_days} days; prices then follow material prices.'],
             'applies_to' => ['quote'], 'included_by_default' => true, 'position' => 3,
         ], null, TransitionRecorder::SOURCE_SEEDER);
-        app(UpdateFieldSalesSettings::class)->handle($owner, ['enabled' => true, 'kinds' => ['visit', 'measurement'], 'response_hours' => 24], TransitionRecorder::SOURCE_SEEDER);
+        app(UpdateFieldSalesSettings::class)->handle($owner, ['enabled' => true, 'kinds' => ['visit', 'measurement'], 'response_hours' => 24, 'max_discount_bp' => 500], TransitionRecorder::SOURCE_SEEDER);
         $this->publishRules('تذكير إضافي قبل الاستحقاق بيوم، وبند صلاحية في عروض الأسعار، وتفعيل البيع الميداني.');
     }
 

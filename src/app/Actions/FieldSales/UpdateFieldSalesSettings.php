@@ -15,13 +15,13 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
 /**
- * Settings › field sales (P-104, ADR-0041): on/off, the appointment kinds reps handle in the field app and the
- * response time of a dispatched lead. Saved to the draft; it applies once published as a configuration release
+ * Settings › field sales (P-104, ADR-0041): on/off, the appointment kinds reps handle in the field app, the
+ * response time of a dispatched lead and the ceiling on the discount limit a supervisor may give a rep. Saved to the draft; it applies once published as a configuration release
  * (ADR-0040), like the other business rules.
  */
 final class UpdateFieldSalesSettings
 {
-    public const KEYS = ['enabled', 'kinds', 'response_hours'];
+    public const KEYS = ['enabled', 'kinds', 'response_hours', 'max_discount_bp'];
 
     /**
      * @return array<string, mixed>
@@ -33,6 +33,7 @@ final class UpdateFieldSalesSettings
             'kinds' => ['present', 'array', 'max:2'],
             'kinds.*' => ['string', 'distinct', Rule::in(FieldSalesSettings::KINDS)],
             'response_hours' => ['nullable', 'integer', 'between:1,720'],
+            'max_discount_bp' => ['sometimes', 'integer', 'between:0,5000'],
             'lock_version' => ['nullable', 'integer'],
         ];
     }
@@ -59,6 +60,7 @@ final class UpdateFieldSalesSettings
                 'enabled' => (bool) $data['enabled'],
                 'kinds' => array_values(array_filter(FieldSalesSettings::KINDS, fn (string $k) => in_array($k, $data['kinds'], true))),
                 'response_hours' => isset($data['response_hours']) ? (int) $data['response_hours'] : null,
+                'max_discount_bp' => (int) ($data['max_discount_bp'] ?? $settings->max_discount_bp ?? 0),
                 'updated_by' => $actor->id,
                 'lock_version' => $settings->exists ? $settings->lock_version + 1 : 1,
             ])->save();

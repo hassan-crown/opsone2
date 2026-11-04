@@ -127,6 +127,7 @@ final class ConfigRestorer
         $settings = FieldSalesSettings::query()->lockForUpdate()->orderBy('id')->first() ?? new FieldSalesSettings;
         $settings->forceFill([
             'enabled' => (bool) $values['enabled'], 'kinds' => array_values($values['kinds']), 'response_hours' => $values['response_hours'],
+            'max_discount_bp' => (int) ($values['max_discount_bp'] ?? 0),
             'updated_by' => $actor->id, 'lock_version' => ($settings->exists ? $settings->lock_version : 0) + 1,
         ])->save();
     }

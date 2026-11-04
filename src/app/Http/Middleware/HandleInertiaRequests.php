@@ -122,6 +122,7 @@ class HandleInertiaRequests extends Middleware
             'calendar' => Access::can($user, Permission::P54) || Access::can($user, Permission::P24),
             'appointmentRequests' => Access::can($user, Permission::P54),
             'fieldSales' => FieldDispatch::canDispatch($user),
+            'fieldTeam' => FieldSalesConfig::enabled() && Access::can($user, Permission::P105),
             'fieldApp' => FieldSalesConfig::enabled() && FieldReps::isRep($user),
             'finance' => Access::can($user, Permission::P37),
             'commissions' => Access::can($user, Permission::P94),

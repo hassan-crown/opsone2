@@ -24,11 +24,13 @@ import {
     Factory,
     MapPinned,
     Smartphone,
+    UsersRound,
 } from 'lucide-react';
 import CommissionController from '@/actions/App/Http/Controllers/Commissions/CommissionController';
 import AppointmentRequestController from '@/actions/App/Http/Controllers/AppointmentRequests/AppointmentRequestController';
 import FieldController from '@/actions/App/Http/Controllers/Field/FieldController';
 import FieldDispatchController from '@/actions/App/Http/Controllers/FieldSales/FieldDispatchController';
+import FieldTeamController from '@/actions/App/Http/Controllers/FieldSales/FieldTeamController';
 import CalendarController from '@/actions/App/Http/Controllers/Calendar/CalendarController';
 import CatalogHomeController from '@/actions/App/Http/Controllers/Catalog/CatalogHomeController';
 import SitePageController from '@/actions/App/Http/Controllers/Site/SitePageController';
@@ -69,6 +71,7 @@ export type LocalizedNavItem = Omit<NavItem, 'title'> & {
         | 'calendar'
         | 'appointmentRequests'
         | 'fieldSales'
+        | 'fieldTeam'
         | 'fieldApp'
         | 'finance'
         | 'commissions'
@@ -121,6 +124,12 @@ export const mainNav: LocalizedNavItem[] = [
         href: FieldDispatchController.index(),
         icon: MapPinned,
         access: 'fieldSales',
+    },
+    {
+        label: 'field_sales.team.nav',
+        href: FieldTeamController.index(),
+        icon: UsersRound,
+        access: 'fieldTeam',
     },
     {
         label: 'field_sales.nav_app',

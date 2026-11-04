@@ -29,6 +29,7 @@ class FieldSalesSettingsController extends Controller
         return Inertia::render('rules/field-sales', [
             'settings' => [
                 'enabled' => $settings->enabled, 'kinds' => $settings->kinds, 'response_hours' => $settings->response_hours,
+                'max_discount_bp' => $settings->max_discount_bp,
                 'lock_version' => $settings->exists ? $settings->lock_version : null,
             ],
             'allKinds' => FieldSalesSettings::KINDS,

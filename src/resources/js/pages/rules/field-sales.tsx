@@ -14,6 +14,7 @@ type Settings = {
     enabled: boolean;
     kinds: string[];
     response_hours: number | null;
+    max_discount_bp: number;
     lock_version: number | null;
 };
 
@@ -106,6 +107,25 @@ export default function FieldSalesSettings({
                                 e.target.value === ''
                                     ? null
                                     : Number(e.target.value),
+                        })
+                    }
+                />
+                <TextField
+                    label={t('rules.field_sales.max_discount')}
+                    hint={t('rules.field_sales.max_discount_hint')}
+                    type="number"
+                    dir="ltr"
+                    min={0}
+                    max={50}
+                    step="0.5"
+                    value={String(form.max_discount_bp / 100)}
+                    error={write.errors.max_discount_bp}
+                    onChange={(e) =>
+                        setForm({
+                            ...form,
+                            max_discount_bp: Math.round(
+                                Number(e.target.value || 0) * 100,
+                            ),
                         })
                     }
                 />

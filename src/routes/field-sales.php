@@ -3,13 +3,14 @@
 use App\Http\Controllers\FieldSales\FieldDispatchController;
 use App\Http\Controllers\FieldSales\FieldLeadController;
 use App\Http\Controllers\FieldSales\FieldSalesSettingsController;
+use App\Http\Controllers\FieldSales\FieldTeamController;
 use App\Http\Controllers\FieldSales\OrderSalesChannelController;
 use App\Http\Controllers\FieldSales\SalesVisitController;
 use Illuminate\Support\Facades\Route;
 
 /*
 | Field sales (ADR-0041): the rep's leads and sales visits inside the field app (scope /field), the supervisor's
-| dispatch board (P-105), the order's sales channel (P-106) and the settings (P-104, a configuration-release section).
+| dispatch board and team follow-up with the rep's permissions and discount (P-105), the order's sales channel (P-106) and the settings (P-104, a configuration-release section).
 */
 
 Route::middleware(['auth', 'verified'])->group(function () {
@@ -37,11 +38,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
 
     Route::get('field-sales', [FieldDispatchController::class, 'index'])->name('field-sales.index');
+    Route::get('field-sales/team', [FieldTeamController::class, 'index'])->name('field-sales.team');
+    Route::get('field-sales/team/{rep}', [FieldTeamController::class, 'show'])->whereNumber('rep')->name('field-sales.team.show');
     Route::get('settings/field-sales', [FieldSalesSettingsController::class, 'edit'])->name('rules.field_sales');
 
     Route::middleware('throttle:records-create')->group(function () {
         Route::post('field-sales/leads/{interest}/assign', [FieldDispatchController::class, 'assignLead'])->whereNumber('interest')->name('field-sales.leads.assign');
         Route::post('field-sales/requests/{appointmentRequest}/assign', [FieldDispatchController::class, 'assignRequest'])->whereNumber('appointmentRequest')->name('field-sales.requests.assign');
+        Route::post('field-sales/team/{rep}/permissions', [FieldTeamController::class, 'permission'])->whereNumber('rep')->name('field-sales.team.permission');
+        Route::post('field-sales/team/{rep}/discount', [FieldTeamController::class, 'discount'])->whereNumber('rep')->name('field-sales.team.discount');
         Route::post('orders/{order}/sales-channel', OrderSalesChannelController::class)->whereNumber('order')->name('orders.sales-channel');
         Route::put('settings/field-sales', [FieldSalesSettingsController::class, 'update'])->name('rules.field_sales.update');
     });

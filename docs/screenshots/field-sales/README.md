@@ -4,7 +4,7 @@ Showcase dataset (`ShowcaseSeeder`: field sales on from release 2 on 2026-08-02,
 Riyadh), taken on the local `opsone_fs` stack on 2026-11-04. Arabic unless noted; field app at 390 px, the rest at
 1440 px. For the field app shots only, the rep's booked visit was moved to the next day on the local database so it
 appears in «My visits» (the seeder books it for 2026-11-02); the rep then arrived, wrote notes, took a photo and
-recorded a measurement through the screens.
+recorded a measurement through the screens. Shots 09, 12 and 13 were taken after a fresh re-seed with the team limits.
 
 | File | Screen |
 |---|---|
@@ -16,6 +16,8 @@ recorded a measurement through the screens.
 | `06-supervisor-not-dispatched-ar.png` | Dispatch board, not-dispatched leads and requests (first screen) |
 | `07-report-sales-by-channel-ar.png` | Report «Sales by channel» (Aug 1 – Nov 4): showroom, online store, field sales |
 | `08-report-field-sales-performance-ar.png` | Report «Field sales performance» per rep (Aug 1 – Nov 4) |
-| `09-settings-field-sales-ar.png` | Settings › Field sales (a configuration-release section) |
+| `09-settings-field-sales-ar.png` | Settings › Field sales (a configuration-release section), with the maximum rep discount |
 | `10-order-sales-channel-card-ar.png` | Order page: sales channel card with the P-106 correction form open |
 | `11-rep-field-home-en.png` | Rep's field app in English (LTR) |
+| `12-supervisor-team-ar.png` | «My field team»: each rep's open leads, visits today / next 7 days, late items, conversions, open orders |
+| `13-supervisor-rep-followup-ar.png` | One rep: permission switches (contracts off by the supervisor, who cannot turn it on as they do not hold it), discount limit capped by the owner's ceiling and the supervisor's own 0% limit, open leads, visits, late tasks, orders with stage progress, dues, delivery and installation |

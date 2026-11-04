@@ -2,6 +2,7 @@
 
 namespace Database\Seeders\ShowcaseKit;
 
+use App\Access\TransitionRecorder;
 use App\Actions\StateMachines\M03Interest\T00CreateInterest;
 use App\Actions\StateMachines\M03Interest\T01TakeFollowUp;
 use App\Actions\StateMachines\M03Interest\T02ConvertInterest;
@@ -17,6 +18,7 @@ use App\Actions\StateMachines\M16Appointment\T02ConfirmAppointment;
 use App\Actions\Workflow\RecordMeasurement;
 use App\Enums\InterestCloseReason;
 use App\FieldSales\FieldDispatch;
+use App\FieldSales\FieldRepAccess;
 use App\FieldSales\SalesVisits;
 use App\Models\Agreements\Agreement;
 use App\Models\Agreements\AgreementDocument;
@@ -36,6 +38,7 @@ use Illuminate\Support\Str;
  * measurements), prepares and sends the quote; the manager records the customer's approval and finance the first
  * payment, so the rep's commission accrues through the existing policy. At the end of the story the rep has a late
  * open lead, a dispatched appointment request and a visit booked for the next day, and one lead waits on the board.
+ * The rep's limits are set by the team: a 3% discount (owner's ceiling 5%) and no contract preparation.
  * Its own random sequence, so the rest of the showcase is unchanged by it.
  */
 final class FieldSales
@@ -62,6 +65,14 @@ final class FieldSales
 
     public function run(): void
     {
+        // The team's limits: the general manager gives the rep a 3% discount (owner's ceiling 5%), the supervisor
+        // keeps contracts with the showroom.
+        $this->s->timeline->at(CarbonImmutable::parse('2026-08-03 09:00', 'Asia/Riyadh'), new Story('field-sales-team'), 'limits', function () {
+            $access = app(FieldRepAccess::class);
+            $access->setDiscount($this->s->users['gm'], $this->rep(), 300, TransitionRecorder::SOURCE_SEEDER);
+            $access->set($this->s->users['sup_sales'], $this->rep(), 'P-32', false, TransitionRecorder::SOURCE_SEEDER);
+        });
+
         foreach (self::LEADS as $i => $lead) {
             $story = new Story('field-sales-'.$i);
             $day = CarbonImmutable::parse($lead['at'].' 09:20', 'Asia/Riyadh');

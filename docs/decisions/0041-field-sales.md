@@ -87,6 +87,40 @@ customers. Nobody could hand a lead to a rep with a response time. Orders did no
    off. Editing needs P-104; reading needs P-104 or P-02. With field sales off, no dispatch happens, reps see no sales
    visits and no new order is marked `field_sales`. Existing orders keep their channel.
 
+7. **The supervisor controls the rep, inside two ceilings (`FieldRepAccess`).** This was added at the product owner's
+   request.
+   - *Who:* a member holding P-105 over **every** branch of the rep's membership, at branch, region or facility scope.
+     A supervisor outside that branch or region gets 404 on the screens and an authorization refusal in the service.
+   - *What:* six rep permissions can be switched: P-29 (prepare and price quotes, incl. ready-goods staff discount),
+     P-30 (send documents and signing links), P-15 (convert leads, open orders), P-37 (see the agreement value,
+     collections and dues), P-14 (measurements) and P-32 (contracts). The discount is the rep's own `discount_limits`
+     row (custom and ready).
+   - *Owner's ceiling:* the rep's role templates (edited on the roles screens) decide which permissions a rep may hold
+     at all; a permission outside them can be neither turned on nor off here. `max_discount_bp` in the settings
+     release section caps the discount. It defaults to 0, so reps get no discount until the owner sets one.
+   - *Supervisor's ceiling:* «off» writes a deny `member_grants` row with `granted_by` set to the supervisor. «On»
+     deletes that row, and it counts as a delegation: `DelegationGuard` requires the supervisor to hold the permission
+     themself. The discount also may not exceed the supervisor's own limit (`DiscountLimits::of`).
+   - *Effect:* immediate. The Gate rebuilds the rep's grants on their next request, and the rep stays signed in.
+     Unlike role changes (M-22-T03), no session is revoked.
+   - *Audit:* `field_sales.rep_permission_changed` and `field_sales.rep_discount_changed` (before/after) are recorded
+     on the rep's membership.
+   «Reassign their own leads» is not a switch: re-dispatch stays with P-105 holders (see Deferred).
+8. **Supervisor follow-up (`FieldTeam`).**
+   - `/field-sales/team` lists, per rep the supervisor manages: open leads (new / following), visits today and in the
+     next 7 days, late items (dispatched leads past their response time and the rep's workflow tasks past their due
+     date), conversions in 30 days and open orders.
+   - `/field-sales/team/{rep}` adds the switches and discount, the lead, visit and late-task lists, and the rep's last
+     50 orders as `seller_id`. Each order shows the active stage and stages done out of all stages (workshop and
+     factory stages are flow stages), dues still owed (only where the supervisor holds P-37 over the order), delivery
+     (none, partial or complete) and installation status with open remarks.
+   - Every row links to the existing lead, appointment, task or order screen; nothing is duplicated. The order
+     summaries are visible under P-105, so a supervisor sees the follow-up even without P-16. Opening an order still
+     needs P-16.
+   - `field-sales:remind` sends `field_sales.team_overdue` (P-105, opening the team view) to every supervisor who
+     manages the rep and to the dispatcher. It fires once per late dispatched lead or request and once per late task
+     and due time. The rep still gets `field_sales.lead_overdue`.
+
 ## Consequences
 
 - One migration (`#[Expand]`) adds two columns to `orders` and the tables `field_sales_settings`, `field_assignments`,
@@ -97,10 +131,15 @@ customers. Nobody could hand a lead to a rep with a response time. Orders did no
   manager) with the rep as a member, or from an appointment request through ADR-0039's booking. A rep whose lead's
   mobile matches a customer they cannot see gets the existing «customer hidden» refusal on conversion. The supervisor
   then converts the lead or assigns the customer.
+- The supervisor template does not hold P-29/P-30/P-15/P-37/P-32 by default. A supervisor can therefore restrict a rep
+  but not re-enable those permissions; a manager can, as can a supervisor the owner granted them to.
 
 ## Deferred
 
 - Rep self-booking from the field app, with a calendar of free slots.
+- A switch letting a rep hand their own leads to another rep. Today the dispatcher (P-105) re-dispatches.
+- The showcase's field orders stay in the flow's first stage: the story does not run their workflow tasks. Their
+  tasks therefore appear late in the team view, as a stalled pipeline would.
 - Live location or route planning. The visit records no location.
 - Region-level dispatch for supervisors without branches, and rep-to-rep handover inside the field app.
 - Offline queueing of notes and measurements. Only photos are queued.

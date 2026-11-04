@@ -36,6 +36,8 @@ declare module '@inertiajs/core' {
                 appointmentRequests?: boolean;
                 /** ADR-0041: P-105 with field sales on — the dispatch board. */
                 fieldSales?: boolean;
+                /** ADR-0041: P-105 — the supervisor's field team follow-up. */
+                fieldTeam?: boolean;
                 /** ADR-0041: a field sales rep — the field app link. */
                 fieldApp?: boolean;
                 finance: boolean;

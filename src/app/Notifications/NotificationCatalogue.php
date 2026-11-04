@@ -131,8 +131,7 @@ final class NotificationCatalogue
             'route' => null,
         ],
         // ADR-0041: a lead or an appointment request dispatched to a field sales rep, and one still open when its
-        // response time passed (to the rep and to whoever dispatched it); opening re-checks P-15 on the lead, P-54 on
-        // the request.
+        // response time passed (to the rep); opening re-checks P-15 on the lead, P-54 on the request.
         'field_sales.lead_assigned' => [
             'mandatory' => false,
             'permission' => Permission::P15,
@@ -154,12 +153,13 @@ final class NotificationCatalogue
             'body' => 'notifications.type.field_sales_lead_overdue.body',
             'route' => null,
         ],
-        'field_sales.request_overdue' => [
+        // A rep's dispatched lead/request or workflow task is late: their supervisors, opening the team view (P-105).
+        'field_sales.team_overdue' => [
             'mandatory' => false,
-            'permission' => Permission::P54,
-            'title' => 'notifications.type.field_sales_request_overdue.title',
-            'body' => 'notifications.type.field_sales_request_overdue.body',
-            'route' => null,
+            'permission' => Permission::P105,
+            'title' => 'notifications.type.field_sales_team_overdue.title',
+            'body' => 'notifications.type.field_sales_team_overdue.body',
+            'route' => 'field-sales.team',
         ],
         'appointment_request.new' => [
             'mandatory' => false,

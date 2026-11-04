@@ -12,7 +12,7 @@ use App\Models\FieldSales\FieldSalesSettings;
 final class FieldSalesConfig
 {
     /**
-     * @return array{enabled: bool, kinds: list<string>, response_hours: int|null}
+     * @return array{enabled: bool, kinds: list<string>, response_hours: int|null, max_discount_bp: int}
      */
     public static function current(): array
     {
@@ -39,7 +39,7 @@ final class FieldSalesConfig
     }
 
     /**
-     * @return array{enabled: bool, kinds: list<string>, response_hours: int|null}
+     * @return array{enabled: bool, kinds: list<string>, response_hours: int|null, max_discount_bp: int}
      */
     public static function defaults(): array
     {
@@ -49,16 +49,17 @@ final class FieldSalesConfig
     /**
      * The draft row as a snapshot section.
      *
-     * @return array{enabled: bool, kinds: list<string>, response_hours: int|null}
+     * @return array{enabled: bool, kinds: list<string>, response_hours: int|null, max_discount_bp: int}
      */
     public static function capture(FieldSalesSettings $settings): array
     {
-        return self::normalize(['enabled' => $settings->enabled, 'kinds' => $settings->kinds, 'response_hours' => $settings->response_hours]);
+        return self::normalize(['enabled' => $settings->enabled, 'kinds' => $settings->kinds, 'response_hours' => $settings->response_hours,
+            'max_discount_bp' => $settings->max_discount_bp]);
     }
 
     /**
      * @param  array<string, mixed>  $values
-     * @return array{enabled: bool, kinds: list<string>, response_hours: int|null}
+     * @return array{enabled: bool, kinds: list<string>, response_hours: int|null, max_discount_bp: int}
      */
     private static function normalize(array $values): array
     {
@@ -68,6 +69,7 @@ final class FieldSalesConfig
             'enabled' => (bool) ($values['enabled'] ?? false),
             'kinds' => $kinds,
             'response_hours' => isset($values['response_hours']) ? (int) $values['response_hours'] : null,
+            'max_discount_bp' => (int) ($values['max_discount_bp'] ?? 0),
         ];
     }
 }

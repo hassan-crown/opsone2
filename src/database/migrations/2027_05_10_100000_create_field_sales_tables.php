@@ -29,6 +29,8 @@ return new #[Expand] class extends Migration
             // Appointment kinds reps handle in the field app: visit | measurement
             $table->json('kinds');
             $table->unsignedSmallInteger('response_hours')->nullable();
+            // The owner's ceiling on the discount a supervisor may give a rep, in basis points.
+            $table->unsignedSmallInteger('max_discount_bp')->default(0);
             $table->unsignedInteger('lock_version')->default(1);
             $table->foreignId('updated_by')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamps();

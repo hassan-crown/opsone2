@@ -283,6 +283,8 @@ enum AuditAction: string
     case FieldVisitPhotoAdded = 'field_sales.visit_photo_added';
     case FieldVisitFinished = 'field_sales.visit_finished';
     case FieldSalesSettingsUpdated = 'field_sales.settings_updated';
+    case FieldRepPermissionChanged = 'field_sales.rep_permission_changed';
+    case FieldRepDiscountChanged = 'field_sales.rep_discount_changed';
     case OrderSalesChannelChanged = 'order.sales_channel_changed';
     case AppointmentRequestScheduled = 'appointment_request.scheduled';
     case AppointmentRequestClosed = 'appointment_request.closed';
@@ -412,7 +414,8 @@ enum AuditAction: string
             self::InstallationArrived, self::InstallationPhotoAdded, self::InstallationRemarkRecorded, self::InstallationRemarkResolved,
             self::InstallationSignatureRequested, self::InstallationSigned, self::InstallationFinished => 'installation',
             self::FieldLeadAssigned, self::FieldRequestAssigned, self::FieldVisitStarted, self::FieldVisitNoted,
-            self::FieldVisitPhotoAdded, self::FieldVisitFinished, self::OrderSalesChannelChanged => 'field_sales',
+            self::FieldVisitPhotoAdded, self::FieldVisitFinished, self::OrderSalesChannelChanged,
+            self::FieldRepPermissionChanged, self::FieldRepDiscountChanged => 'field_sales',
             self::CancellationRequested, self::CancellationAccepted, self::CancellationRejected, self::CancellationWithdrawn,
             self::SettlementItemResolved, self::SettlementClosed => 'cancellation',
             self::ReturnRequested, self::ReturnAccepted, self::ReturnRejected, self::ReturnReceived, self::ReturnInspected,

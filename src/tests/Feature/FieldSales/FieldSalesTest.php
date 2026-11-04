@@ -169,12 +169,12 @@ describe('dispatch', function () {
 
         publishRules($f->owner);
         ConfigReleases::forget();
-        expect(FieldSalesConfig::current())->toBe(['enabled' => true, 'kinds' => ['visit', 'measurement'], 'response_hours' => 24]);
+        expect(FieldSalesConfig::current())->toBe(['enabled' => true, 'kinds' => ['visit', 'measurement'], 'response_hours' => 24, 'max_discount_bp' => 0]);
         app(FieldDispatch::class)->assignLead($f->supervisor, $lead, $f->rep->id);
         expect(FieldAssignment::query()->count())->toBe(1);
     });
 
-    it('alerts the rep and the dispatcher once when a lead passes its response time', function () {
+    it('alerts the rep and their supervisor once when a lead passes its response time', function () {
         $f = fieldSalesFixture();
         $lead = fieldLead($f->owner, $f->org->a);
         $this->travelTo(now()->next('Sunday')->setTime(9, 0));
@@ -184,8 +184,8 @@ describe('dispatch', function () {
         $this->travel(25)->hours();
         expect(app(FieldAssignmentSla::class)->run(now()))->toBe(2)
             ->and(app(FieldAssignmentSla::class)->run(now()))->toBe(0)
-            ->and(UserNotification::query()->where('type', 'field_sales.lead_overdue')->pluck('user_id')->sort()->values()->all())
-            ->toBe(collect([$f->rep->id, $f->supervisor->id])->sort()->values()->all());
+            ->and(UserNotification::query()->where('type', 'field_sales.lead_overdue')->pluck('user_id')->all())->toBe([$f->rep->id])
+            ->and(UserNotification::query()->where('type', 'field_sales.team_overdue')->pluck('user_id')->all())->toBe([$f->supervisor->id]);
     });
 });
 
@@ -353,7 +353,7 @@ describe('the settings section', function () {
         $first = publishRules($f->owner);
         ConfigReleases::forget();
         expect(FieldSalesConfig::kinds())->toBe(['measurement'])
-            ->and($first->snapshot['field_sales'])->toBe(['enabled' => true, 'kinds' => ['measurement'], 'response_hours' => 12]);
+            ->and($first->snapshot['field_sales'])->toBe(['enabled' => true, 'kinds' => ['measurement'], 'response_hours' => 12, 'max_discount_bp' => 0]);
 
         app(UpdateFieldSalesSettings::class)->handle($f->owner, ['enabled' => false, 'kinds' => ['measurement'], 'response_hours' => 12]);
         $diff = ConfigDiff::between($first->snapshot, ConfigSnapshot::capture());

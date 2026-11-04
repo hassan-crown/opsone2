@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property bool $enabled
  * @property list<string> $kinds
  * @property int|null $response_hours
+ * @property int $max_discount_bp the owner's ceiling on a rep's discount limit (basis points)
  * @property int $lock_version
  * @property int|null $updated_by
  */
@@ -20,7 +21,7 @@ class FieldSalesSettings extends Model
     /** Appointment kinds a rep may handle in the field app. */
     public const KINDS = ['visit', 'measurement'];
 
-    public const DEFAULTS = ['enabled' => false, 'kinds' => self::KINDS, 'response_hours' => 24];
+    public const DEFAULTS = ['enabled' => false, 'kinds' => self::KINDS, 'response_hours' => 24, 'max_discount_bp' => 0];
 
     protected $guarded = ['id'];
 
@@ -33,6 +34,6 @@ class FieldSalesSettings extends Model
 
     protected function casts(): array
     {
-        return ['enabled' => 'boolean', 'kinds' => 'array', 'response_hours' => 'integer'];
+        return ['enabled' => 'boolean', 'kinds' => 'array', 'response_hours' => 'integer', 'max_discount_bp' => 'integer'];
     }
 }
