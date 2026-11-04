@@ -6,6 +6,7 @@ use App\Actions\StateMachines\M37OwnershipTransfer\T04ExpireOwnershipTransfer;
 use App\Actions\StateMachines\M38SupportAccess\T00RequestSupportAccess;
 use App\Actions\StateMachines\M38SupportAccess\T04ExpireSupportAccess;
 use App\AppointmentRequests\AppointmentRequestSla;
+use App\Automation\AutomationTimers;
 use App\EInvoicing\MissingInvoices;
 use App\FieldSales\FieldAssignmentSla;
 use App\Finance\CollectionReminders;
@@ -63,6 +64,14 @@ Artisan::command('appointment-requests:remind', function (AppointmentRequestSla 
 })->purpose('Alert assignees of appointment requests past their response time (inside the reminder hours)');
 
 Schedule::command('appointment-requests:remind')->hourly()->withoutOverlapping();
+
+// Automation rules (ADR-0042): time-based triggers (due soon/overdue, idle leads, late tasks) inside the reminder hours,
+// and events whose processing job was lost are queued again.
+Artisan::command('automation:tick', function (AutomationTimers $timers) {
+    $this->info(sprintf('Recorded %d automation event(s).', $timers->tick(now())));
+})->purpose('Raise time-based automation events and re-queue unprocessed ones');
+
+Schedule::command('automation:tick')->everyFifteenMinutes()->withoutOverlapping();
 
 // Field sales (ADR-0041): `field_sales.lead_overdue` once a lead dispatched to a rep passed its response time.
 Artisan::command('field-sales:remind', function (FieldAssignmentSla $sla) {

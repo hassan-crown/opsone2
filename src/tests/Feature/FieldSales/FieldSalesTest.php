@@ -21,9 +21,11 @@ use App\Enums\SalesChannel;
 use App\FieldSales\FieldAssignmentSla;
 use App\FieldSales\FieldDispatch;
 use App\FieldSales\FieldSalesConfig;
+use App\FieldSales\SalesVisits;
 use App\Models\Agreements\AgreementDocument;
 use App\Models\Agreements\DocumentSignLink;
 use App\Models\AuditEvent;
+use App\Models\Automation\AutomationEvent;
 use App\Models\Customer;
 use App\Models\FieldSales\FieldAssignment;
 use App\Models\FieldSales\SalesVisit;
@@ -358,5 +360,27 @@ describe('the settings section', function () {
         app(UpdateFieldSalesSettings::class)->handle($f->owner, ['enabled' => false, 'kinds' => ['measurement'], 'response_hours' => 12]);
         $diff = ConfigDiff::between($first->snapshot, ConfigSnapshot::capture());
         expect(collect($diff)->where('section', 'field_sales')->first()['fields'][0])->toMatchArray(['field' => 'enabled', 'before' => '✓', 'after' => '✗']);
+    });
+});
+
+describe('automation triggers (ADR-0042)', function () {
+    it('raises «lead dispatched to a field rep» and «field visit completed» for published rules', function () {
+        require_once __DIR__.'/../Automation/AutomationTestHelpers.php';
+        $f = fieldSalesFixture();
+        autoRule($f->owner, 'rep_lead', 'lead.dispatched_to_rep', [noteAction()]);
+        autoRule($f->owner, 'rep_visit', 'field_visit.completed', [noteAction()]);
+        publishRules($f->owner);
+        ConfigReleases::forget();
+
+        $lead = fieldLead($f->owner, $f->org->a);
+        app(FieldDispatch::class)->assignLead($f->supervisor, $lead, $f->rep->id);
+        $order = openCustomOrder($f->rep, Customer::factory()->create(['branch_id' => $f->org->a->id, 'assignee_id' => $f->rep->id]));
+        $visits = app(SalesVisits::class);
+        $visits->finish($f->rep, $visits->start($f->rep, fieldVisit($f->owner, $order, [$f->rep])), 'تم الاتفاق');
+
+        $events = AutomationEvent::query()->whereIn('trigger', ['lead.dispatched_to_rep', 'field_visit.completed'])->get();
+        expect($events->pluck('trigger')->sort()->values()->all())->toBe(['field_visit.completed', 'lead.dispatched_to_rep'])
+            ->and($events->firstWhere('trigger', 'lead.dispatched_to_rep')->subject_id)->toBe($lead->id)
+            ->and($events->firstWhere('trigger', 'field_visit.completed')->subject_id)->toBe($order->id);
     });
 });

@@ -4,6 +4,7 @@ namespace App\Configuration;
 
 use App\Models\Agreements\DocumentClause;
 use App\Models\Agreements\DocumentClauseVersion;
+use App\Models\Automation\AutomationRule;
 use App\Models\FieldSales\FieldSalesSettings;
 use App\Models\Finance\PaymentPlan;
 use App\Models\MessageTemplate;
@@ -35,6 +36,7 @@ final class ConfigRestorer
         $this->taskSla($snapshot['task_sla'] ?? ConfigSnapshot::defaults()['task_sla'], $actor);
         $this->numbering($snapshot['numbering'] ?? [], $actor);
         $this->purchaseDocument($snapshot['purchase_document'] ?? ConfigSnapshot::defaults()['purchase_document'], $actor);
+        $this->automation($snapshot['automation'] ?? [], $actor);
         $this->fieldSales($snapshot['field_sales'] ?? ConfigSnapshot::defaults()['field_sales'], $actor);
         ConfigReleases::forget();
     }
@@ -142,6 +144,29 @@ final class ConfigRestorer
         foreach ($formats as $f) {
             NumberFormat::query()->updateOrCreate(['sequence' => $f['sequence']], [...$f, 'updated_by' => $actor->id]);
         }
+    }
+
+    /**
+     * Rules missing from the snapshot are archived (their key keeps naming them in old releases and logs); the kill
+     * switch is live and outside releases, so a restore never revives a killed rule.
+     *
+     * @param  list<array<string, mixed>>  $rules
+     */
+    private function automation(array $rules, User $actor): void
+    {
+        $keep = [];
+        foreach ($rules as $r) {
+            $rule = AutomationRule::query()->lockForUpdate()->where('key', $r['key'])->first() ?? new AutomationRule;
+            $rule->forceFill([
+                'key' => $r['key'], 'name' => $r['name'], 'trigger' => $r['trigger'], 'trigger_params' => $r['params'] ?: null,
+                'conditions' => $r['conditions'], 'actions' => $r['actions'], 'enabled' => (bool) $r['enabled'], 'position' => (int) ($r['position'] ?? 0),
+                'archived_at' => null, 'lock_version' => $rule->exists ? $rule->lock_version + 1 : 1, 'updated_by' => $actor->id,
+            ])->save();
+            $keep[] = $rule->id;
+        }
+        AutomationRule::query()->active()->whereNotIn('id', $keep)->get()->each(fn (AutomationRule $rule) => $rule->forceFill([
+            'archived_at' => now(), 'lock_version' => $rule->lock_version + 1, 'updated_by' => $actor->id,
+        ])->save());
     }
 
     /**

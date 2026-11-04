@@ -77,6 +77,43 @@ final class NotificationCatalogue
             'body' => 'workshops.notify.late.body',
             'route' => null,
         ],
+        // ADR-0042: a notice an automation rule sends (its own text in `message`); opening re-checks the permission on
+        // the live order, task, lead or appointment request.
+        'automation.order' => [
+            'mandatory' => false,
+            'permission' => Permission::P16,
+            'title' => 'automation.notify.title',
+            'body' => 'automation.notify.body',
+            'route' => null,
+        ],
+        'automation.task' => [
+            'mandatory' => false,
+            'permission' => Permission::P24,
+            'title' => 'automation.notify.title',
+            'body' => 'automation.notify.body',
+            'route' => null,
+        ],
+        'automation.lead' => [
+            'mandatory' => false,
+            'permission' => Permission::P09,
+            'title' => 'automation.notify.title',
+            'body' => 'automation.notify.body',
+            'route' => null,
+        ],
+        'automation.request' => [
+            'mandatory' => false,
+            'permission' => Permission::P54,
+            'title' => 'automation.notify.title',
+            'body' => 'automation.notify.body',
+            'route' => null,
+        ],
+        'automation.notice' => [
+            'mandatory' => false,
+            'permission' => null,
+            'title' => 'automation.notify.title',
+            'body' => 'automation.notify.body',
+            'route' => null,
+        ],
         'work.assigned' => [
             'mandatory' => false,
             'permission' => null,

@@ -351,10 +351,17 @@ enum AuditAction: string
     case ZatcaOnboarded = 'zatca.onboarded';
     case ZatcaOnboardingFailed = 'zatca.onboarding_failed';
     case ZatcaDeviceRetired = 'zatca.device_retired';
+    // No-Code phase 3 (ADR-0042): automation rules (draft edits, the live kill switch) and what their actions did.
+    case AutomationRuleSaved = 'automation_rule.saved';
+    case AutomationRuleArchived = 'automation_rule.archived';
+    case AutomationRuleKilled = 'automation_rule.killed';
+    case AutomationRuleRevived = 'automation_rule.revived';
+    case AutomationActionExecuted = 'automation.action_executed';
 
     public function area(): string
     {
         return match ($this) {
+            self::AutomationRuleSaved, self::AutomationRuleArchived, self::AutomationRuleKilled, self::AutomationRuleRevived, self::AutomationActionExecuted => 'automation',
             self::EInvoiceIssued, self::EInvoiceSigned, self::EInvoiceSubmitted, self::EInvoiceResponse, self::EInvoiceRetryRequested,
             self::ZatcaSettingsSaved, self::ZatcaOnboardingStarted, self::ZatcaOnboarded, self::ZatcaOnboardingFailed, self::ZatcaDeviceRetired => 'einvoicing',
             self::ReportExportRequested, self::ReportExportGenerated, self::ReportExportFailed, self::ReportExportDownloaded, self::ReportExportPurged => 'reports',

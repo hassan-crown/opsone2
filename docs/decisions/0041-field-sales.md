@@ -121,6 +121,10 @@ customers. Nobody could hand a lead to a rep with a response time. Orders did no
      manages the rep and to the dispatcher. It fires once per late dispatched lead or request and once per late task
      and due time. The rep still gets `field_sales.lead_overdue`.
 
+9. **Automation triggers (ADR-0042).** Field sales feeds two audit-based triggers into the closed catalogue:
+   `lead.dispatched_to_rep` (audit `field_sales.lead_assigned`, subject the lead) and `field_visit.completed` (audit
+   `field_sales.visit_finished`, subject the order). Rules use them like any other trigger; no new source was added.
+
 ## Consequences
 
 - One migration (`#[Expand]`) adds two columns to `orders` and the tables `field_sales_settings`, `field_assignments`,

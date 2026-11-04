@@ -1,6 +1,6 @@
 # Field sales (ADR-0041) — screenshots
 
-Showcase dataset (`ShowcaseSeeder`: field sales on from release 2 on 2026-08-02, a sales supervisor and one rep in
+Showcase dataset (`ShowcaseSeeder`: field sales on from the configuration release of 2026-08-02, a sales supervisor and one rep in
 Riyadh), taken on the local `opsone_fs` stack on 2026-11-04. Arabic unless noted; field app at 390 px, the rest at
 1440 px. For the field app shots only, the rep's booked visit was moved to the next day on the local database so it
 appears in «My visits» (the seeder books it for 2026-11-02); the rep then arrived, wrote notes, took a photo and

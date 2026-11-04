@@ -33,7 +33,7 @@ use Carbon\CarbonImmutable;
 use Illuminate\Support\Str;
 
 /**
- * Field sales (ADR-0041) from release 2 (2026-08-02), in Riyadh: the sales supervisor dispatches leads to the field
+ * Field sales (ADR-0041) from the configuration release of 2026-08-02, in Riyadh: the sales supervisor dispatches leads to the field
  * rep, who takes them, converts most into field orders, visits the customer at home (notes, a site photo,
  * measurements), prepares and sends the quote; the manager records the customer's approval and finance the first
  * payment, so the rep's commission accrues through the existing policy. At the end of the story the rep has a late

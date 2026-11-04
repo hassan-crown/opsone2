@@ -2,6 +2,7 @@
 
 namespace App\Configuration;
 
+use App\Automation\AutomationText;
 use App\Finance\Plans\PaymentPlans;
 
 /**
@@ -17,6 +18,7 @@ final class ConfigDiff
         'clauses' => 'key',
         'messages' => null,
         'numbering' => 'sequence',
+        'automation' => 'key',
     ];
 
     /** Fields never shown: identifiers and counters. */
@@ -152,6 +154,12 @@ final class ConfigDiff
                 $l['stage_key'] !== null ? ':'.$l['stage_key'] : '',
                 (int) $l['offset_days'] > 0 ? ' +'.$l['offset_days'] : '',
             )), $value));
+        }
+        if ($section === 'automation' && $field === 'trigger' && is_string($value)) {
+            return __('automation.trigger.'.$value);
+        }
+        if ($section === 'automation' && is_array($value) && in_array($field, ['conditions', 'actions', 'params'], true)) {
+            return AutomationText::of($field, $value);
         }
         if (is_array($value)) {
             if (array_is_list($value) && array_filter($value, fn ($v) => ! is_scalar($v)) === []) {

@@ -58,6 +58,8 @@ final class Showcase
 
     public AppointmentRequests $appointmentRequests;
 
+    public Automation $automation;
+
     public FieldSales $fieldSales;
 
     /** @var array<string, User> */
@@ -96,6 +98,7 @@ final class Showcase
         $this->einvoicing = new EInvoicing($this);
         $this->installations = new Installations($this);
         $this->appointmentRequests = new AppointmentRequests($this);
+        $this->automation = new Automation($this);
         $this->fieldSales = new FieldSales($this);
     }
 
@@ -146,6 +149,7 @@ final class Showcase
         $this->support->run();
         $this->portal->run();
         $this->appointmentRequests->run();
+        $this->automation->run();
         $this->fieldSales->run();
         $this->timeline->run();
         $this->messaging->settle();

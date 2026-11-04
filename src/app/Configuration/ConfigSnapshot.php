@@ -4,6 +4,7 @@ namespace App\Configuration;
 
 use App\FieldSales\FieldSalesConfig;
 use App\Models\Agreements\DocumentClause;
+use App\Models\Automation\AutomationRule;
 use App\Models\FieldSales\FieldSalesSettings;
 use App\Models\Finance\PaymentPlan;
 use App\Models\MessageTemplate;
@@ -18,14 +19,15 @@ use App\Procurement\PurchaseDocumentLayout;
  * release, never the draft. `defaults()` is what applies before the first release: the built-in rules, exactly as
  * empty phase-1 tables behaved.
  *
- * Sections: payment_plans, reminders, clauses, messages, task_sla, numbering, purchase_document, field_sales (ADR-0041). WhatsApp template
+ * Sections: payment_plans, reminders, clauses, messages, task_sla, numbering, purchase_document, automation (ADR-0042:
+ * the automation rules; their kill switch is live and stays outside releases), field_sales (ADR-0041). WhatsApp template
  * names stay immediate (they must match what Meta approved) and the flow keeps its own versions (M-23).
  */
 final class ConfigSnapshot
 {
     public const SCHEMA = 1;
 
-    public const SECTIONS = ['payment_plans', 'reminders', 'clauses', 'messages', 'task_sla', 'numbering', 'purchase_document', 'field_sales'];
+    public const SECTIONS = ['payment_plans', 'reminders', 'clauses', 'messages', 'task_sla', 'numbering', 'purchase_document', 'automation', 'field_sales'];
 
     /**
      * @return array<string, mixed>
@@ -58,6 +60,8 @@ final class ConfigSnapshot
                 'pad' => $f->pad, 'start_at' => $f->start_at, 'start_period' => $f->start_period,
             ])->all()),
             'purchase_document' => PurchaseDocumentLayout::draft(),
+            'automation' => array_values(AutomationRule::query()->active()->orderBy('position')->orderBy('key')->get()
+                ->map(fn (AutomationRule $r) => $r->definition())->all()),
             'field_sales' => FieldSalesConfig::capture(FieldSalesSettings::working()),
         ];
     }
@@ -78,6 +82,7 @@ final class ConfigSnapshot
             'task_sla' => ['task_sla' => null, 'task_escalate_after_days' => 1, 'holidays' => []],
             'numbering' => [],
             'purchase_document' => ['version' => 0, 'layout' => PurchaseDocumentLayout::defaultLayout(), 'email' => PurchaseDocumentLayout::defaultEmail()],
+            'automation' => [],
             'field_sales' => FieldSalesConfig::defaults(),
         ];
     }
@@ -92,6 +97,10 @@ final class ConfigSnapshot
     public static function comparable(array $snapshot): array
     {
         unset($snapshot['purchase_document']['version']);
+        // A release published before the automation section existed had no rules.
+        $snapshot['automation'] ??= [];
+        // Nor field sales (ADR-0041): the section's defaults (off), field by field.
+        $snapshot['field_sales'] = (array) ($snapshot['field_sales'] ?? []) + FieldSalesConfig::defaults();
 
         return self::canonical($snapshot);
     }
