@@ -49,6 +49,31 @@
     }
   });
 
+  /* ---------- the eight steps: the step at the middle of the screen owns the stage ---------- */
+  const steps = [...document.querySelectorAll('.step')];
+  if (steps.length && 'IntersectionObserver' in window) {
+    const on = (step) => {
+      if (step.classList.contains('is-on')) return;
+      steps.forEach((s) => s.classList.toggle('is-on', s === step));
+      // the design approval replays once: the client presses «اعتماد التصميم» and the stamp lands
+      const ask = step.querySelector('[data-approve]');
+      if (ask && !ask.dataset.played && !reduce.matches) {
+        ask.dataset.played = '1';
+        ask.classList.add('is-pending');
+        setTimeout(() => ask.classList.remove('is-pending'), 1400);
+      }
+      const ink = step.querySelector('.sign__pad path');
+      if (ink && !ink.dataset.played && !reduce.matches && ink.animate) {
+        ink.dataset.played = '1';
+        const len = ink.getTotalLength();
+        ink.animate([{ strokeDasharray: len, strokeDashoffset: len }, { strokeDasharray: len, strokeDashoffset: 0 }], { duration: 1100, easing: 'cubic-bezier(0.77, 0, 0.175, 1)', delay: 250, fill: 'backwards' });
+      }
+    };
+    on(steps[0]);
+    const io = new IntersectionObserver((entries) => entries.forEach((e) => { if (e.isIntersecting) on(e.target.closest('.step')); }), { rootMargin: '-50% 0px -50% 0px' });
+    steps.forEach((s) => io.observe(s.querySelector('.step__text')));
+  }
+
   /* ---------- the portal clip plays while it is on screen ---------- */
   document.querySelectorAll('video[data-autoplay]').forEach((v) => {
     if (!('IntersectionObserver' in window)) return;
@@ -66,10 +91,12 @@
     if (app) {
       const q = (sel) => app.querySelector(sel);
       const make = q('[data-stg="make"]'), install = q('[data-stg="install"]');
-      const toast = q('[data-toast]');
+      const toast = document.querySelector('[data-toast]');
       const counters = [...app.querySelectorAll('[data-count]')];
       const tl = gsap.timeline({ delay: 0.35 });
-      tl.from(app, { y: 90, rotateX: 16, scale: 0.94, duration: 1.3, ease: 'expo.out' })
+      // the 3D tilt holds back the first paint on phones (Lighthouse LCP), so narrow screens get a plain rise
+      const wide = matchMedia('(min-width: 1024px)').matches;
+      tl.from(app, wide ? { y: 90, rotateX: 16, scale: 0.94, duration: 1.3, ease: 'expo.out' } : { y: 60, duration: 1.1, ease: 'expo.out' })
         .from(app.querySelectorAll('.panel'), { y: 26, stagger: 0.09, duration: 0.8, ease: 'expo.out' }, 0.45)
         .from(app.querySelectorAll('.stg__row'), { x: 18, stagger: 0.06, duration: 0.6, ease: 'expo.out' }, 0.6);
       counters.forEach((el, i) => {
@@ -78,27 +105,28 @@
       });
       tl.from(app.querySelector('[data-meter]'), { scaleX: 0, duration: 1.4, ease: 'power3.out' }, 0.8)
         .from(make.querySelector('.stg__bar i'), { scaleX: 0, duration: 1.4, ease: 'power3.out' }, 0.8)
-        .from(toast, { y: 40, opacity: 0, duration: 0.7, ease: 'expo.out' }, 1.6)
         // the second beat: manufacturing finishes, installation starts
-        .to(make.querySelector('.stg__bar i'), { scaleX: 1, duration: 0.9, ease: 'power2.inOut' }, 3.4)
+        .to(make.querySelector('.stg__bar i'), { scaleX: 1, duration: 0.9, ease: 'power2.inOut' }, 2.4)
         .call(() => {
           app.querySelector('[data-task]').classList.add('is-done');
           make.classList.replace('is-now', 'is-done');
+          make.querySelector('.stg__dot').innerHTML = '<svg class="ic"><use href="#i-check"/></svg>';
           const c1 = make.querySelector('.chip'); c1.className = 'chip chip--ok'; c1.textContent = 'مكتملة';
           install.classList.add('is-now');
           const c2 = install.querySelector('.chip'); c2.className = 'chip chip--info'; c2.textContent = 'جارية';
           const st = app.querySelector('[data-status]'); st.textContent = 'قيد التركيب';
-        }, null, 4.3)
-        .fromTo([make.querySelector('.chip'), install.querySelector('.chip'), app.querySelector('[data-status]')], { scale: 0.7, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.5, stagger: 0.08, ease: 'back.out(1.6)', immediateRender: false }, 4.32)
-        .to(install.querySelector('.stg__bar i'), { scaleX: 0.18, duration: 0.9, ease: 'power2.out' }, 4.5);
+        }, null, 3.3)
+        .fromTo([make.querySelector('.chip'), install.querySelector('.chip'), app.querySelector('[data-status]')], { scale: 0.92, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.4, stagger: 0.06, ease: 'expo.out', immediateRender: false }, 3.32)
+        .to(install.querySelector('.stg__bar i'), { scaleX: 0.18, duration: 0.9, ease: 'power2.out' }, 3.5)
+        .from(toast, { y: 24, opacity: 0, duration: 0.6, ease: 'expo.out' }, 3.7);
       gsap.to(app, { y: -50, ease: 'none', scrollTrigger: { trigger: '.hero__stage', start: 'top 40%', end: 'bottom top', scrub: true } });
     }
 
-    // every section: heading, then text, then picture, staggered once
+    // a section's title and its lead arrive once; lists and steps are already in place
     document.querySelectorAll('main > section').forEach((sec) => {
-      const parts = sec.querySelectorAll('[data-reveal]');
+      const parts = sec.querySelectorAll('.head[data-reveal], .lead[data-reveal], .journey__picture[data-reveal], .tool[data-reveal], .roles__media[data-reveal]');
       if (!parts.length) return;
-      gsap.from(parts, { y: 32, opacity: 0, duration: 0.9, stagger: 0.08, ease: 'expo.out', scrollTrigger: { trigger: sec, start: 'top 82%', once: true } });
+      gsap.from(parts, { y: 20, opacity: 0, duration: 0.8, stagger: 0.07, ease: 'expo.out', scrollTrigger: { trigger: sec, start: 'top 82%', once: true } });
     });
     // counters and meters in the money tile
     document.querySelectorAll('.tools [data-count]').forEach((el) => {
@@ -106,11 +134,20 @@
       gsap.to(o, { v: to, duration: 1.6, ease: 'power3.out', onUpdate: () => { el.textContent = fmt(o.v); }, scrollTrigger: { trigger: el, start: 'top 90%', once: true } });
     });
     document.querySelectorAll('.tools [data-meter]').forEach((el) => gsap.from(el, { scaleX: 0, duration: 1.6, ease: 'power3.out', scrollTrigger: { trigger: el, start: 'top 90%', once: true } }));
-    gsap.from('.phone--chat .ui-wa', { y: 18, opacity: 0, stagger: 0.3, duration: 0.6, ease: 'expo.out', scrollTrigger: { trigger: '.tool--wa', start: 'top 80%', once: true } });
+    gsap.from('.chat .ui-wa', { y: 18, opacity: 0, stagger: 0.3, duration: 0.6, ease: 'expo.out', scrollTrigger: { trigger: '.tool--wa', start: 'top 80%', once: true } });
     gsap.from('.doc__sign svg path', { strokeDasharray: 600, strokeDashoffset: 600, duration: 1.6, ease: 'power2.inOut', scrollTrigger: { trigger: '.tool--sign', start: 'top 75%', once: true } });
 
-    // item 9: the draft version waits to be approved
-    gsap.from('.flow__draft', { y: 16, opacity: 0, duration: 0.7, ease: 'expo.out', scrollTrigger: { trigger: '.cfg', start: 'top 70%', once: true } });
+    // item 9: the owner approves the draft, version 4 goes live, running orders stay on version 3
+    const release = document.querySelector('[data-release]');
+    if (release) {
+      const press = release.querySelector('[data-publish]');
+      gsap.timeline({ scrollTrigger: { trigger: '.cfg', start: 'top 60%', once: true } })
+        .from(release.querySelector('.flow__row.is-new'), { y: -12, opacity: 0, duration: 0.6, ease: 'expo.out' })
+        .from(release.querySelector('.flow__draft'), { y: 12, opacity: 0, duration: 0.6, ease: 'expo.out' }, 0.2)
+        .call(() => press.classList.add('is-pressed'), null, 1.6)
+        .call(() => { press.classList.remove('is-pressed'); release.classList.add('is-published'); }, null, 1.8)
+        .fromTo(release.querySelectorAll('.flow__draft .v-new, .flow__head .v-new'), { opacity: 0, y: 6 }, { opacity: 1, y: 0, duration: 0.45, ease: 'expo.out', immediateRender: false }, 1.82);
+    }
   };
   runMotion();
   addEventListener('load', () => { if (window.ScrollTrigger) ScrollTrigger.refresh(); }, { once: true });

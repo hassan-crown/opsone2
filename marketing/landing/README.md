@@ -32,6 +32,7 @@ then visit `http://localhost:8080`.
 | `tags.js` | Consent-aware loader for GA4, GTM, Meta, TikTok, Snap and LinkedIn tags. |
 | `robots.txt`, `sitemap.xml`, `site.webmanifest` | Crawling and install metadata (domain placeholder inside). |
 | `HOSTING.md` | Suggested compression, cache and security headers. |
+| `REDESIGN-AUDIT.md` | The critique, technical audit and detector scan that the 2026-11-04 redesign answered. |
 | `assets/fonts/` | IBM Plex Sans Arabic 400/500/600/700 from the design system, with `OFL.txt`. |
 | `assets/brand/` | The OpsOne logo and mark, generated from the original geometry in `docs/design-system/source/components/src/logo.js` (not redrawn). |
 | `assets/photos/` | Four CC0 photographs (no credit required) with `credits.json` as the internal provenance record. |
@@ -232,7 +233,50 @@ inspector runs with `--allow icon-cards` for the capability grid they asked for.
   WARNs «off-centre» and «ragged-edges» (right-to-left line ends) and «lopsided» on `#sales` (measured before its picture reveals)
   are defended.
 
-## Critique (last round)
+## Design redesign round (2026-11-04, impeccable and emil-design-eng skills)
+
+The pre-redesign critique, technical audit and detector scan are in `REDESIGN-AUDIT.md`; product truth for future design
+work is in the repository root `PRODUCT.md`. Copy, sections, SEO, consent tags and the CC0 photographs are unchanged except
+where noted.
+
+- This round extends the established OpsOne brand world (no new visual direction was rolled).
+- **The sales journey is the page's centre.** `#sales` items 1–8 became a journey pinned while scrolling (desktop): the text
+  column scrolls and a sticky stage beside it switches to the screen that does each step. On phones, and without JavaScript, each
+  step stacks its text and its screen. The eight screens are built from the app's own components and tokens
+  (`src/resources/js/components/ui/badge.tsx`, `button.tsx`, `card.tsx`, `flow/order-stages.tsx`, the portal sign panel):
+  sales opportunities by status and channel, appointment requests with a team clash, the quote with its terms, design versions
+  approved from the client's phone, the e-signature panel with the verification code, the payment plan, the client file with
+  access, and the field visit. They all follow one order, ORD-2026-00178, and its numbers add up (see «Sample content»).
+- **Item 9** (`#path`) is a full-width dark band. Its settings window shows a draft stage («التشطيب») and, as it scrolls into
+  view, «اعتماد» publishes version 4 while running orders stay on version 3.
+- **Hero window** rebuilt from `app-shell.tsx` and `navigation.ts`: sidebar with the real Lucide icons and labels, top bar with
+  page title, search, language, notifications and user, square tabs, stage rows with numbered dots. The WhatsApp notice now
+  floats beside the window (below it on tablets and phones) instead of covering the money panel.
+- **Header and logo:** the bar is sticky, so «اطلب عرضًا تجريبيًا» is always one tap away; the logo is 148×36 (123×30 on phones).
+  «مراحل العمل» now leads to the journey (`#sales`), not to the settings band.
+- **Hierarchy:** the icon-card grids in `#fit` and `#benefits` became ruled lists led by their headings, with no icons
+  (`#capabilities` keeps small icons as an index); the icon beside the step numbers 1–9 was removed; one radius system (the logo's
+  corner cut on marketing containers, 12 px on product screens, 6 px badges); one elevation token (`--lift`: hairline ring plus
+  an offset soft drop); titles always in ink.
+- **Tools and roles:** the money tile, which repeated the hero, now shows the receipt voucher RCV-2026-00412. WhatsApp is
+  drawn as the client's phone, and captions are ink on light tiles. The portal tile is no longer a teal fill. The recordings
+  are cropped to the page area (the owner and order clips without the sidebar, the portal clip's top half), so their
+  figures can be read on desktop. On phones they are still small; re-recording at phone size is a follow-up.
+- **Footer:** the repeated «جاهز ترى OpsOne على طلباتك؟» row was removed (the form sits right above); links are 44 px tall;
+  the mark closes the page as a large signature.
+- **Form:** an ink band with the corner cut instead of the teal perforated coupon; teal only on the submit button; fields
+  with a visible edge, 16 px text (no zoom on iOS), a chevron on the select.
+- **Motion** (find-animation-opportunities, animate, review-animations, animation-performance): motion only where it explains a
+  state change. These are a rail beside the step being read (its title turns ink), the hero's order advancing (from 2.4 s, not 3.4 s), the stage crossfade, the design approval stamp,
+  the signature drawing, and the version 4 release. The blanket rise on every list item and the photo parallax were removed.
+  Transform and opacity only; reduced motion gets a 200 ms crossfade on the steps and no GSAP. The hero's 3D tilt runs on
+  screens 1024 px and wider only, because on phones it held back the first paint (Lighthouse LCP 4.2 s → 2.9 s).
+- **Mobile-native:** no tap highlight, `touch-action: manipulation`, no text selection on buttons and tabs, safe-area padding
+  on the sticky bar and the consent banner (`viewport-fit=cover`).
+- **break-ui:** no overflow at 320, 375, 768 or 1440, nor at 200% text (the settings window lost its side menu below 1024 px to
+  make that hold); a long name, a long company and Arabic-digit phone input in the form; a long email in the status line wraps.
+
+## Critique (round before the redesign)
 
 ```
 ROUND 7
@@ -283,13 +327,26 @@ e-signature tile is drawn in SVG.
 
 ## Sample content to confirm before launch
 
-- Settings window (item 9): stage names, responsible roles, durations (يومان، 3 أيام، 21 يومًا), the two gates, «مسودة الإصدار 4».
+- Settings window (item 9): stage names, responsible roles, durations (يومان، 3 أيام، 45 يومًا), the two gates, «مسودة الإصدار 4».
 - Roles: the refund request 2,700.00 ر.س and the permission matrix (which role may do what) must match the real role setup.
 - Tools: the quote QUO-2026-00070 (from the showcase PDF), the invoice INV-2026-01187 amounts, the store item «مصباح معلّق بقفص معدني» at 385.00 ر.س.
 - Footer: contact details (email, phone, WhatsApp, address) are missing and needed from the product owner.
 - Hero window tasks for the manufacturing stage: «إصدار أمر التصنيع» (الإنتاج), «تأكيد موعد الجاهزية 6 نوفمبر» (المصنع),
   «استلام البنود من المصنع» (المستودع); the order is «طلب مخصص حسب المقاسات، 6 بنود», 48,300 ر.س split 50/50 → 24,150.
-- Quote lines: «تصميم وتنفيذ حسب المقاسات» 33,540.00، «منتجات جاهزة من المعرض» 5,070.00، «تركيب وتوصيل وتجهيز الموقع» 1,524.00.
+- Tools tile quote (signed PDF): «تصميم وتنفيذ حسب المقاسات» 33,540.00، «منتجات جاهزة من المعرض» 5,070.00، «تركيب وتوصيل وتجهيز الموقع» 1,524.00.
+- The journey's order ORD-2026-00178, one set of numbers across the hero and the eight steps:
+  - Quote QUO-2026-00071 (15 Sep, valid to 29 Sep). Lines: 36,500.00 + 4 × 1,150.00 + 2,900.00 = 44,000.00. Discount 2,000.00
+    («اعتمده المدير»), giving 42,000.00. VAT 15% is 6,300.00, for a total of 48,300.00.
+  - Contract CON-2026-00031, signed 23 Sep at 11:08. First payment 24,150.00 (receipt RCV-2026-00412, bank transfer);
+    the last 24,150.00 is due at installation on 8 Nov, with a reminder two days before.
+  - Design versions 1–3 (10, 12, 14 Sep). The client file has measure, design, contract and receipt PDFs.
+  - Field visit: arrived 08:04, client signed at 11:52.
+  - Terms: valid 14 days; 50% at signing, the rest at installation; manufacturing starts after the first payment and takes
+    45 days (23 Sep to 6 Nov), as in the settings window. The hero's stage names are the version 3 names in the settings window,
+    and today's 08:00 appointment is this order's installation.
+- Sales opportunities: 18 this month (5 new, 7 in follow-up, 4 converted, 2 closed), INT-0294…0299.
+- Appointment requests: 3 and 4 Nov, including a clash between ORD-2026-00127 and ORD-2026-00089 for the same team.
+- Settings release: draft stage «التشطيب» (المصنع، 3 أيام), version 4 published while running orders stay on version 3.
 - The approved copy states e-invoices compliant with هيئة الزكاة, while the invoice tile still says «قيد الإطلاق»; align both
   before launch.
 - Commission example 2.5% on 42,000 = 1,050.00 ر.س, half collected = 525.00 (the basis follows the P6 default, which is
