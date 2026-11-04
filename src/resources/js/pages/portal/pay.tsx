@@ -2,6 +2,7 @@ import { Form, Head, Link } from '@inertiajs/react';
 import { Info } from 'lucide-react';
 import { SelectField, TextField } from '@/components/opsone/field';
 import { Icon } from '@/components/opsone/icon';
+import { FileField } from '@/components/portal/file-field';
 import {
     DateText,
     Money,
@@ -170,11 +171,10 @@ export default function PortalPay({
                                         maxLength={80}
                                         error={errors.reference}
                                     />
-                                    <TextField
+                                    <FileField
                                         label={t('portal.pay.file')}
                                         hint={t('portal.pay.file_hint')}
                                         name="file"
-                                        type="file"
                                         accept="image/jpeg,image/png,image/webp,application/pdf"
                                         required
                                         error={errors.file}

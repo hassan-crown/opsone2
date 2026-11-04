@@ -1,7 +1,8 @@
 import { Form, Head, Link } from '@inertiajs/react';
 import { Info } from 'lucide-react';
-import { TextareaField, TextField } from '@/components/opsone/field';
+import { TextareaField } from '@/components/opsone/field';
 import { Icon } from '@/components/opsone/icon';
+import { FileField } from '@/components/portal/file-field';
 import { DateText, FileLinks, Section } from '@/components/portal/parts';
 import { TicketStatusBadge } from '@/components/portal/ticket-parts';
 import { Button } from '@/components/ui/button';
@@ -116,13 +117,12 @@ export default function PortalTicket({ ticket, max_files }: Props) {
                                 rows={4}
                                 error={errors.body}
                             />
-                            <TextField
+                            <FileField
                                 label={t('tickets.field.files')}
                                 hint={t('tickets.field.files_hint', {
                                     max: max_files,
                                 })}
                                 name="files[]"
-                                type="file"
                                 multiple
                                 optional
                                 accept="image/jpeg,image/png,image/webp,application/pdf"

@@ -24,9 +24,11 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property string $mobile
  * @property string|null $email
  * @property bool $portal_login_enabled
+ * @property CarbonInterface|null $portal_blocked_at
  * @property CarbonInterface|null $portal_activated_at
  * @property CarbonInterface|null $email_verified_at
  * @property int $portal_session_version
+ * @property int $portal_invite_version
  * @property string|null $portal_locale
  * @property CarbonInterface|null $portal_last_login_at
  * @property string $country
@@ -128,9 +130,11 @@ class Customer extends Model implements AuthenticatableContract, ScopedRecord
             'kind' => CustomerKind::class,
             'preferred_channel' => ContactChannel::class,
             'portal_login_enabled' => 'boolean',
+            'portal_blocked_at' => 'datetime',
             'portal_activated_at' => 'datetime',
             'email_verified_at' => 'datetime',
             'portal_session_version' => 'integer',
+            'portal_invite_version' => 'integer',
             'portal_last_login_at' => 'datetime',
             'whatsapp_opt_out_at' => 'datetime',
             'national_address' => 'array',

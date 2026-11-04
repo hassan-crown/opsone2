@@ -51,7 +51,7 @@ export default function HelpIndex({ categories, latest }: Props) {
                         </span>
                         <span>{latest.title}</span>
                     </span>
-                    <Icon icon={ChevronRight} className="rtl:rotate-180" />
+                    <Icon icon={ChevronRight} />
                 </Link>
             )}
 

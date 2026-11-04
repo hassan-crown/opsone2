@@ -261,11 +261,7 @@ export default function ApptChange({
                         })}
                         className="inline-flex min-h-11 items-center gap-1 text-link hover:underline"
                     >
-                        <Icon
-                            icon={ArrowLeft}
-                            size="sm"
-                            className="rtl:rotate-180"
-                        />
+                        <Icon icon={ArrowLeft} size="sm" />
                         {t('appointments.back')}
                     </Link>
                 }

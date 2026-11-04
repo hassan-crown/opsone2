@@ -23,10 +23,11 @@ const buttonVariants = cva(
       },
       size: {
         default: "min-h-11 px-5",
-        sm: "min-h-9 px-4",
+        // Touch targets stay 44px on phones; the compact 36px size is for pointer layouts (md+).
+        sm: "min-h-11 px-4 md:min-h-9",
         lg: "min-h-11 px-6",
         icon: "size-11 p-0",
-        "icon-sm": "size-9 p-0",
+        "icon-sm": "size-11 p-0 md:size-9",
       },
       block: {
         true: "flex w-full",

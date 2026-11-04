@@ -27,7 +27,8 @@ final class PortalInvitation
 
     public static function link(Customer $customer): string
     {
-        return URL::temporarySignedRoute('customer.activate', now()->addDays(self::LINK_DAYS), ['customer' => $customer->id]);
+        // `v` ties the link to the account's invite version: the first activation or a staff block voids it (L-9).
+        return URL::temporarySignedRoute('customer.activate', now()->addDays(self::LINK_DAYS), ['customer' => $customer->id, 'v' => $customer->portal_invite_version]);
     }
 
     public function send(User $actor, Customer $customer): void

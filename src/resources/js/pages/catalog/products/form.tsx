@@ -130,7 +130,7 @@ export default function ProductForm({
                         href={ProductController.index.url()}
                         className="inline-flex items-center gap-1 text-link hover:underline"
                     >
-                        <Icon icon={ArrowLeft} className="rtl:rotate-180" />
+                        <Icon icon={ArrowLeft} />
                         {t('catalog.products.title')}
                     </Link>
                 }

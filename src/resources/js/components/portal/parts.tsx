@@ -104,6 +104,18 @@ export function Section({
     );
 }
 
+/**
+ * The page's decision floating above the bottom bar (or the screen edge from md up) while the customer reads, and
+ * settling at the end of the page — where the thumb is, not after every term. A direct child of the page.
+ */
+export function ActionBar({ children }: { children: ReactNode }) {
+    return (
+        <div className="sticky bottom-[calc(var(--portal-bar,0px)+0.75rem)] z-10 mb-4 flex flex-col gap-3 rounded-lg border border-stroke-weak bg-raised p-3 shadow-raised md:bottom-4 md:p-4">
+            {children}
+        </div>
+    );
+}
+
 export function DateText({
     value,
     time = false,
