@@ -515,8 +515,10 @@ p { text-wrap: pretty; }
 .foot__col h2 { color: var(--on-dark-muted); font-size: var(--step-small); font-weight: 500; }
 .foot__col ul { display: grid; margin-top: 0.5rem; }
 .foot__col a, .foot__col button { display: inline-flex; align-items: center; min-height: 2.75rem; text-decoration-color: transparent; }
-.foot__sign { display: block; width: min(100%, 78rem); margin: clamp(3.5rem, 7vw, 6rem) auto 0; }
-.foot__sign img { width: clamp(16rem, 42vw, 38rem); height: auto; }
+/* the mark signs the page at the header's scale: 44px tall on desktop, 32px on phones */
+.foot__sign { display: block; width: min(100%, 78rem); margin: clamp(2.5rem, 5vw, 3.5rem) auto 0; }
+.foot__sign img { width: auto; height: 44px; }
+@media (max-width: 767px) { .foot__sign img { height: 32px; } }
 .foot__base { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 1rem 2rem; max-width: 78rem; margin: 2rem auto 0; padding-top: 1.5rem; border-top: 1px solid rgba(255, 255, 255, 0.12); color: var(--on-dark-muted); font-size: var(--step-small); }
 .foot__base .credits { max-width: 80ch; line-height: 1.7; }
 
