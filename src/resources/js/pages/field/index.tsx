@@ -14,6 +14,7 @@ import { Icon } from '@/components/opsone/icon';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useT } from '@/lib/i18n';
+import { formatQuantity } from '@/lib/quantity';
 import type { TranslationKey } from '@/lib/i18n';
 import type { FieldDue, FieldVisitRow, FieldWork } from '@/types/field';
 
@@ -285,7 +286,7 @@ export default function FieldIndex({ today, visits, work }: Props) {
                                             <div className="flex flex-wrap items-center gap-2">
                                                 <bdi
                                                     className="text-label whitespace-nowrap text-strong tabular-nums"
-                                                    dir="isolate"
+                                                    dir="ltr"
                                                 >
                                                     {visit.start}–{visit.end}
                                                 </bdi>
@@ -319,7 +320,7 @@ export default function FieldIndex({ today, visits, work }: Props) {
                                                         .slice(0, 3)
                                                         .map(
                                                             (i) =>
-                                                                `${i.name} × ${isolate(String(i.quantity))}`,
+                                                                `${i.name} × ${formatQuantity(i.quantity, i.unit, t)}`,
                                                         )
                                                         .join('، ')}
                                                     {visit.items.length > 3 &&

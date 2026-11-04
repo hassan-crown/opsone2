@@ -34,6 +34,7 @@ import {
     TextareaField,
 } from '@/components/opsone/field';
 import { Icon } from '@/components/opsone/icon';
+import { Quantity } from '@/components/opsone/quantity';
 import { SignaturePad } from '@/components/portal/sign-panel';
 import { Alert, AlertBody } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
@@ -247,7 +248,7 @@ export default function FieldVisit({ visit }: Props) {
                     <p className="mt-1 mb-0 text-body text-strong">
                         {day(visit.date)} ·{' '}
                         <bdi
-                            dir="isolate"
+                            dir="ltr"
                             className="whitespace-nowrap tabular-nums"
                         >
                             {visit.start}–{visit.end}
@@ -269,10 +270,10 @@ export default function FieldVisit({ visit }: Props) {
                                 {visit.items.map((item, i) => (
                                     <li key={i}>
                                         {item.name} ×{' '}
-                                        <bdi dir="isolate">
-                                            {item.quantity}
-                                            {item.unit ? ` ${item.unit}` : ''}
-                                        </bdi>
+                                        <Quantity
+                                            value={item.quantity}
+                                            unit={item.unit}
+                                        />
                                     </li>
                                 ))}
                             </ul>

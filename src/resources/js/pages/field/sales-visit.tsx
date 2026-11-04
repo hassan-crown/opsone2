@@ -35,6 +35,7 @@ import {
     TextareaField,
 } from '@/components/opsone/field';
 import { Icon } from '@/components/opsone/icon';
+import { Quantity } from '@/components/opsone/quantity';
 import { Alert, AlertBody } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -42,6 +43,7 @@ import { useOnline } from '@/layouts/field-layout';
 import { discard } from '@/lib/field-queue';
 import { useT } from '@/lib/i18n';
 import type { TranslationKey } from '@/lib/i18n';
+import { unitLabel } from '@/lib/quantity';
 import type { SalesVisitDetail } from '@/types/field';
 
 type Props = { visit: SalesVisitDetail; today: string };
@@ -151,7 +153,7 @@ export default function SalesVisit({ visit, today }: Props) {
                     <p className="mt-1 mb-0 text-body text-strong">
                         {day(visit.date)} ·{' '}
                         <bdi
-                            dir="isolate"
+                            dir="ltr"
                             className="whitespace-nowrap tabular-nums"
                         >
                             {visit.start}–{visit.end}
@@ -347,9 +349,11 @@ export default function SalesVisit({ visit, today }: Props) {
                                     <span>
                                         {m.location} — {m.name}
                                     </span>
-                                    <bdi dir="isolate" className="text-strong">
-                                        {m.value} {m.unit}
-                                    </bdi>
+                                    <Quantity
+                                        value={m.value}
+                                        unit={m.unit}
+                                        className="text-strong"
+                                    />
                                 </li>
                             ))}
                         </ul>
@@ -395,7 +399,7 @@ export default function SalesVisit({ visit, today }: Props) {
                             <TextField
                                 label={t('field_sales.visit.m_value')}
                                 inputMode="decimal"
-                                dir="isolate"
+                                dir="ltr"
                                 value={measure.data.value}
                                 error={measure.errors.value}
                                 onChange={(e) =>
@@ -410,7 +414,7 @@ export default function SalesVisit({ visit, today }: Props) {
                                 }
                                 options={visit.units.map((u) => ({
                                     value: u,
-                                    label: u,
+                                    label: unitLabel(u, t),
                                 }))}
                             />
                             <SelectField
