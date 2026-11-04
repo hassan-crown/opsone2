@@ -1,0 +1,52 @@
+/* Shared base for the three direction mocks: brand font, reset, browser surfaces.
+   Each direction file owns its own world on top of this. */
+
+@font-face { font-family: "Plex Arabic"; src: url("../assets/fonts/IBMPlexSansArabic-Regular.woff2") format("woff2"); font-weight: 400; font-display: swap; }
+@font-face { font-family: "Plex Arabic"; src: url("../assets/fonts/IBMPlexSansArabic-Medium.woff2") format("woff2"); font-weight: 500; font-display: swap; }
+@font-face { font-family: "Plex Arabic"; src: url("../assets/fonts/IBMPlexSansArabic-SemiBold.woff2") format("woff2"); font-weight: 600; font-display: swap; }
+@font-face { font-family: "Plex Arabic"; src: url("../assets/fonts/IBMPlexSansArabic-Bold.woff2") format("woff2"); font-weight: 700; font-display: swap; }
+
+:root {
+  --ink: #0B1B33;
+  --ink-800: #1A2C48;
+  --ink-700: #2A3E5E;
+  --muted: #4A5A72;
+  --ink-300: #A3B0C2;
+  --fill: #F5F7F9;
+  --fill-2: #EDF1F5;
+  --rule: #DDE3EA;
+  --night: #08121F;
+  --teal: #0E7C72;
+  --teal-strong: #0B655D;
+  --teal-deep: #0A514B;
+  --teal-400: #3FB8A9;
+  --teal-100: #D4EEEA;
+  --teal-50: #EEF8F6;
+  --amber: #C98A1B;
+  --amber-300: #EBC170;
+  --font: "Plex Arabic", "IBM Plex Sans Arabic", "Segoe UI", Tahoma, sans-serif;
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --margin: clamp(1rem, 3vw, 3rem);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; -webkit-tap-highlight-color: transparent; }
+body { margin: 0; font-family: var(--font); font-size: clamp(1.0625rem, 1rem + 0.2vw, 1.1875rem); line-height: 1.75; -webkit-font-smoothing: antialiased; }
+h1, h2, h3, p, ul, ol, figure { margin: 0; }
+ul, ol { padding: 0; list-style: none; }
+img, svg { display: block; max-width: 100%; }
+a { color: inherit; }
+button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; text-align: inherit; }
+h1, h2, h3 { text-wrap: balance; }
+p { text-wrap: pretty; }
+.nums { font-variant-numeric: tabular-nums; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+:focus-visible { outline: 3px solid var(--teal-400); outline-offset: 3px; border-radius: 4px; }
+
+/* Mock-only marker so nobody mistakes a direction for the shipped page. */
+.mock-tag { position: fixed; inset-block-end: 12px; inset-inline-start: 12px; z-index: 50; font-size: 12px; line-height: 1; padding: 7px 10px; border-radius: 999px; background: rgba(8, 18, 31, 0.86); color: #EEF2F7; letter-spacing: 0; pointer-events: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+}

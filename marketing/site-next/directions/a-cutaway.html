@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>OpsOne | الاتجاه A: المنشأة في مقطع</title>
+<link rel="stylesheet" href="base.css">
+<style>
+  /* Direction A — the whole business drawn as one architectural section at night.
+     The page's "one place" is literally one building: showroom on the street, office upstairs,
+     factory behind, dispatch at the side, the customer's site down the road. The order's path
+     is a teal conduit that runs through the rooms in the order the work happens. */
+  :root {
+    --sky: #08121F;
+    --sky-2: #0B1B33;
+    --room: #0F1D31;
+    --line: rgba(197, 207, 219, 0.34);
+    --line-strong: rgba(197, 207, 219, 0.62);
+    --on: #EEF2F7;
+    --on-muted: #A3B0C2;
+    --lit: rgba(235, 193, 112, 0.13);
+    --lit-edge: rgba(235, 193, 112, 0.55);
+    --live: rgba(63, 184, 169, 0.16);
+  }
+  body { background: var(--sky); color: var(--on); }
+  ::selection { background: var(--teal-400); color: var(--sky); }
+
+  .bar { display: flex; align-items: center; gap: 2rem; padding: 0 var(--margin); height: 4.5rem; }
+  .bar__logo { height: 30px; width: auto; }
+  .bar nav { display: flex; gap: 1.75rem; font-size: 0.9375rem; color: var(--on-muted); margin-inline-start: 1rem; }
+  .bar nav a { text-decoration: none; transition: color 180ms var(--ease-out); }
+  .bar nav a:hover { color: var(--on); }
+  .bar__cta { margin-inline-start: auto; }
+  .btn { display: inline-flex; align-items: center; gap: 0.5rem; min-height: 2.75rem; padding: 0 1.25rem; border-radius: 10px; font-weight: 600; font-size: 0.9375rem; text-decoration: none; transition: transform 140ms var(--ease-out), background-color 180ms var(--ease-out); }
+  .btn:active { transform: scale(0.97); }
+  .btn--go { background: var(--teal-400); color: #052623; }
+  .btn--go:hover { background: #57C7B9; }
+  .btn--quiet { color: var(--on); box-shadow: inset 0 0 0 1px var(--line-strong); }
+  .btn--quiet:hover { background: rgba(238, 242, 247, 0.06); }
+
+  .hero { position: relative; padding: clamp(1.5rem, 3vw, 2.5rem) var(--margin) 0; min-height: calc(100svh - 4.5rem); display: grid; grid-template-rows: auto 1fr; background: linear-gradient(to bottom, var(--sky) 40%, var(--sky-2)); }
+  .hero__top { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: var(--margin); align-items: start; }
+  .hero h1 { font-size: clamp(2.6rem, 0.9rem + 5.2vw, 5.75rem); line-height: 1.12; font-weight: 700; letter-spacing: 0; }
+  .hero h1 span { color: var(--amber-300); }
+  .hero__lede { margin-top: 1rem; max-width: 34rem; color: var(--on-muted); font-size: clamp(1.0625rem, 0.95rem + 0.45vw, 1.3125rem); line-height: 1.7; }
+  .hero__acts { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 1.5rem; }
+  .hint { margin-top: 0.9rem; font-size: 0.875rem; color: var(--on-muted); display: flex; align-items: center; gap: 0.5rem; }
+  .hint i { width: 8px; height: 8px; border-radius: 50%; background: var(--teal-400); box-shadow: 0 0 0 4px rgba(63, 184, 169, 0.18); }
+
+  /* The lit screen pulled out of the selected room. */
+  .screen { justify-self: end; width: min(100%, 25rem); background: #FFFFFF; color: var(--ink); border-radius: 14px; padding: 1rem 1.1rem 1.1rem; box-shadow: 0 0 0 1px rgba(255,255,255,0.08), 0 30px 60px -20px rgba(0, 0, 0, 0.6); font-size: 0.875rem; line-height: 1.6; transform-origin: 50% 100%; }
+  .screen__head { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; padding-bottom: 0.6rem; border-bottom: 1px solid var(--rule); }
+  .screen__room { font-size: 0.75rem; color: var(--muted); }
+  .screen__title { font-weight: 700; font-size: 1rem; }
+  .screen ul { margin-top: 0.5rem; }
+  .screen li { display: flex; justify-content: space-between; gap: 1rem; padding: 0.45rem 0; border-bottom: 1px solid var(--fill-2); }
+  .screen li:last-child { border-bottom: 0; }
+  .screen li b { font-weight: 600; }
+  .chip { display: inline-flex; align-items: center; height: 1.4rem; padding: 0 0.5rem; border-radius: 999px; font-size: 0.75rem; font-weight: 600; white-space: nowrap; }
+  .chip--done { background: var(--teal-50); color: var(--teal-strong); }
+  .chip--live { background: #FFF4DF; color: #8A5A07; }
+  .chip--next { background: var(--fill-2); color: var(--muted); }
+  .screen.is-swapping { animation: swap 260ms var(--ease-out); }
+  @keyframes swap { from { opacity: 0; transform: translateY(6px) scale(0.98); } }
+
+  /* ---------- the section drawing ---------- */
+  .scene { position: relative; align-self: end; display: grid; grid-template-columns: minmax(0, 1fr) clamp(9rem, 15vw, 14rem); grid-template-rows: auto auto; column-gap: clamp(1.5rem, 4vw, 4rem); margin-top: 1.5rem; }
+  .building { position: relative; display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); grid-template-rows: 2.6rem minmax(7.5rem, 1fr) minmax(8.5rem, 1fr);
+    grid-template-areas:
+      "sign sign sign sign . . . . . . . ."
+      "off  off  off  fin  fin fac fac fac fac own own own"
+      "show show show show core fac fac fac fac wh wh wh";
+    border: 1.5px solid var(--line-strong); border-bottom: 0; border-top: 0; }
+  .room { position: relative; display: flex; flex-direction: column; align-items: flex-start; gap: 0.15rem; padding: 0.7rem 0.8rem; background: var(--room); border: 1px solid var(--line); color: var(--on); text-align: start; transition: background-color 220ms var(--ease-out), box-shadow 220ms var(--ease-out); }
+  .room:hover { background: #13243C; }
+  .room[aria-pressed="true"] { box-shadow: inset 0 0 0 2px var(--teal-400); }
+  .room__name { font-weight: 700; font-size: 0.9375rem; line-height: 1.4; }
+  .room__line { font-size: 0.8125rem; color: var(--on-muted); line-height: 1.5; }
+  .room.is-done { background: linear-gradient(to bottom, var(--lit), rgba(235, 193, 112, 0.03)), var(--room); }
+  .room.is-live { background: linear-gradient(to bottom, var(--live), rgba(63, 184, 169, 0.03)), var(--room); }
+  .room__state { margin-top: auto; font-size: 0.75rem; display: inline-flex; align-items: center; gap: 0.35rem; color: var(--on-muted); }
+  .room__state::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--ink-300); opacity: 0.5; }
+  .is-done .room__state::before { background: var(--amber-300); opacity: 1; }
+  .is-live .room__state::before { background: var(--teal-400); opacity: 1; animation: beat 1.8s var(--ease-in-out) infinite; }
+  @keyframes beat { 50% { box-shadow: 0 0 0 5px rgba(63, 184, 169, 0.22); } }
+  /* Window lights in the mark's 16-unit grid. */
+  .lights { position: absolute; inset-block-start: 0.75rem; inset-inline-end: 0.75rem; display: grid; grid-template-columns: repeat(3, 7px); gap: 3px; }
+  .lights i { width: 7px; height: 7px; border-radius: 2px; background: rgba(163, 176, 194, 0.18); }
+  .is-done .lights i { background: rgba(235, 193, 112, 0.7); }
+  .is-live .lights i:nth-child(odd) { background: var(--teal-400); }
+
+  .r-sign { grid-area: sign; align-self: end; justify-self: start; margin-inline-start: 0.8rem; margin-bottom: 0.35rem; display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.25rem 0.75rem; border-radius: 6px; background: rgba(63, 184, 169, 0.12); box-shadow: inset 0 0 0 1px rgba(63, 184, 169, 0.6); color: #BDEBE4; font-size: 0.8125rem; font-weight: 600; }
+  .r-sign svg { width: 16px; height: 16px; }
+  .r-off { grid-area: off; } .r-fin { grid-area: fin; } .r-own { grid-area: own; } .r-wh { grid-area: wh; }
+  .r-show { grid-area: show; }
+  .r-show .glass { position: absolute; inset: auto 0.8rem 0 0.8rem; height: 42%; display: grid; grid-template-columns: repeat(5, 1fr); border: 1px solid var(--line); border-bottom: 0; pointer-events: none; }
+  .r-show .glass i { border-inline-start: 1px solid var(--line); background: rgba(235, 193, 112, 0.06); }
+  .r-show .glass i:first-child { border: 0; }
+  .r-core { grid-area: core; background: var(--room); border: 1px solid var(--line); background-image: repeating-linear-gradient(-32deg, transparent 0 13px, var(--line) 13px 14px); }
+  .r-fac { grid-area: fac; padding-top: 2.2rem; }
+  .roof { position: absolute; inset: -1px -1px auto -1px; height: 1.6rem; color: var(--line-strong); }
+  .bays { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.4rem; width: 100%; margin-top: 0.7rem; }
+  .bay { border: 1px solid var(--line); border-radius: 6px; padding: 0.45rem 0.5rem; font-size: 0.75rem; color: var(--on-muted); line-height: 1.45; }
+  .bay b { display: block; color: var(--on); font-weight: 600; font-size: 0.8125rem; }
+  .bay.is-now { border-color: var(--teal-400); background: rgba(63, 184, 169, 0.08); }
+
+  .site { grid-row: 1; grid-column: 2; align-self: end; display: grid; grid-template-rows: auto auto; }
+  .site .room { min-height: 8.5rem; border-radius: 0; }
+  .site__roof { height: 2.2rem; color: var(--line-strong); }
+
+  .street { grid-column: 1 / -1; position: relative; height: 3.6rem; border-top: 1.5px solid var(--line-strong); display: flex; align-items: center; gap: 1rem; }
+  .street::after { content: ""; position: absolute; inset-inline: 0; top: 50%; border-top: 1.5px dashed rgba(197, 207, 219, 0.16); }
+  .vehicle { white-space: nowrap; position: relative; z-index: 1; display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.3rem 0.65rem 0.3rem 0.8rem; border-radius: 999px; background: var(--sky-2); box-shadow: inset 0 0 0 1px var(--line); font-size: 0.8125rem; color: var(--on-muted); }
+  .vehicle svg { width: 20px; height: 20px; transform: scaleX(-1); color: var(--on); }
+  .vehicle b { color: var(--on); font-weight: 600; }
+  .v-car { margin-inline-start: 8%; }
+  .v-van { margin-inline-start: auto; margin-inline-end: 18%; animation: drive 9s var(--ease-in-out) infinite alternate; }
+  @keyframes drive { from { transform: translateX(3rem); } to { transform: translateX(-1rem); } }
+
+  .conduit { position: absolute; inset: 0; pointer-events: none; overflow: visible; }
+  .conduit path { fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+  .conduit .done { stroke: var(--teal-400); stroke-dasharray: var(--len); stroke-dashoffset: var(--len); animation: draw 1.6s var(--ease-in-out) 0.3s forwards; }
+  .conduit .ahead { stroke: rgba(63, 184, 169, 0.45); stroke-dasharray: 2 7; }
+  .conduit circle { fill: var(--sky); stroke: var(--teal-400); stroke-width: 2; }
+  .conduit circle.is-ahead { stroke: rgba(63, 184, 169, 0.45); }
+  @keyframes draw { to { stroke-dashoffset: 0; } }
+  .ticket { position: absolute; z-index: 2; transform: translate(-50%, -50%); padding: 0.2rem 0.55rem; border-radius: 6px; background: var(--teal-400); color: #052623; font-size: 0.75rem; font-weight: 700; white-space: nowrap; box-shadow: 0 8px 18px -6px rgba(0, 0, 0, 0.6); opacity: 0; animation: arrive 300ms var(--ease-out) 1.8s forwards; }
+  @keyframes arrive { from { opacity: 0; transform: translate(-50%, -30%); } to { opacity: 1; transform: translate(-50%, -50%); } }
+
+  @media (max-width: 1100px) { .bar nav { display: none; } }
+  @media (max-width: 860px) {
+    .hero__top { grid-template-columns: 1fr; }
+    .screen { justify-self: stretch; width: auto; order: 3; }
+    .scene { grid-template-columns: 1fr; margin-top: 1.25rem; }
+    .building { grid-template-columns: repeat(4, minmax(0, 1fr)); grid-template-rows: 2.4rem repeat(4, minmax(6.5rem, auto));
+      grid-template-areas:
+        "sign sign sign sign"
+        "off  off  fin  fin"
+        "own  own  wh   wh"
+        "fac  fac  fac  fac"
+        "show show show core"; }
+    .r-show { min-height: 8rem; }
+    .site { grid-row: auto; grid-column: 1; margin-top: 0; }
+    .site__roof { display: none; }
+    .site .room { min-height: 6rem; }
+    .street { order: -1; }
+    .v-car { margin-inline-start: 0.5rem; }
+    .v-van { margin-inline-end: 0.5rem; }
+    .scene { display: flex; flex-direction: column; }
+    .street { order: 2; }
+    .site { order: 3; }
+  }
+  @media (max-width: 480px) {
+    .bar { gap: 0.75rem; }
+    .bar__logo { height: 24px; }
+    .bar .btn { min-height: 2.5rem; padding: 0 0.9rem; font-size: 0.875rem; }
+    .hero__acts .btn { flex: 1 1 100%; justify-content: center; }
+    .room { padding: 0.6rem; }
+    .bays { grid-template-columns: 1fr 1fr 1fr; }
+    .vehicle { font-size: 0.75rem; padding: 0.25rem 0.55rem; }
+    .vehicle span { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .conduit .done { stroke-dashoffset: 0; animation: none; }
+    .ticket { opacity: 1; animation: none; }
+    .v-van { animation: none; }
+  }
+</style>
+</head>
+<body>
+<header class="bar">
+  <img class="bar__logo" src="../assets/brand/opsone-logo-reversed.svg" alt="OpsOne" width="123" height="30">
+  <nav aria-label="الأقسام">
+    <a href="#">لمن OpsOne</a><a href="#">مراحل العمل</a><a href="#">قنوات البيع</a><a href="#">الصلاحيات</a>
+  </nav>
+  <a class="btn btn--go bar__cta" href="#">اطلب عرضًا تجريبيًا</a>
+</header>
+
+<main class="hero">
+  <div class="hero__top">
+    <div>
+      <h1>عملياتك كلها،<br><span>في مكان واحد</span></h1>
+      <p class="hero__lede">من البيع في المعرض وعرض السعر والدفعات، إلى التصنيع والتسليم والتركيب والمتجر الإلكتروني.</p>
+      <div class="hero__acts">
+        <a class="btn btn--go" href="#">اطلب عرضًا تجريبيًا</a>
+        <a class="btn btn--quiet" href="#">شاهد مراحل العمل</a>
+      </div>
+      <p class="hint"><i aria-hidden="true"></i>اضغط أي جزء من المنشأة لترى شاشته في OpsOne</p>
+    </div>
+    <aside class="screen" id="screen" aria-live="polite"></aside>
+  </div>
+
+  <div class="scene" id="scene">
+    <div class="building" role="group" aria-label="منشأتك في OpsOne">
+      <button class="r-sign" data-room="store" aria-pressed="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
+        المتجر الإلكتروني
+      </button>
+      <button class="room r-off is-done" data-room="office" aria-pressed="false"><span class="lights" aria-hidden="true"><i></i><i></i><i></i></span><span class="room__name">العروض والعقود</span><span class="room__line">QUO-2026-00071، موقّع</span><span class="room__state">مكتملة</span></button>
+      <button class="room r-fin is-done" data-room="finance" aria-pressed="false"><span class="lights" aria-hidden="true"><i></i><i></i><i></i></span><span class="room__name">المالية</span><span class="room__line nums">24,150.00 مقبوض</span><span class="room__state">مسدد</span></button>
+      <button class="room r-fac is-live" data-room="factory" aria-pressed="true">
+        <svg class="roof" viewBox="0 0 400 26" preserveAspectRatio="none" aria-hidden="true"><path d="M0 26 L0 6 L100 26 L100 6 L200 26 L200 6 L300 26 L300 6 L400 26" fill="none" stroke="currentColor" stroke-width="1.5" vector-effect="non-scaling-stroke"/></svg>
+        <span class="room__name">المصنع</span><span class="room__line">مراحل تضيفها أنت، ومسؤول لكل مرحلة</span>
+        <span class="bays"><span class="bay"><b>أمر التصنيع</b>صادر</span><span class="bay is-now"><b>التصنيع</b>جارية</span><span class="bay"><b>الجاهزية</b>6 نوفمبر</span></span>
+        <span class="room__state">قيد التصنيع</span>
+      </button>
+      <button class="room r-own" data-room="owner" aria-pressed="false"><span class="lights" aria-hidden="true"><i></i><i></i><i></i></span><span class="room__name">لوحة المالك</span><span class="room__line">كل الفروع، كل القنوات</span><span class="room__state">مباشر</span></button>
+      <button class="room r-show is-done" data-room="showroom" aria-pressed="false"><span class="room__name">المعرض</span><span class="room__line">INT-0231، عبدالله سعد</span><span class="room__state">تحوّل إلى طلب</span><span class="glass" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span></button>
+      <span class="r-core" aria-hidden="true"></span>
+      <button class="room r-wh" data-room="dispatch" aria-pressed="false"><span class="lights" aria-hidden="true"><i></i><i></i><i></i></span><span class="room__name">المستودع والتسليم</span><span class="room__line">استلام البنود من المصنع</span><span class="room__state">لاحقًا</span></button>
+    </div>
+
+    <div class="site">
+      <svg class="site__roof" viewBox="0 0 100 30" preserveAspectRatio="none" aria-hidden="true"><path d="M0 30 L50 2 L100 30" fill="none" stroke="currentColor" stroke-width="1.5" vector-effect="non-scaling-stroke"/></svg>
+      <button class="room r-cust" data-room="site" aria-pressed="false"><span class="room__name">موقع العميل</span><span class="room__line">تركيب، حي النرجس، 8 نوفمبر</span><span class="room__state">لاحقًا</span></button>
+    </div>
+
+    <div class="street">
+      <button class="vehicle v-car" data-room="field" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><path d="M9 17h6"/><circle cx="17" cy="17" r="2"/></svg><b>البيع الميداني</b><span>سالم يوسف</span></button>
+      <button class="vehicle v-van" data-room="site" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M15 18H9"/><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14"/><circle cx="17" cy="18" r="2"/><circle cx="7" cy="18" r="2"/></svg><b>فريق التركيب</b><span>زياد سالم</span></button>
+    </div>
+
+    <svg class="conduit" id="conduit" aria-hidden="true"></svg>
+    <span class="ticket nums" id="ticket" aria-hidden="true">ORD-2026-00178</span>
+  </div>
+</main>
+<span class="mock-tag">نموذج الاتجاه A، ببيانات تجريبية</span>
+
+<script>
+  // Room screens: every value comes from the approved landing copy and its demo order.
+  const screens = {
+    showroom: { room: 'المعرض', title: 'فرصة البيع INT-0231', rows: [['عبدالله سعد، زيارة المعرض', 'فرع الرياض'], ['2 سبتمبر', 'سُجّل الاهتمام'], ['4 سبتمبر', 'طلب موعد قياس'], ['تحويل إلى طلب', ['done', 'ORD-2026-00178']]] },
+    office: { room: 'العروض والعقود', title: 'عرض سعر QUO-2026-00071', rows: [['المجموع', '44,000.00'], ['خصم اعتمده المدير', '−2,000.00'], ['الإجمالي شامل الضريبة', '48,300.00 ر.س'], ['العقد CON-2026-00031', ['done', 'موقّع 23 سبتمبر']]] },
+    finance: { room: 'المالية', title: 'خطة الدفعات', rows: [['إجمالي الاتفاق', '48,300.00 ر.س'], ['الدفعة الأولى 50%', ['done', 'مسدد']], ['الدفعة الأخيرة عند التركيب', ['next', '24,150.00']], ['سند', 'RCV-2026-00412']] },
+    factory: { room: 'المصنع', title: 'مراحل الطلب ORD-2026-00178', rows: [['العقد والدفعة الأولى', ['done', 'مكتملة']], ['إصدار أمر التصنيع', 'الإنتاج'], ['التصنيع، 6 نوفمبر', ['live', 'جارية']], ['التركيب والتسليم، 8 نوفمبر', ['next', 'لاحقًا']]] },
+    owner: { room: 'لوحة المالك', title: 'دخل القنوات، أكتوبر', rows: [['المعرض', '412,500.00'], ['المتجر', '86,350.00'], ['الميداني', '151,150.00'], ['المجموع', '650,000.00 ر.س']] },
+    dispatch: { room: 'المستودع والتسليم', title: 'مواعيد اليوم', rows: [['08:00 تركيب، حي النرجس', 'زياد سالم'], ['12:00 قياس، حي الياسمين', 'حسن علي'], ['14:00 تسليم بنود جاهزة', 'عمر يوسف']] },
+    site: { room: 'موقع العميل', title: 'تركيب في موقع العميل', rows: [['ORD-2026-00178، حي النرجس', '08:00'], ['صور قبل التركيب وبعده', 'من جوال الفني'], ['توقيع العميل على الاستلام', ['next', 'لاحقًا']]] },
+    store: { room: 'المتجر الإلكتروني', title: 'يبيع من المخزون نفسه', rows: [['على مدار الساعة', 'دفع إلكتروني'], ['المخزون', 'نفس أرصدة الفروع'], ['الطلب', 'في القائمة نفسها']] },
+    field: { room: 'البيع الميداني', title: 'يومي: سالم يوسف', rows: [['فرصة جديدة INT-0302', 'ماجد حسن، حي الملقا'], ['09:30 زيارة قياس', ['done', 'مكتملة']], ['13:00 زيارة بيع، حي النخيل', ['next', 'التالية']]] },
+  };
+  const screen = document.getElementById('screen');
+  const cell = v => Array.isArray(v) ? `<span class="chip chip--${v[0]}">${v[1]}</span>` : `<b class="nums">${v}</b>`;
+  function show(key, animate) {
+    const s = screens[key];
+    screen.innerHTML = `<div class="screen__head"><div><div class="screen__room">${s.room}</div><div class="screen__title">${s.title}</div></div></div><ul>${s.rows.map(r => `<li><span>${r[0]}</span>${cell(r[1])}</li>`).join('')}</ul>`;
+    document.querySelectorAll('[data-room]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.room === key)));
+    if (animate) { screen.classList.remove('is-swapping'); void screen.offsetWidth; screen.classList.add('is-swapping'); }
+  }
+  document.querySelectorAll('[data-room]').forEach(b => b.addEventListener('click', () => show(b.dataset.room, true)));
+  show('factory', false);
+
+  // The order's conduit: centre to centre in the order the work happens, orthogonal like a drawn service line.
+  const scene = document.getElementById('scene'), svg = document.getElementById('conduit'), ticket = document.getElementById('ticket');
+  const stops = ['showroom', 'office', 'finance', 'factory', 'dispatch', 'site'];
+  const LIVE = 3;
+  function draw() {
+    const box = scene.getBoundingClientRect();
+    const pts = stops.map(k => {
+      const r = scene.querySelector(`.room[data-room="${k}"]`).getBoundingClientRect();
+      return [r.left + r.width * 0.42 - box.left, r.bottom - 14 - box.top];
+    });
+    const seg = (a, b) => `L${b[0]} ${a[1]} L${b[0]} ${b[1]}`;
+    let done = `M${pts[0][0]} ${pts[0][1]}`, ahead = `M${pts[LIVE][0]} ${pts[LIVE][1]}`;
+    for (let i = 1; i <= LIVE; i++) done += seg(pts[i - 1], pts[i]);
+    for (let i = LIVE + 1; i < pts.length; i++) ahead += seg(pts[i - 1], pts[i]);
+    svg.setAttribute('viewBox', `0 0 ${box.width} ${box.height}`);
+    svg.innerHTML = `<path class="ahead" d="${ahead}"/><path class="done" d="${done}"/>` + pts.map((p, i) => `<circle class="${i > LIVE ? 'is-ahead' : ''}" cx="${p[0]}" cy="${p[1]}" r="5"/>`).join('');
+    const path = svg.querySelector('.done');
+    path.style.setProperty('--len', path.getTotalLength());
+    ticket.style.left = pts[LIVE][0] + 'px';
+    ticket.style.top = (pts[LIVE][1] - 22) + 'px';
+  }
+  addEventListener('load', draw);
+  addEventListener('resize', draw);
+</script>
+</body>
+</html>
