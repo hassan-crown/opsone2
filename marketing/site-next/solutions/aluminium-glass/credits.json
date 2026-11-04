@@ -1,0 +1,48 @@
+{
+  "_note": "Internal provenance record for the photographs on the aluminium & glass page. Nothing here is shown on the page; every image is CC0 and needs no attribution. Magnific was not authenticated in this session, so no Magnific credits were spent.",
+  "images": [
+    {
+      "file": "img/ag-hero-1280.jpg, img/ag-hero-820.jpg",
+      "used": "hero; Open Graph image; suggested home page «حلول حسب نشاطك» card",
+      "source": "https://commons.wikimedia.org/wiki/File:Glass_plate_facade_edge_(Unsplash).jpg",
+      "original": "https://upload.wikimedia.org/wikipedia/commons/9/91/Glass_plate_facade_edge_%28Unsplash%29.jpg",
+      "licence": "CC0 1.0 (as stated on the Wikimedia Commons file page)",
+      "people": "none",
+      "edits": "Commons 1280px rendition, centre-cropped to 4:3, recompressed"
+    },
+    {
+      "file": "img/ag-shower-900.jpg",
+      "used": "channels: showroom",
+      "source": "https://commons.wikimedia.org/wiki/File:Kabina_prysznicowa_Radaway_Furo_SL_Black_KDD.jpg",
+      "original": "https://upload.wikimedia.org/wikipedia/commons/7/72/Kabina_prysznicowa_Radaway_Furo_SL_Black_KDD.jpg",
+      "licence": "CC0 1.0 (as stated on the Wikimedia Commons file page)",
+      "people": "none",
+      "edits": "cropped to exclude the showroom price label on the wall, resized, recompressed"
+    },
+    {
+      "file": "img/ag-mirror-900.jpg",
+      "used": "channels: online store",
+      "source": "https://commons.wikimedia.org/wiki/File:Tall_mirror-like_fa%C3%A7ade_(Unsplash).jpg",
+      "original": "https://upload.wikimedia.org/wikipedia/commons/6/66/Tall_mirror-like_fa%C3%A7ade_%28Unsplash%29.jpg",
+      "licence": "CC0 1.0 (as stated on the Wikimedia Commons file page)",
+      "people": "none",
+      "edits": "resized, recompressed"
+    },
+    {
+      "file": "img/ag-facade-900.jpg",
+      "used": "channels: field sales on site",
+      "source": "https://commons.wikimedia.org/wiki/File:Glass_wall_(Unsplash).jpg",
+      "original": "https://upload.wikimedia.org/wikipedia/commons/2/2c/Glass_wall_%28Unsplash%29.jpg",
+      "licence": "CC0 1.0 (as stated on the Wikimedia Commons file page)",
+      "people": "none",
+      "edits": "cropped to 5:4, resized, recompressed"
+    },
+    {
+      "file": "og-aluminium-glass.jpg",
+      "used": "Open Graph / Twitter image",
+      "source": "composed from img/ag-hero-1280.jpg with the OpsOne logo and the page title (browser render, 1200×630)",
+      "licence": "derived from CC0",
+      "people": "none"
+    }
+  ]
+}
