@@ -1,0 +1,72 @@
+[
+  {
+    "file": "marketing/landing/assets/photos/field-tools-600.webp",
+    "media": "image",
+    "ref": "commons:62216016",
+    "title": "Taduuda 2016-03-24 (Unsplash Geh-r9A4RBg)",
+    "creator": "Taduuda taduuda",
+    "creatorUrl": null,
+    "date": "2016-03-24",
+    "license": "CC0",
+    "licenseCode": "cc0",
+    "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "creditRequired": false,
+    "page": "https://commons.wikimedia.org/wiki/File:Taduuda_2016-03-24_(Unsplash_Geh-r9A4RBg).jpg",
+    "via": "Wikimedia Commons",
+    "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/37/Taduuda_2016-03-24_%28Unsplash_Geh-r9A4RBg%29.jpg/3840px-Taduuda_2016-03-24_%28Unsplash_Geh-r9A4RBg%29.jpg",
+    "width": 3840,
+    "height": 2560,
+    "bytes": 2648833,
+    "credit": "\"Taduuda 2016-03-24 (Unsplash Geh-r9A4RBg)\" by Taduuda taduuda, CC0, via Wikimedia Commons",
+    "notes": [
+      "Resized and re-encoded to WebP. CC0: no credit required; recorded here for provenance only."
+    ],
+    "saved": "2026-11-02T13:10:03.093Z"
+  },
+  {
+    "file": "marketing/landing/assets/photos/finished-space-600.webp",
+    "media": "image",
+    "ref": "commons:61682828",
+    "title": "Minimal creative interior (Unsplash)",
+    "creator": "Breather breather",
+    "creatorUrl": null,
+    "date": "2016-11-15",
+    "license": "CC0",
+    "licenseCode": "cc0",
+    "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "creditRequired": false,
+    "page": "https://commons.wikimedia.org/wiki/File:Minimal_creative_interior_(Unsplash).jpg",
+    "via": "Wikimedia Commons",
+    "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/9f/Minimal_creative_interior_%28Unsplash%29.jpg/3840px-Minimal_creative_interior_%28Unsplash%29.jpg",
+    "width": 3840,
+    "height": 2533,
+    "bytes": 994464,
+    "credit": "\"Minimal creative interior (Unsplash)\" by Breather breather, CC0, via Wikimedia Commons",
+    "notes": [
+      "Resized and re-encoded to WebP. CC0: no credit required; recorded here for provenance only."
+    ],
+    "saved": "2026-11-02T13:10:04.727Z"
+  },
+  {
+    "file": "marketing/landing/assets/photos/store-pendant-light-600.webp",
+    "media": "image",
+    "ref": "commons:61717278",
+    "title": "Light bulbs in a coffee shop (Unsplash)",
+    "creator": "Tomas Jasovsky tomasjasovsky",
+    "creatorUrl": null,
+    "date": "2016-12-21",
+    "license": "CC0",
+    "licenseCode": "cc0",
+    "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "creditRequired": false,
+    "page": "https://commons.wikimedia.org/wiki/File:Light_bulbs_in_a_coffee_shop_(Unsplash).jpg",
+    "via": "Wikimedia Commons",
+    "image": "https://upload.wikimedia.org/wikipedia/commons/9/9b/Light_bulbs_in_a_coffee_shop_%28Unsplash%29.jpg",
+    "width": 2500,
+    "height": 3750,
+    "bytes": 5032967,
+    "credit": "\"Light bulbs in a coffee shop (Unsplash)\" by Tomas Jasovsky tomasjasovsky, CC0, via Wikimedia Commons",
+    "notes": "['Resized and re-encoded to WebP. CC0: no credit required; recorded here for provenance only.']; cropped to a square from the left 64% of the frame (no person in shot)",
+    "saved": "2026-11-02T13:10:06.239Z"
+  }
+]
