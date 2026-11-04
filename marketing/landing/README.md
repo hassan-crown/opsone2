@@ -321,6 +321,19 @@ The journey's client is «عبدالله سعد». Every avatar for an Arabic na
 skipping a leading «ال». Two Arabic letters can join into an awkward word, so they are not used; two letters remain allowed
 for Latin names only.
 
+## Sales channels section (user-approved copy, 2026-11-04)
+
+- «ثلاث قنوات بيع، ونظام واحد» (`#channels`, nav «قنوات البيع») sits after the eight-step journey and before item 9, with the
+  approved copy word for word. Field sales is being built on another branch; **the page must not be published before it
+  merges.**
+- Its screens are the field rep's phone and the channel income card:
+  - The phone belongs to سالم يوسف on Wednesday 4 Nov. It shows a new opportunity, INT-0302 for ماجد حسن, assigned by the
+    supervisor خالد إبراهيم at 08:40. Below it: a measurement visit at 09:30 (ORD-2026-00186, done) and a sales visit at
+    13:00 (INT-0288). His November commission is 2.5% of 93,600.00, which is 2,340.00.
+  - The «دخل القنوات، أكتوبر» card: showroom 412,500.00 + store 86,350.00 + field 151,150.00 = 650,000.00. The bars follow
+    the shares (63.5%, 13.3%, 23.2%).
+- Lighthouse mobile 95–96 across three runs (LCP 2.8–2.9 s), desktop 100. There is no overflow at 375, 768 or 1440.
+
 ## Critique (round before the redesign)
 
 ```
