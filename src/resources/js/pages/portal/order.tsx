@@ -1,5 +1,12 @@
 import { Form, Head, Link } from '@inertiajs/react';
-import { CalendarClock, MapPin } from 'lucide-react';
+import {
+    CalendarClock,
+    CalendarPlus,
+    CircleX,
+    LifeBuoy,
+    MapPin,
+} from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import { useState } from 'react';
 import { TextareaField, TextField } from '@/components/opsone/field';
 import { Icon } from '@/components/opsone/icon';
@@ -26,6 +33,28 @@ import { withdraw as withdrawProof } from '@/routes/customer/proofs';
 import { create as newTicket } from '@/routes/customer/tickets';
 import type { PortalAppointment, PortalOrderDetail } from '@/types/portal';
 
+type Stage = PortalOrderDetail['timeline'][number];
+
+/**
+ * Consecutive stages under one customer-facing name read as one step («قيد التصنيع» covers sending to the workshop and
+ * receiving from it): started when the first started, done only when the last is done.
+ */
+function journey(timeline: Stage[]): Stage[] {
+    return timeline.reduce<Stage[]>((steps, stage) => {
+        const previous = steps[steps.length - 1];
+        if (previous && stage.name && previous.name === stage.name) {
+            steps[steps.length - 1] = {
+                ...stage,
+                started_on: previous.started_on ?? stage.started_on,
+            };
+
+            return steps;
+        }
+
+        return [...steps, stage];
+    }, []);
+}
+
 /** CustOrder (WEB-09/10/11/13): journey, money, documents, appointments, receipts and the cancellation request. */
 export default function PortalOrder({
     order,
@@ -36,6 +65,11 @@ export default function PortalOrder({
 }) {
     const t = useT();
     const f = order.finance;
+    const steps = journey(order.timeline);
+    const cancellation =
+        order.cancellation && order.cancellation.status !== 'withdrawn'
+            ? order.cancellation
+            : null;
 
     return (
         <>
@@ -82,10 +116,10 @@ export default function PortalOrder({
                 </Card>
             )}
 
-            {order.timeline.length > 0 && (
+            {steps.length > 0 && (
                 <Section title={t('portal.order.journey')}>
                     <ol className="flex flex-col gap-0">
-                        {order.timeline.map((stage, i) => (
+                        {steps.map((stage, i) => (
                             <li key={i} className="flex gap-3">
                                 <div className="flex flex-col items-center">
                                     <span
@@ -98,7 +132,7 @@ export default function PortalOrder({
                                                   : 'border-stroke-control bg-surface',
                                         )}
                                     />
-                                    {i < order.timeline.length - 1 && (
+                                    {i < steps.length - 1 && (
                                         <span className="w-px flex-1 bg-stroke-weak" />
                                     )}
                                 </div>
@@ -143,10 +177,16 @@ export default function PortalOrder({
                                 key={i}
                                 className="flex justify-between gap-3 p-3 text-body"
                             >
-                                <span className="text-strong">
+                                <span
+                                    dir="auto"
+                                    className="min-w-0 text-strong"
+                                >
                                     {line.description}
                                 </span>
-                                <bdi dir="ltr" className="text-weak">
+                                <bdi
+                                    dir="ltr"
+                                    className="shrink-0 whitespace-nowrap text-weak"
+                                >
                                     {line.quantity} {line.unit ?? ''}
                                 </bdi>
                             </li>
@@ -262,25 +302,6 @@ export default function PortalOrder({
                 </Section>
             )}
 
-            {canRequestAppointment && (
-                <Section title={t('appointment_requests.portal.section')}>
-                    <p className="mb-3 text-body text-weak">
-                        {t('appointment_requests.portal.lead')}
-                    </p>
-                    <Link
-                        href={
-                            newAppointmentRequest({
-                                query: { order: order.id },
-                            }).url
-                        }
-                        className={buttonVariants({ variant: 'outline' })}
-                        data-test="request-appointment"
-                    >
-                        {t('appointment_requests.portal.request')}
-                    </Link>
-                </Section>
-            )}
-
             {order.proofs.length > 0 && (
                 <Section title={t('portal.order.proofs')}>
                     <ul className="flex flex-col gap-2">
@@ -380,43 +401,31 @@ export default function PortalOrder({
                 </Section>
             )}
 
-            <Section title={t('tickets.nav')}>
-                <Link
-                    href={newTicket({ query: { order: order.id } }).url}
-                    className={buttonVariants({ variant: 'outline' })}
-                >
-                    {t('tickets.report_issue')}
-                </Link>
-            </Section>
-
-            <Section title={t('portal.order.cancellation')}>
-                {order.cancellation &&
-                order.cancellation.status !== 'withdrawn' ? (
+            {cancellation && (
+                <Section title={t('portal.order.cancellation')}>
                     <Card>
                         <div className="flex flex-wrap items-center gap-2">
                             <bdi dir="ltr" className="text-label text-strong">
-                                {order.cancellation.number}
+                                {cancellation.number}
                             </bdi>
                             <StatusBadge
                                 scope="cancellation"
-                                status={order.cancellation.status}
+                                status={cancellation.status}
                             />
                         </div>
                         <p className="text-body text-weak">
                             {t(
-                                `portal.cancel.status_note.${order.cancellation.status}` as TranslationKey,
+                                `portal.cancel.status_note.${cancellation.status}` as TranslationKey,
                             )}
                         </p>
-                        {order.cancellation.decision_reason && (
+                        {cancellation.decision_reason && (
                             <p className="text-body text-strong">
-                                {order.cancellation.decision_reason}
+                                {cancellation.decision_reason}
                             </p>
                         )}
-                        {order.cancellation.can_withdraw && (
+                        {cancellation.can_withdraw && (
                             <Form
-                                {...withdrawCancellation.form(
-                                    order.cancellation.id,
-                                )}
+                                {...withdrawCancellation.form(cancellation.id)}
                             >
                                 {({ processing }) => (
                                     <Button
@@ -430,20 +439,93 @@ export default function PortalOrder({
                             </Form>
                         )}
                     </Card>
-                ) : order.can.request_cancellation ? (
-                    <Link
-                        href={cancel(order.id).url}
-                        className={buttonVariants({ variant: 'outline' })}
-                    >
-                        {t('portal.cancel.request')}
-                    </Link>
-                ) : (
-                    <p className="text-body text-weak">
+                </Section>
+            )}
+
+            <Section title={t('portal.order.actions')}>
+                <ul className="divide-y divide-stroke-weak overflow-hidden rounded-lg border border-stroke-weak bg-card">
+                    {canRequestAppointment && (
+                        <ActionRow
+                            href={
+                                newAppointmentRequest({
+                                    query: { order: order.id },
+                                }).url
+                            }
+                            icon={CalendarPlus}
+                            title={t('appointment_requests.portal.request')}
+                            hint={t('appointment_requests.portal.lead')}
+                            test="request-appointment"
+                        />
+                    )}
+                    <ActionRow
+                        href={newTicket({ query: { order: order.id } }).url}
+                        icon={LifeBuoy}
+                        title={t('tickets.report_issue')}
+                        hint={t('portal.order.support_hint')}
+                    />
+                    {!cancellation && order.can.request_cancellation && (
+                        <ActionRow
+                            href={cancel(order.id).url}
+                            icon={CircleX}
+                            title={t('portal.cancel.request')}
+                            danger
+                        />
+                    )}
+                </ul>
+                {!cancellation && !order.can.request_cancellation && (
+                    <p className="mt-2 text-caption text-weak">
                         {t('portal.cancel.not_available')}
                     </p>
                 )}
             </Section>
         </>
+    );
+}
+
+function ActionRow({
+    href,
+    icon,
+    title,
+    hint,
+    danger = false,
+    test,
+}: {
+    href: string;
+    icon: LucideIcon;
+    title: string;
+    hint?: string;
+    danger?: boolean;
+    test?: string;
+}) {
+    return (
+        <li>
+            <Link
+                href={href}
+                data-test={test}
+                className="flex min-h-14 items-center gap-3 px-4 py-3 hover:bg-hover active:bg-fill"
+            >
+                <Icon
+                    icon={icon}
+                    className={danger ? 'text-danger-text' : 'text-weak'}
+                />
+                <span className="min-w-0 flex-1">
+                    <span
+                        className={cn(
+                            'block text-label',
+                            danger ? 'text-danger-text' : 'text-strong',
+                        )}
+                    >
+                        {title}
+                    </span>
+                    {hint && (
+                        <span className="mt-0.5 block text-caption text-weak">
+                            {hint}
+                        </span>
+                    )}
+                </span>
+                <Forward />
+            </Link>
+        </li>
     );
 }
 
@@ -485,7 +567,10 @@ function AppointmentCard({ appointment }: { appointment: PortalAppointment }) {
                     {t('portal.appointment.requested')}{' '}
                     {appointment.customer_request.note}
                     {appointment.customer_request.preferred && (
-                        <> — {appointment.customer_request.preferred}</>
+                        <>
+                            {t('portal.sep')}
+                            <bdi>{appointment.customer_request.preferred}</bdi>
+                        </>
                     )}
                 </p>
             )}

@@ -1,15 +1,17 @@
 import { Form, Head, Link } from '@inertiajs/react';
 import { FileText } from 'lucide-react';
 import { useState } from 'react';
+import type { ReactNode } from 'react';
 import { FieldError, TextareaField } from '@/components/opsone/field';
+import { Icon } from '@/components/opsone/icon';
+import { FileGallery } from '@/components/portal/file-gallery';
 import {
+    ActionBar,
     DateText,
-    FileLinks,
     Money,
     Section,
     StatusBadge,
 } from '@/components/portal/parts';
-import { Icon } from '@/components/opsone/icon';
 import { SignPanel } from '@/components/portal/sign-panel';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -19,6 +21,45 @@ import type { TranslationKey } from '@/lib/i18n';
 import { approve, changes, show } from '@/routes/customer/documents';
 import { show as showOrder } from '@/routes/customer/orders';
 import type { PortalDocument } from '@/types/portal';
+
+// An amount a clause template inserted as plain digits, next to its currency: «(50315.20 ر.س)», «SAR 50315.20».
+const CLAUSE_AMOUNT =
+    /(SAR\s?)?(\d{1,3}(?:,\d{3})+(?:\.\d{1,2})?|\d+(?:\.\d{1,2})?)(\s?(?:ر\.س|ريال|SAR))?/g;
+const GROUPED = new Intl.NumberFormat('en-US', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+});
+
+/**
+ * A clause or term as written, with each amount beside a currency grouped by thousands and isolated left-to-right, so
+ * the parentheses around it stay in place in Arabic. Other numbers (days, order numbers) are left as they are.
+ */
+function ClauseText({ text }: { text: string }) {
+    const parts: ReactNode[] = [];
+    let last = 0;
+    for (const match of text.matchAll(CLAUSE_AMOUNT)) {
+        const [whole, before, figure, after] = match;
+        const index = match.index ?? 0;
+        const preceded = index > 0 && /[\w-]/.test(text[index - 1]);
+        if ((!before && !after) || preceded) {
+            continue;
+        }
+        parts.push(text.slice(last, index));
+        parts.push(
+            <span key={index} className="whitespace-nowrap">
+                {before}
+                <bdi dir="ltr" className="tabular-nums">
+                    {GROUPED.format(Number(figure.replace(/,/g, '')))}
+                </bdi>
+                {after}
+            </span>,
+        );
+        last = index + whole.length;
+    }
+    parts.push(text.slice(last));
+
+    return <>{parts}</>;
+}
 
 /**
  * DocApprove (P-67, WEB-03): the exact content to approve, with its files; approval or a change request travels with
@@ -35,9 +76,11 @@ export default function PortalDocumentPage({
     const terms = Array.isArray(c.terms) ? c.terms : c.terms ? [c.terms] : [];
     const signing = doc.signing;
     const signable = doc.can.decide && !!signing?.signable;
-    const openSign =
-        typeof window !== 'undefined' &&
-        new URLSearchParams(window.location.search).has('sign');
+    const [signOpen, setSigningOpen] = useState(
+        () =>
+            typeof window !== 'undefined' &&
+            new URLSearchParams(window.location.search).has('sign'),
+    );
 
     return (
         <>
@@ -140,7 +183,7 @@ export default function PortalDocumentPage({
 
             {doc.files.length > 0 && (
                 <Section title={t('portal.document.files')}>
-                    <FileLinks files={doc.files} />
+                    <FileGallery files={doc.files} />
                 </Section>
             )}
 
@@ -159,7 +202,7 @@ export default function PortalDocumentPage({
                                     >
                                         {line.description}
                                     </span>
-                                    <span className="text-weak">
+                                    <span className="shrink-0 whitespace-nowrap text-weak">
                                         <bdi dir="ltr">
                                             {line.quantity} {line.unit ?? ''}
                                         </bdi>
@@ -222,7 +265,7 @@ export default function PortalDocumentPage({
                         ) : null}
                         {c.agreement_terms && (
                             <p dir="auto" className="whitespace-pre-line">
-                                {c.agreement_terms}
+                                <ClauseText text={c.agreement_terms} />
                             </p>
                         )}
                         {terms.map((term, i) => (
@@ -231,13 +274,15 @@ export default function PortalDocumentPage({
                                 dir="auto"
                                 className="whitespace-pre-line"
                             >
-                                {term}
+                                <ClauseText text={term} />
                             </p>
                         ))}
                         {c.clauses && (
                             <ol className="list-decimal ps-5">
                                 {c.clauses.map((clause, i) => (
-                                    <li key={i}>{clause}</li>
+                                    <li key={i} dir="auto">
+                                        <ClauseText text={clause} />
+                                    </li>
                                 ))}
                             </ol>
                         )}
@@ -261,111 +306,93 @@ export default function PortalDocumentPage({
                 </Card>
             )}
 
-            {signable && signing && (
-                <div className="mb-4">
-                    <SignPanel doc={doc} signing={signing} open={openSign} />
-                </div>
+            {signable && signing && !asking && (
+                <SignPanel
+                    doc={doc}
+                    signing={signing}
+                    open={signOpen}
+                    onOpen={() => setSigningOpen(true)}
+                    onRequestChanges={() => setAsking(true)}
+                />
             )}
 
-            {doc.can.decide && (
-                <Card
-                    className={signable ? '' : 'sticky bottom-20 md:bottom-4'}
-                >
-                    {!signable && (
-                        <p className="text-body text-weak">
-                            {t('portal.document.approve_note')}
-                        </p>
-                    )}
-                    {signable && !asking && (
-                        <div>
-                            <Button
-                                type="button"
-                                variant="outline"
-                                onClick={() => setAsking(true)}
-                            >
-                                {t('portal.document.request_changes')}
-                            </Button>
-                        </div>
-                    )}
-                    {!signable && (
-                        <Form {...approve.form(doc.id)}>
-                            {({ processing, errors }) => (
-                                <div className="flex flex-col gap-2">
-                                    <input
-                                        type="hidden"
-                                        name="content_hash"
-                                        value={doc.content_hash}
-                                    />
-                                    {errors.transition && (
-                                        <FieldError>
-                                            {errors.transition}
-                                        </FieldError>
-                                    )}
-                                    <div className="flex flex-wrap gap-2">
-                                        <Button
-                                            type="submit"
-                                            disabled={processing}
-                                        >
-                                            {processing && <Spinner />}
-                                            {t('portal.document.approve')}
-                                        </Button>
-                                        {!asking && (
-                                            <Button
-                                                type="button"
-                                                variant="outline"
-                                                onClick={() => setAsking(true)}
-                                            >
-                                                {t(
-                                                    'portal.document.request_changes',
-                                                )}
-                                            </Button>
-                                        )}
-                                    </div>
+            {doc.can.decide && !signable && !asking && (
+                <ActionBar>
+                    <p className="text-caption text-weak">
+                        {t('portal.document.approve_note')}
+                    </p>
+                    <Form {...approve.form(doc.id)}>
+                        {({ processing, errors }) => (
+                            <div className="flex flex-col gap-2">
+                                <input
+                                    type="hidden"
+                                    name="content_hash"
+                                    value={doc.content_hash}
+                                />
+                                {errors.transition && (
+                                    <FieldError>{errors.transition}</FieldError>
+                                )}
+                                <div className="flex flex-wrap gap-2">
+                                    <Button
+                                        type="submit"
+                                        className="max-sm:flex-1"
+                                        disabled={processing}
+                                    >
+                                        {processing && <Spinner />}
+                                        {t('portal.document.approve')}
+                                    </Button>
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        onClick={() => setAsking(true)}
+                                    >
+                                        {t('portal.document.request_changes')}
+                                    </Button>
                                 </div>
-                            )}
-                        </Form>
-                    )}
-                    {asking && (
-                        <Form
-                            {...changes.form(doc.id)}
-                            className="flex flex-col gap-3 border-t border-stroke-weak pt-3"
-                        >
-                            {({ processing, errors }) => (
-                                <>
-                                    <input
-                                        type="hidden"
-                                        name="content_hash"
-                                        value={doc.content_hash}
-                                    />
-                                    <TextareaField
-                                        label={t(
-                                            'portal.document.changes_note',
-                                        )}
-                                        name="note"
-                                        required
-                                        rows={4}
-                                        maxLength={1000}
-                                        error={errors.note ?? errors.transition}
-                                    />
-                                    <div className="flex gap-2">
-                                        <Button
-                                            type="submit"
-                                            disabled={processing}
-                                        >
-                                            {t('portal.document.send_changes')}
-                                        </Button>
-                                        <Button
-                                            type="button"
-                                            variant="ghost"
-                                            onClick={() => setAsking(false)}
-                                        >
-                                            {t('ui.cancel')}
-                                        </Button>
-                                    </div>
-                                </>
-                            )}
-                        </Form>
-                    )}
+                            </div>
+                        )}
+                    </Form>
+                </ActionBar>
+            )}
+
+            {doc.can.decide && asking && (
+                <Card className="mb-4">
+                    <Form
+                        {...changes.form(doc.id)}
+                        className="flex flex-col gap-3"
+                    >
+                        {({ processing, errors }) => (
+                            <>
+                                <input
+                                    type="hidden"
+                                    name="content_hash"
+                                    value={doc.content_hash}
+                                />
+                                <TextareaField
+                                    label={t('portal.document.changes_note')}
+                                    name="note"
+                                    required
+                                    rows={4}
+                                    maxLength={1000}
+                                    autoFocus
+                                    error={errors.note ?? errors.transition}
+                                />
+                                <div className="flex flex-wrap gap-2">
+                                    <Button type="submit" disabled={processing}>
+                                        {processing && <Spinner />}
+                                        {t('portal.document.send_changes')}
+                                    </Button>
+                                    <Button
+                                        type="button"
+                                        variant="ghost"
+                                        onClick={() => setAsking(false)}
+                                    >
+                                        {t('ui.cancel')}
+                                    </Button>
+                                </div>
+                            </>
+                        )}
+                    </Form>
                 </Card>
             )}
         </>
