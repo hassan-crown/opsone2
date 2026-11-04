@@ -4,6 +4,7 @@ import MessageTemplateController from '@/actions/App/Http/Controllers/Rules/Mess
 import Heading from '@/components/heading';
 import { TextareaField, TextField } from '@/components/opsone/field';
 import { PageHeader } from '@/components/opsone/page-header';
+import { StickyActions } from '@/components/opsone/sticky-actions';
 import { RulesNav, useRulesWrite } from '@/components/rules/rules-nav';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -153,19 +154,21 @@ export default function Messages({ events, whatsapp, canEdit }: Props) {
                     ))}
                 </fieldset>
                 {canEdit && (
-                    <Button
-                        type="button"
-                        loading={write.busy}
-                        onClick={() =>
-                            write.send(
-                                'put',
-                                MessageTemplateController.whatsapp().url,
-                                { templates: names },
-                            )
-                        }
-                    >
-                        {t('rules.save')}
-                    </Button>
+                    <StickyActions>
+                        <Button
+                            type="button"
+                            loading={write.busy}
+                            onClick={() =>
+                                write.send(
+                                    'put',
+                                    MessageTemplateController.whatsapp().url,
+                                    { templates: names },
+                                )
+                            }
+                        >
+                            {t('rules.save')}
+                        </Button>
+                    </StickyActions>
                 )}
             </section>
         </>

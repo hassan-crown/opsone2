@@ -5,6 +5,7 @@ import {
     TextField,
 } from '@/components/opsone/field';
 import { PageHeader } from '@/components/opsone/page-header';
+import { StickyActions } from '@/components/opsone/sticky-actions';
 import { StoreNav } from '@/components/store/store-nav';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -163,11 +164,11 @@ export default function StoreSettings({
                         error={form.errors.link_days_max}
                     />
                 </div>
-                <div>
+                <StickyActions>
                     <Button type="submit" disabled={form.processing}>
                         {t('store.settings.save')}
                     </Button>
-                </div>
+                </StickyActions>
             </form>
 
             <form

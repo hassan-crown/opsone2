@@ -7,6 +7,7 @@ import {
     toMajor,
 } from '@/components/agreement/money';
 import { Amount } from '@/components/opsone/amount';
+import { FilePicker } from '@/components/opsone/file-picker';
 import {
     CheckboxField,
     Field,
@@ -124,11 +125,9 @@ function FileInput({
     return (
         <Field label={label} hint={hint} error={error} required={required}>
             {(control) => (
-                <input
+                <FilePicker
                     {...control}
-                    type="file"
-                    className="field-control py-2"
-                    onChange={(e) => onChange(e.target.files?.[0] ?? null)}
+                    onFilesChange={(files) => onChange(files[0] ?? null)}
                     data-test="evidence-input"
                 />
             )}

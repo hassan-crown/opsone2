@@ -13,6 +13,7 @@ import type { ReminderRecipient, WorkItem } from '@/components/finance/types';
 import { useFinanceCall } from '@/components/finance/use-finance-call';
 import { Amount } from '@/components/opsone/amount';
 import { EmptyState } from '@/components/opsone/empty-state';
+import { FilterChips } from '@/components/opsone/filter-bar';
 import { Icon } from '@/components/opsone/icon';
 import { PageHeader } from '@/components/opsone/page-header';
 import { Ref } from '@/components/opsone/ref';
@@ -162,30 +163,17 @@ export default function FinanceHome({
                     </>
                 }
             />
-            <div
-                className="-mx-4 mb-4 flex gap-2 overflow-x-auto px-4 pb-1 md:mx-0 md:flex-wrap md:px-0"
-                role="tablist"
-                aria-label={t('finance.home.filter.label')}
-                data-test="work-filters"
-            >
-                {KINDS.map((k) => (
-                    <Button
-                        key={k}
-                        type="button"
-                        role="tab"
-                        aria-selected={kind === k}
-                        variant={kind === k ? 'default' : 'secondary'}
-                        size="sm"
-                        className="shrink-0"
-                        onClick={() => showKind(k)}
-                    >
-                        {t(`finance.home.filter.${k}` as TranslationKey)}
-                        <span className="tabular-nums">
-                            <bdi>({k === 'all' ? allCount : counts[k]})</bdi>
-                        </span>
-                    </Button>
-                ))}
-            </div>
+            <FilterChips
+                className="mb-4"
+                label={t('finance.home.filter.label')}
+                value={kind}
+                onChange={(k) => showKind(k as Kind | 'all')}
+                options={KINDS.map((k) => ({
+                    value: k,
+                    label: t(`finance.home.filter.${k}` as TranslationKey),
+                    count: k === 'all' ? allCount : counts[k],
+                }))}
+            />
             {previewing.error && (
                 <p className="mb-4 text-danger-text">{previewing.error}</p>
             )}

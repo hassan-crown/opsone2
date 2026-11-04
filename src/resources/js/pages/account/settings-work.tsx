@@ -9,6 +9,7 @@ import {
     TextField,
 } from '@/components/opsone/field';
 import { PageHeader } from '@/components/opsone/page-header';
+import { StickyActions } from '@/components/opsone/sticky-actions';
 import { Alert, AlertBody, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
@@ -201,14 +202,16 @@ export default function SettingsWork({
                         </fieldset>
 
                         {canEdit && (
-                            <Button
-                                type="submit"
-                                loading={processing}
-                                data-test="save-work-settings"
-                            >
-                                {processing && <Spinner />}
-                                {t('ui.save')}
-                            </Button>
+                            <StickyActions>
+                                <Button
+                                    type="submit"
+                                    loading={processing}
+                                    data-test="save-work-settings"
+                                >
+                                    {processing && <Spinner />}
+                                    {t('ui.save')}
+                                </Button>
+                            </StickyActions>
                         )}
                     </>
                 )}

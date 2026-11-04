@@ -8,6 +8,7 @@ import {
     TextField,
 } from '@/components/opsone/field';
 import { PageHeader } from '@/components/opsone/page-header';
+import { StickyActions } from '@/components/opsone/sticky-actions';
 import { errorOf, RulesNav, useRulesWrite } from '@/components/rules/rules-nav';
 import { Alert, AlertBody } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
@@ -579,7 +580,10 @@ function PlanEditor({
             <p className="text-caption text-weak">
                 {t('rules.plans.applies_note')}
             </p>
-            <div className="flex gap-2">
+            <StickyActions className="mt-0">
+                <Button type="button" variant="secondary" onClick={onCancel}>
+                    {t('rules.cancel')}
+                </Button>
                 <Button
                     type="button"
                     onClick={onSave}
@@ -588,10 +592,7 @@ function PlanEditor({
                 >
                     {t('rules.save')}
                 </Button>
-                <Button type="button" variant="secondary" onClick={onCancel}>
-                    {t('rules.cancel')}
-                </Button>
-            </div>
+            </StickyActions>
         </section>
     );
 }

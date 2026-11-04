@@ -1,5 +1,6 @@
 import { bpToPercent, toMajor } from '@/components/agreement/money';
 import { Field } from '@/components/opsone/field';
+import { FilePicker } from '@/components/opsone/file-picker';
 import { Badge } from '@/components/ui/badge';
 import { useT } from '@/lib/i18n';
 import type { TranslationKey } from '@/lib/i18n';
@@ -60,11 +61,9 @@ export function FileInput({
     return (
         <Field label={label} error={error} required>
             {(control) => (
-                <input
+                <FilePicker
                     {...control}
-                    type="file"
-                    className="field-control py-2"
-                    onChange={(e) => onChange(e.target.files?.[0] ?? null)}
+                    onFilesChange={(files) => onChange(files[0] ?? null)}
                     data-test="proof-input"
                 />
             )}
