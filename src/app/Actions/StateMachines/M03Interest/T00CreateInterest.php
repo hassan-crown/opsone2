@@ -37,6 +37,7 @@ final class T00CreateInterest
         $interest->created_by = $actor->id;
         $interest->status = InterestStatus::New;
         $this->access->authorize($actor, Permission::P09, $interest);
+        CustomerAccess::authorizeCreate($actor, $interest);
 
         if ($interest->customer_id !== null) {
             $customer = Customer::query()->find($interest->customer_id);

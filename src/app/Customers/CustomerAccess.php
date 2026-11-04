@@ -8,7 +8,9 @@ use App\Access\ScopedQuery;
 use App\Models\Branch;
 use App\Models\Customer;
 use App\Models\Interest;
+use App\Models\Membership;
 use App\Models\User;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\Builder;
 
 /**
@@ -47,6 +49,27 @@ final class CustomerAccess
     public static function visibleInterests(User $user): Builder
     {
         return ScopedQuery::apply(Interest::query(), $user, [Permission::P09, Permission::P15], reading: true);
+    }
+
+    /**
+     * A new customer or interest the actor creates is inside their P-09 grant AND, when the grant only covers it as its
+     * assignee (`assigned`, the field rep of ADR-0041), inside a branch of the actor's membership — an `assigned`
+     * grant never lets someone open records in a branch they do not belong to.
+     *
+     * @throws AuthorizationException
+     */
+    public static function authorizeCreate(User $actor, Customer|Interest $record): void
+    {
+        Access::authorize($actor, Permission::P09, $record);
+        $probe = $record->replicate();
+        $probe->assignee_id = null;
+        if (Access::can($actor, Permission::P09, $probe)) {
+            return;
+        }
+        $member = Membership::query()->where('user_id', $actor->id)->first();
+        if ($member === null || ! in_array((int) $record->branch_id, $member->branchIds(), true)) {
+            throw new AuthorizationException(__('access.denied.no_grant'));
+        }
     }
 
     /**

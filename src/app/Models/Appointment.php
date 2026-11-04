@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Access\Contracts\ScopedRecord;
 use App\Enums\AppointmentStatus;
+use App\Models\FieldSales\SalesVisit;
 use App\Models\Installation\InstallationVisit;
 use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Model;
@@ -39,6 +40,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * @property int $lock_version
  * @property-read Order $order
  * @property-read InstallationVisit|null $installationVisit
+ * @property-read SalesVisit|null $salesVisit
  */
 class Appointment extends Model implements ScopedRecord
 {
@@ -74,6 +76,16 @@ class Appointment extends Model implements ScopedRecord
     public function installationVisit(): HasOne
     {
         return $this->hasOne(InstallationVisit::class);
+    }
+
+    /**
+     * The field rep's record of a sales visit or measurement (ADR-0041); none until the rep arrives.
+     *
+     * @return HasOne<SalesVisit, $this>
+     */
+    public function salesVisit(): HasOne
+    {
+        return $this->hasOne(SalesVisit::class);
     }
 
     /**

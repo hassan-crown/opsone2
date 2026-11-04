@@ -6,6 +6,8 @@ use App\Access\Contracts\ScopedRecord;
 use App\Enums\InterestChannel;
 use App\Enums\InterestCloseReason;
 use App\Enums\InterestStatus;
+use App\FieldSales\FieldDispatch;
+use App\Models\FieldSales\FieldAssignment;
 use Database\Factories\InterestFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -45,6 +47,19 @@ class Interest extends Model implements ScopedRecord
 {
     /** @use HasFactory<InterestFactory> */
     use HasFactory;
+
+    protected static function booted(): void
+    {
+        // ADR-0041: a lead dispatched to a field rep ends the rep's task when it is converted or closed, or when it
+        // follows someone else.
+        static::updated(function (self $interest) {
+            if ($interest->wasChanged('status') && ! $interest->isOpen()) {
+                FieldDispatch::settle(FieldAssignment::INTEREST, $interest->id, $interest->status === InterestStatus::Converted ? 'converted' : 'closed');
+            } elseif ($interest->wasChanged('assignee_id')) {
+                FieldDispatch::followAssignee(FieldAssignment::INTEREST, $interest->id, $interest->assignee_id);
+            }
+        });
+    }
 
     /**
      * @return BelongsTo<Branch, $this>

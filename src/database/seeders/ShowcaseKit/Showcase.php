@@ -60,6 +60,8 @@ final class Showcase
 
     public Automation $automation;
 
+    public FieldSales $fieldSales;
+
     /** @var array<string, User> */
     public array $users = [];
 
@@ -97,6 +99,7 @@ final class Showcase
         $this->installations = new Installations($this);
         $this->appointmentRequests = new AppointmentRequests($this);
         $this->automation = new Automation($this);
+        $this->fieldSales = new FieldSales($this);
     }
 
     public function n(int $full): int
@@ -147,6 +150,7 @@ final class Showcase
         $this->portal->run();
         $this->appointmentRequests->run();
         $this->automation->run();
+        $this->fieldSales->run();
         $this->timeline->run();
         $this->messaging->settle();
         $this->einvoicing->settle();

@@ -4,6 +4,7 @@ namespace Database\Seeders\ShowcaseKit;
 
 use App\Access\Exceptions\InvalidTransition;
 use App\Access\TransitionRecorder;
+use App\Actions\FieldSales\UpdateFieldSalesSettings;
 use App\Actions\Rules\PublishConfigRelease;
 use App\Actions\Rules\SaveDocumentClause;
 use App\Actions\Rules\UpdateReminderSettings;
@@ -71,7 +72,8 @@ final class Specials
     }
 
     /**
-     * Release 2: a reminder one day before the due date as well, and a quote validity clause.
+     * Release 2: a reminder one day before the due date as well, a quote validity clause and field sales (ADR-0041):
+     * reps handle visits and measurements, a dispatched lead is answered within 24 hours.
      */
     private function releaseTwo(): void
     {
@@ -86,7 +88,8 @@ final class Specials
                 'en' => 'This quote is valid for {validity_days} days; prices then follow material prices.'],
             'applies_to' => ['quote'], 'included_by_default' => true, 'position' => 3,
         ], null, TransitionRecorder::SOURCE_SEEDER);
-        $this->publishRules('تذكير إضافي قبل الاستحقاق بيوم، وبند صلاحية في عروض الأسعار.');
+        app(UpdateFieldSalesSettings::class)->handle($owner, ['enabled' => true, 'kinds' => ['visit', 'measurement'], 'response_hours' => 24, 'max_discount_bp' => 500], TransitionRecorder::SOURCE_SEEDER);
+        $this->publishRules('تذكير إضافي قبل الاستحقاق بيوم، وبند صلاحية في عروض الأسعار، وتفعيل البيع الميداني.');
     }
 
     /**

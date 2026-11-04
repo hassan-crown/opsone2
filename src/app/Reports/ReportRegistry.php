@@ -7,8 +7,10 @@ use App\Access\Contracts\LicenseCapabilities;
 use App\Access\Permission;
 use App\Models\User;
 use App\Reports\Definitions\AppointmentsReport;
+use App\Reports\Definitions\ChannelsReport;
 use App\Reports\Definitions\CollectionAgingReport;
 use App\Reports\Definitions\CommissionsReport;
+use App\Reports\Definitions\FieldSalesReport;
 use App\Reports\Definitions\InventoryReport;
 use App\Reports\Definitions\ProcurementReport;
 use App\Reports\Definitions\RefundsReport;
@@ -32,7 +34,8 @@ final class ReportRegistry
     public static function all(): array
     {
         $list = [new SalesReport, new CollectionAgingReport, new RefundsReport, new CommissionsReport, new WorkflowReport,
-            new AppointmentsReport, new InventoryReport, new ProcurementReport, new ReturnsReport, new StoreReport];
+            new AppointmentsReport, new InventoryReport, new ProcurementReport, new ReturnsReport, new StoreReport,
+            new ChannelsReport, new FieldSalesReport];
 
         $out = [];
         foreach ($list as $report) {

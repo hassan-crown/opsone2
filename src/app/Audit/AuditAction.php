@@ -275,6 +275,17 @@ enum AuditAction: string
     // Customer appointment requests (ADR-0039).
     case AppointmentRequestSubmitted = 'appointment_request.submitted';
     case AppointmentRequestAssigned = 'appointment_request.assigned';
+    // ADR-0041: field sales.
+    case FieldLeadAssigned = 'field_sales.lead_assigned';
+    case FieldRequestAssigned = 'field_sales.request_assigned';
+    case FieldVisitStarted = 'field_sales.visit_started';
+    case FieldVisitNoted = 'field_sales.visit_noted';
+    case FieldVisitPhotoAdded = 'field_sales.visit_photo_added';
+    case FieldVisitFinished = 'field_sales.visit_finished';
+    case FieldSalesSettingsUpdated = 'field_sales.settings_updated';
+    case FieldRepPermissionChanged = 'field_sales.rep_permission_changed';
+    case FieldRepDiscountChanged = 'field_sales.rep_discount_changed';
+    case OrderSalesChannelChanged = 'order.sales_channel_changed';
     case AppointmentRequestScheduled = 'appointment_request.scheduled';
     case AppointmentRequestClosed = 'appointment_request.closed';
     case AppointmentRequestSettingsUpdated = 'appointment_request.settings_updated';
@@ -390,7 +401,7 @@ enum AuditAction: string
             self::AppointmentRequestSubmitted, self::AppointmentRequestAssigned, self::AppointmentRequestScheduled, self::AppointmentRequestClosed => 'appointments',
             self::WorkSettingsUpdated, self::FinanceSettingsUpdated, self::CashProofPolicyUpdated, self::DiscountLimitsUpdated,
             self::PaymentPlanSaved, self::PaymentPlanArchived, self::ReminderSettingsUpdated, self::DocumentClauseSaved, self::DocumentClauseArchived,
-            self::MessageTemplateSaved, self::MessageTemplateReset, self::WhatsappTemplateNamesSaved, self::TaskSlaSettingsUpdated, self::NumberFormatSaved, self::AppointmentRequestSettingsUpdated,
+            self::MessageTemplateSaved, self::MessageTemplateReset, self::WhatsappTemplateNamesSaved, self::TaskSlaSettingsUpdated, self::NumberFormatSaved, self::AppointmentRequestSettingsUpdated, self::FieldSalesSettingsUpdated,
             self::ConfigReleasePublished, self::ConfigReleaseRolledBack, self::ConfigDraftDiscarded => 'settings',
             self::DocumentCreated, self::DocumentDraftUpdated, self::DocumentSent, self::DocumentApproved, self::DocumentChangesRequested,
             self::DocumentReplaced, self::DocumentExpired, self::DocumentExtended, self::DocumentCancelled, self::AgreementActivated,
@@ -409,6 +420,9 @@ enum AuditAction: string
             self::DeliveryDrafted, self::DeliveryConfirmed, self::DeliveryCancelled, self::DeliveryRemarkRecorded, self::DeliveryRemarkResolved, self::DeliveryCorrected => 'delivery',
             self::InstallationArrived, self::InstallationPhotoAdded, self::InstallationRemarkRecorded, self::InstallationRemarkResolved,
             self::InstallationSignatureRequested, self::InstallationSigned, self::InstallationFinished => 'installation',
+            self::FieldLeadAssigned, self::FieldRequestAssigned, self::FieldVisitStarted, self::FieldVisitNoted,
+            self::FieldVisitPhotoAdded, self::FieldVisitFinished, self::OrderSalesChannelChanged,
+            self::FieldRepPermissionChanged, self::FieldRepDiscountChanged => 'field_sales',
             self::CancellationRequested, self::CancellationAccepted, self::CancellationRejected, self::CancellationWithdrawn,
             self::SettlementItemResolved, self::SettlementClosed => 'cancellation',
             self::ReturnRequested, self::ReturnAccepted, self::ReturnRejected, self::ReturnReceived, self::ReturnInspected,

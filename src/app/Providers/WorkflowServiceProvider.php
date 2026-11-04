@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Models\Appointment;
 use App\Models\AppointmentRequest;
+use App\Models\Interest;
 use App\Models\Order;
 use App\Models\Procurement\PurchaseOrder;
 use App\Models\Task;
@@ -42,6 +43,12 @@ class WorkflowServiceProvider extends ServiceProvider
             (new AppointmentRequest)->getMorphClass(),
             fn (int $id) => AppointmentRequest::query()->find($id),
             fn (object $request) => route('appointment-requests.show', ['appointmentRequest' => $request instanceof AppointmentRequest ? $request->id : 0]),
+        );
+        // ADR-0041: a lead dispatched to a field rep opens the lead (P-15 re-checked on open).
+        $targets->register(
+            (new Interest)->getMorphClass(),
+            fn (int $id) => Interest::query()->find($id),
+            fn (object $interest) => route('interests.show', ['interest' => $interest instanceof Interest ? $interest->id : 0]),
         );
         // An order's own page (installation remarks to follow up, ADR-0036); the link re-checks the type's permission on it.
         $targets->register(

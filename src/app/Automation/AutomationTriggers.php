@@ -48,6 +48,9 @@ final class AutomationTriggers
         'installation.remark_resolved' => ['group' => 'installation', 'source' => self::AUDIT, 'action' => 'installation.remark_resolved', 'subject' => Order::class, 'facts' => ['order', 'customer']],
         'lead.created' => ['group' => 'leads', 'source' => self::TRANSITION, 'machine' => 'M-03', 'transition' => 'T00', 'subject' => Interest::class, 'facts' => ['lead']],
         'lead.assigned' => ['group' => 'leads', 'source' => self::TRANSITION, 'machine' => 'M-03', 'transition' => 'T01', 'subject' => Interest::class, 'facts' => ['lead']],
+        // ADR-0041: field sales — a lead handed to a field rep, a rep's sales visit finished (the audit is on the order).
+        'lead.dispatched_to_rep' => ['group' => 'leads', 'source' => self::AUDIT, 'action' => 'field_sales.lead_assigned', 'subject' => Interest::class, 'facts' => ['lead']],
+        'field_visit.completed' => ['group' => 'appointments', 'source' => self::AUDIT, 'action' => 'field_sales.visit_finished', 'subject' => Order::class, 'facts' => ['order', 'customer']],
         'lead.stale' => ['group' => 'leads', 'source' => self::TIMER, 'subject' => Interest::class, 'facts' => ['lead'], 'param' => ['name' => 'hours', 'min' => 1, 'max' => 720, 'default' => 48]],
         'task.created' => ['group' => 'tasks', 'source' => self::TRANSITION, 'machine' => 'M-07', 'transition' => 'T00', 'subject' => Task::class, 'facts' => ['order', 'customer', 'task']],
         'task.sla_breached' => ['group' => 'tasks', 'source' => self::TIMER, 'subject' => Task::class, 'facts' => ['order', 'customer', 'task'], 'param' => ['name' => 'hours', 'min' => 0, 'max' => 720, 'default' => 24]],

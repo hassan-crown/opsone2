@@ -10,8 +10,7 @@ import {
     Send,
     Trash2,
 } from 'lucide-react';
-import { useCallback, useEffect, useRef, useState } from 'react';
-import type { ReactNode } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import FieldController from '@/actions/App/Http/Controllers/Field/FieldController';
 import FieldVisitController from '@/actions/App/Http/Controllers/Field/FieldVisitController';
 import {
@@ -19,6 +18,7 @@ import {
     StatusBadge,
     useDuration,
 } from '@/components/field/field-bits';
+import { Step, extensionOf, useQueued } from '@/components/field/field-steps';
 import {
     CheckboxField,
     FieldError,
@@ -30,13 +30,7 @@ import { Icon } from '@/components/opsone/icon';
 import { SignaturePad } from '@/components/portal/sign-panel';
 import { Alert, AlertBody } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
-import {
-    compressImage,
-    discard,
-    enqueue,
-    flush,
-    queued,
-} from '@/lib/field-queue';
+import { compressImage, discard, enqueue, flush } from '@/lib/field-queue';
 import type { QueuedUpload } from '@/lib/field-queue';
 import { useT } from '@/lib/i18n';
 import type { TranslationKey } from '@/lib/i18n';
@@ -46,97 +40,7 @@ import type { FieldVisitDetail, RemarkKind } from '@/types/field';
 type Props = { visit: FieldVisitDetail; today: string };
 type Phase = 'before' | 'after';
 
-/** The real type decides the name: the server checks extension, MIME type and content together. */
-function extensionOf(blob: Blob, file: File): string {
-    const byType: Record<string, string> = {
-        'image/jpeg': 'jpg',
-        'image/png': 'png',
-        'image/webp': 'webp',
-    };
-
-    return byType[blob.type] ?? file.name.split('.').pop() ?? 'jpg';
-}
-
 const KINDS: RemarkKind[] = ['missing_part', 'damage', 'extra_work', 'other'];
-
-function Step({
-    n,
-    title,
-    done,
-    children,
-    disabled,
-}: {
-    n: number;
-    title: string;
-    done: boolean;
-    disabled?: boolean;
-    children: ReactNode;
-}) {
-    return (
-        <section
-            className={cn(
-                'rounded-lg border border-stroke-weak bg-surface p-4',
-                disabled && 'opacity-60',
-            )}
-            aria-labelledby={`step-${n}`}
-        >
-            <h2
-                id={`step-${n}`}
-                className="mb-3 flex items-center gap-2 text-title text-strong"
-            >
-                <span
-                    className={cn(
-                        'inline-flex size-7 shrink-0 items-center justify-center rounded-full text-label',
-                        done
-                            ? 'bg-success-bg text-success-text'
-                            : 'bg-fill text-weak',
-                    )}
-                    aria-hidden="true"
-                >
-                    {done ? <Icon icon={Check} size="sm" /> : n}
-                </span>
-                {title}
-            </h2>
-            {children}
-        </section>
-    );
-}
-
-/** Pending local photos of this visit from the device queue, with object URLs for previews. */
-function useQueued(appointmentId: number) {
-    const [items, setItems] = useState<(QueuedUpload & { preview: string })[]>(
-        [],
-    );
-    const refresh = useCallback(async () => {
-        const all = await queued().catch(() => []);
-        setItems((previous) => {
-            previous.forEach((p) => URL.revokeObjectURL(p.preview));
-
-            return all
-                .filter((item) => item.appointmentId === appointmentId)
-                .map((item) => ({
-                    ...item,
-                    preview: URL.createObjectURL(item.blob),
-                }));
-        });
-    }, [appointmentId]);
-
-    useEffect(() => {
-        void refresh();
-        const onMessage = (event: MessageEvent) => {
-            if (event.data?.type === 'uploads-flushed') {
-                void refresh();
-                router.reload({ only: ['visit'] });
-            }
-        };
-        navigator.serviceWorker?.addEventListener('message', onMessage);
-
-        return () =>
-            navigator.serviceWorker?.removeEventListener('message', onMessage);
-    }, [refresh]);
-
-    return { items, refresh };
-}
 
 function PhotoStrip({
     visit,

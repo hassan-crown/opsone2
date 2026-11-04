@@ -5,6 +5,8 @@ namespace App\Models;
 use App\Access\Contracts\ScopedRecord;
 use App\Enums\AppointmentRequestCloseReason;
 use App\Enums\AppointmentRequestStatus;
+use App\FieldSales\FieldDispatch;
+use App\Models\FieldSales\FieldAssignment;
 use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -53,6 +55,19 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class AppointmentRequest extends Model implements ScopedRecord
 {
+    protected static function booted(): void
+    {
+        // ADR-0041: a request dispatched to a field rep ends the rep's task once booked or closed, or when it follows
+        // someone else.
+        static::updated(function (self $request) {
+            if ($request->wasChanged('status') && ! $request->status->isOpen()) {
+                FieldDispatch::settle(FieldAssignment::REQUEST, $request->id, $request->status === AppointmentRequestStatus::Scheduled ? 'scheduled' : 'closed');
+            } elseif ($request->wasChanged('assignee_id')) {
+                FieldDispatch::followAssignee(FieldAssignment::REQUEST, $request->id, $request->assignee_id);
+            }
+        });
+    }
+
     public const SOURCE_SITE = 'site';
 
     public const SOURCE_PORTAL = 'portal';

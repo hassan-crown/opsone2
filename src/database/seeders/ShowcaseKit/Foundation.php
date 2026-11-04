@@ -35,7 +35,7 @@ use App\Workflow\FlowTemplates;
 use Carbon\CarbonImmutable;
 
 /**
- * The organisation of OpsOne: facility profile, two regions, three branches, five departments, 17 staff accounts
+ * The organisation of OpsOne: facility profile, two regions, three branches, five departments, 19 staff accounts
  * (every role template), discount limits, commission policy, work hours and the published flow with real department
  * routing. Done on 2026-04-20, before the first business day.
  */
@@ -123,6 +123,9 @@ final class Foundation
             'finance' => ['هند بنت سليمان الرشيد', 'hind.alrasheed', 'finance', $d['finance'], ['RUH', 'JED', 'DMM'], 'المحاسبة الرئيسية'],
             'inventory' => ['وليد بن عبدالرحمن الصالح', 'waleed.alsaleh', 'inventory', null, ['RUH', 'JED', 'DMM'], 'أمين المستودع والمشتريات'],
             'content' => ['دانة بنت فيصل الخالدي', 'dana.alkhalidi', 'content', null, [], 'مسؤولة المحتوى والموقع'],
+            // ADR-0041: field sales in Riyadh — a supervisor who dispatches and one rep (no department: no task inbox).
+            'sup_sales' => ['عادل محمد', 'adel.mohammed', 'supervisor', null, ['RUH'], 'مشرف المبيعات الميدانية'],
+            'field_rep' => ['سامي خالد', 'sami.khaled', 'field_sales', null, ['RUH'], 'بائع ميداني'],
         ];
 
         $create = app(T00CreateMembership::class);

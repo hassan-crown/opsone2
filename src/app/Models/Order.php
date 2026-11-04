@@ -10,6 +10,7 @@ use App\Configuration\ConfigReleases;
 use App\Enums\CustomOrderStatus;
 use App\Enums\OrderKind;
 use App\Enums\ReadyOrderStatus;
+use App\Enums\SalesChannel;
 use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -30,6 +31,8 @@ use LogicException;
  * @property int|null $contact_id
  * @property int $branch_id
  * @property int|null $assignee_id
+ * @property SalesChannel $sales_channel where it was sold (ADR-0041)
+ * @property int|null $seller_id the field sales rep who sold it (ADR-0041); the commission's sale owner when set
  * @property int|null $created_by
  * @property int|null $purchase_reference_id
  * @property string|null $need_summary
@@ -44,6 +47,7 @@ use LogicException;
  * @property-read CustomerContact|null $contact
  * @property-read Branch $branch
  * @property-read User|null $assignee
+ * @property-read User|null $seller
  * @property-read PurchaseReference|null $purchaseReference
  */
 class Order extends Model implements LicensedRecord, ScopedRecord, StatefulRecord
@@ -52,7 +56,7 @@ class Order extends Model implements LicensedRecord, ScopedRecord, StatefulRecor
 
     protected $guarded = ['id', 'number', 'lock_version'];
 
-    protected $attributes = ['lock_version' => 1];
+    protected $attributes = ['lock_version' => 1, 'sales_channel' => 'showroom'];
 
     /** Identity of the order, fixed once written: its number, kind (COM-10: no kind change), customer, creator and configuration release. */
     private const IMMUTABLE = ['number', 'kind', 'customer_id', 'created_by', 'config_release_id'];
@@ -98,6 +102,14 @@ class Order extends Model implements LicensedRecord, ScopedRecord, StatefulRecor
                 throw new LogicException('An order keeps its number, kind, customer, creator and configuration release.');
             }
         });
+    }
+
+    /**
+     * @return BelongsTo<User, $this>
+     */
+    public function seller(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'seller_id');
     }
 
     /**
@@ -269,6 +281,7 @@ class Order extends Model implements LicensedRecord, ScopedRecord, StatefulRecor
     {
         return [
             'kind' => OrderKind::class,
+            'sales_channel' => SalesChannel::class,
             'needs_measurement' => 'boolean',
             'needs_design' => 'boolean',
             'total_minor' => 'integer',

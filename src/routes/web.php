@@ -40,6 +40,7 @@ require __DIR__.'/reports.php';
 require __DIR__.'/einvoicing.php';
 require __DIR__.'/rules.php';
 require __DIR__.'/appointment-requests.php';
+require __DIR__.'/field-sales.php';
 
 if (app()->isLocal()) {
     Route::inertia('_design', 'design')->name('design');

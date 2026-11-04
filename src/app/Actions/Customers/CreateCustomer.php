@@ -7,6 +7,7 @@ use App\Access\Permission;
 use App\Access\TransitionRecorder;
 use App\Audit\Audit;
 use App\Audit\AuditAction;
+use App\Customers\CustomerAccess;
 use App\Customers\CustomerData;
 use App\Models\Customer;
 use App\Models\User;
@@ -31,6 +32,7 @@ final class CreateCustomer
         $customer = new Customer($data);
         $customer->created_by = $actor->id;
         $this->access->authorize($actor, Permission::P09, $customer);
+        CustomerAccess::authorizeCreate($actor, $customer);
 
         try {
             return DB::transaction(function () use ($customer, $actor, $source) {

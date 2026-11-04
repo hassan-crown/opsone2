@@ -13,6 +13,7 @@ use App\Delivery\OrderDeliveryPanel;
 use App\Enums\CustomOrderStatus;
 use App\Enums\OrderKind;
 use App\Enums\ReadyOrderStatus;
+use App\FieldSales\SalesChannelPanel;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Orders\CreateOrderRequest;
 use App\Http\Requests\Orders\UpdateOrderRequest;
@@ -242,6 +243,8 @@ class OrderController extends Controller
             'closure' => OrderClosurePanel::forOrder($order, $actor),
             // ADR-0036: installation visits — status, arrival and duration, photos, signature and remarks.
             'installation' => app(InstallationPanel::class)->forOrder($order, $actor),
+            // ADR-0041: where it was sold and its field seller (changed with P-106).
+            'salesChannel' => SalesChannelPanel::forOrder($order, $actor),
             // P7 cancellation: the CancelReview entry point and the settlement follow-up state (ADR-0020).
             'cancellation' => OrderCancellationPanel::forOrder($order, $actor),
             // Targets for the transfer dialog; the server still checks P-19 over both branches on preview and apply.

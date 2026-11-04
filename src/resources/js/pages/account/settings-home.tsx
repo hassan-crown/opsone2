@@ -21,6 +21,7 @@ import {
     MessageSquareText,
     Timer,
     CalendarPlus,
+    MapPinned,
     Hash,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
@@ -41,6 +42,7 @@ import { edit as profile } from '@/routes/profile';
 import {
     appointment_requests as appointmentRequests,
     clauses,
+    field_sales as fieldSales,
     messages,
     numbering,
     plans,
@@ -244,6 +246,7 @@ export default function SettingsHome({
                   href: appointmentRequests(),
                   icon: CalendarPlus,
               },
+              { key: 'field_sales', href: fieldSales(), icon: MapPinned },
           ].map((c) => ({
               ...c,
               title: t(`rules.nav.${c.key}` as TranslationKey),

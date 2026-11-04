@@ -93,6 +93,19 @@ final class MetricCatalogue
         'store.paid_total_minor' => ['kind' => 'money', 'vat' => 'gross', 'grant' => 'P-37', 'sources' => 'store_checkouts', 'formula' => 'Σ total_minor of checkouts paid in range.'],
         'store.discount_minor' => ['kind' => 'money', 'vat' => 'gross', 'grant' => 'P-37', 'sources' => 'store_checkouts', 'formula' => 'Σ discount_minor of those checkouts.'],
         'store.conversion_percent' => ['kind' => 'percent', 'vat' => 'none', 'grant' => null, 'sources' => 'store_checkouts', 'formula' => 'paid ÷ created in range × 100, one decimal.'],
+        // ADR-0041: sales channels and field sales.
+        'channels.orders_created' => ['kind' => 'count', 'vat' => 'none', 'grant' => null, 'sources' => 'orders', 'formula' => 'Orders created in range (every channel); per channel in the table.'],
+        'channels.booked_minor' => ['kind' => 'money', 'vat' => 'gross', 'grant' => 'P-37', 'sources' => 'agreements, store_checkouts', 'formula' => 'Booked sales = sales.agreed_gross_minor (custom orders first approved in range) + store.paid_total_minor (checkouts paid in range); per channel by orders.sales_channel.'],
+        'channels.collected_minor' => ['kind' => 'money', 'vat' => 'gross', 'grant' => 'P-37', 'sources' => 'money_entries, money_journals', 'formula' => 'collection.net_minor (every entry in range: collected + corrections + transfers + refunded); per channel by orders.sales_channel.'],
+        'channels.field_sales_share_percent' => ['kind' => 'percent', 'vat' => 'none', 'grant' => 'P-37', 'sources' => 'agreements, store_checkouts', 'formula' => 'Booked of field_sales orders ÷ booked of every channel × 100, one decimal (0 when nothing was booked).'],
+        'field_sales.leads_assigned' => ['kind' => 'count', 'vat' => 'none', 'grant' => null, 'sources' => 'field_assignments', 'formula' => 'Leads dispatched to a rep in range (assigned_at), a re-dispatch counting again for the new rep.'],
+        'field_sales.requests_assigned' => ['kind' => 'count', 'vat' => 'none', 'grant' => null, 'sources' => 'field_assignments', 'formula' => 'Appointment requests dispatched to a rep in range.'],
+        'field_sales.visits_done' => ['kind' => 'count', 'vat' => 'none', 'grant' => null, 'sources' => 'sales_visits', 'formula' => 'Sales visits finished in range (finished_at), by the rep who started them.'],
+        'field_sales.conversions' => ['kind' => 'count', 'vat' => 'none', 'grant' => null, 'sources' => 'field_assignments', 'formula' => 'Dispatched leads whose assignment ended as converted in range (ended_at), credited to the assignment\'s rep.'],
+        'field_sales.conversion_percent' => ['kind' => 'percent', 'vat' => 'none', 'grant' => null, 'sources' => 'field_assignments', 'formula' => 'conversions ÷ leads_assigned in range × 100, one decimal (0 without assigned leads).'],
+        'field_sales.orders' => ['kind' => 'count', 'vat' => 'none', 'grant' => null, 'sources' => 'orders', 'formula' => 'Orders with sales_channel field_sales created in range, by seller.'],
+        'field_sales.booked_minor' => ['kind' => 'money', 'vat' => 'gross', 'grant' => 'P-37', 'sources' => 'agreements', 'formula' => 'channels.booked_minor restricted to field_sales orders, by seller.'],
+        'field_sales.commission_minor' => ['kind' => 'money', 'vat' => 'none', 'grant' => 'P-94', 'sources' => 'commission_entries', 'formula' => 'commissions.accrued_minor of field_sales orders whose entry belongs to the order\'s seller, created in range.'],
     ];
 
     public static function has(string $key): bool

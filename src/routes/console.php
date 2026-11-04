@@ -8,6 +8,7 @@ use App\Actions\StateMachines\M38SupportAccess\T04ExpireSupportAccess;
 use App\AppointmentRequests\AppointmentRequestSla;
 use App\Automation\AutomationTimers;
 use App\EInvoicing\MissingInvoices;
+use App\FieldSales\FieldAssignmentSla;
 use App\Finance\CollectionReminders;
 use App\Models\Membership;
 use App\Models\OutboxMessage;
@@ -71,6 +72,13 @@ Artisan::command('automation:tick', function (AutomationTimers $timers) {
 })->purpose('Raise time-based automation events and re-queue unprocessed ones');
 
 Schedule::command('automation:tick')->everyFifteenMinutes()->withoutOverlapping();
+
+// Field sales (ADR-0041): `field_sales.lead_overdue` once a lead dispatched to a rep passed its response time.
+Artisan::command('field-sales:remind', function (FieldAssignmentSla $sla) {
+    $this->info(sprintf('Created %d field sales notice(s).', $sla->run(now())));
+})->purpose('Alert field reps and dispatchers of leads past their response time (inside the reminder hours)');
+
+Schedule::command('field-sales:remind')->hourly()->withoutOverlapping();
 
 // Outbox safety net: re-queue messages whose delivery job was lost, and drop delivered ones after 30 days.
 Artisan::command('outbox:process', function (OutboxDeliverer $deliverer) {

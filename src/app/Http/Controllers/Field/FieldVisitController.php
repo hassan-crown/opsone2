@@ -84,7 +84,7 @@ class FieldVisitController extends Controller
 
     private function visit(Request $request, Appointment $appointment): InstallationVisit
     {
-        FieldAccess::authorize($this->user($request), $appointment);
+        FieldAccess::authorizeInstallation($this->user($request), $appointment);
 
         return InstallationVisit::query()->where('appointment_id', $appointment->id)->first() ?? throw new FieldRefused('not_arrived');
     }

@@ -43,7 +43,7 @@ final class InstallationRemarks
             $locked = InstallationVisit::query()->lockForUpdate()->findOrFail($visit->id);
             $appointment = Appointment::query()->findOrFail($locked->appointment_id);
             $appointment->setRelation('order', $order);
-            FieldAccess::authorize($actor, $appointment);
+            FieldAccess::authorizeInstallation($actor, $appointment);
             if ($locked->isFinished()) {
                 throw new FieldRefused('already_finished');
             }

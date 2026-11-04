@@ -49,6 +49,17 @@ it('seeds a coherent history and keeps the ledger and stock invariants', functio
         ->and(DB::table('payments')->count())->toBeGreaterThan(5)
         ->and(DB::table('site_page_locales')->whereNotNull('published_version_id')->count())->toBeGreaterThanOrEqual(10);
 
+    // ADR-0041: every channel is represented, and the field rep sold, visited and earned through the dispatched leads.
+    $rep = (int) DB::table('users')->where('email', 'sami.khaled@opsone-demo.test')->value('id');
+    expect(Order::query()->distinct()->pluck('sales_channel')->map(fn ($c) => $c instanceof BackedEnum ? $c->value : $c)->sort()->values()->all())
+        ->toBe(['field_sales', 'online_store', 'showroom'])
+        ->and(Order::query()->where('seller_id', $rep)->count())->toBe(6)
+        ->and(DB::table('field_assignments')->where('rep_id', $rep)->count())->toBe(9)
+        ->and(DB::table('sales_visits')->whereNotNull('finished_at')->count())->toBe(5)
+        ->and(DB::table('order_sales')->where('user_id', $rep)->where('owner_source', 'seller')->count())->toBe(3)
+        ->and(DB::table('discount_limits')->where('membership_id', DB::table('memberships')->where('user_id', $rep)->value('id'))->value('custom_bp'))->toBe(300)
+        ->and(DB::table('member_grants')->where('effect', 'deny')->where('permission', 'P-32')->count())->toBe(1);
+
     // Money: every journal sums to what its kind allows; a reversal negates the journal it names.
     foreach (DB::table('money_journals')->get() as $j) {
         $sum = (int) DB::table('money_entries')->where('journal_id', $j->id)->sum('amount_minor');

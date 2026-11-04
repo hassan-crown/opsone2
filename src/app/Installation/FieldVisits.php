@@ -73,7 +73,7 @@ final class FieldVisits
             $order = Order::query()->lockForUpdate()->findOrFail($appointment->order_id);
             $locked = Appointment::query()->lockForUpdate()->findOrFail($appointment->id);
             $locked->setRelation('order', $order);
-            FieldAccess::authorize($actor, $locked);
+            FieldAccess::authorizeInstallation($actor, $locked);
             if ($locked->status !== AppointmentStatus::Confirmed) {
                 throw new FieldRefused('not_confirmed');
             }
@@ -335,7 +335,7 @@ final class FieldVisits
         $appointment->setRelation('order', $order);
         $locked->setRelation('appointment', $appointment);
         $locked->setRelation('order', $order);
-        FieldAccess::authorize($actor, $appointment);
+        FieldAccess::authorizeInstallation($actor, $appointment);
         if ($locked->isFinished()) {
             throw new FieldRefused('already_finished');
         }

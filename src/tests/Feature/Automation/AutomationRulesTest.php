@@ -147,7 +147,7 @@ it('serves the builder with the catalogue and a template, tries over HTTP and sh
     $this->actingAs($this->f->owner)->get('/settings/automation/new?template=payment_reminder_3d')->assertOk()
         ->assertInertia(fn (Assert $page) => $page->component('rules/automation-builder')
             ->where('draft.trigger', 'payment.due_soon')->where('draft.params.days', 3)
-            ->has('catalogue.triggers', 17)->has('catalogue.fields')->has('catalogue.roles'));
+            ->has('catalogue.triggers', 19)->has('catalogue.fields')->has('catalogue.roles'));
 
     autoRule($this->f->owner, 'logged', 'document.approved', [noteAction()]);
     publishRules($this->f->owner);

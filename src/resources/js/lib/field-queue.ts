@@ -9,7 +9,7 @@ export type QueuedUpload = {
     id: string;
     url: string;
     appointmentId: number;
-    phase: 'before' | 'after';
+    phase: 'before' | 'after' | 'site';
     blob: Blob;
     name: string;
     xsrf: string;
