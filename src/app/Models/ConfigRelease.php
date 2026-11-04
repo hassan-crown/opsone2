@@ -19,6 +19,7 @@ use LogicException;
  * @property int|null $flow_version_id
  * @property string|null $notes
  * @property int|null $restored_from_id
+ * @property list<string>|null $automation_triggers the triggers its automation rules listen to (ADR-0042)
  * @property int|null $published_by
  * @property CarbonInterface $published_at
  * @property-read User|null $publisher
@@ -57,6 +58,7 @@ class ConfigRelease extends Model
         return [
             'number' => 'integer',
             'snapshot' => 'array',
+            'automation_triggers' => 'array',
             'flow_version_id' => 'integer',
             'restored_from_id' => 'integer',
             'published_at' => 'datetime',

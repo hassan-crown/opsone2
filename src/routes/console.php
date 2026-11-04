@@ -6,6 +6,7 @@ use App\Actions\StateMachines\M37OwnershipTransfer\T04ExpireOwnershipTransfer;
 use App\Actions\StateMachines\M38SupportAccess\T00RequestSupportAccess;
 use App\Actions\StateMachines\M38SupportAccess\T04ExpireSupportAccess;
 use App\AppointmentRequests\AppointmentRequestSla;
+use App\Automation\AutomationTimers;
 use App\EInvoicing\MissingInvoices;
 use App\Finance\CollectionReminders;
 use App\Models\Membership;
@@ -62,6 +63,14 @@ Artisan::command('appointment-requests:remind', function (AppointmentRequestSla 
 })->purpose('Alert assignees of appointment requests past their response time (inside the reminder hours)');
 
 Schedule::command('appointment-requests:remind')->hourly()->withoutOverlapping();
+
+// Automation rules (ADR-0042): time-based triggers (due soon/overdue, idle leads, late tasks) inside the reminder hours,
+// and events whose processing job was lost are queued again.
+Artisan::command('automation:tick', function (AutomationTimers $timers) {
+    $this->info(sprintf('Recorded %d automation event(s).', $timers->tick(now())));
+})->purpose('Raise time-based automation events and re-queue unprocessed ones');
+
+Schedule::command('automation:tick')->everyFifteenMinutes()->withoutOverlapping();
 
 // Outbox safety net: re-queue messages whose delivery job was lost, and drop delivered ones after 30 days.
 Artisan::command('outbox:process', function (OutboxDeliverer $deliverer) {

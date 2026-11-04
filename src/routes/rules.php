@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Rules\AutomationRuleController;
 use App\Http\Controllers\Rules\ConfigReleaseController;
 use App\Http\Controllers\Rules\DocumentClauseController;
 use App\Http\Controllers\Rules\MessageTemplateController;
@@ -24,6 +25,12 @@ Route::middleware(['auth', 'verified'])->prefix('settings')->name('rules.')->gro
     Route::get('numbering', [NumberFormatController::class, 'index'])->name('numbering');
     Route::get('releases', [ConfigReleaseController::class, 'index'])->name('releases');
     Route::get('releases/{release}', [ConfigReleaseController::class, 'show'])->whereNumber('release')->name('releases.show');
+    // ADR-0042: automation rules (draft until published in a release; the kill switch is live).
+    Route::get('automation', [AutomationRuleController::class, 'index'])->name('automation');
+    Route::get('automation/new', [AutomationRuleController::class, 'create'])->name('automation.create');
+    Route::get('automation/{rule}/edit', [AutomationRuleController::class, 'edit'])->whereNumber('rule')->name('automation.edit');
+    Route::get('automation/log/{key}', [AutomationRuleController::class, 'log'])->where('key', '[a-z0-9_]{1,40}')->name('automation.log');
+    Route::post('automation/try', [AutomationRuleController::class, 'try'])->middleware('throttle:records-create')->name('automation.try');
     Route::post('releases/preview', [ConfigReleaseController::class, 'preview'])->middleware('throttle:records-create')->name('releases.preview');
 
     Route::middleware('throttle:records-create')->group(function () {
@@ -42,6 +49,11 @@ Route::middleware(['auth', 'verified'])->prefix('settings')->name('rules.')->gro
         Route::put('numbering', [NumberFormatController::class, 'update'])->name('numbering.update');
         Route::post('releases', [ConfigReleaseController::class, 'publish'])->name('releases.publish');
         Route::post('releases/discard', [ConfigReleaseController::class, 'discard'])->name('releases.discard');
+        Route::post('automation', [AutomationRuleController::class, 'store'])->name('automation.store');
+        Route::put('automation/{rule}', [AutomationRuleController::class, 'update'])->whereNumber('rule')->name('automation.update');
+        Route::post('automation/{rule}/archive', [AutomationRuleController::class, 'archive'])->whereNumber('rule')->name('automation.archive');
+        Route::post('automation/{rule}/kill', [AutomationRuleController::class, 'kill'])->whereNumber('rule')->name('automation.kill');
+        Route::post('automation/{rule}/revive', [AutomationRuleController::class, 'revive'])->whereNumber('rule')->name('automation.revive');
         Route::post('releases/{release}/rollback', [ConfigReleaseController::class, 'rollback'])->whereNumber('release')->name('releases.rollback');
     });
 });
