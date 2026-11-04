@@ -214,8 +214,34 @@ p { text-wrap: pretty; }
 .sale { padding: var(--pad) var(--margin); background: var(--paper); }
 .sale__head { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: var(--gutter); align-items: center; }
 .sale__text { grid-column: 1 / span 5; display: grid; gap: 1rem; }
-.journey__picture { --c: 72px; grid-column: 6 / span 7; aspect-ratio: 16 / 9; overflow: hidden; background: var(--fill-2); clip-path: polygon(var(--c) 0, 100% 0, 100% 100%, 0 100%, 0 calc(var(--c) * 0.8)); }
-.journey__picture img { width: 100%; height: 100%; object-fit: cover; object-position: 62% 50%; }
+.duo { --c: 72px; position: relative; grid-column: 6 / span 7; padding: clamp(1.5rem, 3vw, 2.5rem) clamp(1rem, 3vw, 2.5rem) clamp(3rem, 5vw, 4rem) clamp(9rem, 15vw, 12.5rem); background: var(--stage); clip-path: polygon(var(--c) 0, 100% 0, 100% 100%, 0 100%, 0 calc(var(--c) * 0.8)); }
+/* the lead on the desktop, the contract on the client's phone, overlapping like two screens on one desk */
+.duo__desk[data-ui] { max-width: 34rem; margin-inline-end: auto; }
+[data-ui].duo__desk .win__bar { justify-content: flex-start; }
+[data-ui].duo__desk .win__body { padding-inline-end: clamp(8.5rem, 11vw, 9.5rem); }
+.handset.duo__phone[data-ui] { position: absolute; inset-inline-end: clamp(0.75rem, 2vw, 1.5rem); bottom: clamp(1rem, 2.5vw, 2rem); width: 15rem; gap: 0.55rem; padding: 0.85rem 0.75rem; font-size: 13px; }
+[data-ui] .duo__who { display: flex; align-items: center; gap: 0.65rem; }
+[data-ui] .duo__who .av { width: 2.4rem; height: 2.4rem; font-size: 13px; }
+[data-ui] .duo__who b { font-size: 1.1em; }
+[data-ui] .duo__need { color: #2A3E5E; }
+[data-ui] .duo__facts { display: flex; gap: 1.5rem; }
+[data-ui] .duo__facts b { display: flex; align-items: center; gap: 0.4rem; font-weight: 500; }
+[data-ui] .duo__facts .av { width: 1.4rem; height: 1.4rem; }
+[data-ui] .duo__log { display: grid; gap: 0.35rem; padding: 0.65rem 0.8rem; border: 1px solid #DDE3EA; border-radius: 8px; color: #2A3E5E; font-size: 0.93em; }
+[data-ui] .duo__log li { display: flex; gap: 0.6rem; }
+[data-ui] .duo__log span { flex: none; width: 4.5rem; color: #4A5A72; }
+[data-ui] .duo__act { display: flex; align-items: center; min-height: 2.5rem; }
+[data-ui] .duo__done { display: inline-flex; align-items: center; gap: 0.4rem; color: #2B7530; font-weight: 600; }
+[data-ui] .duo__doc { display: flex; align-items: center; gap: 0.55rem; padding: 0.5rem 0.6rem; border-radius: 8px; background: #F5F7F9; }
+[data-ui] .duo__doc .ic { color: #0E7C72; }
+[data-ui] .duo__doc b { display: block; }
+.handset.duo__phone .otp { gap: 0.25rem; }
+.handset.duo__phone .otp i { width: 1.75rem; height: 2.1rem; border-radius: 6px; }
+.handset.duo__phone .sign__pad { height: 3.75rem; }
+.handset.duo__phone .sign__pad svg { height: 2.9rem; }
+.handset.duo__phone .stamp { font-size: 12px; }
+/* before the conversion (set by main.js only when motion is allowed): the lead is still in follow-up */
+[data-duo]:not(.is-before) .duo__was, [data-duo]:not(.is-before) [data-convert], [data-duo].is-before .duo__now, [data-duo].is-before .duo__done { display: none; }
 /* the eight steps: text on one side, the screen that does it on the other */
 .steps { display: grid; gap: clamp(3rem, 6vw, 4.5rem); margin-top: clamp(3rem, 5vw, 4.5rem); }
 .step { display: grid; gap: 1.5rem; }
@@ -543,7 +569,8 @@ p { text-wrap: pretty; }
   .benefits__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .fit__head { grid-column: 1 / -1; position: static; }
   .fit__list { grid-column: 1 / -1; }
-  .sale__text, .journey__picture, .custom__text, .custom__stage { grid-column: 1 / -1; }
+  .sale__text, .duo, .custom__text, .custom__stage { grid-column: 1 / -1; }
+  .duo { margin-top: 1rem; }
   .custom__stage { margin-top: 1rem; }
   .cfg[data-ui] { grid-template-columns: minmax(0, 1fr); }
   [data-ui] .cfg__side { display: none; }
@@ -587,7 +614,11 @@ p { text-wrap: pretty; }
   [data-ui] .flow__row { padding: 0.7rem; }
   .benefits__grid { grid-template-columns: 1fr; }
   .benefits__grid li { padding: 1.25rem 0 1.5rem; }
-  .journey__picture { --c: 40px; }
+  .duo { --c: 40px; padding: 1.25rem 0.75rem 1.5rem; }
+  .duo__desk[data-ui] { max-width: none; font-size: 13.5px; }
+  [data-ui].duo__desk .win__body { padding-inline-end: 1rem; padding-bottom: 1.25rem; }
+  .handset.duo__phone[data-ui] { position: relative; inset: auto; width: min(100%, 16.5rem); margin: -1rem 0 0 auto; }
+  [data-ui].duo__phone .handset__top { flex-wrap: wrap; }
   .roles__tabs [role="tab"] { min-height: 2.75rem; }
   .tool { --c: 28px; }
   .tool--wa, .tool--sign, .tool--invoice, .tool--store, .tool--portal, .tool--money { grid-column: 1 / -1; min-height: 0; }

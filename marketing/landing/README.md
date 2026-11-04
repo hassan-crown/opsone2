@@ -35,7 +35,7 @@ then visit `http://localhost:8080`.
 | `REDESIGN-AUDIT.md` | The critique, technical audit and detector scan that the 2026-11-04 redesign answered. |
 | `assets/fonts/` | IBM Plex Sans Arabic 400/500/600/700 from the design system, with `OFL.txt`. |
 | `assets/brand/` | The OpsOne logo and mark, generated from the original geometry in `docs/design-system/source/components/src/logo.js` (not redrawn). |
-| `assets/photos/` | Four CC0 photographs (no credit required) with `credits.json` as the internal provenance record. |
+| `assets/photos/` | Three CC0 photographs with no people in them (no credit required) with `credits.json` as the internal provenance record. |
 | `assets/video/` | Three muted loops recorded from the running showcase at 2× (2560×1600 / 780×1688, WebM/VP8) with WebP posters. |
 | `assets/vendor/` | GSAP 3.13.0 and ScrollTrigger 3.13.0, copied unchanged from cdnjs (GSAP's no-charge standard licence); `LUCIDE-LICENSE.txt` for the icons, which are inlined in `index.html` as an SVG sprite (Lucide 0.475, the app's icon set). |
 
@@ -296,6 +296,25 @@ Every person on the page has a generic two-part name (first name and father's na
 clips: the order clip and poster («عبدالله بن سعد القحطاني», «ريم بنت محمد السبيعي», «ياسر بن فهد القحطاني») and the owner clip
 and poster («عبدالله بن سعد القحطاني»). The portal poster shows no person's name.
 
+## The sales head without the stock photo (user request, 2026-11-04)
+
+- The consultation photograph beside «من أول اتصال إلى آخر توقيع» was replaced by two OpsOne screens on one desk, built like the
+  other fragments.
+  - On the desktop, the lead INT-0231 for محمد صالح (showroom visit on 2 Sep, follow-up by خالد إبراهيم) converts into
+    ORD-2026-00178.
+  - On the client's phone, the contract CON-2026-00031 for the same order is signed with the verification code and a drawn
+    signature.
+- One motion: the first time the pair is on screen, «تحويل إلى طلب» is pressed and the lead turns «محوّل», with the order
+  number appearing. With reduced motion, or without JavaScript, the converted state shows from the start.
+- `consultation-1600.webp` and `-800.webp` were deleted, together with their `credits.json` entry.
+- Audit for women in every remaining picture:
+  - None of the three photographs, the three video posters or the share image shows a woman.
+  - The store photograph had a blurred passer-by at its right edge, so it was cropped to exclude any person.
+  - The recorded clips show women's names in the showcase data («ريم بنت محمد السبيعي» in the order clip), not images. They are
+    already listed for re-recording under «Demo names».
+- Lighthouse after the change: mobile 96 / 100 / 100 / 100 (LCP 2.8 s), desktop 100 / 100 / 100 / 100. There is no
+  horizontal overflow at 375, 768 or 1440.
+
 ## Critique (round before the redesign)
 
 ```
@@ -325,18 +344,17 @@ a stage preview too small to read on tablet.
 Nothing is credited on the page: every photograph is CC0 (public-domain dedication, `creditRequired: false`), so the earlier
 CC BY / CC BY-SA photographs were removed rather than left uncredited. Provenance stays in `assets/photos/credits.json`.
 
-- `assets/photos/consultation-1600.webp` (and `-800`): “Rawpixel.com 2017-06-02 (Unsplash)” by rawpixel.com, CC0, via Wikimedia
-  Commons (resized). https://commons.wikimedia.org/wiki/File:Rawpixel.com_2017-06-02_(Unsplash).jpg
 - `assets/photos/field-tools-600.webp`: “Taduuda 2016-03-24 (Unsplash Geh-r9A4RBg)” by Taduuda, CC0, via Wikimedia Commons (resized).
   https://commons.wikimedia.org/wiki/File:Taduuda_2016-03-24_(Unsplash_Geh-r9A4RBg).jpg
 - `assets/photos/finished-space-600.webp`: “Minimal creative interior (Unsplash)” by Breather, CC0, via Wikimedia Commons (resized).
   https://commons.wikimedia.org/wiki/File:Minimal_creative_interior_(Unsplash).jpg
 - `assets/photos/store-pendant-light-600.webp`: “Light bulbs in a coffee shop (Unsplash)” by Tomas Jasovsky, CC0, via Wikimedia
-  Commons (resized). https://commons.wikimedia.org/wiki/File:Light_bulbs_in_a_coffee_shop_(Unsplash).jpg
+  Commons (cropped to a square from the left 64% of the frame, so the blurred passer-by is out of shot).
+  https://commons.wikimedia.org/wiki/File:Light_bulbs_in_a_coffee_shop_(Unsplash).jpg
 - Icons: Lucide 0.475 (ISC), notice in `assets/vendor/LUCIDE-LICENSE.txt` and a comment above the sprite in `index.html`.
 
-CC0 waives copyright only. The consultation photograph shows two recognisable people; it is a generic stock scene, not presented
-as a customer, but a pilot customer's own photographs remain the better choice (see below).
+CC0 waives copyright only. No photograph on the page shows a person; a pilot customer's own photographs remain the better
+choice (see below).
 
 Product clips in `assets/video/` are OpsOne itself, recorded from the showcase dataset (no credit needed). **The order and portal
 clips still show the showcase's sample orders, which name kitchens** (order line «مطبخ مع بار شبه جزيرة», portal summary

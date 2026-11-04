@@ -62,6 +62,23 @@
     dev.replaceWith(link);
   }
 
+  /* ---------- the lead becomes the order: «تحويل إلى طلب» is pressed once, the first time the pair is on screen ---------- */
+  const duo = document.querySelector('[data-duo]');
+  if (duo && !reduce.matches && 'IntersectionObserver' in window) {
+    duo.classList.add('is-before');
+    const press = duo.querySelector('[data-convert]');
+    const io = new IntersectionObserver(([e]) => {
+      if (!e.isIntersecting) return;
+      io.disconnect();
+      setTimeout(() => press.classList.add('is-pressed'), 900);
+      setTimeout(() => {
+        duo.classList.remove('is-before');
+        duo.querySelectorAll('.duo__now, .duo__done').forEach((el) => el.animate && el.animate([{ opacity: 0, transform: 'translateY(6px)' }, { opacity: 1, transform: 'none' }], { duration: 420, easing: 'cubic-bezier(0.23, 1, 0.32, 1)' }));
+      }, 1150);
+    }, { threshold: 0.6 });
+    io.observe(duo);
+  }
+
   /* ---------- the eight steps: the step at the middle of the screen owns the stage ---------- */
   const steps = [...document.querySelectorAll('.step')];
   if (steps.length && 'IntersectionObserver' in window) {
@@ -137,7 +154,7 @@
 
     // a section's title and its lead arrive once; lists and steps are already in place
     document.querySelectorAll('main > section').forEach((sec) => {
-      const parts = sec.querySelectorAll('.head[data-reveal], .lead[data-reveal], .journey__picture[data-reveal], .tool[data-reveal], .roles__media[data-reveal]');
+      const parts = sec.querySelectorAll('.head[data-reveal], .lead[data-reveal], .tool[data-reveal], .roles__media[data-reveal]');
       if (!parts.length) return;
       gsap.from(parts, { y: 20, opacity: 0, duration: 0.8, stagger: 0.07, ease: 'expo.out', scrollTrigger: { trigger: sec, start: 'top 82%', once: true } });
     });

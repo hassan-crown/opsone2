@@ -1,53 +1,5 @@
 [
   {
-    "file": "marketing/landing/assets/photos/consultation-1600.webp",
-    "media": "image",
-    "ref": "commons:61681701",
-    "title": "Rawpixel.com 2017-06-02 (Unsplash)",
-    "creator": "rawpixel.com rawpixel",
-    "creatorUrl": null,
-    "date": "2017-06-02",
-    "license": "CC0",
-    "licenseCode": "cc0",
-    "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/deed.en",
-    "creditRequired": false,
-    "page": "https://commons.wikimedia.org/wiki/File:Rawpixel.com_2017-06-02_(Unsplash).jpg",
-    "via": "Wikimedia Commons",
-    "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/48/Rawpixel.com_2017-06-02_%28Unsplash%29.jpg/3840px-Rawpixel.com_2017-06-02_%28Unsplash%29.jpg",
-    "width": 3840,
-    "height": 2577,
-    "bytes": 1383885,
-    "credit": "\"Rawpixel.com 2017-06-02 (Unsplash)\" by rawpixel.com rawpixel, CC0, via Wikimedia Commons",
-    "notes": [
-      "Resized and re-encoded to WebP. CC0: no credit required; recorded here for provenance only."
-    ],
-    "saved": "2026-11-02T13:10:01.949Z"
-  },
-  {
-    "file": "marketing/landing/assets/photos/consultation-800.webp",
-    "media": "image",
-    "ref": "commons:61681701",
-    "title": "Rawpixel.com 2017-06-02 (Unsplash)",
-    "creator": "rawpixel.com rawpixel",
-    "creatorUrl": null,
-    "date": "2017-06-02",
-    "license": "CC0",
-    "licenseCode": "cc0",
-    "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/deed.en",
-    "creditRequired": false,
-    "page": "https://commons.wikimedia.org/wiki/File:Rawpixel.com_2017-06-02_(Unsplash).jpg",
-    "via": "Wikimedia Commons",
-    "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/48/Rawpixel.com_2017-06-02_%28Unsplash%29.jpg/3840px-Rawpixel.com_2017-06-02_%28Unsplash%29.jpg",
-    "width": 3840,
-    "height": 2577,
-    "bytes": 1383885,
-    "credit": "\"Rawpixel.com 2017-06-02 (Unsplash)\" by rawpixel.com rawpixel, CC0, via Wikimedia Commons",
-    "notes": [
-      "Resized and re-encoded to WebP. CC0: no credit required; recorded here for provenance only."
-    ],
-    "saved": "2026-11-02T13:10:01.949Z"
-  },
-  {
     "file": "marketing/landing/assets/photos/field-tools-600.webp",
     "media": "image",
     "ref": "commons:62216016",
@@ -114,9 +66,7 @@
     "height": 3750,
     "bytes": 5032967,
     "credit": "\"Light bulbs in a coffee shop (Unsplash)\" by Tomas Jasovsky tomasjasovsky, CC0, via Wikimedia Commons",
-    "notes": [
-      "Resized and re-encoded to WebP. CC0: no credit required; recorded here for provenance only."
-    ],
+    "notes": "['Resized and re-encoded to WebP. CC0: no credit required; recorded here for provenance only.']; cropped to a square from the left 64% of the frame (no person in shot)",
     "saved": "2026-11-02T13:10:06.239Z"
   }
 ]
