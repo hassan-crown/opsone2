@@ -46,7 +46,7 @@ export function SalesChannelCard({
         <Card data-test="sales-channel-card">
             <div className="flex flex-wrap items-center gap-2">
                 <Icon icon={Store} className="text-weak" />
-                <h2 className="m-0 text-title text-strong">
+                <h2 className="text-heading m-0 text-strong">
                     {t('field_sales.channel.title')}
                 </h2>
                 <Badge variant="info" className="ms-auto">
