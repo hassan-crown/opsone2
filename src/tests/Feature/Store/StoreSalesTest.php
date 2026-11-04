@@ -137,7 +137,9 @@ it('SAL-02/05: a link is a random token, reserves nothing, and its owner comes o
 
     // Buying through the link, with forged owner fields in the request.
     $this->get('/ar/store/l/'.$token)->assertRedirect('/ar/store/checkout');
-    $this->get('/ar/store/l/'.substr($token, 0, -1).'x')->assertNotFound();
+    // A token that differs in its last character. Never a fixed letter: the random token can already end in it.
+    $altered = substr($token, 0, -1).(str_ends_with($token, 'x') ? 'y' : 'x');
+    $this->get('/ar/store/l/'.$altered)->assertNotFound();
     actingAsBuyer($this->buyer);
     $response = $this->post('/ar/store/checkout', ['idempotency_key' => 'link-buy-0001', 'owner_id' => $this->owner->id, 'assignee_id' => $this->owner->id, 'link_id' => 999]);
     $response->assertRedirect();
