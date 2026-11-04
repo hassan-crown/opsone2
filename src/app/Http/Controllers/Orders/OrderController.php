@@ -28,6 +28,7 @@ use App\Orders\OrderAccess;
 use App\Orders\OrderClosurePanel;
 use App\Orders\OrderPicker;
 use App\Orders\OrderPresenter;
+use App\Orders\OrderStageSummary;
 use App\Organization\OrgPresenter;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -88,7 +89,8 @@ class OrderController extends Controller
 
         $page = $query->paginate(self::PER_PAGE)->withQueryString();
 
-        $rows = array_map(fn (Order $o) => OrderPresenter::row($o, $actor), $page->items());
+        $stages = OrderStageSummary::forOrders($page->items());
+        $rows = array_map(fn (Order $o) => OrderPresenter::row($o, $actor) + ['stage' => $stages[$o->id] ?? null], $page->items());
         $meta = CustomerPresenter::meta($page);
 
         if ($this->wantsJson($request)) {
@@ -229,6 +231,8 @@ class OrderController extends Controller
 
         return Inertia::render('orders/show', [
             'order' => $detail,
+            // The header's «current stage → next» strip (custom orders with a workflow; null otherwise).
+            'stage' => OrderStageSummary::forOrder($order),
             'history' => $this->history($order),
             // ADR-0042: notes added to the order (by automation rules), newest first.
             'notes' => array_values(OrderNote::query()->where('order_id', $order->id)->orderByDesc('id')->limit(50)->get()

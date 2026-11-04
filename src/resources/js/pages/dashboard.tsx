@@ -1,9 +1,14 @@
 import { Head, Link, usePage } from '@inertiajs/react';
-import { BellRing, ListChecks } from 'lucide-react';
+import { BellRing, LayoutDashboard, ListChecks } from 'lucide-react';
+import ExecutiveDashboardController from '@/actions/App/Http/Controllers/Reports/ExecutiveDashboardController';
+import OrderController from '@/actions/App/Http/Controllers/Orders/OrderController';
+import { Icon } from '@/components/opsone/icon';
 import { EmptyState } from '@/components/opsone/empty-state';
 import { PageHeader } from '@/components/opsone/page-header';
 import { SetupChecklist } from '@/components/org/setup-checklist';
 import type { SetupSummary } from '@/components/org/setup-checklist';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import TaskController from '@/actions/App/Http/Controllers/Tasks/TaskController';
 import { ExecHome } from '@/components/tasks/exec-home';
@@ -24,6 +29,18 @@ type TaskCardData = {
     items: TaskRow[];
 };
 type TaskCards = Record<string, TaskCardData | undefined>;
+
+type OrdersAttention = {
+    count: number;
+    capped: boolean;
+    items: {
+        id: number;
+        number: string;
+        customer: string;
+        stage: string;
+        days_late: number;
+    }[];
+};
 
 /** Real counts and the next rows of «مهامي» / «صندوق القسم», scoped by the server like the task lists. */
 function TaskCardBody({ id, data }: { id: string; data: TaskCardData }) {
@@ -85,9 +102,63 @@ function TaskCardBody({ id, data }: { id: string; data: TaskCardData }) {
     );
 }
 
+/** «Orders needing attention»: open orders whose current stage is past its due date, most late first. */
+function OrdersAttentionBody({ data }: { data: OrdersAttention }) {
+    const t = useT();
+
+    return (
+        <div
+            className="mt-3 flex flex-col gap-3"
+            data-test="home-widget-orders_attention-body"
+        >
+            <p className="text-title text-strong">
+                <span data-test="count">{data.count}</span>
+                {data.capped && <span aria-hidden="true">+</span>}
+            </p>
+            {data.items.length === 0 ? (
+                <p className="text-caption text-weak">
+                    {t('home.orders_attention.none')}
+                </p>
+            ) : (
+                <ul className="divide-y divide-stroke-weak">
+                    {data.items.map((order) => (
+                        <li
+                            key={order.id}
+                            className="flex items-center justify-between gap-3 py-2"
+                        >
+                            <div className="min-w-0">
+                                <Link
+                                    href={OrderController.show(order.id)}
+                                    className="font-semibold whitespace-nowrap text-link hover:underline"
+                                >
+                                    <bdi dir="ltr">{order.number}</bdi>
+                                </Link>
+                                <p className="truncate text-caption text-weak">
+                                    {order.customer} · {order.stage}
+                                </p>
+                            </div>
+                            <Badge variant="warning" className="shrink-0">
+                                {t('orders.stage.late', {
+                                    n: order.days_late,
+                                })}
+                            </Badge>
+                        </li>
+                    ))}
+                </ul>
+            )}
+            <Link
+                href={OrderController.index()}
+                className="text-link hover:underline"
+            >
+                {t('home.orders_attention.open_all')}
+            </Link>
+        </div>
+    );
+}
+
 /**
  * Work-center frame (SHR-01). Each section lists the widgets this user's permissions allow; domains fill a
- * widget with data later, until then it shows a placeholder.
+ * widget with data; a widget without data is not drawn (no placeholders on the home page).
  */
 function Section({
     id,
@@ -96,6 +167,7 @@ function Section({
     icon,
     widgets,
     cards,
+    attention,
 }: {
     id: 'tasks' | 'alerts';
     title: string;
@@ -103,8 +175,12 @@ function Section({
     icon: typeof ListChecks;
     widgets: string[];
     cards: TaskCards;
+    attention: OrdersAttention | null;
 }) {
     const t = useT();
+    const shown = widgets.filter((key) =>
+        key === 'orders_attention' ? attention !== null : Boolean(cards[key]),
+    );
 
     return (
         <section
@@ -118,7 +194,7 @@ function Section({
                 </h2>
                 <p className="text-body text-weak">{description}</p>
             </div>
-            {widgets.length === 0 ? (
+            {shown.length === 0 ? (
                 <Card>
                     <EmptyState
                         compact
@@ -128,7 +204,7 @@ function Section({
                 </Card>
             ) : (
                 <div className="grid gap-4 md:grid-cols-2">
-                    {widgets.map((key) => (
+                    {shown.map((key) => (
                         <Card
                             key={key}
                             className="p-5"
@@ -144,12 +220,12 @@ function Section({
                                     `home.widget.${key}.description` as TranslationKey,
                                 )}
                             </p>
-                            {cards[key] ? (
-                                <TaskCardBody id={key} data={cards[key]} />
+                            {key === 'orders_attention' && attention ? (
+                                <OrdersAttentionBody data={attention} />
                             ) : (
-                                <p className="mt-4 rounded-md bg-fill px-3 py-2 text-caption text-weak">
-                                    {t('home.widget.placeholder')}
-                                </p>
+                                cards[key] && (
+                                    <TaskCardBody id={key} data={cards[key]} />
+                                )
                             )}
                         </Card>
                     ))}
@@ -163,12 +239,16 @@ export default function Dashboard({
     setup,
     widgets,
     taskCards,
+    ordersAttention,
+    canExecutive,
     isExecutor,
     exec,
 }: {
     setup: SetupSummary | null;
     widgets: Widgets;
     taskCards: TaskCards;
+    ordersAttention: OrdersAttention | null;
+    canExecutive: boolean;
     isExecutor: boolean;
     exec: ExecHomeData | null;
 }) {
@@ -190,6 +270,16 @@ export default function Dashboard({
             <PageHeader
                 title={t('dashboard.title')}
                 description={t('dashboard.welcome', { name: auth.user.name })}
+                actions={
+                    canExecutive && (
+                        <Button asChild data-test="open-executive">
+                            <Link href={ExecutiveDashboardController.url()}>
+                                <Icon icon={LayoutDashboard} />
+                                {t('home.open_executive')}
+                            </Link>
+                        </Button>
+                    )
+                }
             />
             <div className="flex flex-col gap-8">
                 {setup && <SetupChecklist setup={setup} />}
@@ -200,6 +290,7 @@ export default function Dashboard({
                     icon={ListChecks}
                     widgets={widgets.tasks}
                     cards={taskCards}
+                    attention={ordersAttention}
                 />
                 <Section
                     id="alerts"
@@ -208,6 +299,7 @@ export default function Dashboard({
                     icon={BellRing}
                     widgets={widgets.alerts}
                     cards={taskCards}
+                    attention={ordersAttention}
                 />
             </div>
         </>

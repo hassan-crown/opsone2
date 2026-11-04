@@ -163,7 +163,10 @@ export default function InterestShow({
                         )}
                     </span>
                     {interest.branch && (
-                        <span className="text-weak">· {interest.branch}</span>
+                        <span className="text-weak">
+                            <span aria-hidden="true">· </span>
+                            {interest.branch}
+                        </span>
                     )}
                 </div>
                 <p className="whitespace-pre-line text-strong">
@@ -174,16 +177,24 @@ export default function InterestShow({
                         <dt className="text-caption text-weak">
                             {t('interests.form.mobile')}
                         </dt>
-                        <dd dir="ltr" className="text-start">
-                            {interest.mobile ?? '—'}
+                        <dd className="break-all">
+                            {interest.mobile ? (
+                                <bdi dir="ltr">{interest.mobile}</bdi>
+                            ) : (
+                                '—'
+                            )}
                         </dd>
                     </div>
                     <div>
                         <dt className="text-caption text-weak">
                             {t('interests.form.email')}
                         </dt>
-                        <dd dir="ltr" className="text-start">
-                            {interest.email ?? '—'}
+                        <dd className="break-all">
+                            {interest.email ? (
+                                <bdi dir="ltr">{interest.email}</bdi>
+                            ) : (
+                                '—'
+                            )}
                         </dd>
                     </div>
                     <div>

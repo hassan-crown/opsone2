@@ -219,17 +219,16 @@ export default function InterestsIndex({
                                 <tbody>
                                     {interests.map((i) => (
                                         <tr key={i.id} data-test="interest-row">
-                                            <Td
-                                                dir="ltr"
-                                                className="text-start"
-                                            >
+                                            <Td className="whitespace-nowrap">
                                                 <Link
                                                     href={InterestController.show(
                                                         i.id,
                                                     )}
                                                     className="text-link hover:underline"
                                                 >
-                                                    {i.reference}
+                                                    <bdi dir="ltr">
+                                                        {i.reference}
+                                                    </bdi>
                                                 </Link>
                                             </Td>
                                             <Td className="font-semibold">
@@ -254,7 +253,7 @@ export default function InterestsIndex({
                                                     )}
                                                 </Badge>
                                             </Td>
-                                            <Td>
+                                            <Td className="whitespace-nowrap">
                                                 {i.created_at
                                                     ? formatDate(
                                                           i.created_at,

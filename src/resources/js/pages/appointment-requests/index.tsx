@@ -1,18 +1,17 @@
 import { Head, Link } from '@inertiajs/react';
-import { CalendarPlus } from 'lucide-react';
+import { ArrowRight, CalendarPlus } from 'lucide-react';
 import AppointmentRequestController from '@/actions/App/Http/Controllers/AppointmentRequests/AppointmentRequestController';
-import {
-    RequestStatusBadge,
-    usePreferredLabel,
-} from '@/components/appointment-requests/parts';
+import { RequestStatusBadge } from '@/components/appointment-requests/parts';
 import { FilterBar } from '@/components/catalog/shared';
 import { EmptyState } from '@/components/opsone/empty-state';
+import { Icon } from '@/components/opsone/icon';
 import { PageHeader } from '@/components/opsone/page-header';
 import { Table, TableWrap, Td, Th } from '@/components/org/data-table';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
-import { useT } from '@/lib/i18n';
+import { formatDate } from '@/lib/format';
+import { useLocale, useT } from '@/lib/i18n';
 import type { TranslationKey } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 import type { AppointmentRequestRow } from '@/types/appointment-requests';
@@ -26,6 +25,55 @@ type Props = {
     branches: { id: number; name: string }[];
 };
 
+/** Facility wall-clock values (`Y-m-d` / `Y-m-d H:i`) read as local time, never shifted by UTC parsing. */
+const wall = (value: string) =>
+    value.length === 10 ? `${value}T00:00` : value.replace(' ', 'T');
+
+const SHORT_DAY: Intl.DateTimeFormatOptions = {
+    day: 'numeric',
+    month: 'short',
+};
+
+/** «From → to · time of day»: each date isolated, the arrow mirrored with the reading direction. */
+function Preferred({ row }: { row: AppointmentRequestRow }) {
+    const t = useT();
+    const { locale } = useLocale();
+    const from = row.preferred_from;
+    const to = row.preferred_to;
+
+    if (!from && !row.time_of_day) {
+        return <>—</>;
+    }
+
+    return (
+        <span className="flex flex-col">
+            {from && (
+                <span className="inline-flex items-center gap-x-1.5 whitespace-nowrap">
+                    <bdi>{formatDate(wall(from), locale, SHORT_DAY)}</bdi>
+                    {to && to !== from && (
+                        <>
+                            <Icon
+                                icon={ArrowRight}
+                                size="sm"
+                                className="text-weak"
+                                label={t('appointment_requests.range_to')}
+                            />
+                            <bdi>{formatDate(wall(to), locale, SHORT_DAY)}</bdi>
+                        </>
+                    )}
+                </span>
+            )}
+            {row.time_of_day && (
+                <span className="text-caption text-weak">
+                    {t(
+                        `appointment_requests.time.${row.time_of_day}` as TranslationKey,
+                    )}
+                </span>
+            )}
+        </span>
+    );
+}
+
 const TABS: StatusFilter[] = ['open', 'new', 'assigned', 'scheduled', 'closed'];
 
 /** The appointment request queue (ADR-0039): customers ask, staff call and book. Scoped by P-54. */
@@ -36,7 +84,12 @@ export default function AppointmentRequestsIndex({
     branches,
 }: Props) {
     const t = useT();
-    const preferred = usePreferredLabel();
+    const { locale } = useLocale();
+    const dateTime = (value: string) =>
+        formatDate(wall(value), locale, {
+            dateStyle: 'medium',
+            timeStyle: 'short',
+        });
     const url = AppointmentRequestController.index.url();
     const count = (tab: StatusFilter) =>
         tab === 'open' ? counts.new + counts.assigned : counts[tab];
@@ -180,8 +233,12 @@ export default function AppointmentRequestsIndex({
                                             <div>{r.name}</div>
                                             <div className="text-caption text-weak">
                                                 <bdi dir="ltr">{r.phone}</bdi>
-                                                {r.city ? ` · ${r.city}` : ''}
                                             </div>
+                                            {r.city && (
+                                                <div className="text-caption text-weak">
+                                                    {r.city}
+                                                </div>
+                                            )}
                                         </Td>
                                         <Td>
                                             {t(
@@ -193,12 +250,8 @@ export default function AppointmentRequestsIndex({
                                                 )}
                                             </div>
                                         </Td>
-                                        <Td className="whitespace-nowrap">
-                                            {preferred(
-                                                r.preferred_from,
-                                                r.preferred_to,
-                                                r.time_of_day,
-                                            )}
+                                        <Td>
+                                            <Preferred row={r} />
                                         </Td>
                                         <Td>
                                             {r.assignee?.name ??
@@ -209,8 +262,8 @@ export default function AppointmentRequestsIndex({
                                         <Td className="whitespace-nowrap">
                                             {r.due_at ? (
                                                 <span className="inline-flex items-center gap-2">
-                                                    <bdi dir="ltr">
-                                                        {r.due_at}
+                                                    <bdi>
+                                                        {dateTime(r.due_at)}
                                                     </bdi>
                                                     {r.overdue && (
                                                         <Badge variant="danger">
@@ -230,7 +283,7 @@ export default function AppointmentRequestsIndex({
                                             />
                                         </Td>
                                         <Td className="whitespace-nowrap">
-                                            <bdi dir="ltr">{r.created_at}</bdi>
+                                            <bdi>{dateTime(r.created_at)}</bdi>
                                         </Td>
                                     </tr>
                                 ))}

@@ -54,6 +54,26 @@ class OrderStage extends Model implements ScopedRecord
         return $this->hasMany(OrderAction::class)->orderBy('position');
     }
 
+    /**
+     * The date the stage should be done by: the workshop's date when set (ADR-0038), else started + target days.
+     */
+    public function dueOn(): ?CarbonInterface
+    {
+        return $this->expected_on
+            ?? ($this->started_at !== null && $this->target_days !== null ? $this->started_at->copy()->addDays($this->target_days)->startOfDay() : null);
+    }
+
+    /**
+     * Whole days an open stage is past its due date (0 when on time, done, or without a target).
+     */
+    public function daysLate(?CarbonInterface $today = null): int
+    {
+        $due = $this->dueOn();
+        $today ??= now()->startOfDay();
+
+        return $due !== null && $this->completed_at === null && $due->lt($today) ? (int) $due->diffInDays($today) : 0;
+    }
+
     public function accessBranchIds(): array
     {
         return [$this->order->branch_id];
