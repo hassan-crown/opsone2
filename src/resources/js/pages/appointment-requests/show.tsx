@@ -57,11 +57,7 @@ export default function AppointmentRequestShow({
                         href={AppointmentRequestController.index.url()}
                         className="inline-flex min-h-11 items-center gap-1 text-link hover:underline"
                     >
-                        <Icon
-                            icon={ArrowLeft}
-                            size="sm"
-                            className="rtl:rotate-180"
-                        />
+                        <Icon icon={ArrowLeft} size="sm" />
                         {t('appointment_requests.show.back')}
                     </Link>
                 }

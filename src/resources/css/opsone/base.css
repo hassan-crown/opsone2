@@ -35,6 +35,13 @@
     --o1-lh-caption: 22px;
 }
 
+/* iOS Safari zooms into any field under 16px and never zooms back; touch screens get 16px controls. */
+@media (pointer: coarse) {
+    :root {
+        --o1-fs-control: 16px;
+    }
+}
+
 /* Form controls: border → brand border + halo on focus; invalid → danger. Shared by every field. */
 @utility field-control {
     min-height: var(--control-height);
@@ -52,8 +59,11 @@
         opacity: 1;
         font-weight: 400;
     }
-    &:hover:not(:disabled):not(:focus) {
-        border-color: var(--text-weak);
+    /* Touch has no hover: without the guard the border sticks after a tap. */
+    @media (hover: hover) and (pointer: fine) {
+        &:hover:not(:disabled):not(:focus) {
+            border-color: var(--text-weak);
+        }
     }
     &:focus {
         outline: 2px solid transparent;
@@ -87,6 +97,23 @@
 @layer base {
     * {
         @apply border-border;
+    }
+
+    /* Native feel on touch: no grey tap flash, no 300ms double-tap-zoom wait on controls. */
+    html {
+        -webkit-tap-highlight-color: transparent;
+    }
+    button,
+    a,
+    label,
+    summary,
+    [role='button'] {
+        touch-action: manipulation;
+    }
+
+    /* Field app (installed PWA): no rubber-band or pull-to-refresh tearing the sticky header. */
+    html[data-app='field'] {
+        overscroll-behavior-y: none;
     }
 
     body {
