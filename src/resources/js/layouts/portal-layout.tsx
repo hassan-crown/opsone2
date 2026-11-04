@@ -1,11 +1,10 @@
-import { Form, Link, router, usePage } from '@inertiajs/react';
+import { Link, router, usePage } from '@inertiajs/react';
 import {
     Bell,
     FileText,
     House,
     LifeBuoy,
     Languages,
-    LogOut,
     Package,
     Settings,
 } from 'lucide-react';
@@ -20,7 +19,6 @@ import { cn } from '@/lib/utils';
 import {
     home,
     locale as localeRoute,
-    logout,
     notifications,
     settings,
 } from '@/routes/customer';
@@ -30,6 +28,7 @@ import { index as ticketsIndex } from '@/routes/customer/tickets';
 import type { PortalShared } from '@/types/portal';
 
 const NAMES: Record<Locale, string> = { ar: 'العربية', en: 'English' };
+const SHORT: Record<Locale, string> = { ar: 'ع', en: 'EN' };
 
 type NavItem = { label: TranslationKey; href: string; icon: LucideIcon };
 
@@ -38,9 +37,13 @@ export function usePortal(): PortalShared {
 }
 
 /**
- * The customer workspace frame (WEB-09): the facility's name, language, and for a signed-in customer the five
- * workspace sections (a bottom bar on phones, a row of tabs from md up). No staff navigation or OpsOne admin chrome;
- * a small «by OpsOne» credit in the footer (Q-49 a).
+ * The customer workspace frame (WEB-09): the facility's name, language, and for a signed-in customer the four
+ * workspace sections (a bottom bar on phones, a row of tabs from md up) with updates and settings (which holds
+ * sign-out) as header icons. No staff navigation or OpsOne admin chrome; a small «by OpsOne» credit in the footer
+ * (Q-49 a).
+ *
+ * `--portal-bar` is the height the bottom bar covers (safe area included, zero from md up): page content pads by it
+ * and anything sticky to the bottom of a page sits above it.
  */
 export default function PortalLayout({ children }: { children: ReactNode }) {
     const t = useT();
@@ -63,6 +66,8 @@ export default function PortalLayout({ children }: { children: ReactNode }) {
             href: ticketsIndex().url,
             icon: LifeBuoy,
         },
+    ];
+    const tools: NavItem[] = [
         { label: 'portal.nav.updates', href: notifications().url, icon: Bell },
         { label: 'portal.nav.settings', href: settings().url, icon: Settings },
     ];
@@ -76,7 +81,13 @@ export default function PortalLayout({ children }: { children: ReactNode }) {
     };
 
     return (
-        <div className="flex min-h-dvh flex-col bg-background">
+        <div
+            className={cn(
+                'flex min-h-dvh flex-col bg-background [--portal-bar:0px]',
+                customer &&
+                    'max-md:[--portal-bar:calc(3.5rem+env(safe-area-inset-bottom))]',
+            )}
+        >
             <a
                 href="#portal-main"
                 className="sr-only focus:not-sr-only focus:absolute focus:start-2 focus:top-2 focus:z-50 focus:rounded-md focus:bg-surface focus:p-2"
@@ -87,7 +98,7 @@ export default function PortalLayout({ children }: { children: ReactNode }) {
                 <div className="mx-auto flex min-h-14 max-w-3xl items-center gap-2 px-4">
                     <Link
                         href={customer ? home().url : '/'}
-                        className="me-auto truncate text-subtitle text-strong"
+                        className="me-auto line-clamp-2 min-w-0 py-1 text-subtitle break-words text-strong max-sm:text-label"
                     >
                         {facility ?? t('portal.title')}
                     </Link>
@@ -105,26 +116,34 @@ export default function PortalLayout({ children }: { children: ReactNode }) {
                                 { preserveScroll: true },
                             )
                         }
-                        className="px-3 text-strong"
+                        className="shrink-0 px-3 text-strong"
                     >
                         <Icon icon={Languages} />
-                        <span>{NAMES[target]}</span>
+                        <span className="max-sm:hidden">{NAMES[target]}</span>
+                        <span className="sm:hidden" aria-hidden="true">
+                            {SHORT[target]}
+                        </span>
                     </Button>
-                    {customer && (
-                        <Form {...logout.form()}>
-                            <Button
-                                type="submit"
-                                variant="ghost"
-                                aria-label={t('portal.sign_out')}
-                                className="px-3"
+                    {customer &&
+                        tools.map((item) => (
+                            <Link
+                                key={item.href}
+                                href={item.href}
+                                aria-label={t(item.label)}
+                                title={t(item.label)}
+                                aria-current={
+                                    active(item.href) ? 'page' : undefined
+                                }
+                                className={cn(
+                                    'inline-flex size-11 shrink-0 items-center justify-center rounded-md hover:bg-hover',
+                                    active(item.href)
+                                        ? 'bg-brand-subtle text-brand-subtle-text'
+                                        : 'text-strong',
+                                )}
                             >
-                                <Icon icon={LogOut} />
-                                <span className="max-sm:sr-only">
-                                    {t('portal.sign_out')}
-                                </span>
-                            </Button>
-                        </Form>
-                    )}
+                                <Icon icon={item.icon} />
+                            </Link>
+                        ))}
                 </div>
                 {customer && (
                     <nav
@@ -154,22 +173,19 @@ export default function PortalLayout({ children }: { children: ReactNode }) {
 
             <main
                 id="portal-main"
-                className={cn(
-                    'mx-auto w-full max-w-3xl flex-1 px-4 py-6',
-                    customer && 'max-md:pb-28',
-                )}
+                className="mx-auto w-full max-w-3xl flex-1 px-4 py-6"
             >
                 {children}
             </main>
 
-            <footer className="mx-auto w-full max-w-3xl px-4 pb-6 text-center text-caption text-weak max-md:pb-24">
+            <footer className="mx-auto w-full max-w-3xl px-4 pb-[calc(var(--portal-bar)+1.5rem)] text-center text-caption text-weak">
                 {t('portal.powered_by')}
             </footer>
 
             {customer && (
                 <nav
                     aria-label={t('ui.main_nav')}
-                    className="fixed inset-x-0 bottom-0 z-20 grid grid-cols-6 border-t border-stroke-weak bg-surface pb-[env(safe-area-inset-bottom)] md:hidden"
+                    className="fixed inset-x-0 bottom-0 z-20 grid grid-cols-4 border-t border-stroke-weak bg-surface pb-[env(safe-area-inset-bottom)] md:hidden"
                 >
                     {nav.map((item) => (
                         <Link
@@ -179,14 +195,16 @@ export default function PortalLayout({ children }: { children: ReactNode }) {
                                 active(item.href) ? 'page' : undefined
                             }
                             className={cn(
-                                'flex min-h-14 flex-col items-center justify-center gap-1 px-0.5 text-[0.6875rem] leading-tight',
+                                'flex min-h-14 min-w-0 flex-col items-center justify-center gap-0.5 px-1 text-caption select-none [-webkit-tap-highlight-color:transparent] [-webkit-touch-callout:none]',
                                 active(item.href)
-                                    ? 'text-brand'
-                                    : 'text-weak hover:text-strong',
+                                    ? 'font-semibold text-brand'
+                                    : 'text-weak active:text-strong',
                             )}
                         >
                             <Icon icon={item.icon} />
-                            <span className="truncate">{t(item.label)}</span>
+                            <span className="max-w-full truncate">
+                                {t(item.label)}
+                            </span>
                         </Link>
                     ))}
                 </nav>

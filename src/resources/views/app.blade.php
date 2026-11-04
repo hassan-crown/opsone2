@@ -9,7 +9,8 @@
 <html lang="{{ str_replace('_', '-', $locale) }}" dir="{{ \App\Http\Middleware\SetLocale::direction($locale) }}" data-theme="{{ $theme }}" @class(['dark' => $theme === 'dark'])>
     <head>
         <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
+        {{-- UI batch D (portal): edge to edge on notched phones; the portal pads its bottom bar by the safe area. --}}
+        <meta name="viewport" content="width=device-width, initial-scale=1{{ request()->routeIs('customer.*') ? ', viewport-fit=cover' : '' }}">
 
         {{-- Resolve "system" (and prefers-contrast) before first paint so there is no flash. --}}
         <script>

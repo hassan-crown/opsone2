@@ -5,6 +5,7 @@ import {
     TextareaField,
     TextField,
 } from '@/components/opsone/field';
+import { DateText } from '@/components/portal/parts';
 import { Alert, AlertBody } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -244,13 +245,16 @@ export default function PortalAppointmentRequest({
                             key={r.id}
                             className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-stroke-weak bg-card p-3"
                         >
-                            <span className="text-label text-strong">
-                                <bdi dir="ltr">{r.reference}</bdi> ·{' '}
-                                {t(
-                                    `appointments.kind.${r.kind}` as TranslationKey,
-                                )}
-                                <span className="ms-2 text-caption text-weak">
-                                    <bdi dir="ltr">{r.created_at}</bdi>
+                            <span className="min-w-0">
+                                <span className="block text-label text-strong">
+                                    {t(
+                                        `appointments.kind.${r.kind}` as TranslationKey,
+                                    )}
+                                </span>
+                                <span className="block text-caption text-weak">
+                                    <bdi dir="ltr">{r.reference}</bdi>
+                                    {t('portal.sep')}
+                                    <DateText value={r.created_at} />
                                 </span>
                             </span>
                             <Badge
