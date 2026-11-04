@@ -6578,5 +6578,12 @@
     "notifications.type.field_sales_team_overdue.title": "عمل متأخر في فريقك الميداني",
     "notifications.type.field_sales_team_overdue.body": ":rep: :what تجاوز وقته.",
     "automation.trigger.lead.dispatched_to_rep": "إسناد عميل محتمل لبائع ميداني",
-    "automation.trigger.field_visit.completed": "إنهاء البائع الميداني زيارة بيع"
+    "automation.trigger.field_visit.completed": "إنهاء البائع الميداني زيارة بيع",
+    "account.plan.name.scale": "توسّع",
+    "finance.home.filter.label": "تصفية المتابعة المالية",
+    "coupons.uses_unlimited": "الاستخدام :uses · بلا حد",
+    "links.url": "رابط السلة",
+    "links.copied": "نُسخ الرابط",
+    "links.copy_failed": "تعذّر نسخ الرابط",
+    "links.copy_failed_hint": "حدّد الرابط من الحقل وانسخه يدويًا."
 }

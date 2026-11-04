@@ -9,6 +9,7 @@ import {
     TextField,
 } from '@/components/opsone/field';
 import { PageHeader } from '@/components/opsone/page-header';
+import { TableWrap } from '@/components/org/data-table';
 import {
     ChangeSummary,
     ReleaseChanges,
@@ -61,6 +62,8 @@ type PlanPreview = {
         basis: string;
         event: string;
         stage_key: string | null;
+        /** The stage's name for a `stage.started` trigger. */
+        stage?: string | null;
         offset_days: number;
         grace_days: number;
         amount_minor: number;
@@ -370,66 +373,83 @@ function PreviewResult({ preview }: { preview: Preview }) {
         <div className="grid gap-4" data-test="preview-result">
             <div className="grid gap-3 lg:grid-cols-2">
                 {(['draft', 'published'] as const).map((side) => (
-                    <div key={side} className="grid content-start gap-2">
+                    <div
+                        key={side}
+                        className="grid min-w-0 content-start gap-2"
+                    >
                         <h3 className="text-label text-strong">
                             {t(`rules.releases.side.${side}` as TranslationKey)}
                         </h3>
                         {preview.plans[side].map((plan) => (
-                            <table
+                            <TableWrap
                                 key={plan.key}
-                                className="w-full text-caption"
-                                data-test={`preview-plan-${side}`}
+                                className="rounded-md border border-stroke-weak"
                             >
-                                <caption className="mb-1 text-start text-label">
-                                    {plan.name}
-                                    {plan.is_default &&
-                                        ` · ${t('rules.plans.default')}`}
-                                    {plan.builtin &&
-                                        ` · ${t('rules.releases.builtin')}`}
-                                </caption>
-                                <tbody>
-                                    {plan.dues.map((due) => (
-                                        <tr
-                                            key={due.key}
-                                            className="border-t border-stroke-weak"
-                                        >
-                                            <td className="py-1">
-                                                {due.name}
-                                                {due.share !== null &&
-                                                    ` (${due.share}${due.basis === 'percent' ? '%' : ''})`}
+                                <table
+                                    className="w-full min-w-80 text-caption"
+                                    data-test={`preview-plan-${side}`}
+                                >
+                                    <caption className="px-3 pt-2 pb-1 text-start text-label">
+                                        {plan.name}
+                                        {plan.is_default &&
+                                            ` · ${t('rules.plans.default')}`}
+                                        {plan.builtin &&
+                                            ` · ${t('rules.releases.builtin')}`}
+                                    </caption>
+                                    <tbody>
+                                        {plan.dues.map((due) => (
+                                            <tr
+                                                key={due.key}
+                                                className="border-t border-stroke-weak"
+                                            >
+                                                <td className="px-3 py-1.5">
+                                                    {due.name}
+                                                    {due.share !== null && (
+                                                        <>
+                                                            {' '}
+                                                            <bdi className="tabular-nums">
+                                                                ({due.share}
+                                                                {due.basis ===
+                                                                'percent'
+                                                                    ? '%'
+                                                                    : ''}
+                                                                )
+                                                            </bdi>
+                                                        </>
+                                                    )}
+                                                </td>
+                                                <td className="px-3 py-1.5 text-weak">
+                                                    {dueWhen(t, due)}
+                                                </td>
+                                                <td className="px-3 py-1.5 text-end">
+                                                    <Amount
+                                                        value={
+                                                            due.amount_minor /
+                                                            100
+                                                        }
+                                                    />
+                                                </td>
+                                            </tr>
+                                        ))}
+                                        <tr className="border-t border-stroke-weak font-semibold">
+                                            <td
+                                                className="px-3 py-1.5"
+                                                colSpan={2}
+                                            >
+                                                {t('rules.releases.total')}
                                             </td>
-                                            <td className="py-1 text-weak">
-                                                {t(
-                                                    `finance.event.${due.event}` as TranslationKey,
-                                                )}
-                                                {due.stage_key !== null && (
-                                                    <bdi dir="ltr">{` ${due.stage_key}`}</bdi>
-                                                )}
-                                                {due.offset_days > 0 &&
-                                                    ` +${due.offset_days}`}
-                                            </td>
-                                            <td className="py-1 text-end">
+                                            <td className="px-3 py-1.5 text-end">
                                                 <Amount
                                                     value={
-                                                        due.amount_minor / 100
+                                                        plan.total_minor / 100
                                                     }
+                                                    strong
                                                 />
                                             </td>
                                         </tr>
-                                    ))}
-                                    <tr className="border-t border-stroke-weak font-semibold">
-                                        <td className="py-1" colSpan={2}>
-                                            {t('rules.releases.total')}
-                                        </td>
-                                        <td className="py-1 text-end">
-                                            <Amount
-                                                value={plan.total_minor / 100}
-                                                strong
-                                            />
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                                    </tbody>
+                                </table>
+                            </TableWrap>
                         ))}
                         {(['quote', 'contract'] as const).map((kind) => (
                             <div key={kind}>
@@ -502,3 +522,20 @@ Releases.layout = {
         { title: 'rules.releases.title', href: releasesRoute() },
     ],
 };
+
+/** When a previewed due falls due, in words: «When the “Install” stage starts + 3 days». */
+function dueWhen(
+    t: ReturnType<typeof useT>,
+    due: PlanPreview['dues'][number],
+): string {
+    const when =
+        due.event === 'stage.started'
+            ? t('esign.pdf.due.stage.started', {
+                  stage: due.stage ?? due.stage_key ?? '',
+              })
+            : t(`finance.event.${due.event}` as TranslationKey);
+
+    return due.offset_days > 0
+        ? t('finance.plans.offset', { when, days: due.offset_days })
+        : when;
+}

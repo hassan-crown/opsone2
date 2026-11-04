@@ -4,6 +4,7 @@ import { Amount } from '@/components/opsone/amount';
 import { EmptyState } from '@/components/opsone/empty-state';
 import { Icon } from '@/components/opsone/icon';
 import { PageHeader } from '@/components/opsone/page-header';
+import { Ref } from '@/components/opsone/ref';
 import { StoreNav } from '@/components/store/store-nav';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -82,12 +83,9 @@ export default function Coupons({
                         >
                             <div className="grid gap-1">
                                 <div className="flex flex-wrap items-center gap-2">
-                                    <span
-                                        dir="ltr"
-                                        className="font-mono font-semibold"
-                                    >
+                                    <Ref className="font-semibold">
                                         {c.code}
-                                    </span>
+                                    </Ref>
                                     <Badge variant={VARIANT[c.status]}>
                                         {t(
                                             `coupons.status.${c.status}` as TranslationKey,
@@ -98,22 +96,28 @@ export default function Coupons({
                                 <span className="text-caption text-weak">
                                     {c.kind === 'percent' ? (
                                         t('coupons.percent_off', {
-                                            value: c.value / 100,
+                                            value: isolate(c.value / 100),
                                         })
                                     ) : (
                                         <Amount value={c.value / 100} />
                                     )}
                                     {' · '}
-                                    {t('coupons.uses', {
-                                        uses: c.uses,
-                                        max: c.max_uses ?? '∞',
-                                    })}
+                                    {c.max_uses === null
+                                        ? t('coupons.uses_unlimited', {
+                                              uses: isolate(c.uses),
+                                          })
+                                        : t('coupons.uses', {
+                                              uses: isolate(c.uses),
+                                              max: isolate(c.max_uses),
+                                          })}
                                     {c.max_uses_per_customer !== null && (
                                         <>
                                             {' '}
                                             ·{' '}
                                             {t('coupons.per_customer', {
-                                                max: c.max_uses_per_customer,
+                                                max: isolate(
+                                                    c.max_uses_per_customer,
+                                                ),
                                             })}
                                         </>
                                     )}
@@ -152,4 +156,9 @@ export default function Coupons({
             )}
         </>
     );
+}
+
+/** A number inside a translated sentence keeps its own direction (U+2068 … U+2069, as `<bdi>` does). */
+function isolate(value: number): string {
+    return `\u2068${value}\u2069`;
 }

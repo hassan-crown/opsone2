@@ -51,7 +51,9 @@ final class ConfigPreview
             $plans = [['key' => PaymentPlans::FALLBACK, 'name' => $fallback['name'], 'is_default' => true, 'lines' => $fallback['lines'], 'builtin' => true]];
         }
 
-        return array_values(array_map(function (array $plan) use ($value, $locale) {
+        $stages = array_column(PaymentPlans::stageOptions(), 'name', 'key');
+
+        return array_values(array_map(function (array $plan) use ($value, $locale, $stages) {
             $amounts = OrderSchedule::preview($plan['lines'], $value);
 
             return [
@@ -66,6 +68,7 @@ final class ConfigPreview
                     'basis' => $line['basis'],
                     'event' => $line['event'],
                     'stage_key' => $line['stage_key'],
+                    'stage' => $line['stage_key'] === null ? null : ($stages[$line['stage_key']] ?? (string) $line['stage_key']),
                     'offset_days' => (int) $line['offset_days'],
                     'grace_days' => (int) $line['grace_days'],
                     'amount_minor' => $amount,

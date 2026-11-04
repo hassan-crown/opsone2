@@ -99,10 +99,9 @@ export function CorrectionMove({ correction: c }: { correction: Correction }) {
     return (
         <>
             {t('commissions.corrections.move', {
-                from: owner
-                    ? (c.from ?? '')
-                    : `${bpToPercent(c.from_rate_bp)}%`,
-                to: owner ? (c.to ?? '') : `${bpToPercent(c.to_rate_bp)}%`,
+                // U+2068/U+2069 isolate each side so «5%» stays «5%» in an Arabic sentence.
+                from: `\u2068${owner ? (c.from ?? '') : `${bpToPercent(c.from_rate_bp)}%`}\u2069`,
+                to: `\u2068${owner ? (c.to ?? '') : `${bpToPercent(c.to_rate_bp)}%`}\u2069`,
             })}
         </>
     );

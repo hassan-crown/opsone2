@@ -1,5 +1,5 @@
 import { Link, router, usePage } from '@inertiajs/react';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import AppointmentRequestSettingsController from '@/actions/App/Http/Controllers/AppointmentRequests/AppointmentRequestSettingsController';
 import AutomationRuleController from '@/actions/App/Http/Controllers/Rules/AutomationRuleController';
 import FieldSalesSettingsController from '@/actions/App/Http/Controllers/FieldSales/FieldSalesSettingsController';
@@ -61,23 +61,34 @@ export function RulesNav({
     canEdit: boolean;
 }) {
     const t = useT();
+    // On a phone the tabs scroll sideways: bring the current one into view without moving the page.
+    const showCurrent = useCallback((el: HTMLAnchorElement | null) => {
+        el?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+    }, []);
 
     return (
         <div className="mb-6 space-y-4">
-            <nav aria-label={t('rules.section')}>
-                <ul className="flex flex-wrap gap-2">
+            <nav
+                aria-label={t('rules.section')}
+                className="-mx-4 border-b border-stroke-weak px-4 md:mx-0 md:px-0"
+            >
+                <ul className="flex [scrollbar-width:none] gap-1 overflow-x-auto">
                     {RULES_PAGES.map((page) => (
-                        <li key={page.key}>
+                        <li key={page.key} className="shrink-0">
                             <Link
                                 href={page.href()}
+                                ref={
+                                    page.key === current
+                                        ? showCurrent
+                                        : undefined
+                                }
                                 aria-current={
                                     page.key === current ? 'page' : undefined
                                 }
                                 className={cn(
-                                    'inline-flex min-h-9 items-center rounded-md border px-3 text-label no-underline',
-                                    page.key === current
-                                        ? 'border-brand bg-brand-subtle text-brand-subtle-text'
-                                        : 'border-stroke-weak text-strong hover:bg-hover',
+                                    'relative inline-flex min-h-11 items-center rounded-t-md px-3 text-control whitespace-nowrap text-weak no-underline hover:bg-hover hover:text-strong focus-visible:-outline-offset-2',
+                                    page.key === current &&
+                                        'font-semibold text-strong after:absolute after:inset-x-2 after:bottom-0 after:h-0.5 after:rounded-xs after:bg-brand',
                                 )}
                             >
                                 {t(`rules.nav.${page.key}` as TranslationKey)}

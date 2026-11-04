@@ -4,9 +4,13 @@ import { EmptyState } from '@/components/opsone/empty-state';
 import { SelectField, TextField } from '@/components/opsone/field';
 import { Icon } from '@/components/opsone/icon';
 import { PageHeader } from '@/components/opsone/page-header';
+import { Ref } from '@/components/opsone/ref';
+import { notify } from '@/components/opsone/toast';
 import { StoreNav } from '@/components/store/store-nav';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { useClipboard } from '@/hooks/use-clipboard';
 import { formatDateTime } from '@/lib/format';
 import { useLocale, useT } from '@/lib/i18n';
 import type { TranslationKey } from '@/lib/i18n';
@@ -67,6 +71,14 @@ export default function Links({
         hours: String(settings.link_hours_default),
         note: '',
     });
+    const [, copy] = useClipboard();
+    const copyLink = async (url: string) =>
+        (await copy(url))
+            ? notify('success', { title: t('links.copied') })
+            : notify('danger', {
+                  title: t('links.copy_failed'),
+                  message: t('links.copy_failed_hint'),
+              });
 
     return (
         <>
@@ -232,9 +244,7 @@ export default function Links({
                             className="grid gap-2 rounded-lg border border-stroke-weak bg-surface p-4"
                         >
                             <div className="flex flex-wrap items-center justify-between gap-2">
-                                <span dir="ltr" className="font-mono">
-                                    {l.number}
-                                </span>
+                                <Ref>{l.number}</Ref>
                                 <Badge variant={VARIANT[l.status]}>
                                     {t(
                                         `links.status.${l.status}` as TranslationKey,
@@ -250,27 +260,41 @@ export default function Links({
                                     <>
                                         {' '}
                                         ·{' '}
-                                        {t('links.order', { number: l.order })}
+                                        {t('links.order', {
+                                            number: `\u2068${l.order}\u2069`,
+                                        })}
                                     </>
                                 )}
                             </span>
                             {l.note && (
                                 <span className="text-caption">{l.note}</span>
                             )}
-                            <div className="flex flex-wrap gap-2">
-                                {l.url && (
+                            {l.url && (
+                                <div className="flex min-w-0 gap-2">
+                                    <Input
+                                        readOnly
+                                        dir="ltr"
+                                        value={l.url}
+                                        aria-label={t('links.url')}
+                                        className="min-w-0 flex-1 font-mono text-caption"
+                                        onFocus={(e) =>
+                                            e.currentTarget.select()
+                                        }
+                                        data-test="link-url"
+                                    />
                                     <Button
                                         variant="outline"
+                                        className="shrink-0"
                                         onClick={() =>
-                                            void navigator.clipboard?.writeText(
-                                                l.url ?? '',
-                                            )
+                                            void copyLink(l.url ?? '')
                                         }
                                     >
                                         <Icon icon={Copy} />
                                         {t('links.copy')}
                                     </Button>
-                                )}
+                                </div>
+                            )}
+                            <div className="flex flex-wrap gap-2">
                                 {l.status === 'active' && (
                                     <>
                                         <Button

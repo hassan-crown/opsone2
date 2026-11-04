@@ -1,4 +1,4 @@
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
 import { BellRing, FileText, Receipt, TrendingUp } from 'lucide-react';
 import { useState } from 'react';
 import CollectionReportController from '@/actions/App/Http/Controllers/Finance/CollectionReportController';
@@ -6,6 +6,8 @@ import FinanceHomeController from '@/actions/App/Http/Controllers/Finance/Financ
 import OrderFinanceController from '@/actions/App/Http/Controllers/Finance/OrderFinanceController';
 import ExternalDocumentController from '@/actions/App/Http/Controllers/Settlement/ExternalDocumentController';
 import { toMajor } from '@/components/agreement/money';
+import { Pager } from '@/components/customers/pager';
+import type { Meta } from '@/components/customers/types';
 import { Shell } from '@/components/finance/dialogs';
 import type { ReminderRecipient, WorkItem } from '@/components/finance/types';
 import { useFinanceCall } from '@/components/finance/use-finance-call';
@@ -13,10 +15,12 @@ import { Amount } from '@/components/opsone/amount';
 import { EmptyState } from '@/components/opsone/empty-state';
 import { Icon } from '@/components/opsone/icon';
 import { PageHeader } from '@/components/opsone/page-header';
+import { Ref } from '@/components/opsone/ref';
 import { notify } from '@/components/opsone/toast';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { Table, TableWrap, Td, Th } from '@/components/org/data-table';
 import { formatDate } from '@/lib/format';
 import { useLocale, useT } from '@/lib/i18n';
 import type { TranslationKey } from '@/lib/i18n';
@@ -26,9 +30,22 @@ type Kind = WorkItem['kind'];
 type Props = {
     items: WorkItem[];
     counts: Record<Kind, number>;
+    kind: Kind | 'all';
+    meta: Meta;
     can_report: boolean;
     can_invoices?: boolean;
 };
+
+/** «All» leaves out unallocated money: it has its own tab, last, so overdue rows are not buried under it. */
+const KINDS = [
+    'all',
+    'overdue',
+    'due',
+    'proof',
+    'refund',
+    'dispute',
+    'settlement',
+] as const;
 
 const TONE: Record<Kind, 'danger' | 'warning' | 'info' | 'neutral'> = {
     overdue: 'danger',
@@ -46,18 +63,31 @@ const TONE: Record<Kind, 'danger' | 'warning' | 'info' | 'neutral'> = {
 export default function FinanceHome({
     items,
     counts,
+    kind,
+    meta,
     can_report,
     can_invoices,
 }: Props) {
     const t = useT();
     const { locale } = useLocale();
-    const [filter, setFilter] = useState<Kind | 'all'>('all');
     const [selected, setSelected] = useState<number[]>([]);
     const [preview, setPreview] = useState<ReminderRecipient[] | null>(null);
     const previewing = useFinanceCall<{ recipients: ReminderRecipient[] }>();
     const sending = useFinanceCall<{ sent: number }>();
-    const shown =
-        filter === 'all' ? items : items.filter((i) => i.kind === filter);
+    const allCount = KINDS.reduce(
+        (sum, k) => (k === 'all' || k === 'settlement' ? sum : sum + counts[k]),
+        0,
+    );
+    const showKind = (k: Kind | 'all') =>
+        router.get(
+            FinanceHomeController.index.url(),
+            k === 'all' ? {} : { kind: k },
+            { preserveScroll: true, preserveState: true },
+        );
+    const age = (item: WorkItem) =>
+        item.kind === 'overdue'
+            ? t('finance.home.overdue_days', { days: item.age_days })
+            : formatDate(item.date, locale);
 
     const toggle = (id: number) =>
         setSelected(
@@ -133,161 +163,194 @@ export default function FinanceHome({
                 }
             />
             <div
-                className="mb-4 flex flex-wrap gap-2"
+                className="-mx-4 mb-4 flex gap-2 overflow-x-auto px-4 pb-1 md:mx-0 md:flex-wrap md:px-0"
                 role="tablist"
+                aria-label={t('finance.home.filter.label')}
                 data-test="work-filters"
             >
-                {(
-                    [
-                        'all',
-                        'overdue',
-                        'due',
-                        'proof',
-                        'settlement',
-                        'refund',
-                        'dispute',
-                    ] as const
-                ).map((k) => (
+                {KINDS.map((k) => (
                     <Button
                         key={k}
                         type="button"
                         role="tab"
-                        aria-selected={filter === k}
-                        variant={filter === k ? 'default' : 'secondary'}
+                        aria-selected={kind === k}
+                        variant={kind === k ? 'default' : 'secondary'}
                         size="sm"
-                        onClick={() => setFilter(k)}
+                        className="shrink-0"
+                        onClick={() => showKind(k)}
                     >
                         {t(`finance.home.filter.${k}` as TranslationKey)}
-                        {k !== 'all' && (
-                            <span className="tabular-nums"> ({counts[k]})</span>
-                        )}
+                        <span className="tabular-nums">
+                            <bdi>({k === 'all' ? allCount : counts[k]})</bdi>
+                        </span>
                     </Button>
                 ))}
             </div>
             {previewing.error && (
                 <p className="mb-4 text-danger-text">{previewing.error}</p>
             )}
-            <Card>
-                {shown.length === 0 ? (
+            <Card className="gap-0 overflow-hidden p-0 md:p-0">
+                {items.length === 0 ? (
                     <EmptyState
                         icon={Receipt}
                         title={t('finance.home.empty')}
                         description={t('finance.home.empty_body')}
                     />
                 ) : (
-                    <div className="overflow-x-auto">
-                        <table
-                            className="w-full text-body"
-                            data-test="work-list"
+                    <>
+                        <ul
+                            className="divide-y divide-stroke-weak md:hidden"
+                            data-test="work-cards"
                         >
-                            <thead className="text-label text-weak">
-                                <tr>
-                                    <th className="py-2" />
-                                    <th className="py-2 text-start">
-                                        {t('finance.home.col.order')}
-                                    </th>
-                                    <th className="py-2 text-start">
-                                        {t('finance.home.col.customer')}
-                                    </th>
-                                    <th className="py-2 text-start">
-                                        {t('finance.home.col.item')}
-                                    </th>
-                                    <th className="py-2 text-start">
-                                        {t('finance.home.col.age')}
-                                    </th>
-                                    <th className="py-2 text-end">
-                                        {t('finance.field.amount')}
-                                    </th>
-                                    <th className="py-2" />
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {shown.map((item) => (
-                                    <tr
-                                        key={item.key}
-                                        className="border-t border-stroke-weak"
-                                        data-test="work-item"
-                                    >
-                                        <td className="py-2">
-                                            {item.due_id !== undefined && (
-                                                <input
-                                                    type="checkbox"
-                                                    aria-label={t(
-                                                        'finance.reminder.select',
-                                                    )}
-                                                    checked={selected.includes(
-                                                        item.due_id,
-                                                    )}
-                                                    onChange={() =>
-                                                        toggle(
-                                                            item.due_id as number,
-                                                        )
-                                                    }
-                                                />
-                                            )}
-                                        </td>
-                                        <td className="py-2 font-semibold">
-                                            <bdi dir="ltr">
-                                                {item.order.number}
-                                            </bdi>
-                                        </td>
-                                        <td className="py-2">
-                                            {item.order.customer}
-                                        </td>
-                                        <td className="py-2">
-                                            <Badge variant={TONE[item.kind]}>
-                                                {t(
-                                                    `finance.home.kind.${item.kind}` as TranslationKey,
+                            {items.map((item) => (
+                                <li
+                                    key={item.key}
+                                    className="flex gap-1 py-3 ps-1 pe-4"
+                                    data-test="work-item"
+                                >
+                                    <div className="w-11 shrink-0">
+                                        {item.due_id !== undefined && (
+                                            <SelectBox
+                                                checked={selected.includes(
+                                                    item.due_id,
                                                 )}
-                                            </Badge>{' '}
+                                                onChange={() =>
+                                                    toggle(
+                                                        item.due_id as number,
+                                                    )
+                                                }
+                                            />
+                                        )}
+                                    </div>
+                                    <div className="grid min-w-0 flex-1 grid-cols-1 gap-1.5">
+                                        <div className="flex items-start justify-between gap-3">
+                                            <div className="min-w-0">
+                                                <Ref className="font-semibold">
+                                                    {item.order.number}
+                                                </Ref>
+                                                <p className="line-clamp-2 text-weak">
+                                                    {item.order.customer}
+                                                </p>
+                                            </div>
+                                            <span className="shrink-0">
+                                                <Amount
+                                                    value={toMajor(
+                                                        item.amount_minor,
+                                                    )}
+                                                    strong
+                                                />
+                                            </span>
+                                        </div>
+                                        <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-caption text-weak">
+                                            <KindBadge item={item} />
                                             {item.label && (
-                                                <span className="text-weak">
+                                                <span className="min-w-0 truncate">
                                                     {item.label}
                                                 </span>
                                             )}
-                                        </td>
-                                        <td className="py-2 text-weak">
-                                            {item.kind === 'overdue'
-                                                ? t(
-                                                      'finance.home.overdue_days',
-                                                      { days: item.age_days },
-                                                  )
-                                                : formatDate(item.date, locale)}
-                                        </td>
-                                        <td className="py-2 text-end">
-                                            <Amount
-                                                value={toMajor(
-                                                    item.amount_minor,
-                                                )}
-                                                strong
-                                            />
-                                        </td>
-                                        <td className="py-2 text-end">
-                                            <Button
-                                                asChild
-                                                variant="secondary"
-                                                size="sm"
-                                            >
-                                                <Link
-                                                    href={OrderFinanceController.show.url(
-                                                        item.order.id,
-                                                    )}
-                                                >
-                                                    {item.kind === 'proof'
-                                                        ? t(
-                                                              'finance.review.action',
-                                                          )
-                                                        : t(
-                                                              'finance.home.open',
-                                                          )}
-                                                </Link>
-                                            </Button>
-                                        </td>
+                                            <span>·</span>
+                                            <span>{age(item)}</span>
+                                        </div>
+                                        <div>
+                                            <OpenLink item={item} />
+                                        </div>
+                                    </div>
+                                </li>
+                            ))}
+                        </ul>
+                        <TableWrap className="hidden md:block">
+                            <Table
+                                caption={t('finance.home.title')}
+                                data-test="work-list"
+                            >
+                                <thead>
+                                    <tr>
+                                        <Th className="w-11 px-2">
+                                            <span className="sr-only">
+                                                {t('finance.reminder.select')}
+                                            </span>
+                                        </Th>
+                                        <Th>{t('finance.home.col.order')}</Th>
+                                        <Th>
+                                            {t('finance.home.col.customer')}
+                                        </Th>
+                                        <Th>{t('finance.home.col.item')}</Th>
+                                        <Th>{t('finance.home.col.age')}</Th>
+                                        <Th className="text-end">
+                                            {t('finance.field.amount')}
+                                        </Th>
+                                        <Th>
+                                            <span className="sr-only">
+                                                {t('finance.home.open')}
+                                            </span>
+                                        </Th>
                                     </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
+                                </thead>
+                                <tbody>
+                                    {items.map((item) => (
+                                        <tr
+                                            key={item.key}
+                                            data-test="work-item"
+                                        >
+                                            <Td className="px-2 py-1">
+                                                {item.due_id !== undefined && (
+                                                    <SelectBox
+                                                        checked={selected.includes(
+                                                            item.due_id,
+                                                        )}
+                                                        onChange={() =>
+                                                            toggle(
+                                                                item.due_id as number,
+                                                            )
+                                                        }
+                                                    />
+                                                )}
+                                            </Td>
+                                            <Td>
+                                                <Ref className="font-semibold">
+                                                    {item.order.number}
+                                                </Ref>
+                                            </Td>
+                                            <Td className="max-w-56">
+                                                <span className="line-clamp-2">
+                                                    {item.order.customer}
+                                                </span>
+                                            </Td>
+                                            <Td>
+                                                <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                                                    <KindBadge item={item} />
+                                                    {item.label && (
+                                                        <span className="text-weak">
+                                                            {item.label}
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            </Td>
+                                            <Td className="whitespace-nowrap text-weak">
+                                                {age(item)}
+                                            </Td>
+                                            <Td className="text-end">
+                                                <Amount
+                                                    value={toMajor(
+                                                        item.amount_minor,
+                                                    )}
+                                                    strong
+                                                />
+                                            </Td>
+                                            <Td className="text-end">
+                                                <OpenLink item={item} />
+                                            </Td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </Table>
+                        </TableWrap>
+                        <Pager
+                            meta={meta}
+                            url={FinanceHomeController.index.url()}
+                            query={kind === 'all' ? {} : { kind }}
+                        />
+                    </>
                 )}
             </Card>
             {preview && (
@@ -349,5 +412,52 @@ export default function FinanceHome({
                 </Shell>
             )}
         </>
+    );
+}
+
+function KindBadge({ item }: { item: WorkItem }) {
+    const t = useT();
+
+    return (
+        <Badge variant={TONE[item.kind]}>
+            {t(`finance.home.kind.${item.kind}` as TranslationKey)}
+        </Badge>
+    );
+}
+
+function OpenLink({ item }: { item: WorkItem }) {
+    const t = useT();
+
+    return (
+        <Button asChild variant="secondary" size="sm">
+            <Link href={OrderFinanceController.show.url(item.order.id)}>
+                {item.kind === 'proof'
+                    ? t('finance.review.action')
+                    : t('finance.home.open')}
+            </Link>
+        </Button>
+    );
+}
+
+/** A 44px touch target around the native checkbox (the box itself stays 20px). */
+function SelectBox({
+    checked,
+    onChange,
+}: {
+    checked: boolean;
+    onChange: () => void;
+}) {
+    const t = useT();
+
+    return (
+        <label className="grid min-h-11 min-w-11 cursor-pointer place-items-center">
+            <input
+                type="checkbox"
+                className="size-5 accent-brand"
+                aria-label={t('finance.reminder.select')}
+                checked={checked}
+                onChange={onChange}
+            />
+        </label>
     );
 }

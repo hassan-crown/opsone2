@@ -57,7 +57,7 @@ final class ConfigCheck
             }
             foreach ($plan['lines'] as $line) {
                 if ($line['stage_key'] !== null && ! in_array($line['stage_key'], $stages, true)) {
-                    $errors[$path] = __('rules.releases.check.stage', ['plan' => $plan['key'], 'stage' => $line['stage_key']]);
+                    $errors[$path] = __('rules.releases.check.stage', ['plan' => (string) ($plan['name'][app()->getLocale()] ?? null ?: $plan['name']['ar'] ?? $plan['key']), 'stage' => $line['stage_key']]);
                 }
             }
             $missing = array_diff($gates, array_column($plan['lines'], 'key'));

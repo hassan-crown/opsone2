@@ -128,6 +128,7 @@ const PROFILE_FIELDS: ReadonlyArray<
 
 function NoteForm({ row, onDone }: { row: Row; onDone: () => void }) {
     const t = useT();
+    const { locale } = useLocale();
 
     return (
         <Form
@@ -160,9 +161,8 @@ function NoteForm({ row, onDone }: { row: Row; onDone: () => void }) {
                         hint={
                             row.creditable_minor !== null
                                 ? t('einvoicing.note.creditable', {
-                                      amount: (
-                                          row.creditable_minor / 100
-                                      ).toFixed(2),
+                                      // U+2068/U+2069 keep the amount whole inside the sentence.
+                                      amount: `\u2068${formatAmount(row.creditable_minor / 100, locale)}\u2069`,
                                   })
                                 : undefined
                         }
