@@ -1,0 +1,44 @@
+{
+  "_note": "Internal provenance record for the photographs on the curtains and blinds page. Nothing here is shown on the page; every image is CC0 and needs no attribution. Magnific was not authorised in the build session, so no Magnific images or credits were used.",
+  "images": [
+    {
+      "file": "img/curtain-hero-1400.jpg, img/curtain-hero-820.jpg",
+      "used": "hero; Open Graph image; suggested home page «حلول حسب نشاطك» card (820)",
+      "source": "https://commons.wikimedia.org/wiki/File:Window_frame_shadow_on_a_curtain_(Unsplash).jpg",
+      "licence": "CC0 1.0 (as stated on the Wikimedia Commons file page)",
+      "people": "none",
+      "edits": "cropped to 4:3, resized, recompressed"
+    },
+    {
+      "file": "img/curtain-swatches-1000.jpg",
+      "used": "channels: showroom and samples",
+      "source": "https://commons.wikimedia.org/wiki/File:Fabric_swatches.jpg",
+      "licence": "CC0 1.0 (as stated on the Wikimedia Commons file page)",
+      "people": "none",
+      "edits": "cropped to 4:3, resized, recompressed"
+    },
+    {
+      "file": "img/curtain-tape-1000.jpg",
+      "used": "channels: selling at the customer's home",
+      "source": "https://commons.wikimedia.org/wiki/File:Measuring_tape_(51029469626).jpg",
+      "licence": "CC0 1.0 (as stated on the Wikimedia Commons file page)",
+      "people": "none",
+      "edits": "resized, recompressed"
+    },
+    {
+      "file": "img/curtain-room-1000.jpg",
+      "used": "channels: online store for ready-made items",
+      "source": "https://commons.wikimedia.org/wiki/File:HZ_%E6%83%A0%E5%B7%9E_Huizhou_%E6%83%A0%E6%9D%B1_Huidong_%E9%87%91%E6%B5%B7%E7%81%A3%E5%A4%A7%E9%81%93_Jinhaiwan_Blvd_%E8%8F%AF%E7%BE%8E%E9%81%94%E9%85%92%E5%AE%B6_Ramada_Hotel_room_window_white_curtain_living_room_November_2023_R12S.jpg",
+      "licence": "CC0 1.0 (as stated on the Wikimedia Commons file page)",
+      "people": "none",
+      "edits": "cropped to the curtains only (removes a printed sign and the camera's date stamp), resized, recompressed"
+    },
+    {
+      "file": "og-curtains-blinds.jpg",
+      "used": "Open Graph / Twitter image",
+      "source": "composed from img/curtain-hero-1400.jpg with the OpsOne logo and the page title",
+      "licence": "derived from CC0",
+      "people": "none"
+    }
+  ]
+}
