@@ -587,7 +587,7 @@ export default function Design() {
                             <Amount value={-320} />
                             <Avatar>
                                 <AvatarFallback>
-                                    {locale === 'ar' ? 'مح' : 'MH'}
+                                    {locale === 'ar' ? 'م' : 'MH'}
                                 </AvatarFallback>
                             </Avatar>
                         </div>
