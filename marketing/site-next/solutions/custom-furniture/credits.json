@@ -1,0 +1,48 @@
+{
+  "_note": "Internal provenance record for the images on the custom-furniture page. Nothing here is shown on the page. The Magnific MCP server was not authenticated in this session, so no generated or stock images were used and no credits were spent. Photos are CC0 and need no attribution; the hero drawing is own work.",
+  "images": [
+    {
+      "file": "img/dressing-elevation.svg",
+      "used": "hero; Open Graph image; home page «حلول حسب نشاطك» card (suggested)",
+      "source": "own work: front elevation of a made-to-measure dressing room drawn in SVG for this page",
+      "licence": "own work (OpsOne marketing)",
+      "people": "none",
+      "text": "none"
+    },
+    {
+      "file": "img/majlis-sadu-1000.jpg",
+      "used": "channels: showroom",
+      "source": "https://commons.wikimedia.org/wiki/File:Majlis_in_Sadu_style.jpg",
+      "author": "Ashley Columbus (own work, 15 August 2025)",
+      "licence": "CC0 1.0 (as stated on the Wikimedia Commons file page)",
+      "people": "none",
+      "edits": "resized to 1000 px wide, recompressed"
+    },
+    {
+      "file": "img/fabric-swatches-1000.jpg",
+      "used": "channels: online store",
+      "source": "https://commons.wikimedia.org/wiki/File:Fabric_swatches.jpg",
+      "author": "Thegreatmutata (own work, 9 July 2022)",
+      "licence": "CC0 1.0 (as stated on the Wikimedia Commons file page)",
+      "people": "none (cropped to the fabric only)",
+      "edits": "cropped, resized to 1000×750, recompressed"
+    },
+    {
+      "file": "img/tape-1000.jpg",
+      "used": "channels: field sales in the customer's home",
+      "source": "https://commons.wikimedia.org/wiki/File:Measuring_tape_(51029469626).jpg",
+      "original": "https://www.flickr.com/photos/welikesharing/51029469626",
+      "author": "We Like Sharing (Flickr); credit line on Commons names Éloïse Ruby",
+      "licence": "CC0 1.0 (Flickr licence confirmed by FlickreviewR on Wikimedia Commons)",
+      "people": "none",
+      "edits": "resized to 1000×750, recompressed"
+    },
+    {
+      "file": "og-custom-furniture.jpg",
+      "used": "Open Graph / Twitter image",
+      "source": "composed from img/dressing-elevation.svg with the OpsOne logo and the page title",
+      "licence": "own work",
+      "people": "none"
+    }
+  ]
+}
