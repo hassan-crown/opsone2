@@ -12,6 +12,7 @@ use App\Enums\AppointmentStatus;
 use App\Enums\CustomOrderStatus;
 use App\Enums\StageStatus;
 use App\Enums\TaskStatus;
+use App\Http\Controllers\Field\FieldController;
 use App\Installation\InstallationStatus;
 use App\Models\AuditEvent;
 use App\Models\Customer;
@@ -332,4 +333,10 @@ it('reports first-visit completion and average duration per team on the owner da
 
     // An executor without reports sees no dashboard at all.
     $this->actingAs($this->tech)->get('/executive')->assertForbidden();
+});
+
+it('marks the field app root so it can opt out of pull-to-refresh, with its own status-bar colour', function () {
+    $this->actingAs($this->tech)->get('/field')
+        ->assertSee('data-app="field"', false)
+        ->assertSee('media="(prefers-color-scheme: light)" content="'.FieldController::THEME.'"', false);
 });

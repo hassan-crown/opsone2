@@ -26,9 +26,12 @@ export function PageHeader({
         >
             <div className="min-w-0 flex-[1_1_280px]">
                 {back && <div className="mb-2">{back}</div>}
-                <h1 className="text-title text-strong">{title}</h1>
+                {/* A pasted email or long reference in the title breaks only if it would overflow. */}
+                <h1 className="text-title [overflow-wrap:anywhere] text-strong">
+                    {title}
+                </h1>
                 {description && (
-                    <p className="mt-1 max-w-reading text-body text-weak">
+                    <p className="mt-1 max-w-reading text-body [overflow-wrap:anywhere] text-weak">
                         {description}
                     </p>
                 )}

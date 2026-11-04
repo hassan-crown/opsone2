@@ -116,9 +116,9 @@ export function NotificationsBell() {
                 {unread > 0 && (
                     <span
                         aria-hidden
-                        className="absolute end-1 top-1 inline-flex min-w-4 items-center justify-center rounded-full bg-brand px-1 text-[10px] leading-4 font-semibold text-on-brand"
+                        className="absolute start-1/2 top-1 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-brand px-1 text-caption leading-5 font-semibold text-on-brand tabular-nums ring-2 ring-surface"
                     >
-                        {unread > 99 ? '99+' : unread}
+                        <bdi dir="ltr">{unread > 99 ? '99+' : unread}</bdi>
                     </span>
                 )}
             </Button>

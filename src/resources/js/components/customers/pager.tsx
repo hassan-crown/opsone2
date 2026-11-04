@@ -48,7 +48,7 @@ export function Pager({
                     disabled={meta.page <= 1}
                     onClick={() => go(meta.page - 1)}
                 >
-                    <Icon icon={ChevronLeft} className="rtl:rotate-180" />
+                    <Icon icon={ChevronLeft} />
                     {t('customers.page.prev')}
                 </Button>
                 <Button
@@ -59,7 +59,7 @@ export function Pager({
                     onClick={() => go(meta.page + 1)}
                 >
                     {t('customers.page.next')}
-                    <Icon icon={ChevronRight} className="rtl:rotate-180" />
+                    <Icon icon={ChevronRight} />
                 </Button>
             </div>
         </nav>
