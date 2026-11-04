@@ -1,10 +1,9 @@
-# OpsOne site-next: النسخة B من الصفحة الرئيسية
+# OpsOne site-next: ملاحظات النسخة B (الصفحة الرئيسية الآن)
 
-نسخة من الصفحة المعتمدة (`../index.html`، commit `7a9e997`)، بنفس المحتوى والأقسام وSEO والوسوم والنموذج، وبنفس ألوان D وخطه.
+كانت نسخة من الصفحة المعتمدة الأولى (commit `7a9e997`، محفوظة الآن في `archive/variant-a/`)، واعتُمدت فصارت `marketing/site-next/index.html`، بنفس المحتوى والأقسام وSEO والوسوم والنموذج، وبنفس ألوان D وخطه.
 الفرق: نمط «خط بمحطات يفتح معلومة» صار للواجهة الأولى وحدها (توقيعها)، وكل قسم آخر أخذ شكلًا خاصًا به يعبّر عن معناه.
 
-لفتحها: `python3 -m http.server 8090 --directory marketing/site-next` ثم `http://localhost:8090/variant-b/`.
-الأصول والخطوط و`config.js` و`tags.js` مشتركة مع الصفحة المعتمدة (`../`).
+لفتحها: `python3 -m http.server 8090 --directory marketing/site-next` ثم `http://localhost:8090/`.
 
 ## قبل وبعد
 
@@ -43,7 +42,7 @@ GSAP يُحمَّل ديناميكيًا فقط على الشاشات ≥1024px 
 - **impeccable detect** على الصفحة المعروضة (1440 و768 و390): لا ملاحظات سوى `nested-cards` (لوحات داخل شاشات التطبيق). الجولة الأولى
   وجدت `side-tab` على فتحة الطابعة و`bounce-easing` على الختم و`marquee`، وأُصلحت الثلاث.
 - **break-ui:** النموذج بأسوأ القيم (كما في المعتمدة)؛ الأزرار لا تُطفأ كلها؛ ضغطات متتالية سريعة على الطابعة تستقر على الأخيرة؛ الضغط القصير
-  (500ms) لا ينشر، والضغط المطوّل بالفأرة أو بمسطرة المسافة ينشر. لا فيض على 320px؛ عند تكبير النص 200% على 375 يبقى فيض 23px.
+  (500ms) لا ينشر، والضغط المطوّل بالفأرة أو بمسطرة المسافة ينشر. لا فيض على 320px؛ وعند تكبير النص 200% على 375 لا فيض (أُصلح فيض 23px كان في رقم Bento).
 - **mobile-native:** الضغط المطوّل لا يحدد نصًا ولا يفتح قائمة السياق؛ الخط الزمني على الجوال `scroll-snap` مع `overscroll-behavior-x: contain`؛
   hover محصور بالمؤشر الدقيق. يبقى الفحص على جوال حقيقي.
 - **Lighthouse: لم يُشغَّل** (تثبيته عبر `npx` غير مسموح في هذه الجلسة). مؤشرات Playwright بخنق مشابه، وسيط 3 قياسات:
@@ -58,8 +57,8 @@ GSAP يُحمَّل ديناميكيًا فقط على الشاشات ≥1024px 
 
 ## الملفات
 
-- اللقطات: `screens/vb-{1440,768,375}-{first,full,fit,benefits,sales-head,sales-a,sales-b,sales-c,channels,people,modules,capabilities,demo,footer}.png`
+- اللقطات: `screens/home/vb-{1440,768,375}-{first,full,fit,benefits,sales-head,sales-a,sales-b,sales-c,channels,people,modules,capabilities,demo,footer}.png`
   (`sales-a/b/c` بداية الخط الزمني ومنتصفه ونهايته).
-- تسجيلات الحركة (1440، WebM): `screens/vb-motion-printer.webm` (الطابعة)، `screens/vb-motion-deck.webm` (البطاقات المروحية)،
-  `screens/vb-motion-journey.webm` (تمرير الخط الزمني ثم ضغط قصير لا ينشر وضغط مطوّل ينشر).
-- عقد الاتجاه: `.impeccable/surfaces/marketing-site-next-variant-b-index-html.md`.
+- تسجيلات الحركة (1440، WebM): `screens/home/vb-motion-printer.webm` (الطابعة)، `screens/home/vb-motion-deck.webm` (البطاقات المروحية)،
+  `screens/home/vb-motion-journey.webm` (تمرير الخط الزمني ثم ضغط قصير لا ينشر وضغط مطوّل ينشر).
+- عقد الاتجاه: `.impeccable/surfaces/marketing-site-next-index-html.md`.

@@ -1,5 +1,5 @@
-/* OpsOne site-next home: the order's line, the screens it opens, the roles, the demo form.
-   No library: CSS transitions and the Web Animations API, transform and opacity only.
+/* OpsOne site-next home, variant B: the hero keeps the order's line; every other section has a form of its own.
+   GSAP + ScrollTrigger only for the pinned journey timeline; everything else is CSS and the Web Animations API.
    Everything is readable without this file; it only adds the switches and the motion. */
 (() => {
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -160,70 +160,7 @@
     }, 0.6);
   }
 
-  /* ---------- journey: the same line, vertical; the step at the middle of the screen owns the stage ---------- */
-  const list = document.getElementById('steps');
-  if (list) {
-    const steps = [...list.querySelectorAll('.jstep')];
-    const custom = document.getElementById('path');
-    const all = [...steps, custom];
-    const stage = document.getElementById('stage'), sfill = document.getElementById('steps-fill');
-    const figs = steps.map((s) => s.querySelector('.fig'));
-    const wide = matchMedia('(min-width: 1024px)');
-    const mount = () => figs.forEach((f, i) => (wide.matches ? stage.appendChild(f) : steps[i].appendChild(f)));
-    mount();
-    wide.addEventListener('change', mount);
-    const replay = (step) => {
-      if (reduce) return;
-      const ask = step.querySelector('[data-approve]');
-      const fig = figs[steps.indexOf(step)] || step;
-      const askIn = (fig && fig.querySelector('[data-approve]')) || ask;
-      if (askIn && !askIn.dataset.played) {
-        askIn.dataset.played = '1';
-        askIn.classList.add('is-pending');
-        setTimeout(() => askIn.classList.remove('is-pending'), 1400);
-      }
-      const ink = fig && fig.querySelector('.sign__pad path');
-      if (ink && !ink.dataset.played && ink.animate) {
-        ink.dataset.played = '1';
-        const len = ink.getTotalLength();
-        ink.animate([{ strokeDasharray: len, strokeDashoffset: len }, { strokeDasharray: len, strokeDashoffset: 0 }], { duration: 1100, easing: EASE_IN_OUT, delay: 250, fill: 'backwards' });
-      }
-    };
-    let active = -1, ticking = false;
-    const update = () => {
-      ticking = false;
-      const mid = innerHeight * 0.5;
-      let a = 0;
-      all.forEach((s, i) => { if (s.getBoundingClientRect().top < mid) a = i; });
-      if (a === active) return;
-      active = a;
-      all.forEach((s, i) => { s.classList.toggle('is-on', i === a); s.classList.toggle('is-past', i < a); });
-      figs.forEach((f, i) => f.classList.toggle('is-on', i === Math.min(a, steps.length - 1)));
-      const track = sfill.parentElement.getBoundingClientRect();
-      const dot = (all[Math.min(a, steps.length - 1)]).querySelector('.jdot').getBoundingClientRect();
-      sfill.style.setProperty('--p', a >= steps.length ? '1' : ((dot.top + dot.height / 2 - track.top) / track.height).toFixed(4));
-      replay(all[a]);
-    };
-    addEventListener('scroll', () => { if (!ticking) { ticking = true; requestAnimationFrame(update); } }, { passive: true });
-    addEventListener('resize', () => { active = -1; update(); });
-    update();
-  }
-
-  /* ---------- item 9: the owner approves the draft, version 4 goes live, running orders stay on version 3 ---------- */
-  const release = document.querySelector('[data-release]');
-  if (release && !reduce) {
-    once(release, () => {
-      const press = release.querySelector('[data-publish]');
-      setTimeout(() => press.classList.add('is-pressed'), 1400);
-      setTimeout(() => {
-        press.classList.remove('is-pressed');
-        release.classList.add('is-published');
-        release.querySelectorAll('.v-new').forEach((el) => el.animate([{ opacity: 0, transform: 'translateY(6px)' }, { opacity: 1, transform: 'none' }], { duration: 300, easing: EASE_OUT }));
-      }, 1600);
-    }, 0.5);
-  }
-
-  /* ---------- roles: the three stations switch the lines and the view ---------- */
+  /* ---------- roles: a segmented control; the pill slides to the role and the matrix lights its column ---------- */
   const tablist = document.querySelector('.roles__tabs');
   const films = [...document.querySelectorAll('[data-film-item]')];
   let filmInView = false;
@@ -241,6 +178,11 @@
       tabs.forEach((t) => { const on = t === tab; t.setAttribute('aria-selected', String(on)); t.tabIndex = on ? 0 : -1; });
       const key = tab.dataset.film;
       panel.setAttribute('aria-labelledby', tab.id);
+      const idx = tabs.indexOf(tab);
+      const pill = tablist.querySelector('.seg__pill');
+      if (pill) pill.style.setProperty('--seg-x', `${(isRTL ? -1 : 1) * idx * pill.offsetWidth}px`);
+      const matrix = document.querySelector('.matrix');
+      if (matrix) matrix.dataset.col = String({ manager: 3, sales: 4, tech: 5 }[key]);
       panel.querySelectorAll('[data-panel]').forEach((p) => { p.hidden = p.dataset.panel !== key; });
       films.forEach((f) => { f.hidden = f.dataset.filmItem !== key; });
       playActive();
@@ -256,56 +198,193 @@
         pick(tabs[(i + step + tabs.length) % tabs.length], true);
       });
     });
-  }
-
-  /* ---------- tools: six places on the order's line; wide screens show one screen at a time ---------- */
-  const tools = document.querySelector('.tools');
-  if (tools) {
-    const tline = tools.querySelector('[data-tline]');
-    const tabs = [...tline.querySelectorAll('.tstation')];
-    const panes = [...tools.querySelectorAll('.tool')];
-    const wideTools = matchMedia('(min-width: 761px)');
-    let pickedTool = tabs[0].dataset.tool;
-    const show = (key, focus) => {
-      pickedTool = key;
-      tabs.forEach((t) => { const on = t.dataset.tool === key; t.setAttribute('aria-selected', String(on)); t.tabIndex = on ? 0 : -1; if (on && focus) t.focus(); });
-      panes.forEach((p) => {
-        p.classList.toggle('is-off', p.dataset.tool !== key);
-        const v = p.querySelector('video');
-        if (v) { if (p.dataset.tool === key && !reduce) { v.preload = 'auto'; v.play().catch(() => {}); } else v.pause(); }
-      });
-    };
-    const setMode = () => {
-      const on = wideTools.matches;
-      tools.classList.toggle('is-tabbed', on);
-      if (on) { tline.setAttribute('role', 'tablist'); tabs.forEach((t) => t.setAttribute('role', 'tab')); panes.forEach((p) => { p.setAttribute('role', 'tabpanel'); p.setAttribute('aria-labelledby', 'tt-' + p.dataset.tool); }); show(pickedTool); }
-      else { tline.removeAttribute('role'); tabs.forEach((t) => { t.removeAttribute('role'); t.removeAttribute('aria-selected'); }); panes.forEach((p) => { p.removeAttribute('role'); p.removeAttribute('aria-labelledby'); p.classList.remove('is-off'); }); }
-    };
-    tabs.forEach((t, i) => {
-      t.addEventListener('click', () => show(t.dataset.tool));
-      t.addEventListener('keydown', (e) => {
-        const step = { ArrowLeft: isRTL ? 1 : -1, ArrowRight: isRTL ? -1 : 1, Home: -i, End: tabs.length - 1 - i }[e.key];
-        if (step == null) return;
-        e.preventDefault();
-        show(tabs[(i + step + tabs.length) % tabs.length].dataset.tool, true);
-      });
-    });
-    setMode();
-    wideTools.addEventListener('change', setMode);
+    pick(tabs.find((t) => t.getAttribute('aria-selected') === 'true') || tabs[0]);
+    addEventListener('resize', () => pick(tabs.find((t) => t.getAttribute('aria-selected') === 'true')));
   }
 
   /* ---------- tools: the client's messages arrive, the signature is drawn, the receipt counts ---------- */
   if (!reduce && document.body.animate) {
     const chat = document.querySelector('.chat');
-    once(chat.closest('.tool__art'), () => chat.querySelectorAll('.ui-wa').forEach((m, i) => m.animate([{ opacity: 0, transform: 'translateY(10px)' }, { opacity: 1, transform: 'none' }], { duration: 360, delay: i * 260, easing: EASE_OUT, fill: 'backwards' })), 0.5);
+    once(chat, () => chat.querySelectorAll('.ui-wa').forEach((m, i) => m.animate([{ opacity: 0, transform: 'translateY(10px)' }, { opacity: 1, transform: 'none' }], { duration: 360, delay: i * 260, easing: EASE_OUT, fill: 'backwards' })), 0.5);
     const sign = document.querySelector('.doc__sign svg path');
     if (sign) once(sign.closest('.doc'), () => { const len = sign.getTotalLength(); sign.animate([{ strokeDasharray: len, strokeDashoffset: len }, { strokeDasharray: len, strokeDashoffset: 0 }], { duration: 1200, easing: EASE_IN_OUT }); }, 0.6);
-    document.querySelectorAll('.tools [data-count]').forEach((el) => once(el, () => count(el, +el.dataset.count), 0.8));
   }
   document.querySelectorAll('video[data-autoplay]').forEach((v) => {
     if (!('IntersectionObserver' in window)) return;
     new IntersectionObserver(([e]) => { if (e.isIntersecting && !reduce && !v.closest('.is-off')) { v.preload = 'auto'; v.play().catch(() => {}); } else v.pause(); }, { threshold: 0.3 }).observe(v);
   });
+
+
+  /* ---------- «لمن OpsOne؟»: the visitor picks what matches them; their answers show ---------- */
+  const pickEl = document.querySelector('[data-pick]');
+  if (pickEl) {
+    const chips = [...pickEl.querySelectorAll('.pick__chip')];
+    const sync = () => chips.forEach((c) => document.getElementById(c.getAttribute('aria-controls')).classList.toggle('is-on', c.getAttribute('aria-pressed') === 'true'));
+    chips.forEach((c) => c.addEventListener('click', () => {
+      const on = c.getAttribute('aria-pressed') !== 'true';
+      // never leave the answer empty: the last chip on stays on
+      if (!on && chips.filter((x) => x.getAttribute('aria-pressed') === 'true').length === 1) return;
+      c.setAttribute('aria-pressed', String(on));
+      sync();
+    }));
+    pickEl.classList.add('is-live');
+    sync();
+  }
+
+  /* ---------- «نظام واحد»: the statement at the middle of the screen is lit ---------- */
+  const says = [...document.querySelectorAll('.say__item')];
+  if (says.length && 'IntersectionObserver' in window) {
+    const io = new IntersectionObserver((es) => es.forEach((e) => e.target.classList.toggle('is-lit', e.isIntersecting)), { rootMargin: '-42% 0px -42% 0px' });
+    says.forEach((x) => io.observe(x));
+  }
+
+  /* ---------- the journey: a horizontal timeline; scroll scrubs it on wide screens, a swipe moves it on phones ---------- */
+  const hz = document.querySelector('[data-hz]');
+  if (hz) {
+    const viewport = hz.querySelector('.hz__viewport'), track = hz.querySelector('[data-hz-track]');
+    const panels = [...track.children], now = hz.querySelector('[data-hz-now]'), arrows = [...hz.querySelectorAll('[data-hz-step]')];
+    let current = -1, st = null;
+    const replay = (panel) => {
+      if (reduce || !panel) return;
+      const ask = panel.querySelector('[data-approve]');
+      if (ask && !ask.dataset.played) {
+        ask.dataset.played = '1';
+        ask.classList.add('is-pending');
+        setTimeout(() => { ask.classList.remove('is-pending'); const st = ask.querySelector('.ver__stamp'); st.classList.add('is-pressing'); }, 1300);
+      }
+      const ink = panel.querySelector('.sign__pad path');
+      if (ink && !ink.dataset.played && ink.animate) {
+        ink.dataset.played = '1';
+        const len = ink.getTotalLength();
+        ink.animate([{ strokeDasharray: len, strokeDashoffset: len }, { strokeDasharray: len, strokeDashoffset: 0 }], { duration: 1100, easing: EASE_IN_OUT, delay: 250, fill: 'backwards' });
+      }
+    };
+    let go = () => {};
+    const setActive = (i) => {
+      if (i === current) return;
+      current = i;
+      now.textContent = String(i + 1).padStart(2, '0');
+      arrows[0].disabled = i === 0;
+      arrows[1].disabled = i === panels.length - 1;
+      replay(panels[i]);
+    };
+    arrows.forEach((b) => b.addEventListener('click', () => go(Math.max(0, Math.min(panels.length - 1, current + +b.dataset.hzStep)))));
+    // GSAP is fetched only where the timeline is pinned: wide screens with motion allowed. Phones never download it.
+    const load = (src) => new Promise((ok, no) => { const el = document.createElement('script'); el.src = src; el.onload = ok; el.onerror = no; document.head.appendChild(el); });
+    const native = () => {
+      // native horizontal scroller: the panel nearest the centre is current
+      const onScroll = () => {
+        const mid = viewport.getBoundingClientRect().left + viewport.clientWidth / 2;
+        let best = 0, bd = Infinity;
+        panels.forEach((pn, k) => { const r = pn.getBoundingClientRect(); const d = Math.abs(r.left + r.width / 2 - mid); if (d < bd) { bd = d; best = k; } });
+        setActive(best);
+      };
+      let raf = 0;
+      viewport.addEventListener('scroll', () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(onScroll); }, { passive: true });
+      go = (k) => panels[k].scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'nearest', inline: 'center' });
+      onScroll();
+    };
+    const pinned = () => {
+      gsap.registerPlugin(ScrollTrigger);
+      hz.classList.add('is-pinned');
+      const dist = () => track.scrollWidth - document.documentElement.clientWidth;
+      const tween = gsap.to(track, { x: () => (isRTL ? 1 : -1) * dist(), ease: 'none' });
+      st = ScrollTrigger.create({
+        trigger: hz, start: 'top top+=72', end: () => '+=' + dist(), pin: true, scrub: 0.6, animation: tween, invalidateOnRefresh: true, anticipatePin: 1,
+        onUpdate: (self) => setActive(Math.min(panels.length - 1, Math.round(self.progress * (panels.length - 1)))),
+      });
+      go = (k) => scrollTo({ top: st.start + (st.end - st.start) * (k / (panels.length - 1)), behavior: reduce ? 'auto' : 'smooth' });
+      if (document.readyState === 'complete') ScrollTrigger.refresh(); else addEventListener('load', () => ScrollTrigger.refresh(), { once: true });
+    };
+    if (matchMedia('(min-width: 1024px)').matches && !reduce) load('vendor/gsap.min.js').then(() => load('vendor/ScrollTrigger.min.js')).then(pinned, native);
+    else native();
+
+    /* step 9: publishing version 4 takes a deliberate press-and-hold (1.2s, linear); letting go early springs back */
+    const release = hz.querySelector('[data-release]');
+    const hold = release && release.querySelector('[data-publish]');
+    if (hold) {
+      let timer = 0;
+      const done = () => {
+        hold.classList.remove('is-holding');
+        release.classList.add('is-published');
+        hint.hidden = true;
+        release.querySelectorAll('.v-new').forEach((el) => el.animate && el.animate([{ opacity: 0, transform: 'translateY(6px)' }, { opacity: 1, transform: 'none' }], { duration: 300, easing: EASE_OUT }));
+      };
+      const start = (e) => {
+        if (release.classList.contains('is-published')) return;
+        if (e.type === 'keydown') { if (e.repeat || (e.key !== ' ' && e.key !== 'Enter')) return; e.preventDefault(); }
+        hold.classList.add('is-holding');
+        clearTimeout(timer);
+        timer = setTimeout(done, 1200);
+      };
+      const stop = () => {
+        if (hold.classList.contains('is-holding') && !release.classList.contains('is-published')) { hint.classList.remove('is-nudged'); void hint.offsetWidth; hint.classList.add('is-nudged'); }
+        clearTimeout(timer); hold.classList.remove('is-holding');
+      };
+      hold.addEventListener('pointerdown', start);
+      hold.addEventListener('keydown', start);
+      ['pointerup', 'pointerleave', 'pointercancel', 'keyup', 'blur'].forEach((ev) => hold.addEventListener(ev, stop));
+      hold.addEventListener('click', (e) => e.preventDefault());
+      hold.addEventListener('contextmenu', (e) => e.preventDefault());
+      hold.setAttribute('aria-describedby', 'hold-note');
+      const hint = document.createElement('span'); hint.id = 'hold-note'; hint.className = 'hold__hint'; hint.textContent = 'اضغط مطوّلًا للاعتماد';
+      hold.closest('.flow__draft').appendChild(hint);
+    }
+  }
+
+  /* ---------- channels: a fanned deck; the card you pick comes to the front and its revenue is lit ---------- */
+  const deck = document.querySelector('[data-deck]');
+  if (deck) {
+    const cards = [...deck.querySelectorAll('.deck__card')];
+    const stageEl = document.querySelector('.deck__stage');
+    const rows = [...document.querySelectorAll('.deck__stage .mix__row')];
+    const order = ['showroom', 'store', 'field'];
+    const front = (key) => {
+      const rest = cards.filter((c) => c.dataset.ch !== key);
+      [cards.find((c) => c.dataset.ch === key), ...rest].forEach((c, i) => { c.style.setProperty('--pos', String(i)); c.setAttribute('aria-pressed', String(i === 0)); });
+      rows.forEach((r, i) => r.classList.toggle('is-hl', order[i] === key));
+      stageEl.classList.add('has-pick');
+    };
+    cards.forEach((c) => c.addEventListener('click', () => front(c.dataset.ch)));
+    front('field');
+  }
+
+  /* ---------- tools: one slot prints the document you pick ---------- */
+  const printer = document.querySelector('[data-printer]');
+  if (printer) {
+    const keys = [...printer.querySelectorAll('.printer__key')];
+    const papers = [...printer.querySelectorAll('.paper')];
+    const caps = [...document.querySelectorAll('.press__caps .tool__cap')];
+    let printing = null;
+    const print = (k, animate) => {
+      keys.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.doc === k)));
+      caps.forEach((c) => { c.hidden = c.dataset.doc !== k; });
+      papers.forEach((p) => { p.hidden = p.dataset.doc !== k; });
+      const paper = papers.find((p) => p.dataset.doc === k);
+      if (printing) printing.cancel();
+      // the sheet feeds out of the slot: movement on screen, so ease-in-out; a printer never bounces
+      if (animate && !reduce && paper.animate) printing = paper.animate([{ transform: 'translateY(-100%)' }, { transform: 'none' }], { duration: 1100, easing: EASE_IN_OUT });
+      const n = paper.querySelector('[data-count]');
+      if (n && animate && !reduce) count(n, +n.dataset.count);
+    };
+    keys.forEach((b) => b.addEventListener('click', () => print(b.dataset.doc, true)));
+    once(printer, () => print('sign', true), 0.35);
+  }
+
+  /* ---------- «كل ما في OpsOne»: the figures count in, the order reference settles out of a scramble ---------- */
+  if (!reduce) {
+    document.querySelectorAll('[data-countin]').forEach((el) => once(el, () => count(el, +el.dataset.countin, 0, 1400), 0.8));
+    const glyphs = '0123456789ABCDEFGHJKLMNPQRSTUVWXYZ';
+    document.querySelectorAll('[data-scramble]').forEach((el) => once(el, () => {
+      const target = el.dataset.scramble, t0 = performance.now(), ms = 900;
+      const tick = (now) => {
+        const k = Math.min(1, (now - t0) / ms), fixed = Math.floor(k * target.length);
+        el.textContent = target.split('').map((ch, i) => (i < fixed || ch === '-' ? ch : glyphs[(Math.random() * glyphs.length) | 0])).join('');
+        if (k < 1) requestAnimationFrame(tick); else el.textContent = target;
+      };
+      requestAnimationFrame(tick);
+    }, 0.8));
+  }
 
   /* ---------- footer credit: the developer's name links out only once its URL is set in config.js ---------- */
   const devUrl = ((window.OPSONE_LANDING || {}).developerUrl || '').trim();
