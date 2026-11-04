@@ -8,6 +8,7 @@ use App\Actions\Inventory\ManageStockSetup;
 use App\Actions\Organization\CreateBranch;
 use App\Actions\Organization\EstablishOwner;
 use App\Actions\Organization\UpdateFacilityProfile;
+use App\Actions\Rules\PublishConfigRelease;
 use App\Actions\Rules\SaveDocumentClause;
 use App\Actions\Rules\SavePaymentPlan;
 use App\Actions\Rules\UpdateReminderSettings;
@@ -21,6 +22,7 @@ use App\Actions\StateMachines\M22Membership\T00CreateMembership;
 use App\Actions\StateMachines\M23Flow\T01ChooseTemplate;
 use App\Actions\StateMachines\M23Flow\T02SaveDraft;
 use App\Actions\StateMachines\M23Flow\T03PublishFlow;
+use App\Configuration\ConfigSnapshot;
 use App\Finance\Plans\PaymentPlans;
 use App\Models\Branch;
 use App\Models\Department;
@@ -194,7 +196,7 @@ final class Foundation
     /**
      * The owner's business rules (ADR-0037): two payment plans built from the starting templates — 50/50 (default) and
      * 40/40/20 with the second payment when installation starts — the reminder policy with escalation to finance, task
-     * SLA holidays and the contract clause library.
+     * SLA holidays and the contract clause library — published as configuration release 1 (ADR-0040).
      */
     private function rules(): void
     {
@@ -231,6 +233,10 @@ final class Foundation
                 'en' => 'The price (SAR {total}) excludes electrical and plumbing works; {customer} prepares the site before installation.'],
             'applies_to' => ['quote', 'contract'], 'included_by_default' => true, 'position' => 2,
         ], null, TransitionRecorder::SOURCE_SEEDER);
+
+        // ADR-0040: the rules apply once published — release 1 before the first order.
+        app(PublishConfigRelease::class)->publish($owner, 'الإصدار الأول: خطتا الدفع، سياسة التذكير، مهلة المهام وبنود العقد.', 0,
+            ConfigSnapshot::hash(ConfigSnapshot::capture()), TransitionRecorder::SOURCE_SEEDER);
     }
 
     private function finishSetup(): void

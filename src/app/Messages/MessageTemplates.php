@@ -2,15 +2,15 @@
 
 namespace App\Messages;
 
+use App\Configuration\ConfigReleases;
 use App\Models\MessageTemplate;
-use App\Support\RequestCache;
 use Illuminate\Validation\ValidationException;
 
 /**
  * Renders a message from the facility's wording when it has one, else from the built-in text (ADR-0037). A facility
  * text uses `{variable}` placeholders from the event's closed list only — anything else is refused when saved — and
- * values are inserted as plain text (no markup reaches SMS or mail). Communication follows the latest wording: it is
- * never pinned to an order.
+ * values are inserted as plain text (no markup reaches SMS or mail). Communication follows the wording of the current
+ * configuration release (ADR-0040): it is never pinned to an order.
  */
 final class MessageTemplates
 {
@@ -38,10 +38,7 @@ final class MessageTemplates
 
     public static function find(string $event, string $channel, string $locale): ?MessageTemplate
     {
-        $all = app(RequestCache::class)->remember('message_templates', fn () => MessageTemplate::query()->get()
-            ->keyBy(fn (MessageTemplate $t) => "{$t->event}|{$t->channel}|{$t->locale}")->all());
-
-        return $all["{$event}|{$channel}|{$locale}"] ?? null;
+        return ConfigReleases::messages()["{$event}|{$channel}|{$locale}"] ?? null;
     }
 
     /**

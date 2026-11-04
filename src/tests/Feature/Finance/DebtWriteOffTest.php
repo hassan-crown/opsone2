@@ -31,6 +31,7 @@ use Tests\Support\Org;
 
 require_once __DIR__.'/FinanceTestHelpers.php';
 require_once __DIR__.'/../Delivery/DeliveryTestHelpers.php';
+require_once __DIR__.'/../Rules/RulesTestHelpers.php';
 
 uses(RefreshDatabase::class);
 
@@ -175,6 +176,7 @@ it('never reminds or escalates a written-off due, and keeps the payment plan fro
         'before_days' => [], 'on_due' => true, 'after_every_days' => 1, 'max_after' => 6,
         'escalate_after_days' => 1, 'escalate_to' => 'finance', 'appointment_hours' => 24,
     ], null);
+    publishRules($this->f->owner);
     writeOff($this, $this->f->owner)->assertCreated();
     OrderDue::query()->where('order_id', $this->order->id)->update(['due_event' => 'date', 'due_date' => now()->subDays(5)->toDateString()]);
 
@@ -187,6 +189,7 @@ it('never reminds or escalates a written-off due, and keeps the payment plan fro
         'lines' => [['key' => 'first', 'name' => ['ar' => 'أولى'], 'basis' => 'percent', 'value' => 5000, 'event' => 'agreement', 'stage_key' => null, 'offset_days' => 0, 'grace_days' => 0],
             ['key' => 'final', 'name' => ['ar' => 'أخيرة'], 'basis' => 'rest', 'value' => null, 'event' => 'agreement', 'stage_key' => null, 'offset_days' => 0, 'grace_days' => 0]],
     ]);
+    publishRules($this->f->owner);
     $this->actingAs($this->f->owner)->putJson(route('orders.finance.plan', $this->order), [
         'plan_id' => $plan->id, 'idempotency_key' => (string) Str::uuid(), 'lock_version' => finVersion($this->order),
     ])->assertUnprocessable()->assertJsonPath('errors.dues.0', __('finance.write_off.schedule_locked'));

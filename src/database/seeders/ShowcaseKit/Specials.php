@@ -3,6 +3,10 @@
 namespace Database\Seeders\ShowcaseKit;
 
 use App\Access\Exceptions\InvalidTransition;
+use App\Access\TransitionRecorder;
+use App\Actions\Rules\PublishConfigRelease;
+use App\Actions\Rules\SaveDocumentClause;
+use App\Actions\Rules\UpdateReminderSettings;
 use App\Actions\StateMachines\M09Change\T00CreateChange;
 use App\Actions\StateMachines\M09Change\T01PresentChange;
 use App\Actions\StateMachines\M09Change\T04ApplyChange;
@@ -17,6 +21,8 @@ use App\Actions\StateMachines\M39Dispute\T00OpenDispute;
 use App\Actions\StateMachines\M40Document\T01AttachDocument;
 use App\Cancellation\CancellationImpact;
 use App\Cancellation\CancellationInput;
+use App\Configuration\ConfigReleases;
+use App\Configuration\ConfigSnapshot;
 use App\Finance\FinanceLock;
 use App\Finance\MoneyLedger;
 use App\Models\Agreements\Agreement;
@@ -56,8 +62,48 @@ final class Specials
         for ($w = 0; $thursday->lessThanOrEqualTo($this->s->end); $w++, $thursday = $thursday->addWeek()) {
             $this->at($thursday, 'invoices-'.$w, fn () => $this->invoices());
         }
+        // ADR-0040: a second configuration release mid-story (orders opened before it stay on release 1) and an
+        // unpublished draft at the end, as an owner would leave it.
+        $this->at($d('2026-08-02'), 'release-2', fn () => $this->releaseTwo());
+        $this->at($d('2026-10-30'), 'release-draft', fn () => $this->pendingDraft());
         $this->at($d('2026-09-03'), 'payout-aug', fn () => $this->payouts('2026-08-01', '2026-08-31'));
         $this->at($d('2026-10-04'), 'payout-sep', fn () => $this->payouts('2026-09-01', '2026-09-30'));
+    }
+
+    /**
+     * Release 2: a reminder one day before the due date as well, and a quote validity clause.
+     */
+    private function releaseTwo(): void
+    {
+        $owner = $this->s->users['owner'];
+        app(UpdateReminderSettings::class)->handle($owner, [
+            'before_days' => [3, 1], 'on_due' => true, 'after_every_days' => 5, 'max_after' => 3,
+            'escalate_after_days' => 10, 'escalate_to' => 'finance', 'appointment_hours' => 24,
+        ], null, TransitionRecorder::SOURCE_SEEDER);
+        app(SaveDocumentClause::class)->handle($owner, null, [
+            'key' => 'validity', 'title' => ['ar' => 'صلاحية العرض', 'en' => 'Validity'],
+            'body' => ['ar' => 'هذا العرض صالح {validity_days} يوماً من تاريخه، والأسعار تتبع أسعار الخامات بعد ذلك.',
+                'en' => 'This quote is valid for {validity_days} days; prices then follow material prices.'],
+            'applies_to' => ['quote'], 'included_by_default' => true, 'position' => 3,
+        ], null, TransitionRecorder::SOURCE_SEEDER);
+        $this->publishRules('تذكير إضافي قبل الاستحقاق بيوم، وبند صلاحية في عروض الأسعار.');
+    }
+
+    /**
+     * A draft the owner has not published yet: the overdue reminders go up to four.
+     */
+    private function pendingDraft(): void
+    {
+        app(UpdateReminderSettings::class)->handle($this->s->users['owner'], [
+            'before_days' => [3, 1], 'on_due' => true, 'after_every_days' => 5, 'max_after' => 4,
+            'escalate_after_days' => 10, 'escalate_to' => 'finance', 'appointment_hours' => 24,
+        ], null, TransitionRecorder::SOURCE_SEEDER);
+    }
+
+    private function publishRules(string $notes): void
+    {
+        app(PublishConfigRelease::class)->publish($this->s->users['owner'], $notes, ConfigReleases::latest()->number ?? 0,
+            ConfigSnapshot::hash(ConfigSnapshot::capture()), TransitionRecorder::SOURCE_SEEDER);
     }
 
     private function at(CarbonImmutable $when, string $label, \Closure $fn): void

@@ -2,6 +2,7 @@
 
 namespace App\Procurement;
 
+use App\Configuration\ConfigReleases;
 use App\Models\Procurement\PurchaseDocumentVersion;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
@@ -69,11 +70,24 @@ final class PurchaseDocumentLayout
     }
 
     /**
-     * The current version, or the built-in defaults as version 0 before the owner saves anything.
+     * The version in force: the one the current configuration release holds (ADR-0040), or the built-in defaults as
+     * version 0 before any release.
      *
      * @return array{version: int, layout: array<string, mixed>, email: array<string, mixed>}
      */
     public static function current(): array
+    {
+        $document = ConfigReleases::current()['purchase_document'];
+
+        return ['version' => (int) $document['version'], 'layout' => self::normalize($document['layout']), 'email' => $document['email']];
+    }
+
+    /**
+     * The latest saved version (the draft the settings page edits), or the defaults as version 0.
+     *
+     * @return array{version: int, layout: array<string, mixed>, email: array<string, mixed>}
+     */
+    public static function draft(): array
     {
         $row = PurchaseDocumentVersion::query()->orderByDesc('version')->first();
 

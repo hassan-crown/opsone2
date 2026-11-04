@@ -12,7 +12,7 @@ use App\Enums\StateMachine;
 use App\Finance\FinanceLock;
 use App\Finance\FinanceWrite;
 use App\Finance\OrderSchedule;
-use App\Models\Finance\PaymentPlan;
+use App\Finance\Plans\PaymentPlans;
 use App\Models\Order;
 use App\Models\User;
 use Illuminate\Validation\ValidationException;
@@ -36,7 +36,7 @@ final class ChoosePaymentPlan
             Access::authorize($actor, Permission::P38, $order);
             $head = FinanceLock::head($order);
             FinanceLock::checkVersion($head, $lockVersion);
-            $plan = PaymentPlan::query()->active()->find($planId)
+            $plan = PaymentPlans::inRelease($order, $planId)
                 ?? throw ValidationException::withMessages(['plan_id' => __('finance.plans.validation.unknown')]);
 
             $this->schedule->sync($order, $head, $actor, $source);

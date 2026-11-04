@@ -1,4 +1,4 @@
-import { Link, router } from '@inertiajs/react';
+import { Link, router, usePage } from '@inertiajs/react';
 import { useState } from 'react';
 import AppointmentRequestSettingsController from '@/actions/App/Http/Controllers/AppointmentRequests/AppointmentRequestSettingsController';
 import { Alert, AlertBody, AlertDescription } from '@/components/ui/alert';
@@ -11,6 +11,7 @@ import {
     messages,
     numbering,
     plans,
+    releases,
     reminders,
     sla,
 } from '@/routes/rules';
@@ -22,7 +23,8 @@ export type RulesPage =
     | 'messages'
     | 'sla'
     | 'numbering'
-    | 'appointment_requests';
+    | 'appointment_requests'
+    | 'releases';
 
 export const RULES_PAGES: {
     key: RulesPage;
@@ -38,7 +40,11 @@ export const RULES_PAGES: {
         key: 'appointment_requests',
         href: () => AppointmentRequestSettingsController.edit(),
     },
+    { key: 'releases', href: releases },
 ];
+
+/** Settings that apply when saved: not part of a configuration release (ADR-0040). */
+const LIVE_PAGES: RulesPage[] = ['appointment_requests'];
 
 /** The business-rules pages (ADR-0037) as tabs, plus the view-only and audit notes. */
 export function RulesNav({
@@ -77,11 +83,51 @@ export function RulesNav({
             <Alert variant="info" className="max-w-3xl">
                 <AlertBody>
                     <AlertDescription>
-                        {canEdit ? t('rules.audited') : t('rules.view_only')}
+                        {!canEdit
+                            ? t('rules.view_only')
+                            : LIVE_PAGES.includes(current)
+                              ? t('rules.audited_live')
+                              : t('rules.audited')}
                     </AlertDescription>
                 </AlertBody>
             </Alert>
+            {current !== 'releases' && !LIVE_PAGES.includes(current) && (
+                <DraftBanner />
+            )}
         </div>
+    );
+}
+
+/**
+ * ADR-0040: changes on these pages are a draft until published as a configuration release. Shown on every rules page
+ * (and the purchase-order document settings) while the draft differs from the release in force.
+ */
+export function DraftBanner() {
+    const t = useT();
+    const draft = usePage().props.configDraft;
+    if (!draft) {
+        return null;
+    }
+
+    return (
+        <Alert
+            variant={draft.pending ? 'warning' : 'success'}
+            className="max-w-3xl"
+            data-test="config-draft-banner"
+        >
+            <AlertBody>
+                <AlertDescription>
+                    {draft.pending
+                        ? t('rules.releases.banner_pending')
+                        : t('rules.releases.banner_live', {
+                              number: draft.release ?? 0,
+                          })}{' '}
+                    <Link href={releases()} className="text-link underline">
+                        {t('rules.releases.banner_link')}
+                    </Link>
+                </AlertDescription>
+            </AlertBody>
+        </Alert>
     );
 }
 

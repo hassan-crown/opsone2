@@ -24,6 +24,7 @@ use Illuminate\Support\Facades\Storage;
 use Inertia\Testing\AssertableInertia as Assert;
 
 require_once __DIR__.'/WorkshopTestHelpers.php';
+require_once __DIR__.'/../Rules/RulesTestHelpers.php';
 
 uses(RefreshDatabase::class);
 
@@ -62,6 +63,7 @@ it('renders the purchase order PDF and stores one copy per content and template 
     $this->actingAs($this->f->owner)->put(route('settings.purchase-document.update'), [
         'version' => 0, 'layout' => layoutWith(['signature' => false]), 'email' => PurchaseDocumentLayout::defaultEmail(),
     ])->assertRedirect();
+    publishRules($this->f->owner); // ADR-0040: a saved layout is a draft until released
     $this->actingAs($this->f->inventory)->get(route('purchases.pdf', $po))->assertOk();
     expect(PurchaseOrderDocument::query()->orderByDesc('id')->value('template_version'))->toBe(1);
 
@@ -91,6 +93,7 @@ it('shows prices only when the layout asks AND the viewer may see purchase costs
     $this->actingAs($this->f->owner)->put(route('settings.purchase-document.update'), [
         'version' => 0, 'layout' => layoutWith(['prices' => true]), 'email' => PurchaseDocumentLayout::defaultEmail(),
     ])->assertRedirect();
+    publishRules($this->f->owner);
 
     $docs = app(PurchaseOrderDocuments::class);
     $withCosts = $docs->document($this->f->inventory, $po, 'ar');
@@ -191,7 +194,8 @@ it('lets the owner arrange the document as a new audited version, with closed pl
     $this->put(route('settings.purchase-document.update'), ['version' => 1, 'layout' => $saved->layout, 'email' => $saved->email])->assertRedirect();
     expect(PurchaseDocumentVersion::query()->count())->toBe(1);
 
-    // The email texts follow the saved version.
+    // The email texts follow the published version.
+    publishRules($this->f->owner);
     $po = workshopPo($this->f);
     expect(PurchaseOrderDocuments::texts($po, 'ar'))->toBe(['subject' => 'طلب '.$po->number, 'body' => 'إلى ورشة الدمام']);
 

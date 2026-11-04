@@ -66,7 +66,7 @@ final class PurchaseDocumentController extends ProcurementController
     {
         $actor = $this->actor($request);
         abort_unless(Access::can($actor, Permission::P45), 403);
-        $current = PurchaseDocumentLayout::current();
+        $current = PurchaseDocumentLayout::draft();
 
         return Inertia::render('purchases/document-settings', [
             'version' => $current['version'],

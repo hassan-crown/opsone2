@@ -10,6 +10,7 @@ import {
 } from '@/components/opsone/field';
 import { Icon } from '@/components/opsone/icon';
 import { PageHeader } from '@/components/opsone/page-header';
+import { DraftBanner } from '@/components/rules/rules-nav';
 import { FormErrors, ProcurementTabs } from '@/components/procurement/shared';
 import { Alert, AlertBody } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
@@ -140,6 +141,9 @@ export default function PurchaseDocumentSettings({
                 })}
             />
             <ProcurementTabs active="suppliers" />
+            <div className="mb-4">
+                <DraftBanner />
+            </div>
             <div className="grid gap-4 xl:grid-cols-2">
                 <div className="grid content-start gap-4">
                     <FormErrors errors={errors} />

@@ -72,7 +72,7 @@ final class OrderSchedule
         self::refuseWhileWrittenOff($order);
         if ($dues->isEmpty() && $head->agreement_id === null) {
             // The plan's lines are copied here, once: later edits of the plan never reach this order.
-            $plan = PaymentPlans::forOrder($head->payment_plan_id);
+            $plan = PaymentPlans::forOrder($head->payment_plan_id, $order);
             foreach ($plan['lines'] as $position => $line) {
                 OrderDue::query()->create([
                     'order_id' => $order->id, 'position' => $position + 1, 'reference' => $line['key'], 'name' => $line['name'],

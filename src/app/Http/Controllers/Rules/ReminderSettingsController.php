@@ -23,7 +23,7 @@ class ReminderSettingsController extends Controller
     {
         $user = $request->user();
         RulesAccess::authorizeView($user);
-        $settings = ReminderSettings::current();
+        $settings = ReminderSettings::working();
         $work = WorkSettings::current();
 
         return Inertia::render('rules/reminders', [

@@ -43,7 +43,7 @@ class AppointmentRequestSettingsController extends Controller
     public function update(AppointmentRequestSettingsRequest $request, UpdateAppointmentRequestSettings $update): RedirectResponse
     {
         $update->handle($request->user(), $request->safe()->except('lock_version'), $request->integer('lock_version') ?: null);
-        Inertia::flash('toast', ['type' => 'success', 'message' => __('rules.saved')]);
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('rules.saved_live')]);
 
         return to_route('rules.appointment_requests');
     }
