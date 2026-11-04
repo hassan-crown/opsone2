@@ -54,6 +54,8 @@ final class PortalSession
                 'portal_activated_at' => $customer->portal_activated_at ?? now(),
                 'portal_last_login_at' => now(),
                 'email_verified_at' => $channel === 'email' ? ($customer->email_verified_at ?? now()) : $customer->email_verified_at,
+                // The first activation spends the activation links already sent (L-9).
+                'portal_invite_version' => $customer->portal_invite_version + ($first ? 1 : 0),
             ])->save();
             Audit::record(AuditAction::PortalSignedIn, $customer, null, after: [
                 'channel' => $channel, 'first' => $first, 'ip' => $request->ip(), ...($demo ? ['demo_code' => true] : []),

@@ -48,7 +48,10 @@ final class ActivationController extends Controller
     private static function account(string $id): Customer
     {
         abort_unless(preg_match('/^\d{1,18}$/', $id) === 1, 404);
+        $account = Customer::query()->whereKey((int) $id)->where('portal_login_enabled', true)->firstOrFail();
+        // A link sent before the first activation or before staff turned the workspace off is spent (L-9).
+        abort_unless((string) request()->query('v') === (string) $account->portal_invite_version, 403);
 
-        return Customer::query()->whereKey((int) $id)->where('portal_login_enabled', true)->firstOrFail();
+        return $account;
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Store;
 
 use App\Access\Permission;
+use App\Models\Facility;
 use App\Models\Order;
 use App\Models\Store\StoreCheckout;
 use App\Notifications\NotificationCatalogue;
@@ -18,6 +19,9 @@ final class StoreNotices
 
     public const ATTENTION = 'store.needs_attention';
 
+    /** The store-wide checkout code cap is near (M-4): to the owner, mandatory. */
+    public const OTP_CAP = 'store.otp_cap_near';
+
     public function __construct(private readonly Notifier $notifier) {}
 
     public static function define(): void
@@ -31,6 +35,25 @@ final class StoreNotices
                 'body' => "notifications.type.{$slug}.body",
                 'route' => null,
             ]);
+        }
+        NotificationCatalogue::define(self::OTP_CAP, [
+            'mandatory' => true,
+            'permission' => null,
+            'title' => 'notifications.type.store_otp_cap_near.title',
+            'body' => 'notifications.type.store_otp_cap_near.body',
+            'route' => null,
+        ]);
+    }
+
+    /**
+     * Once per cap window: the checkout codes sent this hour or day reached the warning share of the store-wide cap.
+     */
+    public function otpCapNear(string $period, int $max): void
+    {
+        $owner = Facility::current()?->owner?->user;
+        if ($owner !== null) {
+            $window = $period === 'hour' ? now()->format('YmdH') : now()->format('Ymd');
+            $this->notifier->send($owner, self::OTP_CAP, ['max' => $max, 'period' => __("checkout.otp.cap_period.{$period}")], null, "store-otp-cap:{$period}:{$window}");
         }
     }
 
