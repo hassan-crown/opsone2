@@ -37,11 +37,7 @@ export default function HelpArticle({ article, related }: Props) {
                         href={HelpController.index()}
                         className="inline-flex items-center gap-1 text-control"
                     >
-                        <Icon
-                            icon={ArrowLeft}
-                            size="sm"
-                            className="rtl:rotate-180"
-                        />
+                        <Icon icon={ArrowLeft} size="sm" />
                         {t('help.back')}
                     </Link>
                 }

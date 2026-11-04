@@ -21,7 +21,10 @@ use Illuminate\Support\Facades\RateLimiter;
  *
  * Every answer is the same whether an account exists (no enumeration): an unknown identifier counts against the same
  * caps and simply receives nothing. Caps: sends per identifier and per address with a resend cooldown; wrong codes
- * per code (the code is burned), per identifier and per address, each locking further codes and checks for the window.
+ * per code (the code is burned), per identifier from one address and per address, each locking further codes and
+ * checks for the window. A wrong code locks the identifier everywhere only while a real code is open (so a stranger
+ * without codes cannot lock the customer out, L-2) and counts against the account's daily cap (L-3). The checkout code
+ * shares these failure caps (M-3). Step-up codes have their own budget per account: sign-in guesses never block signing.
  */
 final class CustomerOtp
 {
@@ -52,6 +55,11 @@ final class CustomerOtp
 
     public const FAILURES_PER_IP = 30;
 
+    /** Wrong codes per account per day, across sign-in, activation and checkout codes (L-3). */
+    public const FAILURES_PER_DAY = 30;
+
+    public const DAY = 86400;
+
     public function __construct(
         private readonly Outbox $outbox,
         private readonly SmsChannel $sms,
@@ -79,6 +87,7 @@ final class CustomerOtp
 
     /**
      * The fixed demo code, or null when it is unset, malformed or the environment is not a demo one (PORTAL_DEMO_OTP).
+     * Even then it opens only the showcase accounts (isDemoAccount).
      */
     public static function demoCode(): ?string
     {
@@ -90,11 +99,23 @@ final class CustomerOtp
         return app()->environment((array) config('portal.demo_otp_environments')) ? $code : null;
     }
 
-    private static function isDemoCode(string $code): bool
+    /**
+     * The showcase data's customers: their email is on the reserved demo domain (a `.test` name no real customer can
+     * own, M-5). Any other account needs its real code even where the demo code is enabled.
+     */
+    public static function isDemoAccount(?Customer $customer): bool
+    {
+        $domain = (string) config('portal.demo_otp_email_domain');
+        $email = mb_strtolower((string) $customer?->email);
+
+        return $domain !== '' && $email !== '' && str_ends_with($email, '@'.mb_strtolower($domain));
+    }
+
+    private static function isDemoCode(string $code, ?Customer $customer): bool
     {
         $demo = self::demoCode();
 
-        return $demo !== null && hash_equals($demo, $code);
+        return $demo !== null && hash_equals($demo, $code) && self::isDemoAccount($customer);
     }
 
     private static function logDemoUse(string $purpose, int $customerId): void
@@ -115,7 +136,7 @@ final class CustomerOtp
             "portal-otp:send:{$hash}" => [self::SENDS_PER_IDENTIFIER, self::WINDOW],
             $ipKey => [self::SENDS_PER_IP, self::WINDOW],
         ];
-        $this->ensureNotLocked($hash, $ip);
+        self::ensureNotLocked($identifier, $ip);
         foreach ($limits as $key => [$max]) {
             if (RateLimiter::tooManyAttempts($key, $max)) {
                 throw new OtpThrottled(RateLimiter::availableIn($key));
@@ -157,15 +178,15 @@ final class CustomerOtp
     public function verify(string $identifier, string $code, ?string $ip): ?array
     {
         $hash = self::identifierHash($identifier);
-        $this->ensureNotLocked($hash, $ip);
+        self::ensureNotLocked($identifier, $ip);
 
-        $demo = self::isDemoCode($code);
-        $result = DB::transaction(function () use ($hash, $code, $demo) {
+        $result = DB::transaction(function () use ($hash, $code) {
             $challenge = CustomerOtpChallenge::query()->where('identifier_hash', $hash)->whereIn('purpose', [self::LOGIN, self::ACTIVATION])
                 ->whereNull('consumed_at')->where('expires_at', '>', now())->latest('id')->lockForUpdate()->first();
             if ($challenge === null) {
-                return null;
+                return false;
             }
+            $demo = self::isDemoCode($code, Customer::query()->find($challenge->customer_id));
             if (! $demo && (preg_match('/^\d{'.self::DIGITS.'}$/', $code) !== 1 || ! hash_equals($challenge->code_hash, self::codeHash($hash, $code)))) {
                 $challenge->attempts++;
                 if ($challenge->attempts >= self::MAX_ATTEMPTS) {
@@ -182,12 +203,12 @@ final class CustomerOtp
             return $customer === null ? null : ['customer' => $customer, 'channel' => $challenge->channel, 'demo' => $demo];
         });
 
-        if ($result === null) {
-            $this->fail($identifier, $hash, $ip);
+        if (! is_array($result)) {
+            self::recordFailure($identifier, $ip, $result !== false);
 
             return null;
         }
-        RateLimiter::clear("portal-otp:fail:{$hash}");
+        self::clearFailures($identifier, $ip);
         if ($result['demo']) {
             self::logDemoUse(self::LOGIN, $result['customer']->id);
         }
@@ -203,12 +224,13 @@ final class CustomerOtp
     public function issueStepUp(Customer $customer, string $subject, ?string $ip): ?string
     {
         $hash = self::identifierHash($customer->mobile);
+        // Step-up codes keep their own budget per account (L-2): sign-in requests by anyone else never use it up.
         $limits = [
-            "portal-otp:cooldown:{$hash}:{$subject}" => [1, self::RESEND_COOLDOWN],
-            "portal-otp:send:{$hash}" => [self::SENDS_PER_IDENTIFIER, self::WINDOW],
+            "portal-otp:step-up-cooldown:{$customer->id}:{$subject}" => [1, self::RESEND_COOLDOWN],
+            "portal-otp:step-up-send:{$customer->id}" => [self::SENDS_PER_IDENTIFIER, self::WINDOW],
             'portal-otp:send-ip:'.($ip ?? 'none') => [self::SENDS_PER_IP, self::WINDOW],
         ];
-        $this->ensureNotLocked($hash, $ip);
+        self::ensureStepUpNotLocked($customer, $ip);
         foreach ($limits as $key => [$max]) {
             if (RateLimiter::tooManyAttempts($key, $max)) {
                 throw new OtpThrottled(RateLimiter::availableIn($key));
@@ -249,10 +271,9 @@ final class CustomerOtp
      */
     public function verifyStepUp(Customer $customer, string $subject, string $code, ?string $ip): ?CustomerOtpChallenge
     {
-        $hash = self::identifierHash($customer->mobile);
-        $this->ensureNotLocked($hash, $ip);
+        self::ensureStepUpNotLocked($customer, $ip);
 
-        $demo = self::isDemoCode($code);
+        $demo = self::isDemoCode($code, $customer);
         $challenge = DB::transaction(function () use ($customer, $subject, $code, $demo) {
             $challenge = CustomerOtpChallenge::query()->where('customer_id', $customer->id)->where('purpose', self::STEP_UP)
                 ->where('subject', $subject)->whereNull('consumed_at')->where('expires_at', '>', now())->latest('id')->lockForUpdate()->first();
@@ -274,11 +295,11 @@ final class CustomerOtp
         });
 
         if ($challenge === null) {
-            $this->fail($customer->mobile, $hash, $ip);
+            self::recordStepUpFailure($customer, $ip);
 
             return null;
         }
-        RateLimiter::clear("portal-otp:fail:{$hash}");
+        RateLimiter::clear("portal-otp:step-up-fail:{$customer->id}");
         if ($demo) {
             // Not persisted: lets the caller's audit record that the fixed demo code was used.
             $challenge->setAttribute('demo_used', true);
@@ -352,28 +373,111 @@ final class CustomerOtp
         ], null, $locale, "{$key}:mail");
     }
 
-    private function ensureNotLocked(string $hash, ?string $ip): void
+    /**
+     * Throws OtpThrottled while the identifier, the identifier from this address, the address or the account's day is
+     * locked. Shared with the checkout code (M-3).
+     */
+    public static function ensureNotLocked(string $identifier, ?string $ip): void
     {
-        foreach (["portal-otp:fail:{$hash}" => self::FAILURES_PER_IDENTIFIER, 'portal-otp:fail-ip:'.($ip ?? 'none') => self::FAILURES_PER_IP] as $key => $max) {
-            if (RateLimiter::tooManyAttempts($key, $max)) {
-                throw new OtpThrottled(RateLimiter::availableIn($key));
-            }
+        $hash = self::identifierHash($identifier);
+        $ipKey = $ip ?? 'none';
+        $locks = [
+            "portal-otp:fail:{$hash}" => self::FAILURES_PER_IDENTIFIER,
+            "portal-otp:fail:{$hash}:{$ipKey}" => self::FAILURES_PER_IDENTIFIER,
+            "portal-otp:fail-ip:{$ipKey}" => self::FAILURES_PER_IP,
+        ];
+        $customerId = self::anyAccount($identifier)?->id;
+        if ($customerId !== null) {
+            $locks["portal-otp:fail-day:{$customerId}"] = self::FAILURES_PER_DAY;
         }
+        self::throwWhenLocked($locks);
     }
 
-    private function fail(string $identifier, string $hash, ?string $ip): void
+    /**
+     * Counts a wrong code. Every failure counts per identifier from this address and per address; only a failure
+     * against an open code (`$challenged`) counts per identifier everywhere and against the account's day, so a stranger
+     * without codes cannot lock the customer out (L-2). Shared with the checkout code (M-3).
+     */
+    public static function recordFailure(string $identifier, ?string $ip, bool $challenged): void
     {
-        RateLimiter::hit("portal-otp:fail:{$hash}", self::WINDOW);
-        RateLimiter::hit('portal-otp:fail-ip:'.($ip ?? 'none'), self::WINDOW);
-
-        // The account's owner sees the lock in the audit trail; an unknown identifier leaves no trace.
-        if (RateLimiter::attempts("portal-otp:fail:{$hash}") === self::FAILURES_PER_IDENTIFIER) {
+        $hash = self::identifierHash($identifier);
+        $ipKey = $ip ?? 'none';
+        RateLimiter::hit("portal-otp:fail:{$hash}:{$ipKey}", self::WINDOW);
+        RateLimiter::hit("portal-otp:fail-ip:{$ipKey}", self::WINDOW);
+        $locked = RateLimiter::attempts("portal-otp:fail:{$hash}:{$ipKey}") === self::FAILURES_PER_IDENTIFIER;
+        if ($challenged) {
+            RateLimiter::hit("portal-otp:fail:{$hash}", self::WINDOW);
+            $locked = $locked || RateLimiter::attempts("portal-otp:fail:{$hash}") === self::FAILURES_PER_IDENTIFIER;
+        }
+        // The account's owner sees the lock (from one address or everywhere) once in the audit trail; an unknown
+        // identifier leaves no trace.
+        if ($locked) {
             $customer = self::account($identifier);
             if ($customer !== null) {
                 DB::transaction(fn () => Audit::record(AuditAction::PortalSignInLocked, $customer, null, after: ['ip' => $ip],
                     source: PortalSession::SOURCE, label: $customer->name));
             }
         }
+
+        $customer = $challenged ? self::anyAccount($identifier) : null;
+        if ($customer === null) {
+            return;
+        }
+        RateLimiter::hit("portal-otp:fail-day:{$customer->id}", self::DAY);
+        if (RateLimiter::attempts("portal-otp:fail-day:{$customer->id}") === self::FAILURES_PER_DAY) {
+            DB::transaction(fn () => Audit::record(AuditAction::PortalSignInLocked, $customer, null, after: ['ip' => $ip, 'daily' => true],
+                source: PortalSession::SOURCE, label: $customer->name));
+        }
+    }
+
+    /**
+     * A right code ends the window locks of the identifier (the daily cap stays: it bounds guesses, not mistakes).
+     */
+    public static function clearFailures(string $identifier, ?string $ip): void
+    {
+        $hash = self::identifierHash($identifier);
+        RateLimiter::clear("portal-otp:fail:{$hash}");
+        RateLimiter::clear("portal-otp:fail:{$hash}:".($ip ?? 'none'));
+    }
+
+    private static function ensureStepUpNotLocked(Customer $customer, ?string $ip): void
+    {
+        self::throwWhenLocked([
+            "portal-otp:step-up-fail:{$customer->id}" => self::FAILURES_PER_IDENTIFIER,
+            'portal-otp:fail-ip:'.($ip ?? 'none') => self::FAILURES_PER_IP,
+        ]);
+    }
+
+    private static function recordStepUpFailure(Customer $customer, ?string $ip): void
+    {
+        RateLimiter::hit("portal-otp:step-up-fail:{$customer->id}", self::WINDOW);
+        RateLimiter::hit('portal-otp:fail-ip:'.($ip ?? 'none'), self::WINDOW);
+        if (RateLimiter::attempts("portal-otp:step-up-fail:{$customer->id}") === self::FAILURES_PER_IDENTIFIER) {
+            DB::transaction(fn () => Audit::record(AuditAction::PortalSignInLocked, $customer, null, after: ['ip' => $ip, 'step_up' => true],
+                source: PortalSession::SOURCE, label: $customer->name));
+        }
+    }
+
+    /**
+     * @param  array<string, int>  $locks
+     */
+    private static function throwWhenLocked(array $locks): void
+    {
+        foreach ($locks as $key => $max) {
+            if (RateLimiter::tooManyAttempts($key, $max)) {
+                throw new OtpThrottled(RateLimiter::availableIn($key));
+            }
+        }
+    }
+
+    /**
+     * The account behind an identifier whether or not its workspace is open (daily cap and checkout use it).
+     */
+    private static function anyAccount(string $identifier): ?Customer
+    {
+        $column = str_contains($identifier, '@') ? 'email' : 'mobile';
+
+        return Customer::query()->where($column, $identifier)->first();
     }
 
     private static function code(): string

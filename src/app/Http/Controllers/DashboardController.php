@@ -8,6 +8,8 @@ use App\Actions\StateMachines\M02Setup\SetupSteps;
 use App\Enums\SetupStatus;
 use App\Home\HomeWidgets;
 use App\Models\Facility;
+use App\Orders\OrderStageSummary;
+use App\Reports\Dashboard\ExecutiveDashboard;
 use App\Tasks\TaskViews;
 use App\Workflow\TaskQueries;
 use Illuminate\Http\Request;
@@ -44,6 +46,10 @@ class DashboardController extends Controller
             'isExecutor' => fn () => $this->isExecutor($request),
             'exec' => fn () => $this->isExecutor($request) ? TaskViews::execHome($request->user(), $loaded()) : null,
             'taskCards' => fn () => TaskViews::homeCards($request->user(), $loaded()),
+            // «Orders needing attention»: open orders in scope whose active stage is past its due date.
+            'ordersAttention' => fn () => Access::can($request->user(), Permission::P16) ? OrderStageSummary::attention($request->user()) : null,
+            // Owners and managers land here too: a clear way into their dashboard (ADR-0031).
+            'canExecutive' => fn () => ExecutiveDashboard::canView($request->user()),
         ]);
     }
 

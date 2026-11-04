@@ -20,6 +20,25 @@ export type StatCardProps = {
     loading?: boolean;
 };
 
+/** A signed number with its separators and an optional % ("−12,345.00", "+12%"). */
+const NUMBER = /([−+-]?\d[\d,.]*%?)/u;
+
+/**
+ * Each number is LTR-isolated with its sign, so "−12,345.00 ر.س" keeps the minus before the digits
+ * and the currency after them in Arabic, whatever the value string's own direction is.
+ */
+function StatValue({ value }: { value: string }) {
+    return value.split(NUMBER).map((part, index) =>
+        index % 2 === 1 ? (
+            <bdi key={index} dir="ltr">
+                {part}
+            </bdi>
+        ) : (
+            part
+        ),
+    );
+}
+
 export function StatCard({
     label,
     value,
@@ -33,15 +52,20 @@ export function StatCard({
 }: StatCardProps) {
     const body = (
         <>
-            <div className="flex items-center justify-between gap-2">
-                <span className="text-label text-weak">{label}</span>
-                {icon && <Icon icon={icon} className="text-weak" />}
+            <div className="flex items-start justify-between gap-2">
+                <span className="min-w-0 text-label text-weak">{label}</span>
+                {icon && <Icon icon={icon} className="shrink-0 text-weak" />}
             </div>
             {loading ? (
                 <Skeleton className="my-1 h-7 w-24" />
             ) : (
-                <p className="m-0 text-title text-strong tabular-nums">
-                    {value}
+                <p
+                    data-slot="stat-value"
+                    className="m-0 text-subtitle font-semibold [overflow-wrap:anywhere] text-strong tabular-nums @[9.5rem]:text-section @[13rem]:text-title"
+                >
+                    {/* Steps down with the card's width; the space before the currency wraps first and a
+                        number breaks only in a card too narrow for it. */}
+                    <StatValue value={value} />
                 </p>
             )}
             {(delta || hint) && !loading && (
@@ -70,7 +94,7 @@ export function StatCard({
         </>
     );
     const classes =
-        'flex min-w-0 flex-col gap-1 rounded-lg border border-stroke-weak bg-surface p-5 text-inherit';
+        '@container flex min-w-0 flex-col gap-1 rounded-lg border border-stroke-weak bg-surface p-5 text-inherit';
 
     if (href) {
         return (
@@ -78,7 +102,7 @@ export function StatCard({
                 href={href}
                 className={cn(
                     classes,
-                    'no-underline hover:border-stroke-control',
+                    'no-underline transition-colors hover:border-stroke-control active:bg-fill',
                 )}
             >
                 {body}

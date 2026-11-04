@@ -176,3 +176,20 @@ it('requires a marker on every migration from ADR-0028 on', function () {
         }
     }
 });
+
+it('fails when the fixed portal demo code is set outside a demo environment (audit M-5)', function () {
+    config(['portal.demo_otp' => '424242']);
+    app()->detectEnvironment(fn () => 'production');
+
+    $check = preflight(true)['demo_otp'];
+    expect($check->result)->toBe('fail')
+        ->and($check->message)->not->toContain('424242');
+    $this->artisan('ops:preflight', ['--skip-backup-check' => true])->expectsOutputToContain('Preflight failed')->assertFailed();
+
+    app()->detectEnvironment(fn () => 'demo');
+    expect(preflight(true)['demo_otp']->result)->toBe('warn');
+
+    config(['portal.demo_otp' => '']);
+    app()->detectEnvironment(fn () => 'production');
+    expect(preflight(true)['demo_otp']->result)->toBe('pass');
+});

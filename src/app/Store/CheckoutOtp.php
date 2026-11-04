@@ -29,12 +29,19 @@ use Illuminate\Validation\ValidationException;
  * Where the code goes: SMS to the typed mobile when the facility has SMS; otherwise an email — for an existing account
  * only the account's own email (a typed address never opens someone else's account), for a new buyer the typed address
  * (which then becomes the account's verified email). Without either the buyer is asked to contact the facility.
+ *
+ * Abuse limits (pre-launch audit): codes go only to mobiles of the allowed countries and under a store-wide hourly and
+ * daily cap whatever the address (SMS pumping, M-4; the owner is told once the cap is near); wrong codes share the
+ * workspace sign-in failure caps (M-3); and a workspace staff turned off is never reopened by a checkout code (M-3).
  */
 final class CheckoutOtp
 {
     public const PURPOSE = 'checkout';
 
-    public function __construct(private readonly Outbox $outbox, private readonly SmsChannel $sms) {}
+    /** The share of the store-wide cap at which the owner is told (M-4). */
+    private const WARN_AT_PERCENT = 80;
+
+    public function __construct(private readonly Outbox $outbox, private readonly SmsChannel $sms, private readonly StoreNotices $notices) {}
 
     /**
      * Sends a code. Returns the masked destination. Throws OtpThrottled at the caps, a validation error when no channel
@@ -42,8 +49,11 @@ final class CheckoutOtp
      */
     public function issue(string $mobile, string $name, ?string $email, ?string $ip): string
     {
+        if (! self::allowedCountry($mobile)) {
+            throw ValidationException::withMessages(['mobile' => __('checkout.otp.mobile_country')]);
+        }
         $hash = CustomerOtp::identifierHash($mobile);
-        $this->guard($hash, $ip, true);
+        $this->guard($mobile, $ip, true);
 
         $customer = Customer::query()->where('mobile', $mobile)->first();
         [$channel, $to] = $this->destination($customer, $mobile, $email);
@@ -79,13 +89,13 @@ final class CheckoutOtp
     public function verify(array $buyer, string $code, ?string $ip): ?array
     {
         $hash = CustomerOtp::identifierHash($buyer['mobile']);
-        $this->guard($hash, $ip, false);
+        $this->guard($buyer['mobile'], $ip, false);
 
         $channel = DB::transaction(function () use ($hash, $code) {
             $challenge = CustomerOtpChallenge::query()->where('identifier_hash', $hash)->where('purpose', self::PURPOSE)
                 ->whereNull('consumed_at')->where('expires_at', '>', now())->latest('id')->lockForUpdate()->first();
             if ($challenge === null) {
-                return null;
+                return false;
             }
             if (preg_match('/^\d{'.CustomerOtp::DIGITS.'}$/', $code) !== 1 || ! hash_equals($challenge->code_hash, self::codeHash($hash, $code))) {
                 $challenge->attempts++;
@@ -101,13 +111,13 @@ final class CheckoutOtp
             return $challenge->channel;
         });
 
-        if ($channel === null) {
-            RateLimiter::hit("store-otp:fail:{$hash}", CustomerOtp::WINDOW);
-            RateLimiter::hit('store-otp:fail-ip:'.($ip ?? 'none'), CustomerOtp::WINDOW);
+        if (! is_string($channel)) {
+            // One failure budget with the workspace sign-in (M-3): the store is no second guessing window.
+            CustomerOtp::recordFailure($buyer['mobile'], $ip, $channel !== false);
 
             return null;
         }
-        RateLimiter::clear("store-otp:fail:{$hash}");
+        CustomerOtp::clearFailures($buyer['mobile'], $ip);
 
         return ['customer' => $this->account($buyer, $channel), 'channel' => $channel];
     }
@@ -123,6 +133,10 @@ final class CheckoutOtp
         return DB::transaction(function () use ($buyer, $channel) {
             $existing = Customer::query()->where('mobile', $buyer['mobile'])->lockForUpdate()->first();
             if ($existing !== null) {
+                // Staff turned this workspace off: the code proved the mobile, but it never reopens the account (M-3).
+                if ($existing->portal_blocked_at !== null) {
+                    throw ValidationException::withMessages(['code' => __('checkout.otp.account_blocked')]);
+                }
                 if (! $existing->portal_login_enabled) {
                     $existing->forceFill(['portal_login_enabled' => true])->save();
                 }
@@ -191,22 +205,21 @@ final class CheckoutOtp
         ], null, $locale, "{$key}:mail");
     }
 
-    private function guard(string $hash, ?string $ip, bool $sending): void
+    private function guard(string $mobile, ?string $ip, bool $sending): void
     {
-        $ipKey = $ip ?? 'none';
-        $locks = ["store-otp:fail:{$hash}" => CustomerOtp::FAILURES_PER_IDENTIFIER, "store-otp:fail-ip:{$ipKey}" => CustomerOtp::FAILURES_PER_IP];
-        foreach ($locks as $key => $max) {
-            if (RateLimiter::tooManyAttempts($key, $max)) {
-                throw new OtpThrottled(RateLimiter::availableIn($key));
-            }
-        }
+        CustomerOtp::ensureNotLocked($mobile, $ip);
         if (! $sending) {
             return;
         }
+        $hash = CustomerOtp::identifierHash($mobile);
+        $ipKey = $ip ?? 'none';
         $limits = [
             "store-otp:cooldown:{$hash}" => [1, CustomerOtp::RESEND_COOLDOWN],
             "store-otp:send:{$hash}" => [CustomerOtp::SENDS_PER_IDENTIFIER, CustomerOtp::WINDOW],
             "store-otp:send-ip:{$ipKey}" => [CustomerOtp::SENDS_PER_IP, CustomerOtp::WINDOW],
+            // Store-wide, whatever the address (M-4).
+            'store-otp:global:hour' => [(int) config('store.otp.per_hour'), 3600],
+            'store-otp:global:day' => [(int) config('store.otp.per_day'), CustomerOtp::DAY],
         ];
         foreach ($limits as $key => [$max]) {
             if (RateLimiter::tooManyAttempts($key, $max)) {
@@ -216,6 +229,32 @@ final class CheckoutOtp
         foreach ($limits as $key => [, $decay]) {
             RateLimiter::hit($key, $decay);
         }
+        $this->warnNearCap('hour', (int) config('store.otp.per_hour'));
+        $this->warnNearCap('day', (int) config('store.otp.per_day'));
+    }
+
+    /**
+     * Tells the owner once per cap window when the store-wide count reaches its warning share (M-4).
+     */
+    private function warnNearCap(string $period, int $max): void
+    {
+        if (RateLimiter::attempts("store-otp:global:{$period}") === max(1, intdiv($max * self::WARN_AT_PERCENT, 100))) {
+            $this->notices->otpCapNear($period, $max);
+        }
+    }
+
+    /**
+     * Only mobiles of the store's allowed countries (calling codes, `STORE_OTP_COUNTRY_CODES`) receive a checkout code.
+     */
+    public static function allowedCountry(string $mobile): bool
+    {
+        foreach ((array) config('store.otp.country_codes') as $code) {
+            if (is_string($code) && $code !== '' && str_starts_with($mobile, '+'.ltrim($code, '+'))) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private static function codeHash(string $identifierHash, string $code): string

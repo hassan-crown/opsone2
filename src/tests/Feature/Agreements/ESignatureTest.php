@@ -297,6 +297,8 @@ it('answers an expired or revoked signing link with an expiry page', function ()
 
 it('accepts the fixed demo code for the step-up when enabled, auditing its use without the value', function () {
     config(['portal.demo_otp' => '424242']);
+    // Only the showcase customers (reserved demo email domain) take the demo code (M-5).
+    $this->f->a->forceFill(['email' => 'portal1@mail-demo.test'])->save();
     actingAsCustomer($this->f->a);
     $form = esignForm($this->quote, ['code' => '424242']);
 

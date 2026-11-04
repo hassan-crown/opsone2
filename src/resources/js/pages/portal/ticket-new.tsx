@@ -5,6 +5,7 @@ import {
     TextareaField,
     TextField,
 } from '@/components/opsone/field';
+import { FileField } from '@/components/portal/file-field';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Spinner } from '@/components/ui/spinner';
@@ -104,13 +105,12 @@ export default function PortalTicketNew({
                                 rows={6}
                                 error={errors.body}
                             />
-                            <TextField
+                            <FileField
                                 label={t('tickets.field.files')}
                                 hint={t('tickets.field.files_hint', {
                                     max: max_files,
                                 })}
                                 name="files[]"
-                                type="file"
                                 multiple
                                 optional
                                 accept="image/jpeg,image/png,image/webp,application/pdf"

@@ -61,6 +61,24 @@ INFRA_ENVIRONMENT="${ENVIRONMENT:-local}"
 echo ">>> [installer] APP_ENV=$APP_ENVIRONMENT"
 echo ">>> [installer] INFRA ENVIRONMENT=$INFRA_ENVIRONMENT"
 
+# The fixed portal demo code is honoured only in local/testing/demo; set anywhere else it is a mistake (audit M-5).
+# The value is never printed.
+DEMO_OTP_VALUE="${PORTAL_DEMO_OTP:-}"
+if [ -z "$DEMO_OTP_VALUE" ] && [ -f .env ]; then
+  DEMO_OTP_VALUE="$(grep -E '^PORTAL_DEMO_OTP=' .env | tail -n 1 | cut -d '=' -f2- | tr -d '"' | tr -d "'" | tr -d '[:space:]' || true)"
+fi
+if [ -n "$DEMO_OTP_VALUE" ]; then
+  case "$APP_ENVIRONMENT" in
+    local|testing|demo) ;;
+    *)
+      echo ">>> [installer] ERROR: PORTAL_DEMO_OTP is set but APP_ENV is '$APP_ENVIRONMENT'."
+      echo ">>>   The fixed demo code is allowed only when APP_ENV is local, testing or demo. Remove it from .env."
+      exit 1
+      ;;
+  esac
+fi
+unset DEMO_OTP_VALUE
+
 if [ "$INFRA_ENVIRONMENT" = "prod" ] && [ "$APP_ENVIRONMENT" != "production" ]; then
   echo ">>> [installer] WARNING:"
   echo ">>>   INFRA ENVIRONMENT is prod, but Laravel APP_ENV is '$APP_ENVIRONMENT'."

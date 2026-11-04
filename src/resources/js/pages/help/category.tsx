@@ -30,11 +30,7 @@ export default function HelpCategory({
                         href={HelpController.index()}
                         className="inline-flex items-center gap-1 text-control"
                     >
-                        <Icon
-                            icon={ArrowLeft}
-                            size="sm"
-                            className="rtl:rotate-180"
-                        />
+                        <Icon icon={ArrowLeft} size="sm" />
                         {t('help.back')}
                     </Link>
                 }
