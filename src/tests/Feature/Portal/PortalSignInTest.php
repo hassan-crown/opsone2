@@ -281,6 +281,8 @@ it('lets only a holder of P-10 over the customer send the link, and only when lo
 
 it('accepts the fixed demo code in addition to the real one when enabled, and audits its use without the value', function () {
     config(['portal.demo_otp' => '424242']);
+    // Only the showcase customers (reserved demo email domain) take the demo code (M-5).
+    $this->customer->forceFill(['email' => 'portal1@mail-demo.test'])->save();
     Log::spy();
     $this->post('/portal/login', ['identifier' => $this->customer->mobile])->assertRedirect('/portal/login/verify');
     expect(otpMessages())->toBe(1)->and(lastOtpCode())->not->toBe('424242');

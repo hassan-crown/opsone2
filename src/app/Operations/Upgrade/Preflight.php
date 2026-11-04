@@ -20,6 +20,7 @@ use Throwable;
  *   maintenance mode. A fresh database (nothing ran yet) passes.
  * - queue: the listed queues are empty (jobs serialized by the old code must not meet the new code mid-flight).
  * - backup: the newest backup is within the RPO before any pending migration runs.
+ * - demo code: PORTAL_DEMO_OTP is set only in a demo environment (pre-launch audit M-5).
  */
 final class Preflight
 {
@@ -46,6 +47,7 @@ final class Preflight
             $this->queue(),
             $this->backup($pending, $skipBackupCheck),
             $this->licenseInfo(),
+            $this->demoOtp(),
         ];
     }
 
@@ -161,6 +163,18 @@ final class Preflight
         }
 
         return PreflightCheck::fail('backup', "Pending migrations and no backup newer than {$maxHours}h: run `php artisan ops:backup` first.");
+    }
+
+    private function demoOtp(): PreflightCheck
+    {
+        $environments = (array) config('portal.demo_otp_environments');
+        if (! filled(config('portal.demo_otp'))) {
+            return PreflightCheck::pass('demo_otp', 'No fixed demo code is set.');
+        }
+
+        return $this->app->environment($environments)
+            ? PreflightCheck::warn('demo_otp', 'The fixed demo code is enabled for the showcase customers (APP_ENV='.$this->app->environment().').')
+            : PreflightCheck::fail('demo_otp', 'PORTAL_DEMO_OTP is set while APP_ENV='.$this->app->environment().' (allowed only in '.implode(', ', $environments).'): remove it.');
     }
 
     private function licenseInfo(): PreflightCheck

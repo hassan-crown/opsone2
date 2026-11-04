@@ -40,6 +40,14 @@ final class UpdateCustomer
                 $locked->fill($data);
                 $changed = array_keys($locked->getDirty());
                 $before = array_intersect_key($locked->getOriginal(), array_flip($changed));
+                if (in_array('portal_login_enabled', $changed, true)) {
+                    // Turning the workspace off blocks it (a checkout code never reopens it, M-3) and voids the
+                    // activation links already sent (L-9); turning it back on lifts the block.
+                    $locked->portal_blocked_at = $locked->portal_login_enabled ? null : now();
+                    if (! $locked->portal_login_enabled) {
+                        $locked->portal_invite_version++;
+                    }
+                }
                 $locked->save();
 
                 if ($changed !== []) {
