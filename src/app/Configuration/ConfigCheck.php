@@ -3,6 +3,7 @@
 namespace App\Configuration;
 
 use App\Agreements\DocumentClauses;
+use App\Automation\AutomationRules;
 use App\Finance\Plans\PaymentPlans;
 use App\Messages\MessageCatalogue;
 use App\Messages\MessageTemplates;
@@ -119,6 +120,6 @@ final class ConfigCheck
             }
         }
 
-        return $errors;
+        return [...$errors, ...AutomationRules::errors($snapshot['automation'] ?? [])];
     }
 }

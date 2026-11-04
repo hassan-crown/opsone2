@@ -49,6 +49,9 @@ class Task extends Model implements AttachmentOwner
 
     public const KIND_CORRECTION = 'correction';
 
+    /** ADR-0042: a follow-up task an automation rule created (no flow action behind it). */
+    public const KIND_AUTOMATION = 'automation';
+
     protected $guarded = ['id'];
 
     protected $attributes = ['lock_version' => 1];

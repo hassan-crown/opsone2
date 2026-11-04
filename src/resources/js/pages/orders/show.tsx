@@ -64,6 +64,13 @@ import type { TranslationKey } from '@/lib/i18n';
 type Props = {
     order: OrderDetail;
     history: HistoryEntry[];
+    notes: {
+        id: number;
+        body: string;
+        source: string;
+        rule: string | null;
+        at: string;
+    }[];
     members: Option[];
     invoiceTypes: string[];
     transferBranches: Option[];
@@ -102,6 +109,7 @@ function Fact({
 export default function OrderShow({
     order,
     history,
+    notes,
     members,
     invoiceTypes,
     transferBranches,
@@ -687,7 +695,38 @@ export default function OrderShow({
                     </div>
                 </TabsContent>
 
-                <TabsContent value="history" className="min-w-0">
+                <TabsContent value="history" className="grid min-w-0 gap-4">
+                    {notes.length > 0 && (
+                        <Card data-test="order-notes">
+                            <h2 className="text-heading mb-4 text-strong">
+                                {t('orders.notes.title')}
+                            </h2>
+                            <ol className="grid gap-3">
+                                {notes.map((n) => (
+                                    <li
+                                        key={n.id}
+                                        className="rounded-lg bg-surface p-3 ring-1 ring-stroke-weak"
+                                    >
+                                        <p className="whitespace-pre-line">
+                                            {n.body}
+                                        </p>
+                                        <p className="mt-1 text-caption text-weak">
+                                            {n.source === 'automation'
+                                                ? t('orders.notes.automation', {
+                                                      rule: n.rule ?? '',
+                                                  })
+                                                : t('orders.history.system')}
+                                            {' · '}
+                                            {formatDate(n.at, locale, {
+                                                dateStyle: 'medium',
+                                                timeStyle: 'short',
+                                            })}
+                                        </p>
+                                    </li>
+                                ))}
+                            </ol>
+                        </Card>
+                    )}
                     <Card data-test="order-history">
                         <h2 className="text-heading mb-1 text-strong">
                             {t('orders.history.title')}

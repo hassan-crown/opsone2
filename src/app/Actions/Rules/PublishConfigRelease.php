@@ -5,6 +5,7 @@ namespace App\Actions\Rules;
 use App\Access\TransitionRecorder;
 use App\Audit\Audit;
 use App\Audit\AuditAction;
+use App\Automation\AutomationRules;
 use App\Configuration\ConfigCheck;
 use App\Configuration\ConfigDiff;
 use App\Configuration\ConfigReleases;
@@ -112,6 +113,7 @@ final class PublishConfigRelease
             'number' => ($current->number ?? 0) + 1,
             'snapshot' => $draft,
             'snapshot_hash' => ConfigSnapshot::hash($draft),
+            'automation_triggers' => AutomationRules::triggersOf($draft),
             'flow_version_id' => Flow::current()?->published_version_id,
             'notes' => $notes,
             'restored_from_id' => $from?->id,
