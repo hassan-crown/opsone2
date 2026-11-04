@@ -8,11 +8,15 @@
  *   browser supports it; the page also retries when it comes back online or opens.
  * - A field page answered by a redirect (signed out, revoked) wipes the cached pages: customer details never outlive
  *   the session on the device.
+ * - The layout registers this file as /field-sw.js?v=<asset version>: every build is a new worker with its own cache
+ *   names, so an old shell or page copy never survives a deploy.
+ * - A page served from the cache tells its tab (`stale`), and a network answer clears it (`fresh`), so the technician
+ *   knows the screen may be old.
  */
-const VERSION = 'v1';
+const VERSION = new URL(self.location.href).searchParams.get('v') || 'dev';
 const SHELL = `opsone-field-shell-${VERSION}`;
 const PAGES = `opsone-field-pages-${VERSION}`;
-const NETWORK_TIMEOUT_MS = 6000;
+const NETWORK_TIMEOUT_MS = 3000;
 const INERTIA_SUFFIX = '#inertia';
 
 self.addEventListener('install', () => self.skipWaiting());
@@ -35,7 +39,7 @@ const isFieldPage = (url) =>
     url.pathname === '/field' ||
     url.pathname === '/field/' ||
     url.pathname === '/field/install' ||
-    /^\/field\/visits\/\d+$/.test(url.pathname);
+    /^\/field\/(visits|leads)\/\d+$/.test(url.pathname);
 
 const isShell = (url) =>
     url.pathname.startsWith('/build/') ||
@@ -53,9 +57,31 @@ self.addEventListener('fetch', (event) => {
     if (isShell(url)) {
         event.respondWith(cacheFirst(request));
     } else if (isFieldPage(url)) {
-        event.respondWith(networkFirst(request, url));
+        event.respondWith(
+            networkFirst(
+                request,
+                url,
+                event.clientId || event.resultingClientId,
+            ),
+        );
     }
 });
+
+/** Tabs whose current page came from the cache; a full page load asks for its state once it is running. */
+const staleClients = new Set();
+
+async function tell(clientId, stale) {
+    if (!clientId) {
+        return;
+    }
+    if (stale) {
+        staleClients.add(clientId);
+    } else {
+        staleClients.delete(clientId);
+    }
+    const client = await self.clients.get(clientId);
+    client?.postMessage({ type: stale ? 'stale' : 'fresh' });
+}
 
 async function cacheFirst(request) {
     const cache = await caches.open(SHELL);
@@ -80,11 +106,15 @@ function pageKey(request, url) {
     );
 }
 
-async function networkFirst(request, url) {
+/**
+ * Network first. After NETWORK_TIMEOUT_MS a saved copy of the same page is shown (and marked stale) while the network
+ * answer still refreshes the cache; with no saved copy the page keeps waiting for a slow network instead of claiming
+ * to be offline. Only a failed request (really offline) falls back to the visit list or the offline notice.
+ */
+async function networkFirst(request, url, clientId) {
     const cache = await caches.open(PAGES);
     const key = pageKey(request, url);
-    try {
-        const response = await withTimeout(fetch(request), NETWORK_TIMEOUT_MS);
+    const network = fetch(request).then(async (response) => {
         if (
             response.redirected ||
             response.status === 401 ||
@@ -97,14 +127,35 @@ async function networkFirst(request, url) {
         }
 
         return response;
-    } catch (error) {
-        const hit =
-            (await cache.match(key)) ??
-            (request.mode === 'navigate'
+    });
+    try {
+        const response = await withTimeout(network, NETWORK_TIMEOUT_MS);
+        await tell(clientId, false);
+
+        return response;
+    } catch {
+        const copy = await cache.match(key);
+        if (copy) {
+            network.catch(() => undefined);
+            await tell(clientId, true);
+
+            return copy;
+        }
+    }
+    try {
+        const response = await network;
+        await tell(clientId, false);
+
+        return response;
+    } catch {
+        const list =
+            request.mode === 'navigate'
                 ? await cache.match(url.origin + '/field')
-                : undefined);
-        if (hit) {
-            return hit;
+                : undefined;
+        if (list) {
+            await tell(clientId, true);
+
+            return list;
         }
 
         return new Response(
@@ -147,6 +198,10 @@ self.addEventListener('message', (event) => {
         event.waitUntil(caches.delete(PAGES));
     } else if (data.type === 'flush') {
         event.waitUntil(flushUploads());
+    } else if (data.type === 'status' && event.source) {
+        event.source.postMessage({
+            type: staleClients.has(event.source.id) ? 'stale' : 'fresh',
+        });
     }
 });
 

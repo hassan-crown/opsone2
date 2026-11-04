@@ -1,20 +1,20 @@
 import { Head, Link, usePage } from '@inertiajs/react';
-import {
-    CalendarCheck,
-    ChevronLeft,
-    ChevronRight,
-    MapPin,
-    Phone,
-} from 'lucide-react';
+import { CalendarCheck, ChevronRight, MapPin, Phone } from 'lucide-react';
 import { useEffect } from 'react';
 import FieldController from '@/actions/App/Http/Controllers/Field/FieldController';
 import FieldLeadController from '@/actions/App/Http/Controllers/FieldSales/FieldLeadController';
-import { ReachButtons, StatusBadge } from '@/components/field/field-bits';
+import {
+    ReachButtons,
+    StatusBadge,
+    isolate,
+    useFieldDates,
+} from '@/components/field/field-bits';
 import { EmptyState } from '@/components/opsone/empty-state';
 import { Icon } from '@/components/opsone/icon';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { useLocale, useT } from '@/lib/i18n';
+import { useT } from '@/lib/i18n';
+import { formatQuantity } from '@/lib/quantity';
 import type { TranslationKey } from '@/lib/i18n';
 import type { FieldDue, FieldVisitRow, FieldWork } from '@/types/field';
 
@@ -23,17 +23,17 @@ type Props = { today: string; visits: FieldVisitRow[]; work: FieldWork | null };
 /** The response time of a dispatched lead or request (ADR-0041). */
 function DueBadge({ due }: { due: FieldDue }) {
     const t = useT();
+    const { stamp } = useFieldDates();
     if (!due.due_at) {
         return null;
     }
+    const at = isolate(stamp(due.due_at));
 
     return (
         <Badge variant={due.overdue ? 'danger' : 'neutral'} data-test="due">
-            <bdi dir="ltr">
-                {due.overdue
-                    ? t('field_sales.overdue', { at: due.due_at })
-                    : t('field_sales.due', { at: due.due_at })}
-            </bdi>
+            {due.overdue
+                ? t('field_sales.overdue', { at })
+                : t('field_sales.due', { at })}
         </Badge>
     );
 }
@@ -44,8 +44,7 @@ function DueBadge({ due }: { due: FieldDue }) {
  */
 function SalesWork({ work }: { work: FieldWork }) {
     const t = useT();
-    const { locale } = useLocale();
-    const Chevron = locale === 'ar' ? ChevronLeft : ChevronRight;
+    const { date } = useFieldDates();
 
     return (
         <div className="mb-8 flex flex-col gap-6">
@@ -87,11 +86,14 @@ function SalesWork({ work }: { work: FieldWork }) {
                                             {lead.need}
                                         </p>
                                         <p className="mt-1 mb-0 text-caption text-weak">
-                                            {lead.reference} · {lead.branch}
+                                            <bdi className="whitespace-nowrap">
+                                                {lead.reference}
+                                            </bdi>{' '}
+                                            · {lead.branch}
                                         </p>
                                     </div>
                                     <Icon
-                                        icon={Chevron}
+                                        icon={ChevronRight}
                                         className="mt-1 text-weak"
                                     />
                                 </Link>
@@ -146,10 +148,15 @@ function SalesWork({ work }: { work: FieldWork }) {
                                 {request.preferred_from && (
                                     <p className="mt-1 mb-0 text-caption text-weak">
                                         {t('field_sales.preferred', {
-                                            from: request.preferred_from,
-                                            to:
-                                                request.preferred_to ??
-                                                request.preferred_from,
+                                            from: isolate(
+                                                date(request.preferred_from),
+                                            ),
+                                            to: isolate(
+                                                date(
+                                                    request.preferred_to ??
+                                                        request.preferred_from,
+                                                ),
+                                            ),
                                         })}
                                     </p>
                                 )}
@@ -184,9 +191,8 @@ function SalesWork({ work }: { work: FieldWork }) {
  */
 export default function FieldIndex({ today, visits, work }: Props) {
     const t = useT();
-    const { locale } = useLocale();
+    const { day } = useFieldDates();
     const { version } = usePage();
-    const Chevron = locale === 'ar' ? ChevronLeft : ChevronRight;
 
     useEffect(() => {
         navigator.serviceWorker?.ready
@@ -226,14 +232,7 @@ export default function FieldIndex({ today, visits, work }: Props) {
             return t('field.tomorrow');
         }
 
-        return new Intl.DateTimeFormat(
-            locale === 'ar' ? 'ar-SA-u-ca-gregory' : 'en-GB',
-            {
-                weekday: 'long',
-                day: 'numeric',
-                month: 'long',
-            },
-        ).format(new Date(`${date}T12:00:00`));
+        return day(date);
     };
 
     return (
@@ -248,8 +247,16 @@ export default function FieldIndex({ today, visits, work }: Props) {
             {visits.length === 0 && (
                 <EmptyState
                     icon={CalendarCheck}
-                    title={t('field.empty.title')}
-                    description={t('field.empty.desc')}
+                    title={
+                        work
+                            ? t('field.empty.sales_title')
+                            : t('field.empty.title')
+                    }
+                    description={
+                        work
+                            ? t('field.empty.sales_desc')
+                            : t('field.empty.desc')
+                    }
                 />
             )}
 
@@ -277,12 +284,12 @@ export default function FieldIndex({ today, visits, work }: Props) {
                                     >
                                         <div className="min-w-0 flex-1">
                                             <div className="flex flex-wrap items-center gap-2">
-                                                <span
-                                                    className="text-label text-strong"
+                                                <bdi
+                                                    className="text-label whitespace-nowrap text-strong tabular-nums"
                                                     dir="ltr"
                                                 >
                                                     {visit.start}–{visit.end}
-                                                </span>
+                                                </bdi>
                                                 <StatusBadge
                                                     status={visit.status}
                                                 />
@@ -299,11 +306,11 @@ export default function FieldIndex({ today, visits, work }: Props) {
                                             <p className="mt-1 mb-0 text-body text-strong">
                                                 {visit.customer.name}
                                             </p>
-                                            <p className="m-0 flex items-start gap-1 text-caption text-weak">
+                                            <p className="m-0 flex items-start gap-1 text-body">
                                                 <Icon
                                                     icon={MapPin}
                                                     size="sm"
-                                                    className="mt-0.5"
+                                                    className="mt-1 text-weak"
                                                 />
                                                 {visit.address}
                                             </p>
@@ -313,19 +320,21 @@ export default function FieldIndex({ today, visits, work }: Props) {
                                                         .slice(0, 3)
                                                         .map(
                                                             (i) =>
-                                                                `${i.name} × ${i.quantity}`,
+                                                                `${i.name} × ${formatQuantity(i.quantity, i.unit, t)}`,
                                                         )
                                                         .join('، ')}
                                                     {visit.items.length > 3 &&
-                                                        ` +${visit.items.length - 3}`}
+                                                        ` ${isolate(`+${visit.items.length - 3}`)}`}
                                                 </p>
                                             )}
                                             <p className="mt-1 mb-0 text-caption text-weak">
-                                                {visit.order.number}
+                                                <bdi className="whitespace-nowrap">
+                                                    {visit.order.number}
+                                                </bdi>
                                             </p>
                                         </div>
                                         <Icon
-                                            icon={Chevron}
+                                            icon={ChevronRight}
                                             className="mt-1 text-weak"
                                         />
                                     </Link>

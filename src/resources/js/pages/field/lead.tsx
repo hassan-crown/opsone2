@@ -1,6 +1,8 @@
 import { Head, Link, router, useForm } from '@inertiajs/react';
 import {
+    ArrowLeft,
     CircleCheck,
+    CloudOff,
     MessageCircle,
     Phone,
     Repeat,
@@ -10,10 +12,12 @@ import { useState } from 'react';
 import FieldController from '@/actions/App/Http/Controllers/Field/FieldController';
 import FieldLeadController from '@/actions/App/Http/Controllers/FieldSales/FieldLeadController';
 import OrderController from '@/actions/App/Http/Controllers/Orders/OrderController';
+import { isolate, useFieldDates } from '@/components/field/field-bits';
 import { SelectField, TextareaField } from '@/components/opsone/field';
 import { Icon } from '@/components/opsone/icon';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { useOnline } from '@/layouts/field-layout';
 import { useT } from '@/lib/i18n';
 import type { TranslationKey } from '@/lib/i18n';
 import type { FieldLeadDetail } from '@/types/field';
@@ -37,6 +41,8 @@ function whatsappNumber(mobile: string): string {
  */
 export default function FieldLead({ lead, order, closeReasons }: Props) {
     const t = useT();
+    const { stamp } = useFieldDates();
+    const online = useOnline();
     const [closing, setClosing] = useState(false);
     const [busy, setBusy] = useState<'follow' | 'convert' | null>(null);
     const close = useForm({ reason: closeReasons[0] ?? 'other', note: '' });
@@ -56,25 +62,25 @@ export default function FieldLead({ lead, order, closeReasons }: Props) {
         <>
             <Head title={lead.name} />
             <div className="mb-4 flex flex-wrap items-center gap-2">
-                <Link
-                    href={FieldController.index.url()}
-                    className="text-label text-link"
-                >
-                    {t('field.back')}
-                </Link>
+                <Button asChild variant="ghost" className="-ms-3">
+                    <Link href={FieldController.index.url()}>
+                        <Icon icon={ArrowLeft} />
+                        {t('field.back')}
+                    </Link>
+                </Button>
                 <span className="ms-auto flex flex-wrap gap-2">
                     <Badge variant="info" data-test="lead-status">
                         {t(`interests.status.${lead.status}` as TranslationKey)}
                     </Badge>
                     {lead.due_at && (
                         <Badge variant={lead.overdue ? 'danger' : 'neutral'}>
-                            <bdi dir="ltr">
-                                {lead.overdue
-                                    ? t('field_sales.overdue', {
-                                          at: lead.due_at,
-                                      })
-                                    : t('field_sales.due', { at: lead.due_at })}
-                            </bdi>
+                            {lead.overdue
+                                ? t('field_sales.overdue', {
+                                      at: isolate(stamp(lead.due_at)),
+                                  })
+                                : t('field_sales.due', {
+                                      at: isolate(stamp(lead.due_at)),
+                                  })}
                         </Badge>
                     )}
                 </span>
@@ -86,7 +92,10 @@ export default function FieldLead({ lead, order, closeReasons }: Props) {
                         {lead.name}
                     </h1>
                     <p className="mt-1 mb-0 text-caption text-weak">
-                        {lead.reference} · {lead.branch} ·{' '}
+                        <bdi className="whitespace-nowrap">
+                            {lead.reference}
+                        </bdi>{' '}
+                        · {lead.branch} ·{' '}
                         {t(
                             `interests.channel.${lead.channel}` as TranslationKey,
                         )}
@@ -150,12 +159,22 @@ export default function FieldLead({ lead, order, closeReasons }: Props) {
                         className="flex flex-col gap-3 rounded-lg border border-stroke-weak bg-surface p-4"
                         aria-label={t('field_sales.lead.actions')}
                     >
+                        {!online && (
+                            <p
+                                className="m-0 flex items-center gap-2 text-caption text-warning-text"
+                                data-test="step-offline"
+                            >
+                                <Icon icon={CloudOff} size="sm" />
+                                {t('field.net.step')}
+                            </p>
+                        )}
                         {lead.can.follow && (
                             <Button
                                 type="button"
                                 variant="secondary"
                                 block
                                 loading={busy === 'follow'}
+                                disabled={!online || busy !== null}
                                 onClick={() => post('follow')}
                                 data-test="lead-follow"
                             >
@@ -169,6 +188,7 @@ export default function FieldLead({ lead, order, closeReasons }: Props) {
                                     type="button"
                                     block
                                     loading={busy === 'convert'}
+                                    disabled={!online || busy !== null}
                                     onClick={() => post('convert')}
                                     data-test="lead-convert"
                                 >
@@ -238,6 +258,7 @@ export default function FieldLead({ lead, order, closeReasons }: Props) {
                                         type="submit"
                                         variant="destructive"
                                         loading={close.processing}
+                                        disabled={!online}
                                     >
                                         {t('field_sales.lead.close_confirm')}
                                     </Button>

@@ -1,6 +1,6 @@
 import { Head, Link, router, useForm, usePage } from '@inertiajs/react';
 import {
-    Camera,
+    ArrowLeft,
     CircleAlert,
     ExternalLink,
     FilePlus2,
@@ -9,29 +9,41 @@ import {
     MapPinned,
     Ruler,
     Send,
-    Trash2,
     UserPlus,
 } from 'lucide-react';
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 import FieldController from '@/actions/App/Http/Controllers/Field/FieldController';
 import FieldLeadController from '@/actions/App/Http/Controllers/FieldSales/FieldLeadController';
 import SalesVisitController from '@/actions/App/Http/Controllers/FieldSales/SalesVisitController';
 import AgreementController from '@/actions/App/Http/Controllers/Agreements/AgreementController';
-import { ReachButtons, StatusBadge } from '@/components/field/field-bits';
-import { Step, extensionOf, useQueued } from '@/components/field/field-steps';
+import {
+    ReachButtons,
+    StatusBadge,
+    isolate,
+    useFieldDates,
+} from '@/components/field/field-bits';
+import {
+    PendingThumb,
+    PhotoButtons,
+    Step,
+    queuePhoto,
+    useQueued,
+} from '@/components/field/field-steps';
 import {
     SelectField,
     TextField,
     TextareaField,
 } from '@/components/opsone/field';
 import { Icon } from '@/components/opsone/icon';
+import { Quantity } from '@/components/opsone/quantity';
 import { Alert, AlertBody } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { compressImage, discard, enqueue, flush } from '@/lib/field-queue';
+import { useOnline } from '@/layouts/field-layout';
+import { discard } from '@/lib/field-queue';
 import { useT } from '@/lib/i18n';
 import type { TranslationKey } from '@/lib/i18n';
-import { cn } from '@/lib/utils';
+import { unitLabel } from '@/lib/quantity';
 import type { SalesVisitDetail } from '@/types/field';
 
 type Props = { visit: SalesVisitDetail; today: string };
@@ -43,13 +55,14 @@ type Props = { visit: SalesVisitDetail; today: string };
  */
 export default function SalesVisit({ visit, today }: Props) {
     const t = useT();
+    const { day, stamp } = useFieldDates();
+    const online = useOnline();
     const { errors } = usePage().props;
     const site = visit.visit;
     const running = visit.can.work;
     const { items: pending, refresh } = useQueued(visit.id);
     const [taking, setTaking] = useState(false);
     const [busy, setBusy] = useState<string | null>(null);
-    const camera = useRef<HTMLInputElement>(null);
     const url = { appointment: visit.id };
 
     const note = useForm({
@@ -78,21 +91,19 @@ export default function SalesVisit({ visit, today }: Props) {
     const take = async (file: File) => {
         setTaking(true);
         try {
-            const blob = await compressImage(file);
-            await enqueue({
-                id: crypto.randomUUID(),
-                url: SalesVisitController.photo.url(url),
-                appointmentId: visit.id,
-                phase: 'site',
-                blob,
-                name: `site.${extensionOf(blob, file)}`,
-                xsrf: '',
-                created: Date.now(),
-            });
-            await refresh();
-            await flush();
-            await refresh();
-            router.reload({ only: ['visit'] });
+            await queuePhoto(
+                file,
+                {
+                    url: SalesVisitController.photo.url(url),
+                    appointmentId: visit.id,
+                    phase: 'site',
+                },
+                refresh,
+                {
+                    title: t('field.photos.save_failed'),
+                    message: t('field.photos.save_failed_hint'),
+                },
+            );
         } finally {
             setTaking(false);
         }
@@ -106,12 +117,12 @@ export default function SalesVisit({ visit, today }: Props) {
         <>
             <Head title={visit.customer.name} />
             <div className="mb-4 flex flex-wrap items-center gap-2">
-                <Link
-                    href={FieldController.index.url()}
-                    className="text-label text-link"
-                >
-                    {t('field.back')}
-                </Link>
+                <Button asChild variant="ghost" className="-ms-3">
+                    <Link href={FieldController.index.url()}>
+                        <Icon icon={ArrowLeft} />
+                        {t('field.back')}
+                    </Link>
+                </Button>
                 <span className="ms-auto flex gap-2">
                     <Badge variant="neutral">
                         {t(`appointments.kind.${visit.kind}` as TranslationKey)}
@@ -139,11 +150,20 @@ export default function SalesVisit({ visit, today }: Props) {
                             })}
                         </p>
                     )}
-                    <p className="mt-1 mb-0 text-caption text-weak">
-                        <span dir="ltr">
-                            {visit.date} · {visit.start}–{visit.end}
-                        </span>{' '}
-                        · {visit.order.number} ·{' '}
+                    <p className="mt-1 mb-0 text-body text-strong">
+                        {day(visit.date)} ·{' '}
+                        <bdi
+                            dir="ltr"
+                            className="whitespace-nowrap tabular-nums"
+                        >
+                            {visit.start}–{visit.end}
+                        </bdi>
+                    </p>
+                    <p className="m-0 text-caption text-weak">
+                        <bdi className="whitespace-nowrap">
+                            {visit.order.number}
+                        </bdi>{' '}
+                        ·{' '}
                         {t(
                             `field_sales.channel.${visit.order.channel}` as TranslationKey,
                         )}
@@ -184,14 +204,19 @@ export default function SalesVisit({ visit, today }: Props) {
                     )}
                 </section>
 
-                <Step n={1} title={t('field.step.arrive')} done={site !== null}>
+                <Step
+                    n={1}
+                    title={t('field.step.arrive')}
+                    done={site !== null}
+                    needsNetwork
+                >
                     {site === null ? (
                         <div className="flex flex-col gap-3">
                             <Button
                                 type="button"
                                 block
                                 loading={busy === 'start'}
-                                disabled={!visit.can.start}
+                                disabled={!online || !visit.can.start}
                                 onClick={() =>
                                     post(
                                         'start',
@@ -211,7 +236,9 @@ export default function SalesVisit({ visit, today }: Props) {
                         </div>
                     ) : (
                         <p className="m-0 text-body">
-                            {t('field.arrive.done', { at: site.arrived_at })}
+                            {t('field.arrive.done', {
+                                at: isolate(stamp(site.arrived_at)),
+                            })}
                         </p>
                     )}
                 </Step>
@@ -221,6 +248,7 @@ export default function SalesVisit({ visit, today }: Props) {
                     title={t('field_sales.visit.notes')}
                     done={!!site?.note}
                     disabled={!running}
+                    needsNetwork={running}
                 >
                     <form
                         className="flex flex-col gap-3"
@@ -247,7 +275,7 @@ export default function SalesVisit({ visit, today }: Props) {
                             variant="secondary"
                             block
                             loading={note.processing}
-                            disabled={!running}
+                            disabled={!running || !online}
                         >
                             {t('field_sales.visit.save_notes')}
                         </Button>
@@ -280,72 +308,24 @@ export default function SalesVisit({ visit, today }: Props) {
                                 />
                             ))}
                             {waiting.map((item) => (
-                                <div key={item.id} className="relative">
-                                    <img
-                                        src={item.preview}
-                                        alt=""
-                                        className="aspect-square w-full rounded-md border border-dashed border-stroke-control object-cover opacity-70"
-                                    />
-                                    <span
-                                        className={cn(
-                                            'absolute inset-x-1 bottom-1 rounded-sm px-1 text-center text-caption',
-                                            item.failed
-                                                ? 'bg-danger-bg text-danger-text'
-                                                : 'bg-surface/90 text-weak',
-                                        )}
-                                    >
-                                        {item.failed
-                                            ? t('field.photos.refused')
-                                            : t('field.photos.waiting')}
-                                    </span>
-                                    {item.failed && (
-                                        <button
-                                            type="button"
-                                            onClick={() =>
-                                                void discard(item.id).then(
-                                                    refresh,
-                                                )
-                                            }
-                                            className="absolute end-1 top-1 rounded-full bg-surface p-1"
-                                            aria-label={t(
-                                                'field.photos.discard',
-                                            )}
-                                        >
-                                            <Icon icon={Trash2} size="sm" />
-                                        </button>
-                                    )}
-                                </div>
+                                <PendingThumb
+                                    key={item.id}
+                                    item={item}
+                                    onDiscard={(id) =>
+                                        void discard(id).then(refresh)
+                                    }
+                                />
                             ))}
                         </div>
-                        <input
-                            ref={camera}
-                            type="file"
-                            accept="image/*"
-                            capture="environment"
-                            className="sr-only"
-                            tabIndex={-1}
-                            onChange={(e) => {
-                                const file = e.target.files?.[0];
-                                e.target.value = '';
-                                if (file) {
-                                    void take(file);
-                                }
-                            }}
-                        />
-                        <Button
-                            type="button"
-                            variant="secondary"
-                            block
-                            loading={taking}
+                        <PhotoButtons
+                            label={t('field_sales.visit.take_photo')}
+                            busy={taking}
                             disabled={
                                 !running ||
                                 visit.photos.length >= visit.max_photos
                             }
-                            onClick={() => camera.current?.click()}
-                        >
-                            <Icon icon={Camera} />
-                            {t('field_sales.visit.take_photo')}
-                        </Button>
+                            onPick={(file) => void take(file)}
+                        />
                     </div>
                 </Step>
 
@@ -354,6 +334,7 @@ export default function SalesVisit({ visit, today }: Props) {
                     title={t('field_sales.visit.measurements')}
                     done={visit.measurements.length > 0}
                     disabled={!visit.can.measure}
+                    needsNetwork={visit.can.measure}
                 >
                     {visit.measurements.length > 0 && (
                         <ul
@@ -368,9 +349,11 @@ export default function SalesVisit({ visit, today }: Props) {
                                     <span>
                                         {m.location} — {m.name}
                                     </span>
-                                    <bdi dir="ltr" className="text-strong">
-                                        {m.value} {m.unit}
-                                    </bdi>
+                                    <Quantity
+                                        value={m.value}
+                                        unit={m.unit}
+                                        className="text-strong"
+                                    />
                                 </li>
                             ))}
                         </ul>
@@ -431,7 +414,7 @@ export default function SalesVisit({ visit, today }: Props) {
                                 }
                                 options={visit.units.map((u) => ({
                                     value: u,
-                                    label: u,
+                                    label: unitLabel(u, t),
                                 }))}
                             />
                             <SelectField
@@ -453,6 +436,7 @@ export default function SalesVisit({ visit, today }: Props) {
                                 variant="secondary"
                                 className="col-span-2"
                                 loading={measure.processing}
+                                disabled={!online}
                             >
                                 <Icon icon={Ruler} />
                                 {t('field_sales.visit.add_measurement')}
@@ -473,6 +457,7 @@ export default function SalesVisit({ visit, today }: Props) {
                     done={visit.documents.some((d) =>
                         ['awaiting_customer', 'approved'].includes(d.status),
                     )}
+                    needsNetwork
                 >
                     <div className="flex flex-col gap-3">
                         {visit.documents.length === 0 && (
@@ -491,7 +476,9 @@ export default function SalesVisit({ visit, today }: Props) {
                                         {t(
                                             `agreements.kind.${doc.kind}` as TranslationKey,
                                         )}{' '}
-                                        {doc.number}
+                                        <bdi className="whitespace-nowrap">
+                                            {doc.number}
+                                        </bdi>
                                     </span>
                                     <Badge variant="info">
                                         {t(
@@ -505,6 +492,7 @@ export default function SalesVisit({ visit, today }: Props) {
                                         variant="secondary"
                                         block
                                         loading={busy === `send-${doc.id}`}
+                                        disabled={!online || busy !== null}
                                         onClick={() =>
                                             post(
                                                 `send-${doc.id}`,
@@ -530,6 +518,7 @@ export default function SalesVisit({ visit, today }: Props) {
                                         type="button"
                                         block
                                         loading={busy === `link-${doc.id}`}
+                                        disabled={!online || busy !== null}
                                         onClick={() =>
                                             post(
                                                 `link-${doc.id}`,
@@ -555,6 +544,7 @@ export default function SalesVisit({ visit, today }: Props) {
                                 variant="secondary"
                                 block
                                 loading={busy === 'quote'}
+                                disabled={!online || busy !== null}
                                 onClick={() =>
                                     post(
                                         'quote',
@@ -587,6 +577,7 @@ export default function SalesVisit({ visit, today }: Props) {
                                 variant="ghost"
                                 block
                                 loading={busy === 'invite'}
+                                disabled={!online || busy !== null}
                                 onClick={() =>
                                     post(
                                         'invite',
@@ -613,11 +604,12 @@ export default function SalesVisit({ visit, today }: Props) {
                     title={t('field_sales.visit.finish')}
                     done={site?.finished_at != null}
                     disabled={!running}
+                    needsNetwork={running}
                 >
                     {site?.finished_at ? (
                         <p className="m-0 text-body">
                             {t('field_sales.visit.finished_at', {
-                                at: site.finished_at,
+                                at: isolate(stamp(site.finished_at)),
                             })}
                             {site.outcome && ` — ${site.outcome}`}
                         </p>
@@ -646,7 +638,7 @@ export default function SalesVisit({ visit, today }: Props) {
                                 type="submit"
                                 block
                                 loading={finish.processing}
-                                disabled={!running}
+                                disabled={!running || !online}
                                 data-test="sales-finish"
                             >
                                 <Icon icon={Flag} />
