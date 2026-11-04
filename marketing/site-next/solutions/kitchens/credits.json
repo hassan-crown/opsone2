@@ -1,0 +1,48 @@
+{
+  "_note": "Internal provenance record for the photographs on the kitchens page. Nothing here is shown on the page; every image is CC0 or public domain and needs no attribution.",
+  "images": [
+    {
+      "file": "img/kitchen-hero-1400.jpg, img/kitchen-hero-820.jpg",
+      "used": "hero; home page «حلول حسب نشاطك» card",
+      "source": "https://commons.wikimedia.org/wiki/File:Kitchen_Countertop_Installation_%26_Custom_Stone_Fitting.jpg",
+      "original": "https://upload.wikimedia.org/wikipedia/commons/f/fa/Kitchen_Countertop_Installation_%26_Custom_Stone_Fitting.jpg",
+      "licence": "CC0 1.0 (as stated on the Wikimedia Commons file page)",
+      "people": "none",
+      "edits": "resized, recompressed"
+    },
+    {
+      "file": "img/kitchen-hardware-1000.jpg",
+      "used": "channels: online store",
+      "source": "https://commons.wikimedia.org/wiki/File:Kitchen_cabinet_hardware_2009.jpg",
+      "original": "https://upload.wikimedia.org/wikipedia/commons/c/cf/Kitchen_cabinet_hardware_2009.jpg",
+      "licence": "Public domain (released by the author, as stated on the Wikimedia Commons file page)",
+      "people": "none",
+      "edits": "resized, recompressed"
+    },
+    {
+      "file": "og-kitchens.jpg",
+      "used": "Open Graph / Twitter image",
+      "source": "composed from img/kitchen-hero-1400.jpg with the OpsOne logo and the page title",
+      "licence": "derived from CC0",
+      "people": "none"
+    },
+    {
+      "file": "img/kitchen-display-1000.jpg",
+      "used": "channels: showroom",
+      "source": "https://commons.wikimedia.org/wiki/File:Kitchen_cabinet_display_in_2009_in_NJ.jpg",
+      "original": "https://upload.wikimedia.org/wikipedia/commons/6/61/Kitchen_cabinet_display_in_2009_in_NJ.jpg",
+      "licence": "Public domain (as stated on the Wikimedia Commons file page)",
+      "people": "none",
+      "edits": "resized, recompressed"
+    },
+    {
+      "file": "img/kitchen-measure-1000.jpg",
+      "used": "channels: measuring at the customer's home",
+      "source": "https://commons.wikimedia.org/wiki/File:Measuring-tape.jpg",
+      "original": "https://upload.wikimedia.org/wikipedia/commons/1/17/Measuring-tape.jpg",
+      "licence": "Public domain (as stated on the Wikimedia Commons file page)",
+      "people": "none",
+      "edits": "resized, recompressed"
+    }
+  ]
+}

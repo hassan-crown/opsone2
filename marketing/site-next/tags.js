@@ -4,6 +4,9 @@
    window.opsTrack('lead') reports the demo request to whichever tags are loaded. */
 (() => {
   const ids = (window.OPSONE_LANDING && window.OPSONE_LANDING.tags) || {};
+  // sector pages set window.OPSONE_PAGE = { sector: 'kitchens' }; the sector rides on page_view and on the lead
+  const sector = ((window.OPSONE_PAGE || {}).sector || '').trim();
+  const withSector = (o) => (sector ? { ...o, sector } : o);
   const KEY = 'opsone-consent';
   const any = ['ga4', 'gtm', 'metaPixel', 'tiktokPixel', 'snapPixel', 'linkedin'].some((k) => ids[k]);
   const store = { get: () => { try { return localStorage.getItem(KEY); } catch { return null; } }, set: (v) => { try { localStorage.setItem(KEY, v); } catch { /* private mode */ } } };
@@ -18,12 +21,12 @@
   const load = () => {
     if (loaded) return; loaded = true;
     gtag('consent', 'update', { ad_storage: 'granted', analytics_storage: 'granted', ad_user_data: 'granted', ad_personalization: 'granted' });
-    if (ids.gtm) { window.dataLayer.push({ 'gtm.start': Date.now(), event: 'gtm.js' }); script(`https://www.googletagmanager.com/gtm.js?id=${encodeURIComponent(ids.gtm)}`); }
-    if (ids.ga4) { gtag('js', new Date()); gtag('config', ids.ga4); script(`https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(ids.ga4)}`); }
+    if (ids.gtm) { if (sector) window.dataLayer.push({ sector }); window.dataLayer.push({ 'gtm.start': Date.now(), event: 'gtm.js' }); script(`https://www.googletagmanager.com/gtm.js?id=${encodeURIComponent(ids.gtm)}`); }
+    if (ids.ga4) { gtag('js', new Date()); gtag('config', ids.ga4, withSector({})); script(`https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(ids.ga4)}`); }
     if (ids.metaPixel) {
       const f = window.fbq = function fbq() { f.callMethod ? f.callMethod.apply(f, arguments) : f.queue.push(arguments); };
       if (!window._fbq) window._fbq = f; f.push = f; f.loaded = true; f.version = '2.0'; f.queue = [];
-      script('https://connect.facebook.net/en_US/fbevents.js'); fbq('init', ids.metaPixel); fbq('track', 'PageView');
+      script('https://connect.facebook.net/en_US/fbevents.js'); fbq('init', ids.metaPixel); fbq('track', 'PageView', withSector({}));
     }
     if (ids.tiktokPixel) {
       const t = window.ttq = window.ttq || []; const m = ['page', 'track', 'identify'];
@@ -44,12 +47,12 @@
   // the demo request, reported once to each loaded tag
   window.opsTrack = (name) => {
     if (!loaded || name !== 'lead') return;
-    gtag('event', 'generate_lead', { form_name: 'demo_request' });
+    gtag('event', 'generate_lead', withSector({ form_name: 'demo_request' }));
     if (ids.googleAdsLead) gtag('event', 'conversion', { send_to: ids.googleAdsLead });
-    if (ids.gtm) window.dataLayer.push({ event: 'demo_request' });
-    if (window.fbq) fbq('track', 'Lead');
-    if (window.ttq && ttq.track) ttq.track('SubmitForm');
-    if (window.snaptr) snaptr('track', 'SIGN_UP');
+    if (ids.gtm) window.dataLayer.push(withSector({ event: 'demo_request' }));
+    if (window.fbq) fbq('track', 'Lead', sector ? { content_category: sector } : {});
+    if (window.ttq && ttq.track) ttq.track('SubmitForm', sector ? { content_category: sector } : {});
+    if (window.snaptr) snaptr('track', 'SIGN_UP', sector ? { item_category: sector } : {});
     if (window.lintrk && ids.linkedinLeadConversion) lintrk('track', { conversion_id: +ids.linkedinLeadConversion });
   };
 

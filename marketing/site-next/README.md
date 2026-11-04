@@ -378,3 +378,19 @@ code-led (لا أداة توليد صور معتمدة). المتحدّون ال
 - GSAP وScrollTrigger في `vendor/`، يُحمّلان فقط على الشاشات ≥1024px مع السماح بالحركة.
 - أُصلح الفيض الأفقي 23px عند تكبير النص 200% على الجوال (رقم ORD-2026-00178 في Bento صار يُكسر بدل أن يدفع الصفحة).
 - عقد الاتجاه: `.impeccable/surfaces/marketing-site-next-index-html.md`.
+
+## 11. صفحات الحلول حسب النشاط (`solutions/`)
+
+| الملف | ما هو |
+|---|---|
+| `solutions/build.mjs` | سكربت Node بلا اعتماديات يولّد صفحة نشاط HTML ثابتة: `node marketing/site-next/solutions/build.mjs kitchens` |
+| `solutions/sector.css`، `solutions/sector.js` | شكل وسلوك أقسام صفحات النشاط، فوق `styles.css` للصفحة الرئيسية |
+| `solutions/<نشاط>/data.json` | كل محتوى الصفحة: النصوص، المحطات وشاشاتها، طلب المثال، المشكلات والحلول، القنوات، الإعداد الجاهز، الأدوار، الأسئلة، الصور وSEO |
+| `solutions/<نشاط>/index.html` | **مولَّد**. لا يُعدَّل يدويًا |
+| `solutions/<نشاط>/RESEARCH.md`، `credits.json` | البحث بمصادره وربط كل ادعاء بالكود، وتراخيص الصور |
+
+- رمز الأيقونات ونموذج الطلب والتذييل وشريط الموافقة تُؤخذ من `index.html` وقت البناء، فتبقى واحدة في كل الصفحات.
+- السكربت يتحقق من أن مجموع طلب المثال يطابق `expectTotal`، وأن خطة الدفعات 100%.
+- صفحة النشاط تضبط `window.OPSONE_PAGE = { sector }`، فيرسل `tags.js` القيمة مع page_view ومع حدث الطلب، ويُرسل النموذج حقل `sector` مخفيًا.
+- **نشاط جديد:** انسخ `solutions/kitchens/data.json` إلى مجلد جديد، وغيّر النصوص والصور، وأضف صفحته إلى `sitemap.xml` وإلى قسم «حلول حسب نشاطك» في `index.html`، ثم شغّل البناء.
+- الصفحة الأولى: `solutions/kitchens/` (معارض المطابخ). اللقطات في `solutions/kitchens/screens/`.
