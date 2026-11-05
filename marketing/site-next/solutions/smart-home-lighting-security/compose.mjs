@@ -130,7 +130,7 @@ const ART = {
   },
 };
 const lanePic = (c) => (!c.art
-  ? `<figure class="lane__photo"><img src="${esc(c.image.src)}" width="${c.image.w}" height="${c.image.h}" alt="${esc(c.image.alt)}" loading="lazy" decoding="async"></figure>`
+  ? `<figure class="lane__photo"><img src="${esc(c.image.src)}"${c.image.srcset ? ` srcset="${esc(c.image.srcset)}" sizes="(max-width: 760px) 100vw, 50vw"` : ''} width="${c.image.w}" height="${c.image.h}" alt="${esc(c.image.alt)}" loading="lazy" decoding="async"></figure>`
   : `<figure class="lane__photo lane__photo--art">${ART[c.art.kind](c.art.alt)}</figure>`);
 const channels = `<section class="band shchan" id="channels" aria-labelledby="channels-title">
   <div class="wrap">

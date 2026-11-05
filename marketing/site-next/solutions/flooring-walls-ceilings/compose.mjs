@@ -188,7 +188,7 @@ const channels = `<section class="band fchan" id="channels" aria-labelledby="cha
     ${head('channels', c.title, c.lede)}
     <ol class="zig">
 ${c.items.map((x, i) => `      <li class="zig__row">
-        <figure class="zig__pic"><img src="${esc(x.image.src)}" width="${x.image.w}" height="${x.image.h}" alt="${esc(x.image.alt)}" loading="lazy" decoding="async"></figure>
+        <figure class="zig__pic"><img src="${esc(x.image.src)}"${x.image.srcset ? ` srcset="${esc(x.image.srcset)}" sizes="(max-width: 760px) 100vw, 50vw"` : ''} width="${x.image.w}" height="${x.image.h}" alt="${esc(x.image.alt)}" loading="lazy" decoding="async"></figure>
         <div class="zig__text"><span class="zig__n nums" aria-hidden="true">${String(i + 1).padStart(2, '0')}</span><h3>${icon(x.icon)}${esc(x.title)}</h3><p>${esc(x.text)}</p></div>
       </li>`).join('\n')}
     </ol>
