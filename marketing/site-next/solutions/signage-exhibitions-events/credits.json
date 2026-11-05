@@ -1,0 +1,11 @@
+{
+  "_note": "Internal provenance record for the images on the signage, exhibitions and events page. Nothing here is shown on the page. Every image is drawn in code for OpsOne (draw-images.mjs), so none needs attribution. Four slots; to swap one for a photograph, put the file in img/ and change its src (and w/h) in data.json, then add its licence here.",
+  "images": [
+    { "file": "img/signage-hero.svg", "used": "hero; proposed home page «حلول حسب نشاطك» card", "source": "drawn in code: draw-images.mjs (isometric 6 × 4 m booth)", "licence": "OpsOne original", "people": "none" },
+    { "file": "img/signage-facade.svg", "used": "channels: showroom and factory", "source": "drawn in code: draw-images.mjs (shopfront elevation with a lit fascia)", "licence": "OpsOne original", "people": "none" },
+    { "file": "img/signage-rollup.svg", "used": "channels: ready-made print store", "source": "drawn in code: draw-images.mjs (roll-up stands)", "licence": "OpsOne original", "people": "none" },
+    { "file": "img/signage-survey.svg", "used": "channels: field rep at the client's site", "source": "drawn in code: draw-images.mjs (tape measure across a facade)", "licence": "OpsOne original", "people": "none" },
+    { "file": "og-signage.jpg", "used": "Open Graph / Twitter image", "source": "composed from img/signage-hero.svg with the OpsOne logo and the page title", "licence": "OpsOne original", "people": "none" }
+  ],
+  "_why_no_photos": "Magnific was not authorised in this session, Wikimedia Commons rate-limited the search (HTTP 429), and the open exhibition-stand photos found carry exhibitors' trademarks."
+}
