@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Store;
 use App\Http\Controllers\Controller;
 use App\Marketing\Tracking;
 use App\Models\Catalog\CatalogReadyProduct;
-use App\Models\Facility;
 use App\Site\Seo\JsonLd;
 use App\Site\Seo\Slug;
 use App\Site\SiteContext;
@@ -74,7 +73,7 @@ final class StoreController extends Controller
         }
 
         $alternates = $this->alternates(fn (string $l) => $this->site->baseUrl().StoreCatalogue::path($l, $product, $item['slugs'][$l]));
-        $images = array_map(fn (string $uuid) => route('site.media', ['attachment' => $uuid]), $item['images']);
+        $images = array_values(array_map(fn (string $uuid) => route('site.media', ['attachment' => $uuid]), $item['images']));
         $storeUrl = $this->site->baseUrl().'/'.$locale.'/store';
 
         $default = $item['variants'][0];
@@ -89,7 +88,7 @@ final class StoreController extends Controller
             'og_type' => 'product',
             'image' => $images[0] ?? null,
             'image_alt' => $item['name'],
-            'product' => ['amount' => JsonLd::gross((int) $item['from_minor']), 'currency' => strtoupper((string) (Facility::current()->currency ?? 'SAR'))],
+            'product' => ['amount' => JsonLd::gross((int) $item['from_minor']), 'currency' => Tracking::currency()],
             'json_ld' => [
                 JsonLd::encode($this->jsonLd->product($item, $alternates[$locale], $images)),
                 JsonLd::encode(JsonLd::breadcrumbs([

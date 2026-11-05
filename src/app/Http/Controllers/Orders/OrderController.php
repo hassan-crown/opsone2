@@ -19,6 +19,7 @@ use App\Http\Requests\Orders\CreateOrderRequest;
 use App\Http\Requests\Orders\UpdateOrderRequest;
 use App\Installation\InstallationPanel;
 use App\Inventory\OrderStockPanel;
+use App\Marketing\Attribution\Attribution;
 use App\Models\Branch;
 use App\Models\Order;
 use App\Models\OrderNote;
@@ -238,6 +239,7 @@ class OrderController extends Controller
             'notes' => array_values(OrderNote::query()->where('order_id', $order->id)->orderByDesc('id')->limit(50)->get()
                 ->map(fn (OrderNote $n) => ['id' => $n->id, 'body' => $n->body, 'source' => $n->source, 'rule' => $n->rule_key, 'at' => $n->created_at->toIso8601String()])->all()),
             'members' => CustomerPresenter::memberOptions(),
+            'attribution' => Attribution::summaryOf($order),
             'invoiceTypes' => Order::INVOICE_TYPES,
             // P7a: availability, reservations and the stock actions of this order (ADR-0017).
             'stock' => OrderStockPanel::forOrder($order, $actor),

@@ -11,6 +11,7 @@ use App\Enums\AppointmentRequestStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\AppointmentRequests\AssignAppointmentRequestRequest;
 use App\Http\Requests\AppointmentRequests\CloseAppointmentRequestRequest;
+use App\Marketing\Attribution\Attribution;
 use App\Models\AppointmentRequest;
 use App\Models\Branch;
 use App\Organization\OrgPresenter;
@@ -73,6 +74,7 @@ class AppointmentRequestController extends Controller
             'assignable' => $open ? AppointmentRequests::assignable($record) : [],
             'closeReasons' => AppointmentRequestCloseReason::values(),
             'can' => ['assign' => $open, 'close' => $open, 'schedule' => $open],
+            'attribution' => Attribution::summaryOf($record),
         ]);
     }
 

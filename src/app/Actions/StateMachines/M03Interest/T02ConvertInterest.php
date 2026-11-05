@@ -15,6 +15,7 @@ use App\Enums\InterestStatus;
 use App\Enums\OrderKind;
 use App\Enums\StateMachine;
 use App\FieldSales\FieldDispatch;
+use App\Marketing\Attribution\Attribution;
 use App\Models\Customer;
 use App\Models\FieldSales\FieldAssignment;
 use App\Models\Interest;
@@ -67,6 +68,9 @@ final class T02ConvertInterest
                 'converted_at' => now(),
                 'converted_by' => $actor->id,
             ])->save();
+            // Where the lead came from follows it to its order and customer (ADR-0045).
+            Attribution::inherit($locked, $order);
+            Attribution::inherit($locked, $customer);
 
             $this->transitions->record(
                 StateMachine::M03, 'T02', $locked, $from, InterestStatus::Converted, $actor, $source,

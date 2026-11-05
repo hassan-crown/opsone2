@@ -4,11 +4,11 @@ namespace App\Marketing;
 
 use App\Models\Catalog\CatalogReadyVariant;
 use App\Models\Facility;
-use App\Models\FinanceSettings;
 use App\Models\Store\StoreCheckout;
 use App\Money\Money;
 use App\Site\Seo\JsonLd;
 use App\Store\CheckoutStatus;
+use App\Support\RequestCache;
 use Illuminate\Support\Str;
 
 /**
@@ -32,7 +32,11 @@ final class Tracking
         return ['name' => $name, 'id' => $id ?? (string) Str::uuid(), 'params' => $params];
     }
 
-    /** Queues an event for the page the visitor lands on after a redirect. */
+    /**
+     * Queues an event for the page the visitor lands on after a redirect.
+     *
+     * @param  array<string, mixed>  $params
+     */
     public static function flash(string $name, array $params = []): void
     {
         $events = session()->get(self::FLASH, []);
@@ -63,9 +67,12 @@ final class Tracking
         ], fn ($v) => $v !== null);
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public static function variantItem(CatalogReadyVariant $variant, string $locale, int $quantity = 1): array
     {
-        return self::item($variant->code, (string) $variant->product->name->get($locale), (string) $variant->name?->get($locale), $variant->price_minor, $quantity);
+        return self::item($variant->code, (string) $variant->product->name->get($locale), (string) $variant->name->get($locale), $variant->price_minor, $quantity);
     }
 
     /**
@@ -83,7 +90,7 @@ final class Tracking
     /** What the visitor pays for `quantity` of a unit price, VAT included, in halalas. */
     public static function grossMinor(int $unitMinor, int $quantity = 1): int
     {
-        return FinanceSettings::current()->vat()->line(Money::of($unitMinor)->times((string) $quantity))->gross->minor;
+        return JsonLd::vat()->line(Money::of($unitMinor)->times((string) $quantity))->gross->minor;
     }
 
     /**
@@ -119,9 +126,10 @@ final class Tracking
         ], fn ($v) => $v !== null), $checkout->number);
     }
 
+    /** The facility's currency code, read once per request. */
     public static function currency(): string
     {
-        return strtoupper((string) (Facility::current()->currency ?? 'SAR'));
+        return app(RequestCache::class)->remember('facility.currency', fn () => strtoupper((string) (Facility::current()->currency ?? 'SAR')));
     }
 
     private static function number(string $decimal): float

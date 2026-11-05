@@ -7,6 +7,8 @@ use App\Agreements\CollectedAmounts;
 use App\Agreements\NoCollections;
 use App\Marketing\PublicPageComposer;
 use App\Models\Facility;
+use App\Models\FinanceSettings;
+use App\Models\Marketing\MarketingSettings;
 use App\Models\Membership;
 use App\Models\User;
 use App\Site\Preview\SitePreview;
@@ -59,7 +61,7 @@ class AppServiceProvider extends ServiceProvider
                 $this->app->make(Authorizer::class)->flush();
             }
         });
-        foreach ([Facility::class, Membership::class, User::class] as $model) {
+        foreach ([Facility::class, Membership::class, User::class, FinanceSettings::class, MarketingSettings::class] as $model) {
             $model::saved($flush);
             $model::deleted($flush);
         }

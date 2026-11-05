@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Store;
 
 use App\Finance\Gateway\GatewayUnavailable;
 use App\Http\Controllers\Controller;
+use App\Marketing\Attribution\Attribution;
 use App\Marketing\Tracking;
 use App\Models\Finance\GatewaySession;
 use App\Models\Store\StoreCheckout;
@@ -169,6 +170,9 @@ final class CheckoutController extends Controller
 
         $result = $this->checkouts->start($customer, $lines, $link, $request->session()->get(self::COUPON), $data['idempotency_key'],
             route('store.checkout.pending', ['locale' => $locale, 'reference' => '__REF__']));
+        foreach ([$result['checkout'], $result['checkout']->loadMissing('order')->order, $customer] as $record) {
+            Attribution::recordFor($record); // ADR-0045: where this sale came from
+        }
         if ($link === null) {
             $this->cart->clear();
         }

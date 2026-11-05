@@ -100,7 +100,7 @@ class MarketingSettings extends Model
      */
     public function profiles(): array
     {
-        return array_filter(array_diff_key($this->links ?? [], ['google_review' => true]), fn ($v) => is_string($v) && $v !== '');
+        return array_filter(array_diff_key($this->links ?? [], ['google_review' => true]), fn (string $v) => $v !== '');
     }
 
     protected function casts(): array

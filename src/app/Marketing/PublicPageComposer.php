@@ -51,8 +51,9 @@ final class PublicPageComposer
     {
         return app(RequestCache::class)->remember('marketing.policies.'.$locale, function () use ($locale) {
             $out = [];
-            foreach (SitePage::query()->with('locales')->whereIn('system_key', ['privacy', 'terms'])->orderBy('sort')->get() as $page) {
-                if (in_array($locale, $this->site->publishedLocales($page), true)) {
+            $pages = SitePage::query()->with('locales')->whereIn('system_key', ['privacy', 'terms'])->whereNull('archived_at')->orderBy('sort')->get();
+            foreach ($pages as $page) {
+                if ($page->localeRow($locale)?->published_version_id !== null) {
                     $out[(string) $page->system_key] = $this->site->path($locale, $page);
                 }
             }

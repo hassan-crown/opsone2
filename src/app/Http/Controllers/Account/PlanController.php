@@ -21,7 +21,7 @@ use Inertia\Response;
 class PlanController extends Controller
 {
     /** Capabilities the app gates on; a plan without one shows it as not included. */
-    private const CAPABILITIES = ['ready_goods', 'branch_comparisons'];
+    private const CAPABILITIES = ['ready_goods', 'branch_comparisons', 'marketing_reports'];
 
     public function __invoke(Request $request, CurrentLicense $license, LicenseLimits $limits): Response
     {

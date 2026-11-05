@@ -20,6 +20,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Customers\InterestCloseRequest;
 use App\Http\Requests\Customers\InterestReopenRequest;
 use App\Http\Requests\Customers\InterestRequest;
+use App\Marketing\Attribution\Attribution;
 use App\Models\Branch;
 use App\Models\Customer;
 use App\Models\Interest;
@@ -136,6 +137,7 @@ class InterestController extends Controller
             'order' => $order !== null && OrderAccess::canView($actor, $order) ? ['id' => $order->id, 'number' => $order->number] : null,
             'can' => $this->can($actor, $interest),
             'members' => CustomerPresenter::memberOptions(),
+            'attribution' => Attribution::summaryOf($interest),
         ]);
     }
 

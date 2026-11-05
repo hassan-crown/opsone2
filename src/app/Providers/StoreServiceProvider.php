@@ -5,6 +5,7 @@ namespace App\Providers;
 use App\Finance\Gateway\GatewayOutcomes;
 use App\Finance\Gateway\GatewayRegistry;
 use App\Finance\Gateway\Moyasar\MoyasarGateway;
+use App\Http\Middleware\CaptureAttribution;
 use App\Http\Middleware\SiteLocale;
 use App\Http\Middleware\SitePreviewMode;
 use App\Models\Store\StoreLink;
@@ -71,7 +72,7 @@ final class StoreServiceProvider extends ServiceProvider
      */
     public static function publicMiddleware(): array
     {
-        return ['customer', SiteLocale::class, SitePreviewMode::class];
+        return ['customer', SiteLocale::class, SitePreviewMode::class, CaptureAttribution::class];
     }
 
     public static function checkouts(): StoreCheckouts

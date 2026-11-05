@@ -38,6 +38,7 @@ it('shows plan, term, capabilities and usage of the active license', function ()
             ->where('capabilities', [
                 ['key' => 'ready_goods', 'enabled' => true],
                 ['key' => 'branch_comparisons', 'enabled' => true],
+                ['key' => 'marketing_reports', 'enabled' => true], // ADR-0045
             ])
             ->where('usage.seats.used', 2)
             ->where('usage.seats.members', 2)
@@ -81,6 +82,7 @@ it('shows a basic plan without the optional modules', function () {
             ->where('capabilities', [
                 ['key' => 'ready_goods', 'enabled' => false],
                 ['key' => 'branch_comparisons', 'enabled' => false],
+                ['key' => 'marketing_reports', 'enabled' => false],
             ])
             ->where('usage.seats.limit', 5)
             ->where('usage.branches.limit', 1));

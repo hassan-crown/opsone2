@@ -12,6 +12,7 @@ use App\Reports\Definitions\CollectionAgingReport;
 use App\Reports\Definitions\CommissionsReport;
 use App\Reports\Definitions\FieldSalesReport;
 use App\Reports\Definitions\InventoryReport;
+use App\Reports\Definitions\MarketingSourcesReport;
 use App\Reports\Definitions\ProcurementReport;
 use App\Reports\Definitions\RefundsReport;
 use App\Reports\Definitions\Report;
@@ -35,7 +36,7 @@ final class ReportRegistry
     {
         $list = [new SalesReport, new CollectionAgingReport, new RefundsReport, new CommissionsReport, new WorkflowReport,
             new AppointmentsReport, new InventoryReport, new ProcurementReport, new ReturnsReport, new StoreReport,
-            new ChannelsReport, new FieldSalesReport];
+            new ChannelsReport, new FieldSalesReport, new MarketingSourcesReport];
 
         $out = [];
         foreach ($list as $report) {

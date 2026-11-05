@@ -2,6 +2,7 @@
 
 namespace App\Store;
 
+use App\Marketing\Tracking;
 use App\Models\Facility;
 use App\Money\Money;
 use App\Portal\PortalSession;
@@ -72,7 +73,7 @@ final class StoreView
     public static function money(int $minor, string $locale): string
     {
         $amount = Money::of($minor)->toInput();
-        $currency = strtoupper((string) (Facility::current()->currency ?? 'SAR'));
+        $currency = Tracking::currency(); // read once per request: a store page prints many prices
 
         return $locale === 'ar' ? $amount.' '.($currency === 'SAR' ? 'ر.س' : $currency) : $currency.' '.$amount;
     }

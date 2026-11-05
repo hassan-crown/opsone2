@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Site;
 use App\Actions\AppointmentRequests\SubmitAppointmentRequest;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\AppointmentRequests\SiteAppointmentRequestRequest;
+use App\Marketing\Attribution\Attribution;
 use App\Marketing\Tracking;
 use App\Site\SiteRenderer;
 use Illuminate\Http\RedirectResponse;
@@ -30,6 +31,12 @@ final class AppointmentRequestController extends Controller
 
         $created = $submit->fromSite($data['submission'], Arr::except($data, ['submission', 'form_token', 'website']));
 
+        $created->loadMissing(['interest', 'customer']);
+        foreach ([$created, $created->interest, $created->customer] as $record) {
+            if ($record !== null) {
+                Attribution::recordFor($record);
+            }
+        }
         Tracking::flash('appointment_request', ['form' => 'appointment']); // never the visitor's details (ADR-0045)
 
         return $back((string) $created->reference);

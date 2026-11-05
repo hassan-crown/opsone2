@@ -39,7 +39,7 @@ final class SeoController extends Controller
             $xml .= $this->entry(['ar' => $base.'/ar/store', 'en' => $base.'/en/store'], []);
             foreach ($this->catalogue->products($this->site->defaultLocale()) as $product) {
                 $urls = ['ar' => $base.StoreCatalogue::path('ar', $product['id'], $product['slugs']['ar']), 'en' => $base.StoreCatalogue::path('en', $product['id'], $product['slugs']['en'])];
-                $images = array_map(fn (string $uuid) => route('site.media', ['attachment' => $uuid]), array_slice($product['images'], 0, 10));
+                $images = array_values(array_map(fn (string $uuid) => route('site.media', ['attachment' => $uuid]), array_slice($product['images'], 0, 10)));
                 $xml .= $this->entry($urls, $images);
             }
         }
@@ -57,7 +57,7 @@ final class SeoController extends Controller
     private function entry(array $urls, array $images): string
     {
         $out = '';
-        $default = $urls[$this->site->defaultLocale()] ?? reset($urls);
+        $default = $urls[$this->site->defaultLocale()] ?? (string) reset($urls);
         foreach ($urls as $url) {
             $out .= '  <url><loc>'.e($url).'</loc>';
             foreach ($urls as $alt => $href) {

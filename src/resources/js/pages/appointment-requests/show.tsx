@@ -20,6 +20,8 @@ import { Card } from '@/components/ui/card';
 import { Spinner } from '@/components/ui/spinner';
 import { useT } from '@/lib/i18n';
 import type { TranslationKey } from '@/lib/i18n';
+import { AttributionCard } from '@/components/marketing/attribution-card';
+import type { Attribution } from '@/components/marketing/attribution-card';
 import type { AppointmentRequestDetail } from '@/types/appointment-requests';
 
 type Props = {
@@ -27,6 +29,7 @@ type Props = {
     assignable: { id: number; name: string }[];
     closeReasons: string[];
     can: { assign: boolean; close: boolean; schedule: boolean };
+    attribution: Attribution;
 };
 
 /** One appointment request (ADR-0039): call the customer, assign, book through ApptSchedule, or close with a reason. */
@@ -35,6 +38,7 @@ export default function AppointmentRequestShow({
     assignable,
     closeReasons,
     can,
+    attribution,
 }: Props) {
     const t = useT();
     const preferred = usePreferredLabel();
@@ -66,6 +70,7 @@ export default function AppointmentRequestShow({
 
             <div className="grid gap-6 lg:grid-cols-[2fr_1fr]">
                 <div className="flex flex-col gap-6">
+                    <AttributionCard attribution={attribution} />
                     <Card>
                         <h2 className="text-subtitle text-strong">
                             {t('appointment_requests.show.details')}

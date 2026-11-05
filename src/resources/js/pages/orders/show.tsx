@@ -69,6 +69,8 @@ import { api } from '@/lib/api';
 import { formatDate } from '@/lib/format';
 import { useLocale, useT } from '@/lib/i18n';
 import type { TranslationKey } from '@/lib/i18n';
+import { AttributionCard } from '@/components/marketing/attribution-card';
+import type { Attribution } from '@/components/marketing/attribution-card';
 
 type Props = {
     order: OrderDetail;
@@ -82,6 +84,7 @@ type Props = {
         at: string;
     }[];
     members: Option[];
+    attribution: Attribution;
     invoiceTypes: string[];
     transferBranches: Option[];
     stock?: OrderStock;
@@ -177,6 +180,7 @@ export default function OrderShow({
     history,
     notes,
     members,
+    attribution,
     invoiceTypes,
     transferBranches,
     stock,
@@ -928,6 +932,7 @@ export default function OrderShow({
                 </TabsContent>
 
                 <TabsContent value="history" className="grid min-w-0 gap-4">
+                    <AttributionCard attribution={attribution} />
                     {notes.length > 0 && (
                         <Card data-test="order-notes">
                             <h2 className="text-heading mb-4 text-strong">

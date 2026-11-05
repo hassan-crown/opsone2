@@ -44,7 +44,7 @@ final class Org
     {
         $org = new self;
 
-        // An active growth license (seats 15, branches 3, ready_goods, branch_comparisons) unless a test replaces it.
+        // An active growth license (seats 15, branches 3, ready_goods, branch_comparisons, marketing_reports) unless a test replaces it.
         LicenseFactory::install();
         (new RoleTemplateSeeder)->run();
         $org->facility = Facility::query()->create(['name_ar' => 'منشأة الاختبار', 'name_en' => 'Test facility']);

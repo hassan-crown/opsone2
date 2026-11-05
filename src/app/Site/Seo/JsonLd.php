@@ -2,11 +2,14 @@
 
 namespace App\Site\Seo;
 
+use App\Marketing\Tracking;
 use App\Models\Facility;
 use App\Models\FinanceSettings;
 use App\Models\Marketing\MarketingSettings;
 use App\Money\Money;
+use App\Money\VatCalculator;
 use App\Site\SiteContext;
+use App\Support\RequestCache;
 
 /**
  * schema.org structured data of the public surface (ADR-0045): the facility as a LocalBusiness, products with their
@@ -51,7 +54,7 @@ final class JsonLd
      */
     public function product(array $product, string $url, array $images): array
     {
-        $currency = strtoupper((string) (Facility::current()->currency ?? 'SAR'));
+        $currency = Tracking::currency();
         $availability = 'https://schema.org/'.($product['available'] > 0 ? 'InStock' : 'OutOfStock');
         $variants = $product['variants'];
         $offer = count($variants) > 1
@@ -78,7 +81,7 @@ final class JsonLd
     public static function breadcrumbs(array $items): array
     {
         $list = [];
-        foreach (array_values($items) as $i => $item) {
+        foreach ($items as $i => $item) {
             $list[] = ['@type' => 'ListItem', 'position' => $i + 1, 'name' => $item['name'], 'item' => $item['url']];
         }
 
@@ -121,7 +124,13 @@ final class JsonLd
     /** The price the visitor pays (VAT included whatever the facility's entry mode), as `45.00`. */
     public static function gross(int $minor): string
     {
-        return FinanceSettings::current()->vat()->line(Money::of($minor))->gross->toInput();
+        return self::vat()->line(Money::of($minor))->gross->toInput();
+    }
+
+    /** The facility's VAT rule, read once per request (a store page prices every product it lists). */
+    public static function vat(): VatCalculator
+    {
+        return app(RequestCache::class)->remember('finance.vat', fn () => FinanceSettings::current()->vat());
     }
 
     private function absolute(string $url): string

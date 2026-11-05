@@ -28,6 +28,8 @@ import {
 import { formatDateTime } from '@/lib/format';
 import { useLocale, useT } from '@/lib/i18n';
 import type { TranslationKey } from '@/lib/i18n';
+import { AttributionCard } from '@/components/marketing/attribution-card';
+import type { Attribution } from '@/components/marketing/attribution-card';
 
 type Props = {
     interest: InterestRow;
@@ -35,6 +37,7 @@ type Props = {
     order: { id: number; number: string } | null;
     can: InterestCan;
     members: Option[];
+    attribution: Attribution;
 };
 
 const TONE: Record<InterestStatus, 'info' | 'neutral' | 'success'> = {
@@ -60,6 +63,7 @@ export default function InterestShow({
     order,
     can,
     members,
+    attribution,
 }: Props) {
     const t = useT();
     const { locale } = useLocale();
@@ -250,6 +254,10 @@ export default function InterestShow({
                     )}
                 </dl>
             </Card>
+
+            <div className="mt-6">
+                <AttributionCard attribution={attribution} />
+            </div>
 
             <Dialog
                 open={dialog === 'convert'}
