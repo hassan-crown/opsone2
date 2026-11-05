@@ -785,8 +785,11 @@ summary.nav__link::-webkit-details-marker, .drawer__btn::-webkit-details-marker,
 .deck__stage { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 1.5rem; padding: 1.5rem; border-radius: 24px; background: var(--fill); }
 .deck__stage .win.mix[data-ui] { position: static; width: min(100%, 19rem); }
 .deck__close { flex-basis: 100%; text-align: center; font-weight: 600; }
-[data-ui] .mix__row { transition: opacity var(--t-swap) ease; }
-.deck__stage.has-pick [data-ui] .mix__row:not(.is-hl) { opacity: 0.45; }
+/* rows that are not picked recede by colour (still 4.5:1 on white), and only their bar fades */
+[data-ui] .mix__row { transition: color var(--t-swap) ease; }
+[data-ui] .mix__row .mix__bar { transition: opacity var(--t-swap) ease; }
+.deck__stage.has-pick [data-ui] .mix__row:not(.is-hl) { color: var(--muted); }
+.deck__stage.has-pick [data-ui] .mix__row:not(.is-hl) .mix__bar { opacity: 0.45; }
 
 /* ---------- roles: a segmented control; the chosen role lights its column in the matrix ---------- */
 .seg.roles__tabs { display: inline-grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); grid-template-columns: none; justify-self: start; padding: 4px; border-radius: 999px; background: var(--fill-2); }
