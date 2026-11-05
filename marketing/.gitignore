@@ -1,0 +1,3 @@
+# Screenshots and recordings stay local; only the reference set in screens/ref/ is committed (PR 41 review).
+screens/*
+!screens/ref/

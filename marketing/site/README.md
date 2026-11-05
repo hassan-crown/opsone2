@@ -68,7 +68,7 @@ node marketing/site/build-site.mjs
 | `design-log.md` | سجل التصميم والقرارات. |
 | `framework.md` | الإطار الأول للموقع. |
 
-اللقطات في `marketing/screens/`.
+عشر لقطات مرجعية مضغوطة في `marketing/screens/ref/`. بقية اللقطات والتسجيلات تبقى محلية ولا تُحفظ في git (`marketing/.gitignore`).
 
 ## قبل الإطلاق: ما ينقص من المالك
 
