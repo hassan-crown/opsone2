@@ -12,6 +12,8 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { header, footer, consent, pricing, solutionsGrid, site, sectors } from './site/partials.mjs';
 import { pages as plainPages, render } from './site/pages.mjs';
+import { minifyCss } from './site/mincss.mjs';
+import { readdirSync } from 'node:fs';
 import { mkdirSync } from 'node:fs';
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -30,19 +32,24 @@ put('footer', footer({ root: '' }));
 put('solutions', `    ${solutionsGrid('')}`);
 put('consent', consent({ root: '' }));
 put('pricing', pricing());
+// icons come from one cached file (assets/icons.svg), not an inline sprite on every page
+home = home.split('href="#i-').join('href="assets/icons.svg#i-');
 writeFileSync(homeFile, home);
 console.log('index.html: header, footer and sector cards written');
+
+/* ---------- minified stylesheets: every page links *.min.css; the readable *.css stay the source ---------- */
+const cssFiles = ['styles.css', 'solutions/sector.css', ...sectors.flatMap((s) => readdirSync(join(here, 'solutions', s.slug)).filter((f) => f.endsWith('.css') && !f.endsWith('.min.css')).map((f) => `solutions/${s.slug}/${f}`))];
+for (const f of cssFiles) writeFileSync(join(here, f.replace(/\.css$/, '.min.css')), minifyCss(readFileSync(join(here, f), 'utf8')));
+console.log(`css: ${cssFiles.length} files minified`);
 
 /* ---------- 2. sector pages ---------- */
 for (const s of sectors) execFileSync(process.execPath, [join(here, 'solutions', 'build.mjs'), s.slug], { stdio: 'inherit' });
 
 /* ---------- 3. plain pages: privacy, terms, cookies (drafts), thanks, 404 ---------- */
-const spriteStart = home.indexOf('<!-- Icons:'), spriteEnd = home.indexOf('</svg>\n', spriteStart) + '</svg>'.length;
-const sprite = home.slice(spriteStart, spriteEnd);
 for (const p of plainPages) {
   const file = p.path.endsWith('/') ? join(here, p.path, 'index.html') : join(here, p.path);
   mkdirSync(dirname(file), { recursive: true });
-  writeFileSync(file, render(p, sprite));
+  writeFileSync(file, render(p));
 }
 console.log(`pages: ${plainPages.map((p) => p.path).join(', ')}`);
 

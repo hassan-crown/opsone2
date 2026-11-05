@@ -31,13 +31,11 @@
 <link rel="manifest" href="site.webmanifest">
 <link rel="preload" href="assets/fonts/IBMPlexSansArabic-Bold.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="assets/fonts/IBMPlexSansArabic-Regular.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="styles.min.css">
 <script>document.documentElement.classList.add('js')</script>
 <script type="application/ld+json">{"@context": "https://schema.org", "@graph": [{"@type": "Organization", "@id": "https://www.opsone.example/#organization", "name": "OpsOne", "url": "https://www.opsone.example/", "logo": "https://www.opsone.example/assets/brand/icon-512.png"}, {"@type": "WebSite", "@id": "https://www.opsone.example/#website", "name": "OpsOne", "url": "https://www.opsone.example/", "inLanguage": "ar", "publisher": {"@id": "https://www.opsone.example/#organization"}}, {"@type": "SoftwareApplication", "name": "OpsOne", "applicationCategory": "BusinessApplication", "operatingSystem": "Web", "inLanguage": ["ar", "en"], "description": "OpsOne يجمع عملياتك كلها في مكان واحد، من أول اتصال إلى آخر توقيع: فرص البيع والمواعيد، وعروض الأسعار والعقود الموقّعة إلكترونياً، والدفعات، والزيارات الميدانية، والمتجر الإلكتروني.", "url": "https://www.opsone.example/", "image": "https://www.opsone.example/assets/og-image.jpg", "publisher": {"@id": "https://www.opsone.example/#organization"}, "author": {"@type": "Organization", "name": "Available Solutions"}, "creator": {"@type": "Organization", "name": "Available Solutions"}}]}</script>
 </head>
 <body>
-<!-- Icons: Lucide 0.475 (ISC licence, assets/vendor/LUCIDE-LICENSE.txt). -->
-<svg xmlns="http://www.w3.org/2000/svg" class="sprite" aria-hidden="true" focusable="false" style="display:none"><symbol id="i-badge-percent" viewBox="0 0 24 24"><path d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z"/><path d="m15 9-6 6"/><path d="M9 9h.01"/><path d="M15 15h.01"/></symbol><symbol id="i-bell" viewBox="0 0 24 24"><path d="M10.268 21a2 2 0 0 0 3.464 0"/><path d="M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326"/></symbol><symbol id="i-bell-ring" viewBox="0 0 24 24"><path d="M10.268 21a2 2 0 0 0 3.464 0"/><path d="M22 8c0-2.3-.8-4.3-2-6"/><path d="M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326"/><path d="M4 2C2.8 3.7 2 5.7 2 8"/></symbol><symbol id="i-boxes" viewBox="0 0 24 24"><path d="M2.97 12.92A2 2 0 0 0 2 14.63v3.24a2 2 0 0 0 .97 1.71l3 1.8a2 2 0 0 0 2.06 0L12 19v-5.5l-5-3-4.03 2.42Z"/><path d="m7 16.5-4.74-2.85"/><path d="m7 16.5 5-3"/><path d="M7 16.5v5.17"/><path d="M12 13.5V19l3.97 2.38a2 2 0 0 0 2.06 0l3-1.8a2 2 0 0 0 .97-1.71v-3.24a2 2 0 0 0-.97-1.71L17 10.5l-5 3Z"/><path d="m17 16.5-5-3"/><path d="m17 16.5 4.74-2.85"/><path d="M17 16.5v5.17"/><path d="M7.97 4.42A2 2 0 0 0 7 6.13v4.37l5 3 5-3V6.13a2 2 0 0 0-.97-1.71l-3-1.8a2 2 0 0 0-2.06 0l-3 1.8Z"/><path d="M12 8 7.26 5.15"/><path d="m12 8 4.74-2.85"/><path d="M12 13.5V8"/></symbol><symbol id="i-calendar-clock" viewBox="0 0 24 24"><path d="M21 7.5V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h3.5"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h5"/><path d="M17.5 17.5 16 16.3V14"/><circle cx="16" cy="16" r="6"/></symbol><symbol id="i-calendar-days" viewBox="0 0 24 24"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 18h.01"/><path d="M12 18h.01"/><path d="M16 18h.01"/></symbol><symbol id="i-camera" viewBox="0 0 24 24"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></symbol><symbol id="i-chart-column" viewBox="0 0 24 24"><path d="M3 3v16a2 2 0 0 0 2 2h16"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></symbol><symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol><symbol id="i-circle-check-big" viewBox="0 0 24 24"><path d="M21.801 10A10 10 0 1 1 17 3.335"/><path d="m9 11 3 3L22 4"/></symbol><symbol id="i-clipboard-list" viewBox="0 0 24 24"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4"/><path d="M12 16h4"/><path d="M8 11h.01"/><path d="M8 16h.01"/></symbol><symbol id="i-eye" viewBox="0 0 24 24"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/><circle cx="12" cy="12" r="3"/></symbol><symbol id="i-eye-off" viewBox="0 0 24 24"><path d="M10.733 5.076a10.744 10.744 0 0 1 11.205 6.575 1 1 0 0 1 0 .696 10.747 10.747 0 0 1-1.444 2.49"/><path d="M14.084 14.158a3 3 0 0 1-4.242-4.242"/><path d="M17.479 17.499a10.75 10.75 0 0 1-15.417-5.151 1 1 0 0 1 0-.696 10.75 10.75 0 0 1 4.446-5.143"/><path d="m2 2 20 20"/></symbol><symbol id="i-file-pen-line" viewBox="0 0 24 24"><path d="m18 5-2.414-2.414A2 2 0 0 0 14.172 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2"/><path d="M21.378 12.626a1 1 0 0 0-3.004-3.004l-4.01 4.012a2 2 0 0 0-.506.854l-.837 2.87a.5.5 0 0 0 .62.62l2.87-.837a2 2 0 0 0 .854-.506z"/><path d="M8 18h1"/></symbol><symbol id="i-file-text" viewBox="0 0 24 24"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></symbol><symbol id="i-folder-lock" viewBox="0 0 24 24"><rect width="8" height="5" x="14" y="17" rx="1"/><path d="M10 20H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H20a2 2 0 0 1 2 2v2.5"/><path d="M20 17v-2a2 2 0 1 0-4 0v2"/></symbol><symbol id="i-gauge" viewBox="0 0 24 24"><path d="m12 14 4-4"/><path d="M3.34 19a10 10 0 1 1 17.32 0"/></symbol><symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></symbol><symbol id="i-grip-vertical" viewBox="0 0 24 24"><circle cx="9" cy="12" r="1"/><circle cx="9" cy="5" r="1"/><circle cx="9" cy="19" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="15" cy="5" r="1"/><circle cx="15" cy="19" r="1"/></symbol><symbol id="i-hand-coins" viewBox="0 0 24 24"><path d="M11 15h2a2 2 0 1 0 0-4h-3c-.6 0-1.1.2-1.4.6L3 17"/><path d="m7 21 1.6-1.4c.3-.4.8-.6 1.4-.6h4c1.1 0 2.1-.4 2.8-1.2l4.6-4.4a2 2 0 0 0-2.75-2.91l-4.2 3.9"/><path d="m2 16 6 6"/><circle cx="16" cy="9" r="2.9"/><circle cx="6" cy="5" r="3"/></symbol><symbol id="i-inbox" viewBox="0 0 24 24"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></symbol><symbol id="i-languages" viewBox="0 0 24 24"><path d="m5 8 6 6"/><path d="m4 14 6-6 2-3"/><path d="M2 5h12"/><path d="M7 2h1"/><path d="m22 22-5-10-5 10"/><path d="M14 18h6"/></symbol><symbol id="i-layout-grid" viewBox="0 0 24 24"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></symbol><symbol id="i-list-checks" viewBox="0 0 24 24"><path d="m3 17 2 2 4-4"/><path d="m3 7 2 2 4-4"/><path d="M13 6h8"/><path d="M13 12h8"/><path d="M13 18h8"/></symbol><symbol id="i-lock" viewBox="0 0 24 24"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></symbol><symbol id="i-map-pin" viewBox="0 0 24 24"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></symbol><symbol id="i-message-circle" viewBox="0 0 24 24"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></symbol><symbol id="i-message-square-text" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M13 8H7"/><path d="M17 12H7"/></symbol><symbol id="i-percent" viewBox="0 0 24 24"><line x1="19" x2="5" y1="5" y2="19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></symbol><symbol id="i-phone" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></symbol><symbol id="i-plus" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="M12 5v14"/></symbol><symbol id="i-receipt" viewBox="0 0 24 24"><path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z"/><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"/><path d="M12 17.5v-11"/></symbol><symbol id="i-ruler" viewBox="0 0 24 24"><path d="M21.3 15.3a2.4 2.4 0 0 1 0 3.4l-2.6 2.6a2.4 2.4 0 0 1-3.4 0L2.7 8.7a2.41 2.41 0 0 1 0-3.4l2.6-2.6a2.41 2.41 0 0 1 3.4 0Z"/><path d="m14.5 12.5 2-2"/><path d="m11.5 9.5 2-2"/><path d="m8.5 6.5 2-2"/><path d="m17.5 15.5 2-2"/></symbol><symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></symbol><symbol id="i-shopping-bag" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></symbol><symbol id="i-signature" viewBox="0 0 24 24"><path d="m21 17-2.156-1.868A.5.5 0 0 0 18 15.5v.5a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1c0-2.545-3.991-3.97-8.5-4a1 1 0 0 0 0 5c4.153 0 4.745-11.295 5.708-13.5a2.5 2.5 0 1 1 3.31 3.284"/><path d="M3 21h18"/></symbol><symbol id="i-smartphone" viewBox="0 0 24 24"><rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><path d="M12 18h.01"/></symbol><symbol id="i-store" viewBox="0 0 24 24"><path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7"/><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><path d="M15 22v-4a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v4"/><path d="M2 7h20"/><path d="M22 7v3a2 2 0 0 1-2 2a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 16 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 12 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 8 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 4 12a2 2 0 0 1-2-2V7"/></symbol><symbol id="i-timer" viewBox="0 0 24 24"><line x1="10" x2="14" y1="2" y2="2"/><line x1="12" x2="15" y1="14" y2="11"/><circle cx="12" cy="14" r="8"/></symbol><symbol id="i-triangle-alert" viewBox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></symbol><symbol id="i-truck" viewBox="0 0 24 24"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M15 18H9"/><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14"/><circle cx="17" cy="18" r="2"/><circle cx="7" cy="18" r="2"/></symbol><symbol id="i-user-cog" viewBox="0 0 24 24"><circle cx="18" cy="15" r="3"/><circle cx="9" cy="7" r="4"/><path d="M10 15H6a4 4 0 0 0-4 4v2"/><path d="m21.7 16.4-.9-.3"/><path d="m15.2 13.9-.9-.3"/><path d="m16.6 18.7.3-.9"/><path d="m19.1 12.2.3-.9"/><path d="m19.6 18.7-.4-1"/><path d="m16.8 12.3-.4-1"/><path d="m14.3 16.6 1-.4"/><path d="m20.7 13.8 1-.4"/></symbol><symbol id="i-users" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></symbol><symbol id="i-wallet" viewBox="0 0 24 24"><path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1"/><path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4"/></symbol><symbol id="i-warehouse" viewBox="0 0 24 24"><path d="M22 8.35V20a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8.35A2 2 0 0 1 3.26 6.5l8-3.2a2 2 0 0 1 1.48 0l8 3.2A2 2 0 0 1 22 8.35Z"/><path d="M6 18h12"/><path d="M6 14h12"/><rect width="12" height="12" x="6" y="10"/></symbol><symbol id="i-workflow" viewBox="0 0 24 24"><rect width="8" height="8" x="3" y="3" rx="2"/><path d="M7 11v4a2 2 0 0 0 2 2h4"/><rect width="8" height="8" x="13" y="13" rx="2"/></symbol><symbol id="i-factory" viewBox="0 0 24 24"><path d="M2 20a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8l-7 5V8l-7 5V4a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/><path d="M17 18h1"/><path d="M12 18h1"/><path d="M7 18h1"/></symbol><symbol id="i-package" viewBox="0 0 24 24"><path d="M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z"/><path d="M12 22V12"/><path d="m3.3 7 7.7 4.7a2 2 0 0 0 2 0L20.7 7"/><path d="m7.5 4.27 9 5.15"/></symbol><symbol id="i-home" viewBox="0 0 24 24"><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .7-1.5l7-6a2 2 0 0 1 2.6 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></symbol><symbol id="i-arrow" viewBox="0 0 24 24"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></symbol></svg>
 <!-- @header -->
 <a class="skip" href="#main">تخطَّ إلى المحتوى</a>
 <header class="bar" id="top">
@@ -49,7 +47,7 @@
           <div class="menu__panel">
             <p class="menu__head">حلول حسب نشاطك</p>
             <ul class="menu__grid"><li><a class="menu__item" href="solutions/kitchens/"><b>معارض المطابخ</b><span>القياس والتصميم والتصنيع والتركيب</span></a></li><li><a class="menu__item" href="solutions/custom-furniture/"><b>الخزائن والأثاث حسب الطلب</b><span>الخزائن وغرف الملابس والأبواب والمجالس</span></a></li><li><a class="menu__item" href="solutions/aluminium-glass/"><b>الألمنيوم والزجاج وUPVC</b><span>النوافذ والأبواب والزجاج والواجهات</span></a></li><li><a class="menu__item" href="solutions/curtains-blinds/"><b>معارض الستائر والبلايند</b><span>قياس كل نافذة والتفصيل والتركيب</span></a></li><li><a class="menu__item" href="solutions/villa-fit-out/"><b>شركات التشطيب والتجهيز</b><span>تشطيب الفلل والشقق وتجهيز المكاتب</span></a></li><li><a class="menu__item" href="solutions/flooring-walls-ceilings/"><b>الأرضيات والجدران والأسقف</b><span>البلاط والرخام والباركيه والجبس بورد</span></a></li><li><a class="menu__item" href="solutions/smart-home-lighting-security/"><b>المنازل الذكية والإنارة والأنظمة الأمنية</b><span>المنزل الذكي والكاميرات والإنارة</span></a></li><li><a class="menu__item" href="solutions/outdoor-spaces/"><b>المظلات والسواتر والمساحات الخارجية</b><span>المظلات والسواتر والبرجولات والحدائق</span></a></li><li><a class="menu__item" href="solutions/signage-exhibitions-events/"><b>اللوحات وأجنحة المعارض</b><span>اللوحات الإعلانية وأجنحة المعارض والفعاليات</span></a></li></ul>
-            <a class="menu__all" href="#solutions">كل الحلول في الصفحة الرئيسية <svg class="ic ic--dir" aria-hidden="true"><use href="#i-arrow"/></svg></a>
+            <a class="menu__all" href="#solutions">كل الحلول في الصفحة الرئيسية <svg class="ic ic--dir" aria-hidden="true"><use href="assets/icons.svg#i-arrow"/></svg></a>
           </div>
         </details></li>
         <li><a class="nav__link" href="#fit">لمن OpsOne</a></li><li><a class="nav__link" href="#sales">مراحل العمل</a></li><li><a class="nav__link" href="#channels">قنوات البيع</a></li><li><a class="nav__link" href="#modules">الأدوات</a></li>
@@ -77,7 +75,7 @@
     <div class="hero__side">
       <p class="lead">من البيع في المعرض وعرض السعر والدفعات، إلى التصنيع والتسليم والتركيب والمتجر الإلكتروني.</p>
       <div class="acts">
-        <a class="btn btn--go" href="#demo" data-cta="hero">اطلب عرضًا تجريبيًا <svg class="ic ic--dir" aria-hidden="true"><use href="#i-arrow"/></svg></a>
+        <a class="btn btn--go" href="#demo" data-cta="hero">اطلب عرضًا تجريبيًا <svg class="ic ic--dir" aria-hidden="true"><use href="assets/icons.svg#i-arrow"/></svg></a>
         <a class="btn btn--quiet" href="#sales">شاهد مراحل العمل</a>
       </div>
     </div>
@@ -86,9 +84,9 @@
   <div class="route" id="route">
     <div class="stations" role="group" aria-label="مراحل الطلب ORD-2026-00178" id="stations">
       <span class="track" aria-hidden="true"><span class="track__fill" id="fill"></span></span>
-      <button class="station" type="button" data-k="showroom" aria-pressed="false"><span class="dot"><svg class="ic" aria-hidden="true"><use href="#i-store"/></svg></span><span class="station__name">المعرض</span><span class="sr">، مكتملة</span></button>
-      <button class="station" type="button" data-k="office" aria-pressed="false"><span class="dot"><svg class="ic" aria-hidden="true"><use href="#i-file-text"/></svg></span><span class="station__name">العقد والدفعة</span><span class="sr">، مكتملة</span></button>
-      <button class="station" type="button" data-k="factory" aria-pressed="true"><span class="dot"><svg class="ic" aria-hidden="true"><use href="#i-factory"/></svg></span><span class="station__name">المصنع</span><span class="station__tag nums" aria-hidden="true">ORD-2026-00178</span><span class="sr">، جارية الآن</span></button>
+      <button class="station" type="button" data-k="showroom" aria-pressed="false"><span class="dot"><svg class="ic" aria-hidden="true"><use href="assets/icons.svg#i-store"/></svg></span><span class="station__name">المعرض</span><span class="sr">، مكتملة</span></button>
+      <button class="station" type="button" data-k="office" aria-pressed="false"><span class="dot"><svg class="ic" aria-hidden="true"><use href="assets/icons.svg#i-file-text"/></svg></span><span class="station__name">العقد والدفعة</span><span class="sr">، مكتملة</span></button>
+      <button class="station" type="button" data-k="factory" aria-pressed="true"><span class="dot"><svg class="ic" aria-hidden="true"><use href="assets/icons.svg#i-factory"/></svg></span><span class="station__name">المصنع</span><span class="station__tag nums" aria-hidden="true">ORD-2026-00178</span><span class="sr">، جارية الآن</span></button>
       <div class="screen is-open" id="screen">
         <span class="screen__notch" id="notch" aria-hidden="true"></span>
         <div class="screen__card"><div class="screen__body" id="screen-body" aria-live="polite">
@@ -96,8 +94,8 @@
           <ul class="srows"><li><span>العقد والدفعة الأولى</span><span class="pill-s pill-s--done">مكتملة</span></li><li><span>إصدار أمر التصنيع، الإنتاج</span><span class="pill-s pill-s--done">مكتملة</span></li><li><span class="nums">التصنيع، 6 نوفمبر</span><span class="pill-s pill-s--live">جارية</span></li><li><span class="nums">التركيب والتسليم، 8 نوفمبر</span><span class="pill-s pill-s--next">لاحقًا</span></li></ul>
         </div></div>
       </div>
-      <button class="station" type="button" data-k="dispatch" aria-pressed="false"><span class="dot"><svg class="ic" aria-hidden="true"><use href="#i-package"/></svg></span><span class="station__name">التسليم</span><span class="sr">، لاحقًا</span></button>
-      <button class="station" type="button" data-k="site" aria-pressed="false"><span class="dot"><svg class="ic" aria-hidden="true"><use href="#i-home"/></svg></span><span class="station__name">موقع العميل</span><span class="sr">، لاحقًا</span></button>
+      <button class="station" type="button" data-k="dispatch" aria-pressed="false"><span class="dot"><svg class="ic" aria-hidden="true"><use href="assets/icons.svg#i-package"/></svg></span><span class="station__name">التسليم</span><span class="sr">، لاحقًا</span></button>
+      <button class="station" type="button" data-k="site" aria-pressed="false"><span class="dot"><svg class="ic" aria-hidden="true"><use href="assets/icons.svg#i-home"/></svg></span><span class="station__name">موقع العميل</span><span class="sr">، لاحقًا</span></button>
       <span class="ticket nums" id="ticket" aria-hidden="true">ORD-2026-00178</span>
     </div>
   </div>
@@ -111,12 +109,12 @@
     </div>
     <div class="pick" data-pick>
       <ul class="pick__chips">
-        <li><button class="pick__chip" type="button" aria-pressed="true" aria-controls="ans-0"><svg class="ic" aria-hidden="true"><use href="#i-store"/></svg>لديك معرض أو صالة عرض</button></li>
-        <li><button class="pick__chip" type="button" aria-pressed="true" aria-controls="ans-1"><svg class="ic" aria-hidden="true"><use href="#i-shopping-bag"/></svg>تبيع منتجات جاهزة</button></li>
-        <li><button class="pick__chip" type="button" aria-pressed="false" aria-controls="ans-2"><svg class="ic" aria-hidden="true"><use href="#i-ruler"/></svg>تبيع منتجات حسب الطلب</button></li>
-        <li><button class="pick__chip" type="button" aria-pressed="false" aria-controls="ans-3"><svg class="ic" aria-hidden="true"><use href="#i-factory"/></svg>لديك مصنع</button></li>
-        <li><button class="pick__chip" type="button" aria-pressed="false" aria-controls="ans-4"><svg class="ic" aria-hidden="true"><use href="#i-truck"/></svg>لديك فريق تركيب أو زيارات ميدانية</button></li>
-        <li><button class="pick__chip" type="button" aria-pressed="false" aria-controls="ans-5"><svg class="ic" aria-hidden="true"><use href="#i-map-pin"/></svg>لديك أكثر من فرع أو مدينة</button></li>
+        <li><button class="pick__chip" type="button" aria-pressed="true" aria-controls="ans-0"><svg class="ic" aria-hidden="true"><use href="assets/icons.svg#i-store"/></svg>لديك معرض أو صالة عرض</button></li>
+        <li><button class="pick__chip" type="button" aria-pressed="true" aria-controls="ans-1"><svg class="ic" aria-hidden="true"><use href="assets/icons.svg#i-shopping-bag"/></svg>تبيع منتجات جاهزة</button></li>
+        <li><button class="pick__chip" type="button" aria-pressed="false" aria-controls="ans-2"><svg class="ic" aria-hidden="true"><use href="assets/icons.svg#i-ruler"/></svg>تبيع منتجات حسب الطلب</button></li>
+        <li><button class="pick__chip" type="button" aria-pressed="false" aria-controls="ans-3"><svg class="ic" aria-hidden="true"><use href="assets/icons.svg#i-factory"/></svg>لديك مصنع</button></li>
+        <li><button class="pick__chip" type="button" aria-pressed="false" aria-controls="ans-4"><svg class="ic" aria-hidden="true"><use href="assets/icons.svg#i-truck"/></svg>لديك فريق تركيب أو زيارات ميدانية</button></li>
+        <li><button class="pick__chip" type="button" aria-pressed="false" aria-controls="ans-5"><svg class="ic" aria-hidden="true"><use href="assets/icons.svg#i-map-pin"/></svg>لديك أكثر من فرع أو مدينة</button></li>
       </ul>
       <div class="pick__answers" aria-live="polite">
         <article class="ans" id="ans-0"><h3>لديك معرض أو صالة عرض</h3><p>كل زائر يُسجَّل كفرصة بيع، ويُتابَع حتى يصبح طلباً أو يُغلق بسبب واضح.</p></article>
@@ -141,24 +139,24 @@
       <aside class="app__side" aria-hidden="true">
         <div class="app__brand"><img src="assets/brand/opsone-logo.svg" width="115" height="28" alt=""></div>
         <ul class="app__nav">
-          <li><svg class="ic"><use href="#i-layout-grid"/></svg>لوحة التحكم</li>
-          <li><svg class="ic"><use href="#i-gauge"/></svg>لوحة المالك</li>
-          <li class="is-on"><svg class="ic"><use href="#i-clipboard-list"/></svg>الطلبات</li>
-          <li><svg class="ic"><use href="#i-list-checks"/></svg>المهام</li>
-          <li><svg class="ic"><use href="#i-calendar-days"/></svg>التقويم</li>
-          <li><svg class="ic"><use href="#i-receipt"/></svg>المالية</li>
-          <li><svg class="ic"><use href="#i-badge-percent"/></svg>العمولات</li>
-          <li><svg class="ic"><use href="#i-truck"/></svg>التوريد</li>
-          <li><svg class="ic"><use href="#i-users"/></svg>العملاء</li>
-          <li><svg class="ic"><use href="#i-inbox"/></svg>الاهتمامات</li>
-          <li><svg class="ic"><use href="#i-warehouse"/></svg>المخزون</li>
+          <li><svg class="ic"><use href="assets/icons.svg#i-layout-grid"/></svg>لوحة التحكم</li>
+          <li><svg class="ic"><use href="assets/icons.svg#i-gauge"/></svg>لوحة المالك</li>
+          <li class="is-on"><svg class="ic"><use href="assets/icons.svg#i-clipboard-list"/></svg>الطلبات</li>
+          <li><svg class="ic"><use href="assets/icons.svg#i-list-checks"/></svg>المهام</li>
+          <li><svg class="ic"><use href="assets/icons.svg#i-calendar-days"/></svg>التقويم</li>
+          <li><svg class="ic"><use href="assets/icons.svg#i-receipt"/></svg>المالية</li>
+          <li><svg class="ic"><use href="assets/icons.svg#i-badge-percent"/></svg>العمولات</li>
+          <li><svg class="ic"><use href="assets/icons.svg#i-truck"/></svg>التوريد</li>
+          <li><svg class="ic"><use href="assets/icons.svg#i-users"/></svg>العملاء</li>
+          <li><svg class="ic"><use href="assets/icons.svg#i-inbox"/></svg>الاهتمامات</li>
+          <li><svg class="ic"><use href="assets/icons.svg#i-warehouse"/></svg>المخزون</li>
         </ul>
       </aside>
       <div class="app__main" aria-hidden="true">
         <div class="app__top">
           <b class="app__page">الطلبات</b>
-          <span class="app__search"><svg class="ic"><use href="#i-search"/></svg>ابحث في الطلبات والعملاء</span>
-          <span class="app__tools"><span class="app__lang">English<svg class="ic"><use href="#i-languages"/></svg></span><span class="app__bell"><svg class="ic"><use href="#i-bell"/></svg><i>21</i></span><span class="app__me"><i class="av">ع</i>عبدالله علي</span></span>
+          <span class="app__search"><svg class="ic"><use href="assets/icons.svg#i-search"/></svg>ابحث في الطلبات والعملاء</span>
+          <span class="app__tools"><span class="app__lang">English<svg class="ic"><use href="assets/icons.svg#i-languages"/></svg></span><span class="app__bell"><svg class="ic"><use href="assets/icons.svg#i-bell"/></svg><i>21</i></span><span class="app__me"><i class="av">ع</i>عبدالله علي</span></span>
         </div>
         <div class="app__head">
           <div>
@@ -172,16 +170,16 @@
           <div class="panel app__stages">
             <div class="panel__title">مراحل الطلب</div>
             <ol class="stg">
-              <li class="stg__row is-done"><span class="stg__dot"><svg class="ic"><use href="#i-check"/></svg></span><span class="stg__name">المعاينة والقياس</span><span class="stg__date">9 سبتمبر</span><span class="chip chip--ok">مكتملة</span></li>
-              <li class="stg__row is-done"><span class="stg__dot"><svg class="ic"><use href="#i-check"/></svg></span><span class="stg__name">التصميم وعرض السعر</span><span class="stg__date">14 سبتمبر</span><span class="chip chip--ok">مكتملة</span></li>
-              <li class="stg__row is-done"><span class="stg__dot"><svg class="ic"><use href="#i-check"/></svg></span><span class="stg__name">العقد والدفعة الأولى</span><span class="stg__date">23 سبتمبر</span><span class="chip chip--ok">مكتملة</span></li>
+              <li class="stg__row is-done"><span class="stg__dot"><svg class="ic"><use href="assets/icons.svg#i-check"/></svg></span><span class="stg__name">المعاينة والقياس</span><span class="stg__date">9 سبتمبر</span><span class="chip chip--ok">مكتملة</span></li>
+              <li class="stg__row is-done"><span class="stg__dot"><svg class="ic"><use href="assets/icons.svg#i-check"/></svg></span><span class="stg__name">التصميم وعرض السعر</span><span class="stg__date">14 سبتمبر</span><span class="chip chip--ok">مكتملة</span></li>
+              <li class="stg__row is-done"><span class="stg__dot"><svg class="ic"><use href="assets/icons.svg#i-check"/></svg></span><span class="stg__name">العقد والدفعة الأولى</span><span class="stg__date">23 سبتمبر</span><span class="chip chip--ok">مكتملة</span></li>
               <li class="stg__row is-now" data-stg="make"><span class="stg__dot">4</span><span class="stg__name">التصنيع</span><span class="stg__date">6 نوفمبر</span><span class="chip chip--info">جارية</span><span class="stg__bar"><i style="--p:.72"></i></span></li>
               <li class="stg__row" data-stg="install"><span class="stg__dot">5</span><span class="stg__name">التركيب والتسليم</span><span class="stg__date">8 نوفمبر</span><span class="chip chip--neutral">لاحقًا</span><span class="stg__bar"><i style="--p:0"></i></span></li>
             </ol>
             <div class="stg__tasks">
-              <div class="task is-done"><span class="task__box"><svg class="ic"><use href="#i-check"/></svg></span>إصدار أمر التصنيع<span class="task__who">الإنتاج</span></div>
-              <div class="task is-done"><span class="task__box"><svg class="ic"><use href="#i-check"/></svg></span>تأكيد موعد الجاهزية 6 نوفمبر<span class="task__who">المصنع</span></div>
-              <div class="task" data-task><span class="task__box"><svg class="ic"><use href="#i-check"/></svg></span>استلام البنود من المصنع<span class="task__who">المستودع</span></div>
+              <div class="task is-done"><span class="task__box"><svg class="ic"><use href="assets/icons.svg#i-check"/></svg></span>إصدار أمر التصنيع<span class="task__who">الإنتاج</span></div>
+              <div class="task is-done"><span class="task__box"><svg class="ic"><use href="assets/icons.svg#i-check"/></svg></span>تأكيد موعد الجاهزية 6 نوفمبر<span class="task__who">المصنع</span></div>
+              <div class="task" data-task><span class="task__box"><svg class="ic"><use href="assets/icons.svg#i-check"/></svg></span>استلام البنود من المصنع<span class="task__who">المستودع</span></div>
             </div>
           </div>
           <div class="panel app__money">
@@ -203,7 +201,7 @@
         </div>
       </div>
     </div>
-    <div class="app__toast" aria-hidden="true" data-toast><span class="app__toast-icon"><svg class="ic"><use href="#i-message-circle"/></svg></span><span><b>واتساب إلى العميل</b>طلبك ORD-2026-00178 جاهز للتركيب. موعدنا الأحد 8 نوفمبر الساعة 08:00.</span></div>
+    <div class="app__toast" aria-hidden="true" data-toast><span class="app__toast-icon"><svg class="ic"><use href="assets/icons.svg#i-message-circle"/></svg></span><span><b>واتساب إلى العميل</b>طلبك ORD-2026-00178 جاهز للتركيب. موعدنا الأحد 8 نوفمبر الساعة 08:00.</span></div>
     </div>
     <ol class="say">
       <li class="say__item"><h3>نظام متكامل خاص بشركتك</h3><p>باسمك وشعارك وفروعك، لا يشاركك فيه أحد.</p></li>
@@ -226,7 +224,7 @@
       </div>
 <div class="duo" data-duo role="img" aria-label="من OpsOne: على الحاسوب يتحول اهتمام عبدالله سعد INT-0231 إلى الطلب ORD-2026-00178، وعلى جواله يوقّع عقد الطلب نفسه برمز التحقق وتوقيع مرسوم">
       <div class="win duo__desk" data-ui aria-hidden="true">
-        <div class="win__bar"><span class="win__title"><svg class="ic"><use href="#i-inbox"/></svg>الاهتمامات <span class="ref">INT-0231</span></span><span class="chip chip--neutral duo__was">قيد المتابعة</span><span class="chip chip--ok duo__now">محوّل</span></div>
+        <div class="win__bar"><span class="win__title"><svg class="ic"><use href="assets/icons.svg#i-inbox"/></svg>الاهتمامات <span class="ref">INT-0231</span></span><span class="chip chip--neutral duo__was">قيد المتابعة</span><span class="chip chip--ok duo__now">محوّل</span></div>
         <div class="win__body">
           <div class="duo__who"><span class="av">ع</span><span><b>عبدالله سعد</b><small>زيارة المعرض، فرع الرياض</small></span></div>
           <div class="duo__need">تصميم وتنفيذ حسب المقاسات، ومنتجات جاهزة من المعرض، مع التركيب.</div>
@@ -236,15 +234,15 @@
             <li><span class="nums">4 سبتمبر</span>اتصال: طلب موعد قياس</li>
             <li><span class="nums">8 سبتمبر</span>اتفاق مبدئي على البنود</li>
           </ol>
-          <div class="duo__act"><span class="ui-btn ui-btn--ok" data-convert><svg class="ic"><use href="#i-clipboard-list"/></svg>تحويل إلى طلب</span><span class="duo__done"><svg class="ic"><use href="#i-circle-check-big"/></svg>تحوّل إلى الطلب <span class="ref ref--link">ORD-2026-00178</span></span></div>
+          <div class="duo__act"><span class="ui-btn ui-btn--ok" data-convert><svg class="ic"><use href="assets/icons.svg#i-clipboard-list"/></svg>تحويل إلى طلب</span><span class="duo__done"><svg class="ic"><use href="assets/icons.svg#i-circle-check-big"/></svg>تحوّل إلى الطلب <span class="ref ref--link">ORD-2026-00178</span></span></div>
         </div>
       </div>
       <div class="handset duo__phone" data-ui aria-hidden="true">
         <div class="handset__top"><b>مؤسسة الأفق التجارية</b><span class="ref">ORD-2026-00178</span></div>
-        <div class="duo__doc"><svg class="ic"><use href="#i-signature"/></svg><span><b>توقيع العقد</b><span class="ref">CON-2026-00031</span></span></div>
+        <div class="duo__doc"><svg class="ic"><use href="assets/icons.svg#i-signature"/></svg><span><b>توقيع العقد</b><span class="ref">CON-2026-00031</span></span></div>
         <div class="ui-field"><span>رمز التأكيد</span><span class="otp"><i>4</i><i>8</i><i>2</i><i>9</i><i>1</i><i>6</i></span></div>
         <div class="ui-field"><span>ارسم توقيعك</span><span class="sign__pad"><svg viewBox="0 0 220 70" aria-hidden="true"><path d="M12 48c13-22 22-33 29-30 7 3-10 34-2 35 9 1 17-29 26-27 8 2-2 22 6 23 7 1 12-17 20-16 7 1 3 13 9 14 10 1 20-15 31-13 8 1 12 7 24 3" fill="none" stroke="#0B1B33" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
-        <span class="stamp"><svg class="ic"><use href="#i-circle-check-big"/></svg>موقّع، 23 سبتمبر 2026</span>
+        <span class="stamp"><svg class="ic"><use href="assets/icons.svg#i-circle-check-big"/></svg>موقّع، 23 سبتمبر 2026</span>
       </div>
     </div>
     </div>
@@ -253,8 +251,8 @@
     <div class="hz__bar wrap">
       <p class="hz__count nums" aria-live="polite"><b data-hz-now>01</b><span aria-hidden="true"> / </span><span>09</span></p>
       <div class="hz__nav">
-        <button class="hz__arrow" type="button" data-hz-step="-1" aria-label="الخطوة السابقة"><svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></button>
-        <button class="hz__arrow" type="button" data-hz-step="1" aria-label="الخطوة التالية"><svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></button>
+        <button class="hz__arrow" type="button" data-hz-step="-1" aria-label="الخطوة السابقة"><svg class="ic" aria-hidden="true"><use href="assets/icons.svg#i-arrow"/></svg></button>
+        <button class="hz__arrow" type="button" data-hz-step="1" aria-label="الخطوة التالية"><svg class="ic" aria-hidden="true"><use href="assets/icons.svg#i-arrow"/></svg></button>
       </div>
     </div>
     <div class="hz__viewport" tabindex="0" aria-label="من أول اتصال إلى آخر توقيع، تسع خطوات">
@@ -262,7 +260,7 @@
         <li class="hz__panel" data-step="1">
           <div class="hz__text"><span class="hz__num nums" aria-hidden="true">01</span><h3>لا تضيع أي فرصة بيع</h3><p>كل استفسار يصل من موقعك أو من واتساب أو من زائر المعرض يُسجَّل كفرصة بيع، ولكل فرصة حالة: جديدة، أو قيد المتابعة، أو تحولت إلى طلب، أو أُغلقت. تعرف من يتابع كل عميل، وكم فرصة تحولت إلى طلب.</p></div>
           <figure class="hz__fig"><div class="win" data-ui role="img" aria-label="شاشة فرص البيع في OpsOne: 18 فرصة هذا الشهر بحالاتها وقنواتها ومتابعيها، تحوّل منها 4 إلى طلبات">
-          <div class="win__bar"><span class="win__title"><svg class="ic"><use href="#i-inbox"/></svg>فرص البيع</span><span class="ui-btn ui-btn--ok"><svg class="ic"><use href="#i-plus"/></svg>تسجيل فرصة</span></div>
+          <div class="win__bar"><span class="win__title"><svg class="ic"><use href="assets/icons.svg#i-inbox"/></svg>فرص البيع</span><span class="ui-btn ui-btn--ok"><svg class="ic"><use href="assets/icons.svg#i-plus"/></svg>تسجيل فرصة</span></div>
           <div class="win__body">
             <div class="pills"><span class="pill is-on">الكل <b>18</b></span><span class="pill">جديد <b>5</b></span><span class="pill">قيد المتابعة <b>7</b></span><span class="pill">محوّل <b>4</b></span><span class="pill">مغلق <b>2</b></span></div>
             <div class="rows">
@@ -278,7 +276,7 @@
         <li class="hz__panel" data-step="2">
           <div class="hz__text"><span class="hz__num nums" aria-hidden="true">02</span><h3>طلبات المواعيد لا تضيع</h3><p>يطلب العميل موعداً من موقعك أو عبر واتساب، فيصل طلبه إلى فريقك مباشرة، ويُكلَّف به موظف بعينه. يتصل الموظف بالعميل ويثبّت الموعد في التقويم، سواء كان قياساً أو زيارة أو تركيباً أو تسليماً. ويُنبّهك التقويم إذا تعارض موعدان لنفس الفريق، ويصل التذكير إلى العميل قبل موعده.</p></div>
           <figure class="hz__fig"><div class="win" data-ui role="img" aria-label="قائمة طلبات المواعيد في OpsOne: طلب بانتظار الاتصال، وموعد مؤكد، وتنبيه بتعارض موعدين لفريق التركيب">
-          <div class="win__bar"><span class="win__title"><svg class="ic"><use href="#i-calendar-clock"/></svg>طلبات المواعيد</span><span class="chip chip--warn">1 بانتظار التثبيت</span></div>
+          <div class="win__bar"><span class="win__title"><svg class="ic"><use href="assets/icons.svg#i-calendar-clock"/></svg>طلبات المواعيد</span><span class="chip chip--warn">1 بانتظار التثبيت</span></div>
           <div class="win__body">
             <div class="rows">
               <div class="row appt-req is-now">
@@ -295,10 +293,10 @@
                 <span class="when"><b>الثلاثاء 3</b><small class="nums">08:00</small></span>
                 <span class="appt-req__what"><b>تركيب</b><small><span class="ref">ORD-2026-00127</span>، فريق زياد سالم</small></span>
                 <span class="chip chip--info">مؤكد</span>
-                <span class="clash"><svg class="ic"><use href="#i-triangle-alert"/></svg>يتعارض مع تركيب ORD-2026-00089 لنفس الفريق</span>
+                <span class="clash"><svg class="ic"><use href="assets/icons.svg#i-triangle-alert"/></svg>يتعارض مع تركيب ORD-2026-00089 لنفس الفريق</span>
               </div>
             </div>
-            <div class="win__foot"><svg class="ic"><use href="#i-bell-ring"/></svg>يصل التذكير إلى العميل قبل موعده</div>
+            <div class="win__foot"><svg class="ic"><use href="assets/icons.svg#i-bell-ring"/></svg>يصل التذكير إلى العميل قبل موعده</div>
           </div>
         </div></figure>
         </li>
@@ -314,7 +312,7 @@
           </div>
           <div class="qdoc__sum">
             <div><span>المجموع</span><span class="nums">44,000.00</span></div>
-            <div class="qdoc__disc"><span>خصم <span class="chip chip--ok"><svg class="ic"><use href="#i-check"/></svg>اعتمده المدير</span></span><span class="nums">−2,000.00</span></div>
+            <div class="qdoc__disc"><span>خصم <span class="chip chip--ok"><svg class="ic"><use href="assets/icons.svg#i-check"/></svg>اعتمده المدير</span></span><span class="nums">−2,000.00</span></div>
             <div><span>ضريبة القيمة المضافة 15%</span><span class="nums">6,300.00</span></div>
             <div class="qdoc__total"><span>الإجمالي</span><span class="nums">48,300.00 ر.س</span></div>
           </div>
@@ -330,9 +328,9 @@
           <div class="handset__top"><b>مؤسسة الأفق التجارية</b><span class="ref">ORD-2026-00178</span></div>
           <div class="ver ver--now" data-approve>
             <div class="ver__head"><b>التصميم، النسخة 3</b><span class="ver__date">14 سبتمبر</span></div>
-            <div class="file"><svg class="ic"><use href="#i-file-text"/></svg><span>design-v3.pdf<small>صفحتان</small></span></div>
+            <div class="file"><svg class="ic"><use href="assets/icons.svg#i-file-text"/></svg><span>design-v3.pdf<small>صفحتان</small></span></div>
             <div class="ver__btns"><span class="ui-btn ui-btn--ok">اعتماد التصميم</span><span class="ui-btn">طلب تعديل</span></div>
-            <div class="ver__stamp"><svg class="ic"><use href="#i-circle-check-big"/></svg>اعتمدتَه 14 سبتمبر 2026، 10:42</div>
+            <div class="ver__stamp"><svg class="ic"><use href="assets/icons.svg#i-circle-check-big"/></svg>اعتمدتَه 14 سبتمبر 2026، 10:42</div>
           </div>
           <div class="ver"><div class="ver__head"><b>النسخة 2</b><span class="ver__date">12 سبتمبر</span></div><p>طلبتَ تعديلًا: تعديل المقاس الأيسر 20 سم.</p></div>
           <div class="ver"><div class="ver__head"><b>النسخة 1</b><span class="ver__date">10 سبتمبر</span></div><p>طلبتَ تعديلًا: اللون رمادي فاتح بدل الأبيض.</p></div>
@@ -341,24 +339,24 @@
         <li class="hz__panel" data-step="5">
           <div class="hz__text"><span class="hz__num nums" aria-hidden="true">05</span><h3>عقود موقّعة ومحفوظة</h3><p>يوقّع العميل العقد إلكترونياً برمز تحقق يصل إلى جواله، ويُحفظ العقد بصيغة PDF مع سجل يثبت من وقّع ومتى. لا أوراق تضيع ولا خلاف على ما اتُّفق عليه.</p></div>
           <figure class="hz__fig"><div class="win" data-ui role="img" aria-label="لوحة توقيع العقد CON-2026-00031 في صفحة العميل: الاسم والتوقيع المرسوم والإقرار ورمز التأكيد المرسل إلى الجوال، ثم ختم التوقيع">
-          <div class="win__bar"><span class="win__title"><svg class="ic"><use href="#i-signature"/></svg>توقيع العقد <span class="ref">CON-2026-00031</span></span><span class="win__link"><svg class="ic"><use href="#i-file-text"/></svg>عرض المستند (PDF)</span></div>
+          <div class="win__bar"><span class="win__title"><svg class="ic"><use href="assets/icons.svg#i-signature"/></svg>توقيع العقد <span class="ref">CON-2026-00031</span></span><span class="win__link"><svg class="ic"><use href="assets/icons.svg#i-file-text"/></svg>عرض المستند (PDF)</span></div>
           <div class="win__body sign">
             <label class="ui-field"><span>الاسم الكامل</span><span class="ui-input">عبدالله سعد</span></label>
             <div class="ui-field"><span>ارسم توقيعك</span>
               <span class="sign__pad"><svg viewBox="0 0 220 70" aria-hidden="true"><path d="M10 50c14-24 24-36 31-33 8 4-11 37-3 38 10 1 18-32 28-30 8 2-2 24 7 25 7 1 13-19 21-18 7 1 3 14 10 15 10 1 21-16 33-14 8 1 13 8 25 3" fill="none" stroke="#0B1B33" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
             </div>
-            <div class="ui-check"><span class="ui-box is-on"><svg class="ic"><use href="#i-check"/></svg></span>أقرّ بأني راجعت المستند وأوافق على التوقيع عليه إلكترونيًا</div>
+            <div class="ui-check"><span class="ui-box is-on"><svg class="ic"><use href="assets/icons.svg#i-check"/></svg></span>أقرّ بأني راجعت المستند وأوافق على التوقيع عليه إلكترونيًا</div>
             <div class="ui-field"><span>رمز التأكيد <small>أُرسل إلى <span dir="ltr">+966 5•• ••• 471</span></small></span>
               <span class="otp"><i>4</i><i>8</i><i>2</i><i>9</i><i>1</i><i>6</i></span>
             </div>
-            <div class="sign__done"><span class="ui-btn ui-btn--ok ui-btn--block">توقيع المستند</span><span class="stamp"><svg class="ic"><use href="#i-circle-check-big"/></svg>موقّع، 23 سبتمبر 2026، 11:08. حُفظ PDF مع سجل التوقيع.</span></div>
+            <div class="sign__done"><span class="ui-btn ui-btn--ok ui-btn--block">توقيع المستند</span><span class="stamp"><svg class="ic"><use href="assets/icons.svg#i-circle-check-big"/></svg>موقّع، 23 سبتمبر 2026، 11:08. حُفظ PDF مع سجل التوقيع.</span></div>
           </div>
         </div></figure>
         </li>
         <li class="hz__panel" data-step="6">
           <div class="hz__text"><span class="hz__num nums" aria-hidden="true">06</span><h3>الدفع ومتابعة المستحقات</h3><p>يدفع العميل الدفعة المستحقة من صفحته، وتصله تذكيرات قبل موعدها. وأنت تحدد بنفسك نسب الدفعات ومواعيدها بما يناسب طريقة عمل منشأتك.</p></div>
           <figure class="hz__fig"><div class="win" data-ui role="img" aria-label="خطة دفعات الطلب ORD-2026-00178: الإجمالي 48,300.00 ر.س، الدفعة الأولى 24,150.00 مسددة، والأخيرة 24,150.00 مستحقة عند التركيب مع تذكير للعميل">
-          <div class="win__bar"><span class="win__title"><svg class="ic"><use href="#i-wallet"/></svg>خطة الدفعات</span><span class="ref">ORD-2026-00178</span></div>
+          <div class="win__bar"><span class="win__title"><svg class="ic"><use href="assets/icons.svg#i-wallet"/></svg>خطة الدفعات</span><span class="ref">ORD-2026-00178</span></div>
           <div class="win__body">
             <div class="plan__sum">
               <div><small>إجمالي الاتفاق</small><b class="nums"><span data-count="48300">48,300.00</span> <small>ر.س</small></b></div>
@@ -370,22 +368,22 @@
               <div class="row pay"><span class="pay__pct nums">50%</span><span class="pay__what"><b>الدفعة الأولى</b><small>عند توقيع العقد، سند <span class="ref">RCV-2026-00412</span></small></span><span class="pay__amt nums">24,150.00</span><span class="chip chip--ok">مسدد 23 سبتمبر</span></div>
               <div class="row pay is-due"><span class="pay__pct nums">50%</span><span class="pay__what"><b>الدفعة الأخيرة</b><small>عند التركيب، 8 نوفمبر</small></span><span class="pay__amt nums">24,150.00</span><span class="chip chip--warn">مستحقة</span></div>
             </div>
-            <div class="win__foot"><svg class="ic"><use href="#i-bell-ring"/></svg>رابط الدفع في صفحة العميل، وتذكير قبل الموعد بيومين</div>
+            <div class="win__foot"><svg class="ic"><use href="assets/icons.svg#i-bell-ring"/></svg>رابط الدفع في صفحة العميل، وتذكير قبل الموعد بيومين</div>
           </div>
         </div></figure>
         </li>
         <li class="hz__panel" data-step="7">
           <div class="hz__text"><span class="hz__num nums" aria-hidden="true">07</span><h3>ملفات كل عميل في ملفه</h3><p>المقاسات والتصاميم والعقود والفواتير وصور التركيب، كلها محفوظة في ملف العميل، ويصل إليها من له صلاحية فقط.</p></div>
           <figure class="hz__fig"><div class="win" data-ui role="img" aria-label="ملف العميل عبدالله سعد: المقاسات والتصميم المعتمد والعقد الموقّع وسند الدفعة، وصور التركيب لاحقًا، ويصل إليه المالك والمبيعات ومدير الفرع فقط">
-          <div class="win__bar"><span class="win__title"><svg class="ic"><use href="#i-folder-lock"/></svg>ملف العميل: عبدالله سعد</span></div>
+          <div class="win__bar"><span class="win__title"><svg class="ic"><use href="assets/icons.svg#i-folder-lock"/></svg>ملف العميل: عبدالله سعد</span></div>
           <div class="win__body">
-            <div class="access"><svg class="ic"><use href="#i-lock"/></svg>يصل إليه: المالك، ومدير الفرع، والمبيعات</div>
+            <div class="access"><svg class="ic"><use href="assets/icons.svg#i-lock"/></svg>يصل إليه: المالك، ومدير الفرع، والمبيعات</div>
             <div class="rows">
-              <div class="row doc-row"><svg class="ic"><use href="#i-ruler"/></svg><span><b>المقاسات</b><small>9 سبتمبر، فني القياس</small></span><span class="doc-row__file">measure-00178.pdf</span></div>
-              <div class="row doc-row"><svg class="ic"><use href="#i-file-text"/></svg><span><b>التصميم، النسخة 3</b><small>14 سبتمبر، اعتمده العميل</small></span><span class="doc-row__file">design-v3.pdf</span></div>
-              <div class="row doc-row"><svg class="ic"><use href="#i-signature"/></svg><span><b>العقد الموقّع</b><small>23 سبتمبر، مع سجل التوقيع</small></span><span class="doc-row__file">CON-2026-00031.pdf</span></div>
-              <div class="row doc-row"><svg class="ic"><use href="#i-receipt"/></svg><span><b>سند الدفعة الأولى</b><small>23 سبتمبر، 24,150.00 ر.س</small></span><span class="doc-row__file">RCV-2026-00412.pdf</span></div>
-              <div class="row doc-row is-later"><svg class="ic"><use href="#i-camera"/></svg><span><b>صور التركيب</b><small>تُرفع من جوال الفني</small></span><span class="chip chip--neutral">8 نوفمبر</span></div>
+              <div class="row doc-row"><svg class="ic"><use href="assets/icons.svg#i-ruler"/></svg><span><b>المقاسات</b><small>9 سبتمبر، فني القياس</small></span><span class="doc-row__file">measure-00178.pdf</span></div>
+              <div class="row doc-row"><svg class="ic"><use href="assets/icons.svg#i-file-text"/></svg><span><b>التصميم، النسخة 3</b><small>14 سبتمبر، اعتمده العميل</small></span><span class="doc-row__file">design-v3.pdf</span></div>
+              <div class="row doc-row"><svg class="ic"><use href="assets/icons.svg#i-signature"/></svg><span><b>العقد الموقّع</b><small>23 سبتمبر، مع سجل التوقيع</small></span><span class="doc-row__file">CON-2026-00031.pdf</span></div>
+              <div class="row doc-row"><svg class="ic"><use href="assets/icons.svg#i-receipt"/></svg><span><b>سند الدفعة الأولى</b><small>23 سبتمبر، 24,150.00 ر.س</small></span><span class="doc-row__file">RCV-2026-00412.pdf</span></div>
+              <div class="row doc-row is-later"><svg class="ic"><use href="assets/icons.svg#i-camera"/></svg><span><b>صور التركيب</b><small>تُرفع من جوال الفني</small></span><span class="chip chip--neutral">8 نوفمبر</span></div>
             </div>
           </div>
         </div></figure>
@@ -407,11 +405,11 @@
           <div class="hz__text"><span class="hz__num nums" aria-hidden="true">09</span><h3>غيّر طريقة عمل النظام كما يناسبك</h3>
         <p>كل منشأة لها طريقتها في العمل، وOpsOne يتكيّف معها دون برمجة ولا انتظار مطوّرين. من شاشة الإعدادات تستطيع أن:</p>
         <ul class="custom__list">
-          <li><svg class="ic" aria-hidden="true"><use href="#i-list-checks"/></svg><span>ترتّب مراحل الطلب كما تعمل فعلاً، وتضيف مراحل التصنيع، وتحدد مسؤولاً لكل مرحلة.</span></li>
-          <li><svg class="ic" aria-hidden="true"><use href="#i-wallet"/></svg><span>تحدد نسب الدفعات ومواعيد استحقاقها وتذكيراتها.</span></li>
-          <li><svg class="ic" aria-hidden="true"><use href="#i-message-square-text"/></svg><span>تكتب شروط عروض الأسعار والعقود، وتصيغ نصوص الرسائل التي تصل إلى عملائك.</span></li>
-          <li><svg class="ic" aria-hidden="true"><use href="#i-timer"/></svg><span>تحدد المدة المسموحة لإنجاز كل مهمة، والحقول التي تظهر في أمر الشراء.</span></li>
-          <li><svg class="ic" aria-hidden="true"><use href="#i-user-cog"/></svg><span>تحدد صلاحيات كل دور في فريقك.</span></li>
+          <li><svg class="ic" aria-hidden="true"><use href="assets/icons.svg#i-list-checks"/></svg><span>ترتّب مراحل الطلب كما تعمل فعلاً، وتضيف مراحل التصنيع، وتحدد مسؤولاً لكل مرحلة.</span></li>
+          <li><svg class="ic" aria-hidden="true"><use href="assets/icons.svg#i-wallet"/></svg><span>تحدد نسب الدفعات ومواعيد استحقاقها وتذكيراتها.</span></li>
+          <li><svg class="ic" aria-hidden="true"><use href="assets/icons.svg#i-message-square-text"/></svg><span>تكتب شروط عروض الأسعار والعقود، وتصيغ نصوص الرسائل التي تصل إلى عملائك.</span></li>
+          <li><svg class="ic" aria-hidden="true"><use href="assets/icons.svg#i-timer"/></svg><span>تحدد المدة المسموحة لإنجاز كل مهمة، والحقول التي تظهر في أمر الشراء.</span></li>
+          <li><svg class="ic" aria-hidden="true"><use href="assets/icons.svg#i-user-cog"/></svg><span>تحدد صلاحيات كل دور في فريقك.</span></li>
         </ul>
         <p class="custom__note">كل تعديل تجربه أولاً، ثم تعتمده متى أردت. وتبقى الطلبات الجارية على الإجراءات التي بدأت بها.</p></div>
           <figure class="hz__fig"><div class="cfg" data-ui role="group" aria-label="شاشة الإعدادات في OpsOne: محرر مراحل الطلب بمسؤوليها ومددها وشروطها، ومسودة إصدار جديد قبل اعتمادها">
@@ -422,15 +420,15 @@
         <div class="flow" data-release>
           <div class="flow__head"><b>مراحل الطلب</b><span class="chip chip--ok"><span class="v-old">منشور، الإصدار 3</span><span class="v-new">منشور، الإصدار 4</span></span></div>
           <ol class="flow__list">
-              <li class="flow__row"><svg class="ic flow__grip"><use href="#i-grip-vertical"/></svg><span class="flow__name">المعاينة والقياس</span><span class="who"><i>ح</i>فني القياس</span><span class="sla"><svg class="ic"><use href="#i-timer"/></svg>يومان</span></li>
-              <li class="flow__row"><svg class="ic flow__grip"><use href="#i-grip-vertical"/></svg><span class="flow__name">التصميم وعرض السعر</span><span class="who"><i>ر</i>المصمم</span><span class="sla"><svg class="ic"><use href="#i-timer"/></svg>3 أيام</span></li>
-              <li class="flow__row"><svg class="ic flow__grip"><use href="#i-grip-vertical"/></svg><span class="flow__name">العقد والدفعة الأولى</span><span class="who"><i>خ</i>المبيعات</span><span class="sla"><svg class="ic"><use href="#i-timer"/></svg>يومان</span></li>
-              <li class="flow__row"><svg class="ic flow__grip"><use href="#i-grip-vertical"/></svg><span class="flow__name">التصنيع</span><span class="who"><i>ص</i>المصنع</span><span class="sla"><svg class="ic"><use href="#i-timer"/></svg>45 يومًا</span><span class="gate"><svg class="ic"><use href="#i-lock"/></svg>بعد سداد الدفعة الأولى</span></li>
-              <li class="flow__row is-new"><svg class="ic flow__grip"><use href="#i-grip-vertical"/></svg><span class="flow__name">التشطيب</span><span class="who"><i>ص</i>المصنع</span><span class="sla"><svg class="ic"><use href="#i-timer"/></svg>3 أيام</span><span class="chip chip--warn v-old">جديدة في الإصدار 4</span></li>
-              <li class="flow__row"><svg class="ic flow__grip"><use href="#i-grip-vertical"/></svg><span class="flow__name">التركيب والتسليم</span><span class="who"><i>ز</i>فريق التركيب</span><span class="sla"><svg class="ic"><use href="#i-timer"/></svg>يومان</span><span class="gate"><svg class="ic"><use href="#i-lock"/></svg>لا يُغلق قبل السند الأخير</span></li>
+              <li class="flow__row"><svg class="ic flow__grip"><use href="assets/icons.svg#i-grip-vertical"/></svg><span class="flow__name">المعاينة والقياس</span><span class="who"><i>ح</i>فني القياس</span><span class="sla"><svg class="ic"><use href="assets/icons.svg#i-timer"/></svg>يومان</span></li>
+              <li class="flow__row"><svg class="ic flow__grip"><use href="assets/icons.svg#i-grip-vertical"/></svg><span class="flow__name">التصميم وعرض السعر</span><span class="who"><i>ر</i>المصمم</span><span class="sla"><svg class="ic"><use href="assets/icons.svg#i-timer"/></svg>3 أيام</span></li>
+              <li class="flow__row"><svg class="ic flow__grip"><use href="assets/icons.svg#i-grip-vertical"/></svg><span class="flow__name">العقد والدفعة الأولى</span><span class="who"><i>خ</i>المبيعات</span><span class="sla"><svg class="ic"><use href="assets/icons.svg#i-timer"/></svg>يومان</span></li>
+              <li class="flow__row"><svg class="ic flow__grip"><use href="assets/icons.svg#i-grip-vertical"/></svg><span class="flow__name">التصنيع</span><span class="who"><i>ص</i>المصنع</span><span class="sla"><svg class="ic"><use href="assets/icons.svg#i-timer"/></svg>45 يومًا</span><span class="gate"><svg class="ic"><use href="assets/icons.svg#i-lock"/></svg>بعد سداد الدفعة الأولى</span></li>
+              <li class="flow__row is-new"><svg class="ic flow__grip"><use href="assets/icons.svg#i-grip-vertical"/></svg><span class="flow__name">التشطيب</span><span class="who"><i>ص</i>المصنع</span><span class="sla"><svg class="ic"><use href="assets/icons.svg#i-timer"/></svg>3 أيام</span><span class="chip chip--warn v-old">جديدة في الإصدار 4</span></li>
+              <li class="flow__row"><svg class="ic flow__grip"><use href="assets/icons.svg#i-grip-vertical"/></svg><span class="flow__name">التركيب والتسليم</span><span class="who"><i>ز</i>فريق التركيب</span><span class="sla"><svg class="ic"><use href="assets/icons.svg#i-timer"/></svg>يومان</span><span class="gate"><svg class="ic"><use href="assets/icons.svg#i-lock"/></svg>لا يُغلق قبل السند الأخير</span></li>
           </ol>
-          <div class="flow__add"><svg class="ic"><use href="#i-plus"/></svg>إضافة مرحلة تصنيع</div>
-          <div class="flow__draft"><span class="v-old"><b>مسودة الإصدار 4</b>الطلبات الجارية تبقى على الإصدار 3</span><span class="flow__btns v-old"><span class="ui-btn">تجربة</span><button class="ui-btn ui-btn--ok hold" type="button" data-publish><span class="hold__fill" aria-hidden="true"></span><span class="hold__label">اعتماد</span></button></span><span class="v-new"><b><svg class="ic"><use href="#i-circle-check-big"/></svg>نُشر الإصدار 4</b>الطلبات الجديدة تبدأ عليه، والجارية تبقى على الإصدار 3</span></div>
+          <div class="flow__add"><svg class="ic"><use href="assets/icons.svg#i-plus"/></svg>إضافة مرحلة تصنيع</div>
+          <div class="flow__draft"><span class="v-old"><b>مسودة الإصدار 4</b>الطلبات الجارية تبقى على الإصدار 3</span><span class="flow__btns v-old"><span class="ui-btn">تجربة</span><button class="ui-btn ui-btn--ok hold" type="button" data-publish><span class="hold__fill" aria-hidden="true"></span><span class="hold__label">اعتماد</span></button></span><span class="v-new"><b><svg class="ic"><use href="assets/icons.svg#i-circle-check-big"/></svg>نُشر الإصدار 4</b>الطلبات الجديدة تبدأ عليه، والجارية تبقى على الإصدار 3</span></div>
         </div>
       </div></figure>
         </li>
@@ -447,25 +445,25 @@
     </div>
     <div class="deckwrap">
       <div class="deck" data-deck role="group" aria-label="قنوات البيع">
-      <button class="deck__card" type="button" data-ch="showroom" aria-pressed="false"><span class="deck__head"><span class="deck__icon" aria-hidden="true"><svg class="ic"><use href="#i-store"/></svg></span><h3>المعرض</h3></span><p>كل زائر يُسجَّل كفرصة بيع ويُتابَع حتى يصبح طلباً.</p></button>
-      <button class="deck__card" type="button" data-ch="store" aria-pressed="false"><span class="deck__head"><span class="deck__icon" aria-hidden="true"><svg class="ic"><use href="#i-shopping-bag"/></svg></span><h3>المتجر الإلكتروني</h3></span><p>يبيع من المخزون نفسه، على مدار الساعة.</p></button>
-      <button class="deck__card" type="button" data-ch="field" aria-pressed="true"><span class="deck__head"><span class="deck__icon" aria-hidden="true"><svg class="ic"><use href="#i-map-pin"/></svg></span><h3>البيع الميداني</h3></span><p>يكلّف المشرف بائعاً بفرصة البيع، فيزور البائع العميل في بيته أو موقعه. يأخذ المقاسات، ويرسل عرض السعر، ويوقّع العميل العقد من جواله، دون أن يأتي إلى المعرض. ويحصل البائع على عمولته تلقائياً على كل طلب.</p></button>
+      <button class="deck__card" type="button" data-ch="showroom" aria-pressed="false"><span class="deck__head"><span class="deck__icon" aria-hidden="true"><svg class="ic"><use href="assets/icons.svg#i-store"/></svg></span><h3>المعرض</h3></span><p>كل زائر يُسجَّل كفرصة بيع ويُتابَع حتى يصبح طلباً.</p></button>
+      <button class="deck__card" type="button" data-ch="store" aria-pressed="false"><span class="deck__head"><span class="deck__icon" aria-hidden="true"><svg class="ic"><use href="assets/icons.svg#i-shopping-bag"/></svg></span><h3>المتجر الإلكتروني</h3></span><p>يبيع من المخزون نفسه، على مدار الساعة.</p></button>
+      <button class="deck__card" type="button" data-ch="field" aria-pressed="true"><span class="deck__head"><span class="deck__icon" aria-hidden="true"><svg class="ic"><use href="assets/icons.svg#i-map-pin"/></svg></span><h3>البيع الميداني</h3></span><p>يكلّف المشرف بائعاً بفرصة البيع، فيزور البائع العميل في بيته أو موقعه. يأخذ المقاسات، ويرسل عرض السعر، ويوقّع العميل العقد من جواله، دون أن يأتي إلى المعرض. ويحصل البائع على عمولته تلقائياً على كل طلب.</p></button>
       </div>
       <div class="deck__stage">
 <div class="handset rep" data-ui aria-hidden="true">
         <div class="handset__top"><span class="rep__me"><i class="av">س</i><span><b>يومي</b><small>سالم يوسف، البيع الميداني</small></span></span><span class="chip chip--info">الأربعاء 4</span></div>
         <div class="rep__new">
-          <div class="rep__new-head"><span class="chip chip--warn"><svg class="ic"><use href="#i-inbox"/></svg>فرصة جديدة</span><span class="ref">INT-0302</span></div>
+          <div class="rep__new-head"><span class="chip chip--warn"><svg class="ic"><use href="assets/icons.svg#i-inbox"/></svg>فرصة جديدة</span><span class="ref">INT-0302</span></div>
           <b>ماجد حسن، حي الملقا</b>
           <small>كلّفك بها المشرف خالد إبراهيم، 08:40</small>
-          <div class="rep__btns"><span class="ui-btn ui-btn--ok"><svg class="ic"><use href="#i-phone"/></svg>اتصال</span><span class="ui-btn">تحديد موعد زيارة</span></div>
+          <div class="rep__btns"><span class="ui-btn ui-btn--ok"><svg class="ic"><use href="assets/icons.svg#i-phone"/></svg>اتصال</span><span class="ui-btn">تحديد موعد زيارة</span></div>
         </div>
-        <div class="rep__visit is-done"><span class="when"><b class="nums">09:30</b><small>مكتملة</small></span><span><b>زيارة قياس</b><small><span class="ref">ORD-2026-00186</span>، حي العارض</small></span><svg class="ic"><use href="#i-check"/></svg></div>
-        <div class="rep__visit"><span class="when"><b class="nums">13:00</b><small>التالية</small></span><span><b>زيارة بيع</b><small><span class="ref">INT-0288</span>، حي النخيل</small></span><svg class="ic"><use href="#i-map-pin"/></svg></div>
+        <div class="rep__visit is-done"><span class="when"><b class="nums">09:30</b><small>مكتملة</small></span><span><b>زيارة قياس</b><small><span class="ref">ORD-2026-00186</span>، حي العارض</small></span><svg class="ic"><use href="assets/icons.svg#i-check"/></svg></div>
+        <div class="rep__visit"><span class="when"><b class="nums">13:00</b><small>التالية</small></span><span><b>زيارة بيع</b><small><span class="ref">INT-0288</span>، حي النخيل</small></span><svg class="ic"><use href="assets/icons.svg#i-map-pin"/></svg></div>
         <div class="rep__pay"><small>عمولتي في نوفمبر</small><b class="nums">2,340.00 <small>ر.س</small></b><small>2.5% من 3 طلبات بمجموع 93,600.00</small></div>
       </div>
       <div class="win mix" data-ui aria-hidden="true">
-        <div class="win__bar"><span class="win__title"><svg class="ic"><use href="#i-chart-column"/></svg>دخل القنوات، أكتوبر</span></div>
+        <div class="win__bar"><span class="win__title"><svg class="ic"><use href="assets/icons.svg#i-chart-column"/></svg>دخل القنوات، أكتوبر</span></div>
         <div class="win__body">
           <div class="mix__row"><span>المعرض</span><span class="mix__bar"><i style="--p:.635"></i></span><b class="nums">412,500.00</b></div>
           <div class="mix__row"><span>المتجر</span><span class="mix__bar"><i style="--p:.133"></i></span><b class="nums">86,350.00</b></div>
@@ -489,34 +487,34 @@
       <div class="roles__side">
         <div class="seg roles__tabs" role="tablist" aria-label="الأدوار">
           <span class="seg__pill" aria-hidden="true"></span>
-          <button role="tab" type="button" id="tab-manager" aria-controls="panel-roles" aria-selected="true" data-film="manager"><svg class="ic" aria-hidden="true"><use href="#i-chart-column"/></svg>المدير</button>
-          <button role="tab" type="button" id="tab-sales" aria-controls="panel-roles" aria-selected="false" tabindex="-1" data-film="sales"><svg class="ic" aria-hidden="true"><use href="#i-clipboard-list"/></svg>المبيعات</button>
-          <button role="tab" type="button" id="tab-tech" aria-controls="panel-roles" aria-selected="false" tabindex="-1" data-film="tech"><svg class="ic" aria-hidden="true"><use href="#i-smartphone"/></svg>الفني</button>
+          <button role="tab" type="button" id="tab-manager" aria-controls="panel-roles" aria-selected="true" data-film="manager"><svg class="ic" aria-hidden="true"><use href="assets/icons.svg#i-chart-column"/></svg>المدير</button>
+          <button role="tab" type="button" id="tab-sales" aria-controls="panel-roles" aria-selected="false" tabindex="-1" data-film="sales"><svg class="ic" aria-hidden="true"><use href="assets/icons.svg#i-clipboard-list"/></svg>المبيعات</button>
+          <button role="tab" type="button" id="tab-tech" aria-controls="panel-roles" aria-selected="false" tabindex="-1" data-film="tech"><svg class="ic" aria-hidden="true"><use href="assets/icons.svg#i-smartphone"/></svg>الفني</button>
         </div>
 <div id="panel-roles" role="tabpanel" aria-labelledby="tab-manager" tabindex="0" class="roles__panel">
         <ul data-panel="manager">
-          <li><svg class="ic"><use href="#i-eye"/></svg>المبيعات والتحصيل والمتأخرات لكل الفروع.</li>
-          <li><svg class="ic"><use href="#i-circle-check-big"/></svg>يعتمد الاسترداد والإلغاء وتعديل الصفقة.</li>
-          <li><svg class="ic"><use href="#i-user-cog"/></svg>يحدد الأدوار والفروع لكل موظف.</li>
+          <li><svg class="ic"><use href="assets/icons.svg#i-eye"/></svg>المبيعات والتحصيل والمتأخرات لكل الفروع.</li>
+          <li><svg class="ic"><use href="assets/icons.svg#i-circle-check-big"/></svg>يعتمد الاسترداد والإلغاء وتعديل الصفقة.</li>
+          <li><svg class="ic"><use href="assets/icons.svg#i-user-cog"/></svg>يحدد الأدوار والفروع لكل موظف.</li>
         </ul>
         <ul data-panel="sales" hidden>
-          <li><svg class="ic"><use href="#i-eye"/></svg>طلباته وعملاؤه في فرعه فقط.</li>
-          <li><svg class="ic"><use href="#i-file-pen-line"/></svg>ينشئ العرض والعقد ويسجّل الدفعة.</li>
-          <li><svg class="ic"><use href="#i-eye-off"/></svg>لا يرى أرقام الفروع الأخرى.</li>
+          <li><svg class="ic"><use href="assets/icons.svg#i-eye"/></svg>طلباته وعملاؤه في فرعه فقط.</li>
+          <li><svg class="ic"><use href="assets/icons.svg#i-file-pen-line"/></svg>ينشئ العرض والعقد ويسجّل الدفعة.</li>
+          <li><svg class="ic"><use href="assets/icons.svg#i-eye-off"/></svg>لا يرى أرقام الفروع الأخرى.</li>
         </ul>
         <ul data-panel="tech" hidden>
-          <li><svg class="ic"><use href="#i-calendar-days"/></svg>مهام اليوم ومواعيده على جواله.</li>
-          <li><svg class="ic"><use href="#i-camera"/></svg>يبدأ المهمة ويرفع صور قبل وبعد.</li>
-          <li><svg class="ic"><use href="#i-eye-off"/></svg>لا يرى المبالغ ولا بيانات العملاء الأخرى.</li>
+          <li><svg class="ic"><use href="assets/icons.svg#i-calendar-days"/></svg>مهام اليوم ومواعيده على جواله.</li>
+          <li><svg class="ic"><use href="assets/icons.svg#i-camera"/></svg>يبدأ المهمة ويرفع صور قبل وبعد.</li>
+          <li><svg class="ic"><use href="assets/icons.svg#i-eye-off"/></svg>لا يرى المبالغ ولا بيانات العملاء الأخرى.</li>
         </ul>
       </div>
 <div class="approval" data-ui aria-hidden="true">
-        <svg class="ic"><use href="#i-bell-ring"/></svg>
+        <svg class="ic"><use href="assets/icons.svg#i-bell-ring"/></svg>
         <div><b>طلب استرداد 2,700.00 ر.س</b><span>ORD-2026-00094، بانتظار اعتماد مدير الفرع</span></div>
         <span class="approval__btns"><span class="ui-btn ui-btn--ok">اعتماد</span><span class="ui-btn">رفض</span></span>
       </div>
 <div class="matrix" data-ui aria-hidden="true">
-        <div class="matrix__head"><b>الأدوار والصلاحيات</b><span class="chip chip--neutral"><svg class="ic"><use href="#i-map-pin"/></svg>فرع الرياض</span></div>
+        <div class="matrix__head"><b>الأدوار والصلاحيات</b><span class="chip chip--neutral"><svg class="ic"><use href="assets/icons.svg#i-map-pin"/></svg>فرع الرياض</span></div>
         <table>
           <thead><tr><th></th><th>المالك</th><th>مدير الفرع</th><th>المبيعات</th><th>الفني</th></tr></thead>
           <tbody>
@@ -577,7 +575,7 @@
           <div class="doc__row doc__row--total"><span>الإجمالي شامل الضريبة</span><span>40,134.00 ر.س</span></div>
           <div class="doc__sign">
             <svg viewBox="0 0 220 90"><path d="M8 62c18-30 30-44 38-40 9 5-14 46-4 47 12 1 22-40 34-38 10 2-2 30 8 31 9 1 16-24 26-23 9 1 3 18 12 19 12 1 26-20 40-18 10 1 16 10 30 4" fill="none" stroke="#0B1B33" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            <span class="stamp"><svg class="ic"><use href="#i-circle-check-big"/></svg>موقّع إلكترونيًا، سامي أحمد، 16 سبتمبر 2026</span>
+            <span class="stamp"><svg class="ic"><use href="assets/icons.svg#i-circle-check-big"/></svg>موقّع إلكترونيًا، سامي أحمد، 16 سبتمبر 2026</span>
           </div>
         </div></div>
           <div class="paper" data-doc="money" hidden><div class="win win--doc rcv" data-ui aria-hidden="true">
@@ -605,9 +603,9 @@
         </div>
       </div>
       <div class="press__caps">
-<p class="tool__cap" data-doc="sign"><svg class="ic"><use href="#i-file-pen-line"/></svg><span><b>عرض وعقد بتوقيع إلكتروني</b>بشعارك، ويوقّعه العميل من جواله برمز تحقق.</span></p>
-<p class="tool__cap" data-doc="money" hidden><svg class="ic"><use href="#i-hand-coins"/></svg><span><b>دفعات وسندات</b>جدول دفعات، وسندات مرقّمة، واسترداد.</span></p>
-<p class="tool__cap" data-doc="invoice" hidden><svg class="ic"><use href="#i-receipt"/></svg><span><b>فاتورة إلكترونية برمز QR</b>متوافقة مع الفوترة الإلكترونية، قيد الإطلاق.</span></p>
+<p class="tool__cap" data-doc="sign"><svg class="ic"><use href="assets/icons.svg#i-file-pen-line"/></svg><span><b>عرض وعقد بتوقيع إلكتروني</b>بشعارك، ويوقّعه العميل من جواله برمز تحقق.</span></p>
+<p class="tool__cap" data-doc="money" hidden><svg class="ic"><use href="assets/icons.svg#i-hand-coins"/></svg><span><b>دفعات وسندات</b>جدول دفعات، وسندات مرقّمة، واسترداد.</span></p>
+<p class="tool__cap" data-doc="invoice" hidden><svg class="ic"><use href="assets/icons.svg#i-receipt"/></svg><span><b>فاتورة إلكترونية برمز QR</b>متوافقة مع الفوترة الإلكترونية، قيد الإطلاق.</span></p>
       </div>
     </div>
     <div class="trio">
@@ -617,12 +615,12 @@
           <div class="ui-wa">التصميم جاهز لاعتمادك في بوابتك.<span class="ui-wa__time">16:40</span></div>
           <div class="ui-wa">استلمنا الدفعة الأولى 24,150.00 ر.س. السند في بوابتك.<span class="ui-wa__time">10:05</span></div>
           <div class="ui-wa">طلبك جاهز للتركيب الأحد 8 نوفمبر الساعة 08:00.<span class="ui-wa__time">09:30</span></div>
-        </div><figcaption><span class="tool__cap"><svg class="ic"><use href="#i-message-circle"/></svg><span><b>واتساب لكل خطوة</b>رسائل تلقائية للعميل، بلا نسخ ولصق.</span></span></figcaption></figure>
-        <figure class="trio__item"><video class="phone-video" muted loop playsinline preload="none" width="780" height="1688" poster="assets/video/portal-poster.webp" data-autoplay><source src="assets/video/portal.webm" type="video/webm"></video><figcaption><span class="tool__cap"><svg class="ic"><use href="#i-globe"/></svg><span><b>بوابة لكل عميل</b>رحلة الطلب والمال والمواعيد، واعتماد التصميم. تسجيل حقيقي.</span></span></figcaption></figure>
+        </div><figcaption><span class="tool__cap"><svg class="ic"><use href="assets/icons.svg#i-message-circle"/></svg><span><b>واتساب لكل خطوة</b>رسائل تلقائية للعميل، بلا نسخ ولصق.</span></span></figcaption></figure>
+        <figure class="trio__item"><video class="phone-video" muted loop playsinline preload="none" width="780" height="1688" poster="assets/video/portal-poster.webp" data-autoplay><source src="assets/video/portal.webm" type="video/webm"></video><figcaption><span class="tool__cap"><svg class="ic"><use href="assets/icons.svg#i-globe"/></svg><span><b>بوابة لكل عميل</b>رحلة الطلب والمال والمواعيد، واعتماد التصميم. تسجيل حقيقي.</span></span></figcaption></figure>
         <figure class="trio__item"><div class="pcard" data-ui aria-hidden="true">
           <img src="assets/photos/store-pendant-light-600.webp" width="600" height="600" alt="مصباح معلّق بقفص معدني" loading="lazy">
-          <div class="pcard__body"><b>مصباح معلّق بقفص معدني</b><span class="pcard__price">385.00 ر.س <small>شامل الضريبة</small></span><span class="ui-btn ui-btn--ok"><svg class="ic"><use href="#i-shopping-bag"/></svg>أضف إلى السلة</span></div>
-        </div><figcaption><span class="tool__cap"><svg class="ic"><use href="#i-shopping-bag"/></svg><span><b>متجر إلكتروني</b>منتجاتك الجاهزة بالدفع الإلكتروني والتوصيل.</span></span></figcaption></figure>
+          <div class="pcard__body"><b>مصباح معلّق بقفص معدني</b><span class="pcard__price">385.00 ر.س <small>شامل الضريبة</small></span><span class="ui-btn ui-btn--ok"><svg class="ic"><use href="assets/icons.svg#i-shopping-bag"/></svg>أضف إلى السلة</span></div>
+        </div><figcaption><span class="tool__cap"><svg class="ic"><use href="assets/icons.svg#i-shopping-bag"/></svg><span><b>متجر إلكتروني</b>منتجاتك الجاهزة بالدفع الإلكتروني والتوصيل.</span></span></figcaption></figure>
     </div>
   </div>
 </section>
@@ -631,18 +629,18 @@
   <div class="wrap">
     <h2 class="head" id="caps-title">كل ما في OpsOne</h2>
     <ul class="bentos">
-      <li class="bento "><svg class="ic" aria-hidden="true"><use href="#i-users"/></svg><b>العملاء والاهتمامات</b><span>كل عميل بطلباته ودفعاته.</span></li>
-      <li class="bento bento--xl"><svg class="ic" aria-hidden="true"><use href="#i-clipboard-list"/></svg><b>الطلبات</b><span>المخصص والجاهز في قائمة واحدة.</span><span class="bento__fig nums" data-scramble="ORD-2026-00178">ORD-2026-00178</span></li>
-      <li class="bento "><svg class="ic" aria-hidden="true"><use href="#i-workflow"/></svg><b>مسار التشغيل</b><span>مراحل ومسؤولون ومدد بلا برمجة.</span></li>
-      <li class="bento bento--tall"><svg class="ic" aria-hidden="true"><use href="#i-calendar-days"/></svg><b>التقويم والمواعيد</b><span>قياس وتركيب بلا تعارض.</span><span class="bento__times nums"><i>08:00</i><i>12:00</i><i>14:00</i></span></li>
-      <li class="bento bento--wide bento--row"><svg class="ic" aria-hidden="true"><use href="#i-file-pen-line"/></svg><b>العروض والعقود</b><span>PDF بشعارك وتوقيع العميل.</span></li>
-      <li class="bento bento--wide"><svg class="ic" aria-hidden="true"><use href="#i-hand-coins"/></svg><b>الدفعات والتحصيل</b><span>عربون ودفعات واسترداد.</span><span class="bento__fig nums"><span data-countin="24150">24,150.00</span> <small>ر.س</small></span></li>
-      <li class="bento "><svg class="ic" aria-hidden="true"><use href="#i-percent"/></svg><b>العمولات</b><span>لكل مندوب بقدر ما حُصِّل.</span><span class="bento__fig nums"><span data-countin="2340">2,340.00</span> <small>ر.س</small></span></li>
-      <li class="bento bento--wide bento--row"><svg class="ic" aria-hidden="true"><use href="#i-boxes"/></svg><b>المخزون والمشتريات</b><span>أرصدة الفروع والموردون.</span></li>
-      <li class="bento "><svg class="ic" aria-hidden="true"><use href="#i-truck"/></svg><b>التسليم والمرتجعات</b><span>تسليم جزئي ومرتجع بأثره.</span></li>
-      <li class="bento "><svg class="ic" aria-hidden="true"><use href="#i-shopping-bag"/></svg><b>المتجر الإلكتروني</b><span>بيع الجاهز بالدفع الإلكتروني.</span></li>
-      <li class="bento bento--wide"><svg class="ic" aria-hidden="true"><use href="#i-chart-column"/></svg><b>لوحة المالك</b><span>المبيعات والمتأخرات لكل فرع.</span><span class="bento__fig nums"><span data-countin="650000">650,000.00</span> <small>ر.س</small></span></li>
-      <li class="bento "><svg class="ic" aria-hidden="true"><use href="#i-user-cog"/></svg><b>الفروع والصلاحيات</b><span>كل موظف بدوره وفرعه.</span></li>
+      <li class="bento "><svg class="ic" aria-hidden="true"><use href="assets/icons.svg#i-users"/></svg><b>العملاء والاهتمامات</b><span>كل عميل بطلباته ودفعاته.</span></li>
+      <li class="bento bento--xl"><svg class="ic" aria-hidden="true"><use href="assets/icons.svg#i-clipboard-list"/></svg><b>الطلبات</b><span>المخصص والجاهز في قائمة واحدة.</span><span class="bento__fig nums" data-scramble="ORD-2026-00178">ORD-2026-00178</span></li>
+      <li class="bento "><svg class="ic" aria-hidden="true"><use href="assets/icons.svg#i-workflow"/></svg><b>مسار التشغيل</b><span>مراحل ومسؤولون ومدد بلا برمجة.</span></li>
+      <li class="bento bento--tall"><svg class="ic" aria-hidden="true"><use href="assets/icons.svg#i-calendar-days"/></svg><b>التقويم والمواعيد</b><span>قياس وتركيب بلا تعارض.</span><span class="bento__times nums"><i>08:00</i><i>12:00</i><i>14:00</i></span></li>
+      <li class="bento bento--wide bento--row"><svg class="ic" aria-hidden="true"><use href="assets/icons.svg#i-file-pen-line"/></svg><b>العروض والعقود</b><span>PDF بشعارك وتوقيع العميل.</span></li>
+      <li class="bento bento--wide"><svg class="ic" aria-hidden="true"><use href="assets/icons.svg#i-hand-coins"/></svg><b>الدفعات والتحصيل</b><span>عربون ودفعات واسترداد.</span><span class="bento__fig nums"><span data-countin="24150">24,150.00</span> <small>ر.س</small></span></li>
+      <li class="bento "><svg class="ic" aria-hidden="true"><use href="assets/icons.svg#i-percent"/></svg><b>العمولات</b><span>لكل مندوب بقدر ما حُصِّل.</span><span class="bento__fig nums"><span data-countin="2340">2,340.00</span> <small>ر.س</small></span></li>
+      <li class="bento bento--wide bento--row"><svg class="ic" aria-hidden="true"><use href="assets/icons.svg#i-boxes"/></svg><b>المخزون والمشتريات</b><span>أرصدة الفروع والموردون.</span></li>
+      <li class="bento "><svg class="ic" aria-hidden="true"><use href="assets/icons.svg#i-truck"/></svg><b>التسليم والمرتجعات</b><span>تسليم جزئي ومرتجع بأثره.</span></li>
+      <li class="bento "><svg class="ic" aria-hidden="true"><use href="assets/icons.svg#i-shopping-bag"/></svg><b>المتجر الإلكتروني</b><span>بيع الجاهز بالدفع الإلكتروني.</span></li>
+      <li class="bento bento--wide"><svg class="ic" aria-hidden="true"><use href="assets/icons.svg#i-chart-column"/></svg><b>لوحة المالك</b><span>المبيعات والمتأخرات لكل فرع.</span><span class="bento__fig nums"><span data-countin="650000">650,000.00</span> <small>ر.س</small></span></li>
+      <li class="bento "><svg class="ic" aria-hidden="true"><use href="assets/icons.svg#i-user-cog"/></svg><b>الفروع والصلاحيات</b><span>كل موظف بدوره وفرعه.</span></li>
     </ul>
   </div>
 </section>
@@ -654,39 +652,39 @@
     <ul class="solutions__grid">
       <li><a class="solution" href="solutions/kitchens/">
         <img src="solutions/kitchens/img/kitchen-hero-820.webp" width="820" height="612" alt="" loading="lazy" decoding="async">
-        <span class="solution__body"><b>معارض المطابخ</b><span>من زيارة القياس واعتماد التصميم، إلى أمر التصنيع والتركيب والتسليم.</span><span class="solution__go">اقرأ الصفحة <svg class="ic ic--dir" aria-hidden="true"><use href="#i-arrow"/></svg></span></span>
+        <span class="solution__body"><b>معارض المطابخ</b><span>من زيارة القياس واعتماد التصميم، إلى أمر التصنيع والتركيب والتسليم.</span><span class="solution__go">اقرأ الصفحة <svg class="ic ic--dir" aria-hidden="true"><use href="assets/icons.svg#i-arrow"/></svg></span></span>
       </a></li>
       <li><a class="solution" href="solutions/custom-furniture/">
         <img src="solutions/custom-furniture/img/furniture-hero-820.webp" width="820" height="612" alt="" loading="lazy" decoding="async">
-        <span class="solution__body"><b>الخزائن والأثاث حسب الطلب</b><span>غرف الملابس والأبواب والمجالس: من القياس واختيار الخامة، إلى المصنع والتركيب.</span><span class="solution__go">اقرأ الصفحة <svg class="ic ic--dir" aria-hidden="true"><use href="#i-arrow"/></svg></span></span>
+        <span class="solution__body"><b>الخزائن والأثاث حسب الطلب</b><span>غرف الملابس والأبواب والمجالس: من القياس واختيار الخامة، إلى المصنع والتركيب.</span><span class="solution__go">اقرأ الصفحة <svg class="ic ic--dir" aria-hidden="true"><use href="assets/icons.svg#i-arrow"/></svg></span></span>
       </a></li>
       <li><a class="solution" href="solutions/aluminium-glass/">
         <img src="solutions/aluminium-glass/img/ag-hero-820.webp" width="820" height="612" alt="" loading="lazy" decoding="async">
-        <span class="solution__body"><b>الألمنيوم والزجاج وUPVC</b><span>من القياس النهائي لكل فتحة قبل القص، إلى أمر المصنع والتركيب والتسليم.</span><span class="solution__go">اقرأ الصفحة <svg class="ic ic--dir" aria-hidden="true"><use href="#i-arrow"/></svg></span></span>
+        <span class="solution__body"><b>الألمنيوم والزجاج وUPVC</b><span>من القياس النهائي لكل فتحة قبل القص، إلى أمر المصنع والتركيب والتسليم.</span><span class="solution__go">اقرأ الصفحة <svg class="ic ic--dir" aria-hidden="true"><use href="assets/icons.svg#i-arrow"/></svg></span></span>
       </a></li>
       <li><a class="solution" href="solutions/curtains-blinds/">
         <img src="solutions/curtains-blinds/img/curtain-hero-820.webp" width="820" height="612" alt="" loading="lazy" decoding="async">
-        <span class="solution__body"><b>معارض الستائر والبلايند</b><span>من العينات وقياس كل نافذة، إلى عرض السعر بالمتر وأمر التفصيل والتركيب.</span><span class="solution__go">اقرأ الصفحة <svg class="ic ic--dir" aria-hidden="true"><use href="#i-arrow"/></svg></span></span>
+        <span class="solution__body"><b>معارض الستائر والبلايند</b><span>من العينات وقياس كل نافذة، إلى عرض السعر بالمتر وأمر التفصيل والتركيب.</span><span class="solution__go">اقرأ الصفحة <svg class="ic ic--dir" aria-hidden="true"><use href="assets/icons.svg#i-arrow"/></svg></span></span>
       </a></li>
       <li><a class="solution" href="solutions/villa-fit-out/">
         <img src="solutions/villa-fit-out/img/fitout-hero-820.webp" width="820" height="612" alt="" loading="lazy" decoding="async">
-        <span class="solution__body"><b>شركات التشطيب والتجهيز</b><span>من المعاينة واعتماد التصميم، إلى دفعات مربوطة بمراحل التنفيذ والاستلام.</span><span class="solution__go">اقرأ الصفحة <svg class="ic ic--dir" aria-hidden="true"><use href="#i-arrow"/></svg></span></span>
+        <span class="solution__body"><b>شركات التشطيب والتجهيز</b><span>من المعاينة واعتماد التصميم، إلى دفعات مربوطة بمراحل التنفيذ والاستلام.</span><span class="solution__go">اقرأ الصفحة <svg class="ic ic--dir" aria-hidden="true"><use href="assets/icons.svg#i-arrow"/></svg></span></span>
       </a></li>
       <li><a class="solution" href="solutions/flooring-walls-ceilings/">
         <img src="solutions/flooring-walls-ceilings/img/fwc-hero-820.webp" width="820" height="612" alt="" loading="lazy" decoding="async">
-        <span class="solution__body"><b>الأرضيات والجدران والأسقف</b><span>من القياس بالمتر المربع وعرض السعر بالكرتون واللفة، إلى أمر المورّد والتركيب على مراحل.</span><span class="solution__go">اقرأ الصفحة <svg class="ic ic--dir" aria-hidden="true"><use href="#i-arrow"/></svg></span></span>
+        <span class="solution__body"><b>الأرضيات والجدران والأسقف</b><span>من القياس بالمتر المربع وعرض السعر بالكرتون واللفة، إلى أمر المورّد والتركيب على مراحل.</span><span class="solution__go">اقرأ الصفحة <svg class="ic ic--dir" aria-hidden="true"><use href="assets/icons.svg#i-arrow"/></svg></span></span>
       </a></li>
       <li><a class="solution" href="solutions/smart-home-lighting-security/">
         <img src="solutions/smart-home-lighting-security/img/sh-hero-820.webp" width="820" height="550" alt="" loading="lazy" decoding="async">
-        <span class="solution__body"><b>المنازل الذكية والإنارة والأنظمة الأمنية</b><span>من المعاينة وجدول الأجهزة، إلى التمديد قبل التشطيب والتركيب والبرمجة والتسليم.</span><span class="solution__go">اقرأ الصفحة <svg class="ic ic--dir" aria-hidden="true"><use href="#i-arrow"/></svg></span></span>
+        <span class="solution__body"><b>المنازل الذكية والإنارة والأنظمة الأمنية</b><span>من المعاينة وجدول الأجهزة، إلى التمديد قبل التشطيب والتركيب والبرمجة والتسليم.</span><span class="solution__go">اقرأ الصفحة <svg class="ic ic--dir" aria-hidden="true"><use href="assets/icons.svg#i-arrow"/></svg></span></span>
       </a></li>
       <li><a class="solution" href="solutions/outdoor-spaces/">
         <img src="solutions/outdoor-spaces/img/outdoor-hero-820.webp" width="820" height="612" alt="" loading="lazy" decoding="async">
-        <span class="solution__body"><b>المظلات والسواتر والمساحات الخارجية</b><span>من زيارة الموقع والمخطط الذي يعتمده العميل، إلى التصنيع والتركيب في الموقع.</span><span class="solution__go">اقرأ الصفحة <svg class="ic ic--dir" aria-hidden="true"><use href="#i-arrow"/></svg></span></span>
+        <span class="solution__body"><b>المظلات والسواتر والمساحات الخارجية</b><span>من زيارة الموقع والمخطط الذي يعتمده العميل، إلى التصنيع والتركيب في الموقع.</span><span class="solution__go">اقرأ الصفحة <svg class="ic ic--dir" aria-hidden="true"><use href="assets/icons.svg#i-arrow"/></svg></span></span>
       </a></li>
       <li><a class="solution" href="solutions/signage-exhibitions-events/">
         <img src="solutions/signage-exhibitions-events/img/signage-hero-820.webp" width="820" height="612" alt="" loading="lazy" decoding="async">
-        <span class="solution__body"><b>اللوحات وأجنحة المعارض</b><span>من الموجز واعتماد البروفة من الجوال، إلى التصنيع والتركيب في موعده والفك.</span><span class="solution__go">اقرأ الصفحة <svg class="ic ic--dir" aria-hidden="true"><use href="#i-arrow"/></svg></span></span>
+        <span class="solution__body"><b>اللوحات وأجنحة المعارض</b><span>من الموجز واعتماد البروفة من الجوال، إلى التصنيع والتركيب في موعده والفك.</span><span class="solution__go">اقرأ الصفحة <svg class="ic ic--dir" aria-hidden="true"><use href="assets/icons.svg#i-arrow"/></svg></span></span>
       </a></li>
     </ul>
 <!-- /@solutions -->
@@ -798,7 +796,7 @@
         <a class="btn btn--go" href="#demo" data-cta="footer">اطلب عرضًا تجريبيًا</a>
       </div>
       <nav class="foot__col foot__col--wide" aria-label="حلول حسب نشاطك"><h2>حلول حسب نشاطك</h2><ul><li><a href="solutions/kitchens/">معارض المطابخ</a></li><li><a href="solutions/custom-furniture/">الخزائن والأثاث حسب الطلب</a></li><li><a href="solutions/aluminium-glass/">الألمنيوم والزجاج وUPVC</a></li><li><a href="solutions/curtains-blinds/">معارض الستائر والبلايند</a></li><li><a href="solutions/villa-fit-out/">شركات التشطيب والتجهيز</a></li><li><a href="solutions/flooring-walls-ceilings/">الأرضيات والجدران والأسقف</a></li><li><a href="solutions/smart-home-lighting-security/">المنازل الذكية والإنارة والأنظمة الأمنية</a></li><li><a href="solutions/outdoor-spaces/">المظلات والسواتر والمساحات الخارجية</a></li><li><a href="solutions/signage-exhibitions-events/">اللوحات وأجنحة المعارض</a></li></ul></nav>
-      <div class="foot__col" data-contact-group hidden><h2>تواصل</h2><ul><li><a data-contact="whatsapp" target="_blank" rel="noopener" data-where="footer" hidden>واتساب</a></li><li><a data-contact="call" data-where="footer" hidden><span>اتصل</span><span dir="ltr" data-contact-number></span></a></li></ul></div>
+      <div class="foot__col" data-contact-group hidden><h2>تواصل</h2><ul><li><a href="#demo" data-contact="whatsapp" target="_blank" rel="noopener" data-where="footer" hidden>واتساب</a></li><li><a href="#demo" data-contact="call" data-where="footer" hidden><span>اتصل</span><span dir="ltr" data-contact-number></span></a></li></ul></div>
       <nav class="foot__col" aria-label="المنتج"><h2>المنتج</h2><ul><li><a href="./">الصفحة الرئيسية</a></li><li><a href="#benefits">لماذا OpsOne</a></li><li><a href="#fit">لمن OpsOne</a></li><li><a href="#sales">مراحل العمل</a></li><li><a href="#channels">قنوات البيع</a></li><li><a href="#people">الصلاحيات</a></li><li><a href="#modules">الأدوات</a></li><li><a href="#capabilities">كل الوحدات</a></li></ul></nav>
     </div>
     <div class="foot__base">
@@ -813,7 +811,7 @@
     </div>
   </div>
 </footer>
-<a class="wa-float" data-contact="whatsapp" target="_blank" rel="noopener" data-where="float" hidden aria-label="تواصل معنا على واتساب"><svg class="ic" aria-hidden="true"><use href="#i-message-circle"/></svg><span>واتساب</span></a>
+<a class="wa-float" href="#demo" data-contact="whatsapp" target="_blank" rel="noopener" data-where="float" hidden aria-label="تواصل معنا على واتساب"><svg class="ic" aria-hidden="true"><use href="assets/icons.svg#i-message-circle"/></svg><span>واتساب</span></a>
 <!-- /@footer -->
 
 <!-- @consent -->

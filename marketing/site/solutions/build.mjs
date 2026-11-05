@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 // Builds a sector page: node marketing/site/solutions/build.mjs kitchens
 // Reads solutions/<sector>/data.json and writes solutions/<sector>/index.html as plain static HTML.
-// No dependencies. The icon sprite, the demo form and the consent banner are taken from the
-// home page (../index.html) so they stay identical everywhere; the header, footer and «قطاعات قريبة» come from
+// No dependencies. The demo form is taken from the
+// home page (../index.html) so it stays identical everywhere; icons come from ../assets/icons.svg; the header, footer, consent banner and «قطاعات قريبة» come from
 // ../site/partials.mjs (shared with the home page); only the sector's own sections come from data.
 // A sector can own the sections between the hero and the form: if solutions/<sector>/compose.mjs exists, its `sections`
 // (an array of HTML) replace the template's six, and its optional `styles` / `scripts` are linked after the shared ones.
@@ -21,7 +21,7 @@ const own = existsSync(ownFile) ? await import(pathToFileURL(ownFile).href) : nu
 if (own && !(Array.isArray(own.sections) && own.sections.length)) throw new Error(`${sector}/compose.mjs must export sections`);
 
 const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-const links = (own?.styles || []).map((h) => `\n<link rel="stylesheet" href="${esc(h)}">`).join('');
+const links = (own?.styles || []).map((h) => `\n<link rel="stylesheet" href="${esc(h.replace(/\.css$/, '.min.css'))}">`).join('');
 const scripts = (own?.scripts || []).map((h) => `\n<script src="${esc(h)}" defer></script>`).join('');
 const fmt = (n) => Number(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const icon = (id, cls = 'ic') => `<svg class="${cls}" aria-hidden="true"><use href="#${id}"/></svg>`;
@@ -29,7 +29,6 @@ const cut = (src, start, end) => { const i = src.indexOf(start); const j = src.i
 const root = '../../';
 
 /* ---------- shared pieces from the home page ---------- */
-let sprite = cut(home, '<!-- Icons:', '</svg>\n');
 const form = cut(home, '<form class="coupon"', '</form>')
   .replace('<option>منتجات مخصصة أو حسب الطلب</option>', '<option selected>منتجات مخصصة أو حسب الطلب</option>')
   .replace('<input type="hidden" name="utm_source">', `<input type="hidden" name="sector" value="${esc(d.slug)}"><input type="hidden" name="utm_source">`)
@@ -79,8 +78,8 @@ const head = `<!doctype html>
 <link rel="preload" href="${root}assets/fonts/IBMPlexSansArabic-Bold.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="${root}assets/fonts/IBMPlexSansArabic-Regular.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" as="image" href="${esc(d.hero.image.src)}" imagesrcset="${esc(d.hero.image.srcset)}" imagesizes="(max-width: 760px) 100vw, 45vw" fetchpriority="high">
-<link rel="stylesheet" href="${root}styles.css">
-<link rel="stylesheet" href="../sector.css">${links}
+<link rel="stylesheet" href="${root}styles.min.css">
+<link rel="stylesheet" href="../sector.min.css">${links}
 <script>document.documentElement.classList.add('js');window.OPSONE_PAGE={sector:${JSON.stringify(d.slug)}};</script>
 <script type="application/ld+json">${JSON.stringify(ld)}</script>
 </head>`;
@@ -220,9 +219,8 @@ ${form}
   </div>
 </section>`;
 
-const html = `${head}
+let html = `${head}
 <body>
-${sprite}
 ${bar}
 
 <main id="main">
@@ -243,5 +241,7 @@ ${consent}
 </body>
 </html>
 `;
+// icons come from one cached file, not an inline sprite
+html = html.split('href="#i-').join(`href="${root}assets/icons.svg#i-`);
 writeFileSync(join(here, sector, 'index.html'), html);
 console.log(`built solutions/${sector}/index.html (${(html.length / 1024).toFixed(1)} kB); order total ${fmt(total)}, VAT ${fmt(vat)}`);

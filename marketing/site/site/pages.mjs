@@ -93,7 +93,7 @@ export const pages = [
 ];
 
 // one page: the 404 uses root-absolute paths (it is served at any address); the others sit one folder deep
-export function render(p, sprite) {
+export function render(p) {
   const root = p.absolute ? '/' : '../';
   const url = p.absolute ? null : `${site.origin}${p.path}`;
   const robots = p.draft || p.noindex ? 'noindex, follow' : 'index, follow';
@@ -119,11 +119,10 @@ ${url ? `<link rel="canonical" href="${url}">\n` : ''}<meta property="og:type" c
 <link rel="manifest" href="${root}site.webmanifest">
 <link rel="preload" href="${root}assets/fonts/IBMPlexSansArabic-Bold.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="${root}assets/fonts/IBMPlexSansArabic-Regular.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="${root}styles.css">
+<link rel="stylesheet" href="${root}styles.min.css">
 <script>document.documentElement.classList.add('js')</script>
 </head>
 <body>
-${sprite}
 ${header({ root, demo: `${root}#demo` })}
 
 <main id="main">
@@ -141,5 +140,5 @@ ${consent({ root })}
 <script src="${root}site.js" defer></script>
 </body>
 </html>
-`;
+`.split('href="#i-').join(`href="${root}assets/icons.svg#i-`);
 }

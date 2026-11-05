@@ -68,7 +68,7 @@ export function footer({ root = '', slug = '', demo = '#demo' } = {}) {
         <a class="btn btn--go" href="${demo}" data-cta="footer">اطلب عرضًا تجريبيًا</a>
       </div>
       <nav class="foot__col foot__col--wide" aria-label="حلول حسب نشاطك"><h2>حلول حسب نشاطك</h2><ul>${sectors.map((s) => `<li><a href="${root}solutions/${s.slug}/"${current(slug, s)}>${esc(s.name)}</a></li>`).join('')}</ul></nav>
-      <div class="foot__col" data-contact-group hidden><h2>تواصل</h2><ul><li><a data-contact="whatsapp" target="_blank" rel="noopener" data-where="footer" hidden>واتساب</a></li><li><a data-contact="call" data-where="footer" hidden><span>اتصل</span><span dir="ltr" data-contact-number></span></a></li></ul></div>
+      <div class="foot__col" data-contact-group hidden><h2>تواصل</h2><ul><li><a href="${demo}" data-contact="whatsapp" target="_blank" rel="noopener" data-where="footer" hidden>واتساب</a></li><li><a href="${demo}" data-contact="call" data-where="footer" hidden><span>اتصل</span><span dir="ltr" data-contact-number></span></a></li></ul></div>
       <nav class="foot__col" aria-label="المنتج"><h2>المنتج</h2><ul><li><a href="${home(root)}">الصفحة الرئيسية</a></li><li><a href="${hash(root, 'benefits')}">لماذا OpsOne</a></li>${product.map(([id, label]) => `<li><a href="${hash(root, id)}">${label}</a></li>`).join('')}<li><a href="${hash(root, 'capabilities')}">كل الوحدات</a></li></ul></nav>
     </div>
     <div class="foot__base">
@@ -83,7 +83,7 @@ export function footer({ root = '', slug = '', demo = '#demo' } = {}) {
     </div>
   </div>
 </footer>
-<a class="wa-float" data-contact="whatsapp" target="_blank" rel="noopener" data-where="float" hidden aria-label="تواصل معنا على واتساب"><svg class="ic" aria-hidden="true"><use href="#i-message-circle"/></svg><span>واتساب</span></a>`;
+<a class="wa-float" href="${demo}" data-contact="whatsapp" target="_blank" rel="noopener" data-where="float" hidden aria-label="تواصل معنا على واتساب"><svg class="ic" aria-hidden="true"><use href="#i-message-circle"/></svg><span>واتساب</span></a>`;
 }
 
 // the consent banner (tags.js): two purposes asked separately, reject and accept equally easy, a link to what is used

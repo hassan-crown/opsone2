@@ -132,7 +132,7 @@
       setTimeout(() => {
         q('[data-task]').classList.add('is-done');
         make.classList.replace('is-now', 'is-done');
-        make.querySelector('.stg__dot').innerHTML = '<svg class="ic"><use href="#i-check"/></svg>';
+        make.querySelector('.stg__dot').innerHTML = '<svg class="ic"><use href="assets/icons.svg#i-check"/></svg>';
         const c1 = make.querySelector('.chip'); c1.className = 'chip chip--ok'; c1.textContent = 'مكتملة';
         install.classList.add('is-now');
         const c2 = install.querySelector('.chip'); c2.className = 'chip chip--info'; c2.textContent = 'جارية';
