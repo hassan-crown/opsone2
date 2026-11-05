@@ -107,6 +107,9 @@ final class CatalogPresenter
         return [
             ...$this->readyRow($p),
             'description' => self::text($p->description),
+            'slug' => $p->slug->toArray(),
+            'seo_title' => $p->seo_title->toArray(),
+            'seo_description' => $p->seo_description->toArray(),
             'images' => $this->images($p, $viewer),
             'versions' => $this->versions($p),
             'variants_list' => $p->variants()->with('product')->get()->map(fn (CatalogReadyVariant $v) => $this->variant($v))->all(),

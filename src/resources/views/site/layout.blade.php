@@ -4,24 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ $seo['title'] }}</title>
-    <meta name="description" content="{{ $seo['description'] }}">
-    <meta name="robots" content="{{ $seo['robots'] }}">
-    @if ($seo['canonical'])
-        <link rel="canonical" href="{{ $seo['canonical'] }}">
-    @endif
-    @foreach ($seo['alternates'] as $hreflang => $href)
-        <link rel="alternate" hreflang="{{ $hreflang }}" href="{{ $href }}">
-    @endforeach
-    <meta property="og:type" content="website">
-    <meta property="og:site_name" content="{{ $seo['site_name'] }}">
-    <meta property="og:title" content="{{ $seo['title'] }}">
-    <meta property="og:description" content="{{ $seo['description'] }}">
-    @if ($seo['canonical'])<meta property="og:url" content="{{ $seo['canonical'] }}">@endif
-    <meta property="og:locale" content="{{ $locale === 'ar' ? 'ar_SA' : 'en_US' }}">
-    @if ($seo['image'])
-        <meta property="og:image" content="{{ url($seo['image']) }}">
-    @endif
+    @include('site._seo')
     @if ($favicon)
         <link rel="icon" href="{{ $favicon }}" type="image/png">
     @else

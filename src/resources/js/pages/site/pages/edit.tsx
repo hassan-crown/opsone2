@@ -268,15 +268,11 @@ export default function PageEditor({
                                             e.target.value.toLowerCase(),
                                         )
                                     }
-                                    disabled={
-                                        disabled ||
-                                        content.ar.published ||
-                                        content.en.published
-                                    }
+                                    disabled={disabled}
                                     hint={
                                         content.ar.published ||
                                         content.en.published
-                                            ? t('site.editor.slug_locked')
+                                            ? t('site.editor.slug_redirect')
                                             : t('site.pages.field_slug_hint')
                                     }
                                 />

@@ -9,6 +9,7 @@
 use App\Actions\Site\SitePageWriter;
 use App\Models\Facility;
 use App\Site\Seo\SiteIndexing;
+use App\Store\StoreCatalogue;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Route;
@@ -29,7 +30,7 @@ beforeEach(function () {
 it('lets search engines index the published site and store, and nothing else', function () {
     $product = $this->s->f->variant->ready_product_id;
 
-    foreach (['/', '/ar', '/en/about', '/ar/store', "/ar/store/p/{$product}", '/sitemap.xml'] as $url) {
+    foreach (['/', '/ar', '/en/about', '/ar/store', StoreCatalogue::path('en', $product, 'مقبض-ألمنيوم'), '/sitemap.xml'] as $url) {
         $res = $this->get($url)->assertOk();
         expect($res->headers->get('X-Robots-Tag'))->toBeNull("{$url} must stay indexable");
     }

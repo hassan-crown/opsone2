@@ -6,6 +6,7 @@ use App\Access\Authorizer;
 use App\Access\Permission;
 use App\Http\Controllers\Controller;
 use App\Models\Attachment;
+use App\Models\Catalog\CatalogReadyProduct;
 use App\Models\Site\SitePage;
 use App\Models\Site\SiteTheme;
 use App\Site\Preview\SitePreview;
@@ -16,12 +17,12 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
  * Serves site images. Public: only files that belong to the live site (published page versions of live pages, the
- * published theme) — a draft image or any other private attachment is 404. Admin: files of site pages / the theme
+ * published theme, the images of a ready product on sale in the store, ADR-0045) — a draft image or any other private attachment is 404. Admin: files of site pages / the theme
  * for P-55 / P-100 holders (editor previews).
  */
 final class MediaController extends Controller
 {
-    private const SERVED = ['image/png', 'image/webp'];
+    private const SERVED = ['image/png', 'image/webp', 'image/jpeg'];
 
     public function __construct(private readonly SiteContext $site, private readonly Authorizer $access, private readonly SitePreview $preview) {}
 
@@ -50,7 +51,7 @@ final class MediaController extends Controller
     {
         $owner = $attachment->attachable;
 
-        return $owner instanceof SitePage || $owner instanceof SiteTheme;
+        return $owner instanceof SitePage || $owner instanceof SiteTheme || $owner instanceof CatalogReadyProduct;
     }
 
     private function stream(Attachment $attachment, string $cache): StreamedResponse

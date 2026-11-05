@@ -4,8 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ $title }}</title>
-    <meta name="robots" content="{{ $robots }}">
+    @include('site._seo')
     @stack('head')
     @if ($favicon)
         <link rel="icon" href="{{ $favicon }}" type="image/png">

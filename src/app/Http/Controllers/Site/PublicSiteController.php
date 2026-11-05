@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Site;
 
 use App\Http\Controllers\Controller;
+use App\Models\Site\SiteRedirect;
 use App\Site\Preview\SitePreview;
 use App\Site\SiteContext;
 use App\Site\SiteRenderer;
@@ -27,6 +28,11 @@ final class PublicSiteController extends Controller
     public function show(string $locale, string $slug = ''): View|RedirectResponse
     {
         $page = $this->site->page($slug);
+        if ($page === null && ($redirect = SiteRedirect::query()->where('from_path', '/'.$locale.'/'.$slug)->first()) !== null) {
+            $redirect->forceFill(['hits' => $redirect->hits + 1, 'last_hit_at' => now()])->save();
+
+            return redirect($redirect->to_path, 301);
+        }
         abort_if($page === null || $page->isSystem(), 404);
 
         // An archived page is gone for good, not moved: 410 tells search engines to drop it (a redirect home reads as a soft 404).

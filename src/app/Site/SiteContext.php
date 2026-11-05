@@ -2,7 +2,9 @@
 
 namespace App\Site;
 
+use App\Access\Contracts\LicenseCapabilities;
 use App\Models\Attachment;
+use App\Models\Catalog\CatalogReadyProduct;
 use App\Models\Facility;
 use App\Models\Site\SiteDomain;
 use App\Models\Site\SitePage;
@@ -20,7 +22,7 @@ final class SiteContext
 {
     public const LOCALES = ['ar', 'en'];
 
-    public function __construct(private readonly SitePreview $preview) {}
+    public function __construct(private readonly SitePreview $preview, private readonly LicenseCapabilities $license) {}
 
     public function defaultLocale(): string
     {
@@ -130,6 +132,11 @@ final class SiteContext
         $owner = $attachment->attachable;
         if (($this->preview->pages() && $owner instanceof SitePage) || ($this->preview->theme() && $owner instanceof SiteTheme)) {
             return true;
+        }
+
+        // Ready products on sale are public in the store (and in its feeds and share previews); drafts stay private.
+        if ($owner instanceof CatalogReadyProduct) {
+            return $owner->isSelectable() && $this->license->allows('ready_goods');
         }
 
         $theme = ThemeSettings::published();

@@ -48,6 +48,9 @@ type Product = {
     id: number;
     name: Text;
     description: Text;
+    slug: Text;
+    seo_title: Text;
+    seo_description: Text;
     status: 'draft' | 'published' | 'disabled';
     version: number;
     images: ImageFile[];
@@ -76,6 +79,15 @@ export default function ReadyEdit({
         description: {
             ar: product?.description.ar ?? '',
             en: product?.description.en ?? '',
+        },
+        slug: { ar: product?.slug.ar ?? '', en: product?.slug.en ?? '' },
+        seo_title: {
+            ar: product?.seo_title.ar ?? '',
+            en: product?.seo_title.en ?? '',
+        },
+        seo_description: {
+            ar: product?.seo_description.ar ?? '',
+            en: product?.seo_description.en ?? '',
         },
     });
     const errors = form.errors as Record<string, string | undefined>;
@@ -181,6 +193,44 @@ export default function ReadyEdit({
                         }}
                         multiline
                     />
+                    <div className="grid gap-4 border-t border-stroke-weak pt-4">
+                        <div>
+                            <h3 className="text-subtitle text-strong">
+                                {t('catalog.ready.seo_heading')}
+                            </h3>
+                            <p className="text-caption text-weak">
+                                {t('catalog.ready.seo_hint')}
+                            </p>
+                        </div>
+                        <BilingualFields
+                            label={t('catalog.ready.seo_slug')}
+                            value={form.data.slug}
+                            onChange={(v) => form.setData('slug', v)}
+                            errors={{
+                                ar: errors['slug.ar'],
+                                en: errors['slug.en'],
+                            }}
+                        />
+                        <BilingualFields
+                            label={t('catalog.ready.seo_title')}
+                            value={form.data.seo_title}
+                            onChange={(v) => form.setData('seo_title', v)}
+                            errors={{
+                                ar: errors['seo_title.ar'],
+                                en: errors['seo_title.en'],
+                            }}
+                        />
+                        <BilingualFields
+                            label={t('catalog.ready.seo_description')}
+                            value={form.data.seo_description}
+                            onChange={(v) => form.setData('seo_description', v)}
+                            errors={{
+                                ar: errors['seo_description.ar'],
+                                en: errors['seo_description.en'],
+                            }}
+                            multiline
+                        />
+                    </div>
                     <div>
                         <Button
                             type="submit"

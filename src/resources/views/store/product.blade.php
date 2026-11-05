@@ -2,9 +2,30 @@
 
 @section('content')
 <section class="mx-auto grid max-w-content gap-8 px-4 py-10 md:grid-cols-2 md:px-8" aria-labelledby="product-h">
-    <div class="flex aspect-square items-center justify-center rounded-lg bg-brand-subtle text-display text-brand" aria-hidden="true">{{ mb_substr($product['name'], 0, 1) }}</div>
+    @if ($images !== [])
+        <div class="grid gap-3">
+            <img src="{{ $images[0] }}" alt="{{ $product['name'] }}" width="800" height="800" fetchpriority="high" decoding="async" class="aspect-square w-full rounded-lg bg-brand-subtle object-cover">
+            @if (count($images) > 1)
+                <ul class="grid grid-cols-4 gap-2" aria-label="{{ __('store.public.more_images') }}">
+                    @foreach (array_slice($images, 1, 8) as $i => $src)
+                        <li><img src="{{ $src }}" alt="{{ __('store.public.image_n', ['name' => $product['name'], 'n' => $i + 2]) }}" width="200" height="200" loading="lazy" decoding="async" class="aspect-square w-full rounded-md bg-brand-subtle object-cover"></li>
+                    @endforeach
+                </ul>
+            @endif
+        </div>
+    @else
+        <div class="flex aspect-square items-center justify-center rounded-lg bg-brand-subtle text-display text-brand" aria-hidden="true">{{ mb_substr($product['name'], 0, 1) }}</div>
+    @endif
     <div>
-        <p class="text-caption"><a class="text-link hover:underline" href="{{ route('store.index', ['locale' => $locale]) }}">{{ __('store.public.back') }}</a></p>
+        <nav aria-label="{{ __('store.public.breadcrumb') }}" class="text-caption">
+            <ol class="flex flex-wrap items-center gap-1 text-weak">
+                <li><a class="text-link hover:underline" href="{{ $homePath }}">{{ $siteName }}</a></li>
+                <li aria-hidden="true">/</li>
+                <li><a class="text-link hover:underline" href="{{ route('store.index', ['locale' => $locale]) }}">{{ __('store.public.title') }}</a></li>
+                <li aria-hidden="true">/</li>
+                <li aria-current="page">{{ $product['name'] }}</li>
+            </ol>
+        </nav>
         <h1 id="product-h" class="mt-2 text-title">{{ $product['name'] }}</h1>
         @if ($product['description'] !== '')<p class="mt-3 text-body text-weak">{{ $product['description'] }}</p>@endif
 

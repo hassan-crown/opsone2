@@ -17,6 +17,9 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property int $id
  * @property Translated $name
  * @property Translated $description
+ * @property Translated $slug readable URL part per language (ADR-0045), the id stays in the URL
+ * @property Translated $seo_title
+ * @property Translated $seo_description
  * @property CarbonInterface|null $disabled_at
  */
 class CatalogReadyProduct extends Model implements AttachmentOwner, CatalogItem
@@ -43,6 +46,22 @@ class CatalogReadyProduct extends Model implements AttachmentOwner, CatalogItem
         ];
     }
 
+    /**
+     * The search fields are audited but are not part of the sold specification, so changing them never makes a new
+     * catalog version (ADR-0045).
+     *
+     * @return array<string, mixed>
+     */
+    public function auditSnapshot(): array
+    {
+        return [
+            ...$this->versionPayload(),
+            'slug' => $this->slug->toArray(),
+            'seo_title' => $this->seo_title->toArray(),
+            'seo_description' => $this->seo_description->toArray(),
+        ];
+    }
+
     public function attachmentViewPermission(): Permission
     {
         return Permission::P12;
@@ -58,6 +77,9 @@ class CatalogReadyProduct extends Model implements AttachmentOwner, CatalogItem
         return [
             'name' => TranslatableString::class,
             'description' => TranslatableString::class,
+            'slug' => TranslatableString::class,
+            'seo_title' => TranslatableString::class,
+            'seo_description' => TranslatableString::class,
             'status' => CatalogStatus::class,
             'disabled_at' => 'datetime',
         ];

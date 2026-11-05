@@ -6,6 +6,7 @@ use App\Models\Facility;
 use App\Money\Money;
 use App\Portal\PortalSession;
 use App\Site\Preview\SitePreview;
+use App\Site\Seo\JsonLd;
 use App\Site\Seo\SiteIndexing;
 use App\Site\SiteContext;
 use App\Site\Theme\ThemeSettings;
@@ -17,13 +18,14 @@ use Illuminate\Contracts\View\View;
  */
 final class StoreView
 {
-    public function __construct(private readonly SiteContext $site, private readonly Cart $cart, private readonly SitePreview $preview) {}
+    public function __construct(private readonly SiteContext $site, private readonly Cart $cart, private readonly SitePreview $preview, private readonly JsonLd $jsonLd) {}
 
     /**
      * @param  view-string  $view
      * @param  array<string, mixed>  $data
+     * @param  array<string, mixed>  $seo  page-specific search tags (description, canonical, alternates, image…)
      */
-    public function render(string $view, string $locale, string $title, array $data = [], bool $index = true): View
+    public function render(string $view, string $locale, string $title, array $data = [], bool $index = true, array $seo = []): View
     {
         $theme = $this->site->theme();
         $name = $this->site->facilityName($locale);
@@ -35,13 +37,19 @@ final class StoreView
         $switch = preg_replace('#^/(ar|en)(/|$)#', '/'.$other.'$2', $path);
         $media = fn (?string $uuid) => $uuid === null ? null : route('site.media', ['attachment' => $uuid]);
         $customer = PortalSession::customer();
+        $logo = $media($theme['logo'] ?? null);
+        $robots = SiteIndexing::meta($index && ! $this->preview->active());
 
         return view($view, [
+            'seo' => [
+                'title' => $title.' | '.$name, 'description' => '', 'robots' => $robots,
+                'canonical' => null, 'alternates' => [], 'site_name' => $name, 'image' => $logo,
+                ...$seo,
+                'json_ld' => [JsonLd::encode($this->jsonLd->business($locale, $logo)), ...($seo['json_ld'] ?? [])],
+            ],
             'locale' => $locale,
             'dir' => $locale === 'ar' ? 'rtl' : 'ltr',
             'otherLocale' => $other,
-            'title' => $title.' | '.$name,
-            'robots' => SiteIndexing::meta($index && ! $this->preview->active()),
             'preview' => $this->preview->active(),
             'previewExit' => $this->preview->active() ? route('site.preview.exit') : null,
             'siteName' => $name,
@@ -49,7 +57,7 @@ final class StoreView
             'homePath' => $this->site->path($locale),
             'switchUrl' => $switch,
             'themeCss' => ThemeSettings::css($theme),
-            'logo' => $media($theme['logo'] ?? null),
+            'logo' => $logo,
             'logoDark' => $media($theme['logo_dark'] ?? null),
             'favicon' => $media($theme['favicon'] ?? null),
             'appearance' => $appearance,

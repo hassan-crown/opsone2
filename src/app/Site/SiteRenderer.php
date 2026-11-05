@@ -10,6 +10,7 @@ use App\Models\Site\SitePage;
 use App\Models\Site\SitePageVersion;
 use App\Site\Preview\SitePreview;
 use App\Site\Sections\SectionCatalogue;
+use App\Site\Seo\JsonLd;
 use App\Site\Seo\SiteIndexing;
 use App\Site\Theme\ThemeSettings;
 use Illuminate\Contracts\Encryption\DecryptException;
@@ -24,7 +25,7 @@ use Illuminate\Support\Str;
  */
 final class SiteRenderer
 {
-    public function __construct(private readonly SiteContext $site, private readonly LicenseCapabilities $license) {}
+    public function __construct(private readonly SiteContext $site, private readonly LicenseCapabilities $license, private readonly JsonLd $jsonLd) {}
 
     public function render(SitePage $page, SitePageVersion $version, string $locale, bool $preview = false): View
     {
@@ -61,6 +62,10 @@ final class SiteRenderer
         $submission = (string) Str::uuid();
 
         $chrome = $this->chrome($locale, $preview);
+        $jsonLd = [JsonLd::encode($this->jsonLd->business($locale, $chrome['logo']))];
+        if (($faq = JsonLd::faq($sections)) !== null) {
+            $jsonLd[] = JsonLd::encode($faq);
+        }
 
         return view('site.page', [
             ...$chrome,
@@ -71,7 +76,9 @@ final class SiteRenderer
                 'title' => $title, 'description' => Str::limit(strip_tags($description), 200),
                 'canonical' => $this->site->url($locale, $page), 'alternates' => $alternates,
                 'robots' => SiteIndexing::meta(! $preview), 'site_name' => $name,
-                'image' => $chrome['logo'],
+                // The share preview shows the page's own picture (hero, else gallery), else the logo.
+                'image' => $this->mediaUrl($this->firstImage($sections)) ?? $chrome['logo'],
+                'json_ld' => $jsonLd,
             ],
             'switchUrl' => $this->switchUrl($page, $locale),
             'formToken' => Crypt::encryptString(time().'|'.$submission),
@@ -174,6 +181,25 @@ final class SiteRenderer
         $other = $locale === 'ar' ? 'en' : 'ar';
 
         return in_array($other, $this->site->publishedLocales($page), true) ? $this->site->path($other, $page) : $this->site->path($other);
+    }
+
+    /**
+     * @param  list<array<string, mixed>>  $sections
+     */
+    private function firstImage(array $sections): ?string
+    {
+        foreach ($sections as $s) {
+            $uuid = match ($s['type']) {
+                'hero' => $s['data']['image'] ?? null,
+                'gallery' => $s['data']['images'][0]['image'] ?? null,
+                default => null,
+            };
+            if (is_string($uuid) && $uuid !== '') {
+                return $uuid;
+            }
+        }
+
+        return null;
     }
 
     /**
