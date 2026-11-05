@@ -111,4 +111,4 @@
        </url>
 
 2. الصفحة الرئيسية «حلول حسب نشاطك»: بطاقة بصورة `solutions/outdoor-spaces/img/outdoor-hero-820.jpg` (820×615) وعنوان «المظلات والسواتر والمساحات الخارجية»، ورابط في عمود «لمن» في التذييل.
-3. `build.mjs`: خطاف لكل قطاع (`<sector>/sections.mjs` و`<sector>/<sector>.css|js`) حتى يُستغنى عن `compose.mjs` — نفس اقتراح جلسات الستائر والأثاث والألمنيوم.
+3. `build.mjs`: نُفِّذ الخطاف. `node marketing/site-next/solutions/build.mjs outdoor-spaces` يستورد `compose.mjs` ويضع أقسامه ويربط `outdoor.css` و`outdoor.js`.

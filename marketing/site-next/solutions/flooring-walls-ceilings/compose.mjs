@@ -1,18 +1,13 @@
-#!/usr/bin/env node
-// Builds the flooring, walls and ceilings page: node marketing/site-next/solutions/flooring-walls-ceilings/compose.mjs
-// Runs the shared builder (../build.mjs flooring-walls-ceilings) unchanged for the head, SEO, hero line, form, footer and
-// consent, then replaces the six middle sections with this sector's own forms and links page.css / page.js.
-// Kept inside this folder because the shared builder renders one fixed form per section.
-import { execFileSync } from 'node:child_process';
-import { readFileSync, writeFileSync } from 'node:fs';
+// The flooring, walls and ceilings page's own sections. Built by the shared builder: node marketing/site-next/solutions/build.mjs flooring-walls-ceilings
+// build.mjs writes the head, SEO, hero line, form, footer and consent (and checks the order total and the payment plan), then
+// imports this file and puts `sections` in place of the template's six middle sections, linking `styles` and `scripts`
+// after ../sector.css and ../sector.js.
+import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const SLUG = 'flooring-walls-ceilings';
 const here = dirname(fileURLToPath(import.meta.url));
-execFileSync(process.execPath, [join(here, '..', 'build.mjs'), SLUG], { stdio: 'inherit' });
 const d = JSON.parse(readFileSync(join(here, 'data.json'), 'utf8'));
-let html = readFileSync(join(here, 'index.html'), 'utf8');
 
 const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 const fmt = (n) => Number(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -222,22 +217,8 @@ ${d.faq.map((f, i) => `      <div class="fqa__item"><dt><span class="fqa__n nums
   </div>
 </section>`;
 
-/* ---------- swap the template's sections for these, and link this page's CSS and JS ---------- */
-const swap = (cls, next) => {
-  const i = html.indexOf(`<section class="band ${cls}"`);
-  const j = html.indexOf('</section>', i);
-  if (i < 0 || j < 0) throw new Error(`missing section ${cls}`);
-  html = html.slice(0, i) + next + html.slice(j + '</section>'.length);
-};
-// the template's order is channels → setup; this page puts the installation phases before the channels
-swap('korder', order);
-swap('kpains', pains);
-swap('kchan', phases);
-swap('kcfg', channels);
-swap('kroles', roles);
-swap('kfaq', faq);
-const once = (from, to) => { if (!html.includes(from)) throw new Error(`missing ${from}`); html = html.replace(from, to); };
-once('<link rel="stylesheet" href="../sector.css">', '<link rel="stylesheet" href="../sector.css">\n<link rel="stylesheet" href="page.css">');
-once('<script src="../sector.js" defer></script>', '<script src="../sector.js" defer></script>\n<script src="page.js" defer></script>');
-writeFileSync(join(here, 'index.html'), html);
-console.log(`composed solutions/${SLUG}/index.html (${(html.length / 1024).toFixed(1)} kB); subtotal ${fmt(sub)}, net ${fmt(net)}, VAT ${fmt(vat)}, total ${fmt(total)}, dues ${payAmts.map(fmt).join(' + ')}`);
+/* ---------- what build.mjs puts in place of the template's sections ---------- */
+export const sections = [order, pains, phases, channels, roles, faq];
+export const styles = ['page.css'];
+export const scripts = ['page.js'];
+console.log(`flooring-walls-ceilings: subtotal ${fmt(sub)}, net ${fmt(net)}, VAT ${fmt(vat)}, total ${fmt(total)}, dues ${payAmts.map(fmt).join(' + ')}`);

@@ -94,4 +94,4 @@
 
 - `sitemap.xml`: `<url><loc>https://www.opsone.example/solutions/signage-exhibitions-events/</loc></url>`
 - بطاقة «حلول حسب نشاطك» في الصفحة الرئيسية ورابط التذييل، بصورة `solutions/signage-exhibitions-events/img/signage-hero.svg`.
-- `compose.mjs` هنا يشغّل `build.mjs` دون تعديل ثم يستبدل الأقسام الوسطى؛ نفس الاقتراح الوارد من صفحات الستائر والألمنيوم: خطّاف `sections.mjs` اختياري في `build.mjs`.
+- `compose.mjs` هنا يُستورد من `build.mjs signage-exhibitions-events` عبر الخطاف المشترك، ويضع أقسام هذا النشاط بين الواجهة والنموذج مع `signage.css` و`signage.js`.

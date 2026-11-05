@@ -1,19 +1,13 @@
-#!/usr/bin/env node
-// Builds the outdoor spaces page: node marketing/site-next/solutions/outdoor-spaces/compose.mjs
-// Runs the shared ../build.mjs unchanged (head, SEO, JSON-LD, hero line, form, footer, consent), then replaces the
-// sections between the hero and the form with this sector's own forms, and links outdoor.css / outdoor.js after the
-// shared files. Once build.mjs accepts per-sector renderers, renderSections() moves there as-is (RESEARCH.md §7).
-import { execFileSync } from 'node:child_process';
-import { readFileSync, writeFileSync } from 'node:fs';
+// The outdoor spaces page's own sections. Built by the shared builder: node marketing/site-next/solutions/build.mjs outdoor-spaces
+// build.mjs writes the head, SEO, hero line, form, footer and consent (and checks the order total and the payment plan), then
+// imports this file and puts `sections` in place of the template's six middle sections, linking `styles` and `scripts`
+// after ../sector.css and ../sector.js.
+import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const here = dirname(fileURLToPath(import.meta.url));
-const slug = 'outdoor-spaces';
-execFileSync(process.execPath, [join(here, '..', 'build.mjs'), slug], { stdio: 'inherit' });
 const d = JSON.parse(readFileSync(join(here, 'data.json'), 'utf8'));
-const out = join(here, 'index.html');
-let html = readFileSync(out, 'utf8');
 
 const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 const fmt = (n) => Number(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -185,14 +179,8 @@ ${d.faqGroups.map((g) => `      <div class="topic"><h3>${esc(g.name)}</h3>${d.fa
   </div>
 </section>`;
 
-/* ---------- splice ---------- */
-const startTag = '<section class="band korder"';
-const endTag = '<section class="demo band"';
-const i = html.indexOf(startTag), j = html.indexOf(endTag);
-if (i < 0 || j < 0) throw new Error('section markers not found in build output');
-html = `${html.slice(0, i)}${scope}\n${order}\n${pains}\n${channels}\n${setup}\n${roles}\n${faq}\n${html.slice(j)}`;
-html = html.replace('<link rel="stylesheet" href="../sector.css">', '<link rel="stylesheet" href="../sector.css">\n<link rel="stylesheet" href="outdoor.css">')
-  .replace('<script src="../sector.js" defer></script>', '<script src="../sector.js" defer></script>\n<script src="outdoor.js" defer></script>');
-if (!html.includes('outdoor.css') || !html.includes('outdoor.js')) throw new Error('asset links not added');
-writeFileSync(out, html);
-console.log(`composed solutions/${slug}/index.html (${(html.length / 1024).toFixed(1)} kB); ${totalDays} days in the flow`);
+/* ---------- what build.mjs puts in place of the template's sections ---------- */
+export const sections = [scope, order, pains, channels, setup, roles, faq];
+export const styles = ['outdoor.css'];
+export const scripts = ['outdoor.js'];
+console.log(`outdoor-spaces: ${totalDays} days in the flow`);

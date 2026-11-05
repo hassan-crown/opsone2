@@ -395,5 +395,5 @@ code-led (لا أداة توليد صور معتمدة). المتحدّون ال
 - صفحة النشاط تضبط `window.OPSONE_PAGE = { sector }`، فيرسل `tags.js` القيمة مع page_view ومع حدث الطلب، ويُرسل النموذج حقل `sector` مخفيًا.
 - **نشاط جديد:** انسخ `solutions/kitchens/data.json` إلى مجلد جديد، وغيّر النصوص والصور، وأضف صفحته إلى `sitemap.xml` وإلى قسم «حلول حسب نشاطك» في `index.html`، ثم شغّل البناء.
 - كل الصفحات تُبنى بأمر واحد: `node marketing/site-next/solutions/build.mjs <نشاط>`، سواء كان للنشاط `compose.mjs` أم لا.
-- الصفحات الحالية: `kitchens` (بأقسام القالب)، و`villa-fit-out` و`custom-furniture` و`aluminium-glass` و`curtains-blinds` (بأقسامها في `compose.mjs`). لقطات كل صفحة في `solutions/<نشاط>/screens/`.
+- الصفحات الحالية (9): `kitchens` (بأقسام القالب)، و`villa-fit-out` و`custom-furniture` و`aluminium-glass` و`curtains-blinds` و`flooring-walls-ceilings` و`smart-home-lighting-security` و`outdoor-spaces` و`signage-exhibitions-events` (بأقسامها في `compose.mjs`). لقطات كل صفحة في `solutions/<نشاط>/screens/`.
 - قسم «حلول حسب نشاطك» شبكة بطاقات (`.solutions__grid`)؛ النشاط الجديد يُضاف بطاقةً فيها ورابطًا في عمود «لمن» في التذييل.

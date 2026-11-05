@@ -1,18 +1,13 @@
-#!/usr/bin/env node
-// Builds the smart home, lighting and security page: node marketing/site-next/solutions/smart-home-lighting-security/compose.mjs
-// Runs the shared builder (../build.mjs smart-home-lighting-security) unchanged for the head, SEO, hero line, form, footer and
-// consent, then replaces the six middle sections with this sector's own forms and links page.css / page.js.
-// Kept inside this folder because the shared builder renders one fixed form per section (kitchens').
-import { execFileSync } from 'node:child_process';
-import { readFileSync, writeFileSync } from 'node:fs';
+// The smart home, lighting and security page's own sections. Built by the shared builder: node marketing/site-next/solutions/build.mjs smart-home-lighting-security
+// build.mjs writes the head, SEO, hero line, form, footer and consent (and checks the order total and the payment plan), then
+// imports this file and puts `sections` in place of the template's six middle sections, linking `styles` and `scripts`
+// after ../sector.css and ../sector.js.
+import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const here = dirname(fileURLToPath(import.meta.url));
-const slug = 'smart-home-lighting-security';
-execFileSync(process.execPath, [join(here, '..', 'build.mjs'), slug], { stdio: 'inherit' });
 const d = JSON.parse(readFileSync(join(here, 'data.json'), 'utf8'));
-let html = readFileSync(join(here, 'index.html'), 'utf8');
 
 const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 const fmt = (n) => Number(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -203,21 +198,9 @@ ${[d.faq.slice(0, Math.ceil(d.faq.length / 2)), d.faq.slice(Math.ceil(d.faq.leng
   </div>
 </section>`;
 
-/* ---------- swap the shared builder's middle sections for these ---------- */
-const swap = (cls, out) => {
-  const start = html.indexOf(`<section class="band ${cls}"`);
-  const end = html.indexOf('</section>', start);
-  if (start < 0 || end < 0) throw new Error(`section ${cls} not found`);
-  html = html.slice(0, start) + out + html.slice(end + '</section>'.length);
-};
-swap('korder', order);
-swap('kpains', pains);
-swap('kchan', channels);
-swap('kcfg', setup);
-swap('kroles', roles);
-swap('kfaq', faq);
-html = html.replace('<link rel="stylesheet" href="../sector.css">', '<link rel="stylesheet" href="../sector.css">\n<link rel="stylesheet" href="page.css">')
-  .replace('<script src="../sector.js" defer></script>', '<script src="../sector.js" defer></script>\n<script src="page.js" defer></script>');
-for (const k of ['korder', 'kpains', 'kchan', 'kcfg', 'kroles', 'kfaq', 'kplan', 'swap__item', 'pane__btn', 'splits__opt']) if (html.includes(k)) throw new Error(`leftover ${k}`);
-writeFileSync(join(here, 'index.html'), html);
-console.log(`composed solutions/${slug}/index.html (${(html.length / 1024).toFixed(1)} kB); ${o.lines.length} lines, ${pl.points.length} plan points, total ${fmt(total)}`);
+/* ---------- what build.mjs puts in place of the template's sections ---------- */
+export const sections = [order, pains, channels, setup, roles, faq];
+export const styles = ['page.css'];
+export const scripts = ['page.js'];
+for (const k of ['korder', 'kpains', 'kchan', 'kcfg', 'kroles', 'kfaq', 'kplan', 'swap__item', 'pane__btn', 'splits__opt']) if (sections.join('').includes(k)) throw new Error(`leftover ${k}`);
+console.log(`smart-home-lighting-security: ${o.lines.length} lines, ${pl.points.length} plan points, total ${fmt(total)}`);
