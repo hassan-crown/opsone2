@@ -1,0 +1,52 @@
+{
+  "_note": "Internal provenance record for the photographs on the flooring, walls and ceilings page. Nothing here is shown on the page; every image is CC0 and needs no attribution. The villa plan is drawn in code (compose.mjs). To replace an image, swap the file and its path/size in data.json (hero.image, channels.items[].image); at most 8 image slots.",
+  "images": [
+    {
+      "file": "img/fwc-hero-1400.jpg, img/fwc-hero-820.jpg",
+      "used": "hero; OG image; home page «حلول حسب نشاطك» card (to merge later)",
+      "source": "https://commons.wikimedia.org/wiki/File:Tile_Store_1.jpg",
+      "original": "https://upload.wikimedia.org/wikipedia/commons/1/1b/Tile_Store_1.jpg",
+      "author": "Stilfehler (Wikimedia Commons)",
+      "licence": "CC0 1.0 (as stated on the Wikimedia Commons file page)",
+      "people": "none",
+      "edits": "cropped to 4:3 (right-hand stand with a brand sign removed), resized, recompressed"
+    },
+    {
+      "file": "img/fwc-samples-1000.jpg",
+      "used": "channels: showroom and samples",
+      "source": "https://commons.wikimedia.org/wiki/File:Tile_Store_2.jpg",
+      "original": "https://upload.wikimedia.org/wikipedia/commons/b/bf/Tile_Store_2.jpg",
+      "author": "Stilfehler (Wikimedia Commons)",
+      "licence": "CC0 1.0 (as stated on the Wikimedia Commons file page)",
+      "people": "none",
+      "edits": "cropped to the left-hand sample rack (product labels removed), resized, recompressed"
+    },
+    {
+      "file": "img/fwc-parquet-1000.jpg",
+      "used": "channels: online store",
+      "source": "https://commons.wikimedia.org/wiki/File:Parquet_floor_wood_texture.jpg",
+      "original": "https://upload.wikimedia.org/wikipedia/commons/f/f1/Parquet_floor_wood_texture.jpg",
+      "author": "Kurt Kaiser (Wikimedia Commons)",
+      "licence": "CC0 1.0 (as stated on the Wikimedia Commons file page)",
+      "people": "none",
+      "edits": "cropped, resized, recompressed"
+    },
+    {
+      "file": "img/fwc-stone-1000.jpg",
+      "used": "channels: field sales at the customer's site",
+      "source": "https://commons.wikimedia.org/wiki/File:%2B15_Marble-like_Tile_Floor_Example.jpg",
+      "original": "https://upload.wikimedia.org/wikipedia/commons/1/18/%2B15_Marble-like_Tile_Floor_Example.jpg",
+      "author": "SubscribeTransport (Wikimedia Commons)",
+      "licence": "CC0 1.0 (as stated on the Wikimedia Commons file page)",
+      "people": "none",
+      "edits": "cropped to 4:3, resized, recompressed"
+    },
+    {
+      "file": "og-flooring-walls-ceilings.jpg",
+      "used": "Open Graph / Twitter image",
+      "source": "composed from img/fwc-hero-1400.jpg with the OpsOne logo and the page title",
+      "licence": "derived from CC0",
+      "people": "none"
+    }
+  ]
+}
