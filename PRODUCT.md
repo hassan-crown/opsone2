@@ -10,8 +10,9 @@ web
 
 Owners and managers of Saudi businesses that sell ready-made and made-to-order products from a showroom or an online
 store, usually with their own factory or a field team that measures, installs and delivers. They evaluate OpsOne to
-replace spreadsheets, WhatsApp threads and paper contracts across sales, production and delivery. The audience is
-described by how a business works, never by sector.
+replace spreadsheets, WhatsApp threads and paper contracts across sales, production and delivery. The home page
+describes the audience by how a business works; nine sector pages (kitchens, furniture, aluminium and glass, curtains,
+fit-out, flooring, smart home, outdoor spaces, signage and exhibitions) speak to each sector by name, as the owner approved.
 
 ## Product Purpose
 
@@ -27,9 +28,10 @@ tasks, roles) without a developer, with versioned releases that leave running or
 
 ## Operating Context
 
-- The product is a Laravel + React/Inertia app in `src/`; the marketing site is a static page in `marketing/landing/`
-  (ADR-0034) with no build step.
-- Demo requests go to an endpoint set in `marketing/landing/config.js`; marketing tags load only after consent.
+- The product is a Laravel + React/Inertia app in `src/`; the marketing site is a static multi-page site in
+  `marketing/site/` (ADR-0044, replacing ADR-0034), built by a dependency-free Node script (`build-site.mjs`).
+- Demo requests go to an endpoint set in `marketing/site/config.js`; marketing tags load only after consent (two
+  purposes: analytics and ads). Prices (ADR-0043) are not published until Q-74 is decided.
 
 ## Capabilities and Constraints
 
@@ -47,14 +49,16 @@ tasks, roles) without a developer, with versioned releases that leave running or
 
 ## Evidence on Hand
 
-- Real product screens in `docs/screenshots/` and recorded clips in `marketing/landing/assets/video/` (demo data).
-- CC0 photos in `marketing/landing/assets/photos/` (see `credits.json`).
-- No customers, testimonials, logos, statistics or pricing exist. Do not fabricate any.
+- Real product screens in `docs/screenshots/` and recorded clips in `marketing/site/assets/video/` (demo data).
+- CC0 photos in `marketing/site/assets/photos/` and generated or licensed sector images in
+  `marketing/site/solutions/*/img/` (see each `credits.json`).
+- No customers, testimonials, logos or statistics exist. Do not fabricate any. Prices exist (ADR-0043) but are not
+  published yet.
 
 ## Product Principles
 
 1. Show the real product, with sample data that adds up, rather than abstract illustration.
-2. Describe the business by how it sells and delivers, not by its sector.
+2. Describe the business by how it sells and delivers; on sector pages, in that sector's own words.
 3. Make only claims the product can back today.
 4. One action: request a demo.
 

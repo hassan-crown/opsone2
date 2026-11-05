@@ -1,6 +1,6 @@
 # ADR-0034: Marketing landing page as a static site in `marketing/landing/`
 
-Status: accepted (2026-11-02).
+Status: accepted (2026-11-02); superseded by [ADR-0044](0044-marketing-site.md) (2026-11-05): the marketing site is now `marketing/site/` and `marketing/landing/` was removed (it remains in git history).
 
 ## Context
 
