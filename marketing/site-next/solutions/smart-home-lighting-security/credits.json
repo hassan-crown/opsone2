@@ -1,0 +1,29 @@
+{
+  "_note": "Internal provenance record for the photographs on the smart home, lighting and security page. Nothing here is shown on the page; every image is CC0 and needs no attribution. Found through the Openverse API (license filter cc0). The showroom and field-sales lanes are code drawings (compose.mjs, ART). To replace a picture, change hero.image or channels.items[].image in data.json (delete `art` to show the photo) and rebuild with compose.mjs (eight photos at most).",
+  "images": [
+    {
+      "file": "img/sh-hero-1024.jpg, img/sh-hero-820.jpg",
+      "used": "hero; Open Graph image; home page «حلول حسب نشاطك» card",
+      "source": "https://www.rawpixel.com/image/6032851/photo-image-public-domain-blue-technologies",
+      "licence": "CC0 1.0 (rawpixel public domain collection)",
+      "people": "none",
+      "edits": "converted from WebP, resized, recompressed"
+    },
+    {
+      "file": "img/sh-ceiling-1000.jpg",
+      "used": "channels: lighting and devices store",
+      "source": "https://wordpress.org/photos/photo/4776779259/",
+      "original": "https://pd.w.org/2025/01/47767792591c911c7.85774398-2048x1536.jpg",
+      "licence": "CC0 1.0 (WordPress Photo Directory)",
+      "people": "none",
+      "edits": "resized, recompressed"
+    },
+    {
+      "file": "og-smart-home-lighting-security.jpg",
+      "used": "Open Graph / Twitter image",
+      "source": "composed from img/sh-hero-1024.jpg with the OpsOne logo and the page title",
+      "licence": "derived from CC0",
+      "people": "none"
+    }
+  ]
+}
