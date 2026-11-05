@@ -3,6 +3,11 @@
 namespace App\Http\Controllers\Store;
 
 use App\Http\Controllers\Controller;
+use App\Marketing\Tracking;
+use App\Models\Catalog\CatalogReadyProduct;
+use App\Site\Seo\JsonLd;
+use App\Site\Seo\Slug;
+use App\Site\SiteContext;
 use App\Store\Cart;
 use App\Store\StoreCatalogue;
 use App\Store\StoreGate;
@@ -22,23 +27,88 @@ final class StoreController extends Controller
         private readonly StoreCatalogue $catalogue,
         private readonly StoreView $view,
         private readonly Cart $cart,
+        private readonly SiteContext $site,
+        private readonly JsonLd $jsonLd,
     ) {}
 
     public function index(string $locale): View
     {
         $this->gate->abortUnlessOpen();
+        $title = __('store.public.title', [], $locale);
+        $alternates = $this->alternates(fn (string $l) => $this->site->baseUrl().'/'.$l.'/store');
 
-        return $this->view->render('store.index', $locale, __('store.public.title'), [
-            'products' => $this->catalogue->products($locale),
+        $products = $this->catalogue->products($locale);
+        $items = array_map(fn (array $p) => Tracking::item($p['default_code'], $p['name'], null, (int) $p['from_minor']), array_slice($products, 0, 20));
+
+        return $this->view->render('store.index', $locale, $title, [
+            'products' => $products,
+            'trackingEvents' => [Tracking::event('view_item_list', ['item_list_id' => 'store', 'item_list_name' => $title, 'items' => $items])],
+        ], seo: [
+            'description' => __('store.public.meta_description', ['name' => $this->site->facilityName($locale)], $locale),
+            'canonical' => $alternates[$locale],
+            'alternates' => $alternates,
+            'json_ld' => [JsonLd::encode(JsonLd::breadcrumbs([
+                ['name' => $this->site->facilityName($locale), 'url' => $this->site->url($locale)],
+                ['name' => $title, 'url' => $alternates[$locale]],
+            ]))],
         ]);
     }
 
-    public function product(string $locale, int $product): View
+    /**
+     * StoreProduct (ADR-0045): the id finds the product; any other slug than the current one answers 301 to the
+     * canonical URL (query string kept, so campaign tags survive). A product taken off sale is 410, an unknown one 404.
+     */
+    public function product(Request $request, string $locale, int $product, ?string $slug = null): View|RedirectResponse
     {
         $this->gate->abortUnlessOpen();
-        $item = $this->catalogue->find($product, $locale) ?? abort(404);
+        $item = $this->catalogue->find($product, $locale);
+        if ($item === null) {
+            abort_if(CatalogReadyProduct::query()->find($product)?->isDisabled() === true, 410);
+            abort(404);
+        }
+        if ($item['slug'] !== '' && $slug !== $item['slug']) {
+            $query = $request->getQueryString();
 
-        return $this->view->render('store.product', $locale, $item['name'], ['product' => $item]);
+            return redirect(StoreCatalogue::path($locale, $product, $item['slug']).($query ? '?'.$query : ''), 301);
+        }
+
+        $alternates = $this->alternates(fn (string $l) => $this->site->baseUrl().StoreCatalogue::path($l, $product, $item['slugs'][$l]));
+        $images = array_values(array_map(fn (string $uuid) => route('site.media', ['attachment' => $uuid]), $item['images']));
+        $storeUrl = $this->site->baseUrl().'/'.$locale.'/store';
+
+        $default = $item['variants'][0];
+        $viewItem = Tracking::event('view_item', Tracking::commerce(
+            [Tracking::item($default['code'], $item['name'], $default['name'], (int) $default['price_minor'])], Tracking::grossMinor((int) $default['price_minor']),
+        ));
+
+        return $this->view->render('store.product', $locale, $item['seo_title'], ['product' => $item, 'images' => $images, 'trackingEvents' => [$viewItem]], seo: [
+            'description' => $item['seo_description'],
+            'canonical' => $alternates[$locale],
+            'alternates' => $alternates,
+            'og_type' => 'product',
+            'image' => $images[0] ?? null,
+            'image_alt' => $item['name'],
+            'product' => ['amount' => JsonLd::gross((int) $item['from_minor']), 'currency' => Tracking::currency()],
+            'json_ld' => [
+                JsonLd::encode($this->jsonLd->product($item, $alternates[$locale], $images)),
+                JsonLd::encode(JsonLd::breadcrumbs([
+                    ['name' => $this->site->facilityName($locale), 'url' => $this->site->url($locale)],
+                    ['name' => __('store.public.title', [], $locale), 'url' => $storeUrl],
+                    ['name' => $item['name'], 'url' => $alternates[$locale]],
+                ])),
+            ],
+        ]);
+    }
+
+    /**
+     * @param  callable(string): string  $url
+     * @return array<string, string>
+     */
+    private function alternates(callable $url): array
+    {
+        $out = ['ar' => $url('ar'), 'en' => $url('en')];
+
+        return $out + ['x-default' => $out[$this->site->defaultLocale()]];
     }
 
     public function cart(string $locale): View
@@ -56,7 +126,9 @@ final class StoreController extends Controller
         if ($variant === null) {
             return back()->withErrors(['variant_id' => __('checkout.validation.unavailable')]);
         }
-        $this->cart->add($variant->id, (int) ($data['quantity'] ?? 1));
+        $quantity = (int) ($data['quantity'] ?? 1);
+        $this->cart->add($variant->id, $quantity);
+        Tracking::flash('add_to_cart', Tracking::commerce([Tracking::variantItem($variant, $locale, $quantity)], Tracking::grossMinor($variant->price_minor, $quantity)));
 
         return redirect()->route('store.cart', ['locale' => $locale])->with('status', __('store.public.added'));
     }
@@ -88,6 +160,7 @@ final class StoreController extends Controller
                 'name' => (string) $variant->product->name->get($locale),
                 'variant' => (string) $variant->name->get($locale),
                 'product_id' => $variant->ready_product_id,
+                'product_path' => StoreCatalogue::path($locale, $variant->ready_product_id, $variant->product->slug->only($locale) ?: Slug::make($variant->product->name->get($locale))),
                 'quantity' => $quantity,
                 'unit_minor' => $variant->price_minor,
                 'line_minor' => $variant->price_minor * $quantity,

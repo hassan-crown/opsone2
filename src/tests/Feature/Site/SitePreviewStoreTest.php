@@ -23,7 +23,7 @@ it('previews the store with the draft theme too (catalogue, product, cart) but n
     $cookie = $this->get($link['url'])->assertRedirect()->getCookie(SitePreview::COOKIE);
     $this->withCookie(SitePreview::COOKIE, $cookie->getValue());
     foreach (['/en/store', '/en/store/p/'.$s->f->variant->ready_product_id, '/en/store/cart'] as $uri) {
-        $r = $this->get($uri)->assertOk();
+        $r = $this->followingRedirects()->get($uri)->assertOk();
         expect($r->getContent())->toContain('#1D5FA8')->toContain('name="robots" content="noindex, nofollow"');
     }
     $this->post('/en/store/checkout')->assertForbidden();

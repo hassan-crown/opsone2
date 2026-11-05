@@ -35,8 +35,8 @@ class LicenseDevIssueCommand extends Command
      */
     private const array PLANS = [
         'basic' => ['capabilities' => [], 'seats' => 5, 'branches' => 1, 'storage_mb' => 5 * 1024],
-        'growth' => ['capabilities' => ['ready_goods', 'branch_comparisons'], 'seats' => 15, 'branches' => 3, 'storage_mb' => 25 * 1024],
-        'scale' => ['capabilities' => ['ready_goods', 'branch_comparisons'], 'seats' => 40, 'branches' => 10, 'storage_mb' => 100 * 1024],
+        'growth' => ['capabilities' => ['ready_goods', 'branch_comparisons', 'marketing_reports'], 'seats' => 15, 'branches' => 3, 'storage_mb' => 25 * 1024],
+        'scale' => ['capabilities' => ['ready_goods', 'branch_comparisons', 'marketing_reports'], 'seats' => 40, 'branches' => 10, 'storage_mb' => 100 * 1024],
     ];
 
     public function handle(LicenseInstaller $installer): int

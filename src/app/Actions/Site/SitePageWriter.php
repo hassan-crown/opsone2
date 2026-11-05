@@ -12,6 +12,7 @@ use App\Enums\StateMachine;
 use App\Models\Site\SitePage;
 use App\Models\Site\SitePageLocale;
 use App\Models\Site\SitePageVersion;
+use App\Models\Site\SiteRedirect;
 use App\Models\User;
 use App\Site\Sections\SectionCatalogue;
 use Illuminate\Support\Facades\DB;
@@ -47,6 +48,9 @@ final class SitePageWriter
                 ]);
                 SitePageLocale::query()->create(['page_id' => $page->id, 'locale' => $locale, 'draft_version_id' => $version->id]);
             }
+            foreach (self::LOCALES as $locale) {
+                SiteRedirect::release('/'.$locale.'/'.$slug); // the path is a page again
+            }
             $this->transitions->record(StateMachine::M17, 'T00', $page, null, 'draft', $actor, TransitionRecorder::SOURCE_WEB);
             Audit::record(AuditAction::SitePageCreated, $page, $actor, after: ['slug' => $slug]);
 
@@ -72,8 +76,14 @@ final class SitePageWriter
                 if ($locked->policy !== SitePage::POLICY_CONTENT) {
                     throw ValidationException::withMessages(['slug' => __('site.error.slug_locked')]);
                 }
-                if ($locked->locales->contains(fn (SitePageLocale $l) => $l->published_version_id !== null)) {
-                    throw ValidationException::withMessages(['slug' => __('site.error.slug_published')]);
+                // A published path keeps working: its old URL answers 301 to the new one (ADR-0045).
+                foreach ($locked->locales as $l) {
+                    if ($l->published_version_id !== null) {
+                        SiteRedirect::move('/'.$l->locale.'/'.$locked->slug, '/'.$l->locale.'/'.$slug);
+                    }
+                }
+                foreach (self::LOCALES as $l) {
+                    SiteRedirect::release('/'.$l.'/'.$slug);
                 }
                 $locked->slug = $slug;
             }

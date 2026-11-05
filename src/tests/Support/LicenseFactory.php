@@ -68,7 +68,7 @@ final class LicenseFactory
             'deployment_id' => 'deployment-1',
             'domains' => [(string) parse_url((string) config('app.url'), PHP_URL_HOST)],
             'plan' => 'growth',
-            'capabilities' => ['ready_goods', 'branch_comparisons'],
+            'capabilities' => ['ready_goods', 'branch_comparisons', 'marketing_reports'],
             'limits' => ['seats' => 15, 'branches' => 3, 'storage_mb' => 25600],
             'activation_id' => 'act-1',
             'starts_at' => $now->subDays(10)->toIso8601ZuluString(),

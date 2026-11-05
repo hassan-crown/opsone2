@@ -140,7 +140,7 @@ it('applying reflects on the site and the store, and changes no price, access, r
     expect($salesCan())->toBe($salesBefore)
         ->and(accP18Untouchable($this))->toBe($before)
         ->and($this->variant->refresh()->price_minor)->toBe(4500);
-    $this->get('/ar/store/p/'.$this->variant->ready_product_id)->assertOk()->assertSee('45.00');
+    $this->followingRedirects()->get('/ar/store/p/'.$this->variant->ready_product_id)->assertOk()->assertSee('45.00');
 });
 
 it('the applied brand reaches the facility-facing surfaces only; staff screens keep OpsOne\'s identity (Q-03 a, ADR-0035)', function () {

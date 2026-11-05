@@ -233,3 +233,16 @@ The dashboard also shows `sales.agreed_gross_minor`, `collection.collected_minor
 | `field_sales.orders` | count | none | — | orders | Orders with sales_channel field_sales created in range, by seller. |
 | `field_sales.booked_minor` | money | gross | P-37 | agreements | channels.booked_minor restricted to field_sales orders, by seller. |
 | `field_sales.commission_minor` | money | none | P-94 | commission_entries | commissions.accrued_minor of field_sales orders whose entry belongs to the order's seller, created in range. |
+
+### `marketing` (ADR-0045, license `marketing_reports`)
+
+Records carry touches only when they came through the site or store (`marketing_touches`); leads, requests, orders and
+booked sales are counted on their **last** touch, new customers on their **first** touch.
+
+| Metric | Kind | VAT | Grant | Sources | Formula |
+|---|---|---|---|---|---|
+| `marketing.leads` | count | none | — | interests, marketing_touches | Interests created in range that carry a last touch (came through the site), per source / medium / campaign. |
+| `marketing.appointment_requests` | count | none | — | appointment_requests, marketing_touches | Appointment requests created in range with a last touch, per source / medium / campaign. |
+| `marketing.new_customers` | count | none | — | customers, marketing_touches | Customers created in range with a first touch (the visit that first brought them), per source / medium / campaign. |
+| `marketing.orders` | count | none | — | orders, marketing_touches | Orders created in range with a last touch (store checkouts, converted leads), per source / medium / campaign. |
+| `marketing.booked_minor` | money | gross | P-37 | agreements, store_checkouts, marketing_touches | channels.booked_minor restricted to orders with a last touch, per source / medium / campaign. |

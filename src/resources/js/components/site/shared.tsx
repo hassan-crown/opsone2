@@ -9,6 +9,7 @@ const TAB_HREF = {
     pages: '/site-admin/pages',
     theme: '/site-admin/theme',
     domain: '/site-admin/domain',
+    marketing: '/site-admin/marketing',
 } as const;
 
 /** Section tabs of the "Site" area (real links); only the ones the viewer may open are listed. */
@@ -20,7 +21,7 @@ export function SiteNav({
     tabs: SiteTabs;
 }) {
     const t = useT();
-    const items = (['pages', 'theme', 'domain'] as const).filter(
+    const items = (['pages', 'theme', 'domain', 'marketing'] as const).filter(
         (key) => tabs[key],
     );
 

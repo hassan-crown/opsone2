@@ -6,15 +6,18 @@ use App\Http\Middleware\EnforceSupportAccess;
 use App\Http\Middleware\EnsureAccessIsCurrent;
 use App\Http\Middleware\HandleAppearance;
 use App\Http\Middleware\HandleInertiaRequests;
+use App\Http\Middleware\RobotsTag;
 use App\Http\Middleware\SecurityHeaders;
 use App\Http\Middleware\SetLocale;
 use App\Http\Middleware\ShareLicenseState;
 use App\Site\Domain\TrustedHosts;
+use App\Site\SiteRenderer;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -29,6 +32,7 @@ return Application::configure(basePath: dirname(__DIR__))
         // Proxies come from config/trustedproxy.php; hosts are the app URL (with subdomains) and verified custom domains.
         $middleware->trustHosts(at: fn () => TrustedHosts::patterns(), subdomains: true);
         $middleware->append(SecurityHeaders::class);
+        $middleware->append(RobotsTag::class);
 
         $middleware->web(append: [
             SetLocale::class,
@@ -44,4 +48,18 @@ return Application::configure(basePath: dirname(__DIR__))
         $exceptions->shouldRenderJsonWhen(
             fn (Request $request) => $request->is('api/*') || $request->expectsJson(),
         );
+        // 404 / 410 under the public site and store (`/ar/…`, `/en/…`) use the facility's branded page (ADR-0045).
+        $exceptions->render(function (HttpExceptionInterface $e, Request $request) {
+            $status = $e->getStatusCode();
+            if (! in_array($status, [404, 410], true) || $request->expectsJson() || preg_match('#^(ar|en)(/|$)#', $request->path(), $m) !== 1) {
+                return null;
+            }
+            try {
+                return app(SiteRenderer::class)->error($status, $m[1]);
+            } catch (Throwable $failure) {
+                report($failure);
+
+                return null; // the framework's plain page
+            }
+        });
     })->create();

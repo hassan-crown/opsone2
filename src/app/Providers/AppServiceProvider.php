@@ -5,7 +5,10 @@ namespace App\Providers;
 use App\Access\Authorizer;
 use App\Agreements\CollectedAmounts;
 use App\Agreements\NoCollections;
+use App\Marketing\PublicPageComposer;
 use App\Models\Facility;
+use App\Models\FinanceSettings;
+use App\Models\Marketing\MarketingSettings;
 use App\Models\Membership;
 use App\Models\User;
 use App\Site\Preview\SitePreview;
@@ -20,6 +23,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
 
@@ -57,10 +61,13 @@ class AppServiceProvider extends ServiceProvider
                 $this->app->make(Authorizer::class)->flush();
             }
         });
-        foreach ([Facility::class, Membership::class, User::class] as $model) {
+        foreach ([Facility::class, Membership::class, User::class, FinanceSettings::class, MarketingSettings::class] as $model) {
             $model::saved($flush);
             $model::deleted($flush);
         }
+
+        // Tags, WhatsApp button, profile links and policy pages on every public document (ADR-0045).
+        View::composer(['site.layout', 'store.layout'], PublicPageComposer::class);
 
         // Own bucket per user, so order creation never shares a bare throttle with other routes.
         RateLimiter::for('orders-create', fn (Request $request) => Limit::perMinute(30)->by('orders-create:'.($request->user()?->getAuthIdentifier() ?? $request->ip())));

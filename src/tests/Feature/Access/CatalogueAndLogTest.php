@@ -16,8 +16,9 @@ use Tests\Support\Org;
 
 uses(RefreshDatabase::class);
 
-it('catalogues P-01..P-102 with bilingual labels, scopes and default roles, plus P-103 (debt write-off, ADR-0035), P-104 (business rules, ADR-0037) and P-105/P-106 (field sales, ADR-0041)', function () {
-    expect(Permission::cases())->toHaveCount(106)
+it('catalogues P-01..P-102 with bilingual labels, scopes and default roles, plus P-103 (debt write-off, ADR-0035), P-104 (business rules, ADR-0037), P-105/P-106 (field sales, ADR-0041) and P-107 (marketing settings, ADR-0045)', function () {
+    expect(Permission::cases())->toHaveCount(107)
+        ->and(PermissionCatalogue::definition(Permission::P107)['roles'])->toBe(['owner'])
         ->and(PermissionCatalogue::definition(Permission::P104)['roles'])->toBe(['owner'])
         ->and(PermissionCatalogue::definition(Permission::P105)['roles'])->toBe(['owner', 'manager', 'supervisor'])
         ->and(PermissionCatalogue::definition(Permission::P106)['roles'])->toBe(['owner', 'manager'])

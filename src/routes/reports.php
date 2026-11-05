@@ -23,5 +23,5 @@ Route::middleware(['auth', 'verified'])->prefix('reports')->group(function () {
     Route::get('exports/{export}/download', [ReportExportController::class, 'download'])->whereUuid('export')->middleware(['signed', 'throttle:30,1'])->name('reports.exports.download');
 
     Route::get('{report}', [ReportsController::class, 'show'])
-        ->where('report', 'sales|refunds|commissions|workflow|appointments|inventory|procurement|returns|store|channels|field_sales')->name('reports.show');
+        ->where('report', 'sales|refunds|commissions|workflow|appointments|inventory|procurement|returns|store|channels|field_sales|marketing')->name('reports.show');
 });

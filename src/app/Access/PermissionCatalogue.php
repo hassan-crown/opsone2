@@ -7,7 +7,7 @@ use App\Access\Enums\Scope;
 
 /**
  * Permission catalogue generated from «مصفوفة الصلاحيات» v1.1 (P-01..P-102, plus P-103 from ADR-0035 and P-104 from
- * ADR-0037).
+ * ADR-0037, P-105/P-106 from ADR-0041, P-107 from ADR-0045).
  *
  * - `audience`: who the action belongs to. Only `staff` and `self` are evaluated by the facility Gate;
  *   `customer`, `public` and `platform` actions are served by their own guards (customer portal, public site,
@@ -982,6 +982,17 @@ final class PermissionCatalogue
             'en' => 'Change an order\'s sales channel and field seller',
             'scopes' => ['branches', 'region', 'tenant'],
             'roles' => ['owner', 'manager'],
+            'capability' => null,
+        ],
+        // Not in matrix v1.1: tag IDs, WhatsApp button and social links of the public site (ADR-0045). Owner only by
+        // default: what loads on the facility's pages and what is shared with ad platforms is a privacy decision.
+        'P-107' => [
+            'group' => 'theme',
+            'audience' => 'staff',
+            'ar' => 'إدارة إعدادات التسويق والتتبع في الموقع',
+            'en' => 'Manage the site\'s marketing and tracking settings',
+            'scopes' => ['tenant'],
+            'roles' => ['owner'],
             'capability' => null,
         ],
     ];

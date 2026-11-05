@@ -107,11 +107,11 @@ it('unpublish returns a content page to draft and hides it', function () {
     expect($this->writer->readiness($page)['en']['has_draft'])->toBeTrue(); // content kept for editing
 });
 
-it('archives without deleting, redirects the public link home and restores as a draft', function () {
+it('archives without deleting, answers the public link 410 Gone and restores as a draft', function () {
     $page = makePage($this->owner);
     $this->writer->archive($this->owner, $page);
 
-    $this->get('/en/about')->assertRedirect('/en');
+    $this->get('/en/about')->assertStatus(410); // gone for good, not a redirect home (ADR-0045)
     expect(SitePage::query()->count())->toBeGreaterThan(0)->and(SitePageVersion::query()->where('page_id', $page->id)->count())->toBe(2);
     $this->get('/sitemap.xml')->assertDontSee('/about');
 
@@ -173,9 +173,11 @@ it('escapes section text on the public page', function () {
     $this->get('/en/escape')->assertOk()->assertSee('a &amp; b &quot;quoted&quot; 1 &lt; 2 and 3 &gt; 2', false);
 });
 
-it('a published page cannot take a new path, and hero links must point to live pages', function () {
+it('a published page can take a new path (the old one answers 301), and hero links must point to live pages', function () {
     $page = makePage($this->owner);
-    expect(fn () => $this->writer->saveDraft($this->owner, $page, [], 'renamed'))->toThrow(ValidationException::class);
+    $this->writer->saveDraft($this->owner, $page, [], 'renamed');
+    $this->get('/en/about')->assertStatus(301)->assertRedirect('/en/renamed'); // ADR-0045
+    $this->get('/en/renamed')->assertOk();
 
     $draft = $this->writer->create($this->owner, 'links', ['en' => 'L']);
     $this->writer->saveDraft($this->owner, $draft, ['en' => ['title' => 'L', 'sections' => [

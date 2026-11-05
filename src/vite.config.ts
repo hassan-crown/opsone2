@@ -13,6 +13,8 @@ export default defineConfig({
                 'resources/css/app.css',
                 'resources/css/site.css',
                 'resources/js/app.tsx',
+                // Consent banner + tag loader of the public site and store (ADR-0045); never loaded by the staff app.
+                'resources/js/site-analytics.ts',
             ],
             refresh: true,
         }),

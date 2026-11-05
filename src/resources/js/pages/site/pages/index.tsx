@@ -1,6 +1,7 @@
 import { Head, router, useForm } from '@inertiajs/react';
 import {
     Archive,
+    EyeOff,
     ExternalLink,
     Globe,
     Lock,
@@ -15,6 +16,7 @@ import { CheckboxField, TextField } from '@/components/opsone/field';
 import { Icon } from '@/components/opsone/icon';
 import { PageHeader } from '@/components/opsone/page-header';
 import { Table, TableWrap, Td, Th } from '@/components/org/data-table';
+import { Alert, AlertBody, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -33,6 +35,7 @@ type Props = {
     tabs: SiteTabs;
     canCreate: boolean;
     canPublish: boolean;
+    indexing: boolean;
 };
 
 export default function SitePages({
@@ -40,6 +43,7 @@ export default function SitePages({
     tabs,
     canCreate,
     canPublish,
+    indexing,
 }: Props) {
     const t = useT();
     const { locale } = useLocale();
@@ -72,6 +76,17 @@ export default function SitePages({
                 }
             />
             <SiteNav active="pages" tabs={tabs} />
+
+            {!indexing && (
+                <Alert variant="warning" className="mb-4">
+                    <Icon icon={EyeOff} />
+                    <AlertBody>
+                        <AlertDescription>
+                            {t('site.pages.indexing_off')}
+                        </AlertDescription>
+                    </AlertBody>
+                </Alert>
+            )}
 
             {pages.length === 0 ? (
                 <EmptyState icon={Globe} title={t('site.pages.empty')} />

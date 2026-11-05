@@ -6,6 +6,7 @@ use App\Http\Controllers\Site\MediaController;
 use App\Http\Controllers\Site\PublicSiteController;
 use App\Http\Controllers\Site\SeoController;
 use App\Http\Controllers\Site\SitePreviewController;
+use App\Http\Middleware\CaptureAttribution;
 use App\Http\Middleware\RefuseCustomerWritesWhenReadOnly;
 use App\Http\Middleware\SiteLocale;
 use App\Http\Middleware\SitePreviewMode;
@@ -21,7 +22,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('site-preview/start', [SitePreviewController::class, 'start'])->middleware(['signed', 'throttle:30,1'])->name('site.preview.start');
 Route::get('site-preview/exit', [SitePreviewController::class, 'exit'])->name('site.preview.exit');
 
-Route::middleware([SiteLocale::class, SitePreviewMode::class])->group(function () {
+Route::middleware([SiteLocale::class, SitePreviewMode::class, CaptureAttribution::class])->group(function () {
     Route::get('/', [PublicSiteController::class, 'root'])->name('home');
 
     Route::get('sitemap.xml', [SeoController::class, 'sitemap'])->name('site.sitemap');

@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Site;
 use App\Actions\Site\SubmitLead;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Site\LeadRequest;
+use App\Marketing\Attribution\Attribution;
+use App\Marketing\Tracking;
 use App\Site\SiteRenderer;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Str;
@@ -30,6 +32,12 @@ final class LeadController extends Controller
         $interest = $submit->handle($data['submission'], [
             'name' => $data['name'], 'mobile' => $data['mobile'] ?? null, 'email' => $data['email'] ?? null, 'need' => $data['need'],
         ]);
+
+        Attribution::recordFor($interest->loadMissing('customer'));
+        if ($interest->customer !== null) {
+            Attribution::recordFor($interest->customer);
+        }
+        Tracking::flash('generate_lead', ['form' => 'contact']); // never the visitor's details (ADR-0045)
 
         return $back((string) $interest->reference);
     }

@@ -11,7 +11,7 @@
             @foreach ($lines as $line)
                 <li class="flex flex-wrap items-center justify-between gap-3 p-4">
                     <div>
-                        <p class="font-medium"><a class="hover:underline" href="{{ route('store.product', ['locale' => $locale, 'product' => $line['product_id']]) }}">{{ $line['name'] }}</a></p>
+                        <p class="font-medium"><a class="hover:underline" href="{{ $line['product_path'] }}">{{ $line['name'] }}</a></p>
                         <p class="text-caption text-weak">{{ $line['variant'] }} · {{ ($money)($line['unit_minor']) }}</p>
                         @if ($line['available'] < $line['quantity'])
                             <p class="text-caption text-danger-text">{{ __('store.public.short', ['count' => $line['available']]) }}</p>

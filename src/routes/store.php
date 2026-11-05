@@ -20,7 +20,8 @@ Route::middleware(StoreServiceProvider::publicMiddleware())
     ->prefix('{locale}/store')->where(['locale' => 'ar|en'])->name('store.')
     ->group(function () {
         Route::get('/', [StoreController::class, 'index'])->name('index');
-        Route::get('p/{product}', [StoreController::class, 'product'])->whereNumber('product')->name('product');
+        // `/p/12/مقبض-ألمنيوم`: the id finds the product, the slug is for people and search engines (301 when it differs).
+        Route::get('p/{product}/{slug?}', [StoreController::class, 'product'])->whereNumber('product')->where('slug', '[^/]+')->name('product');
         Route::get('cart', [StoreController::class, 'cart'])->name('cart');
         Route::post('cart', [StoreController::class, 'add'])->middleware('throttle:60,1')->name('cart.add');
         Route::put('cart/{variant}', [StoreController::class, 'update'])->whereNumber('variant')->name('cart.update');

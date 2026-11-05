@@ -2,7 +2,9 @@
 
 namespace App\Site;
 
+use App\Access\Contracts\LicenseCapabilities;
 use App\Models\Attachment;
+use App\Models\Catalog\CatalogReadyProduct;
 use App\Models\Facility;
 use App\Models\Site\SiteDomain;
 use App\Models\Site\SitePage;
@@ -11,6 +13,7 @@ use App\Models\Site\SitePageVersion;
 use App\Models\Site\SiteTheme;
 use App\Site\Preview\SitePreview;
 use App\Site\Theme\ThemeSettings;
+use App\Support\RequestCache;
 
 /**
  * Read side of the public site: what a visitor may see. Only published versions of non-archived pages are ever
@@ -20,7 +23,7 @@ final class SiteContext
 {
     public const LOCALES = ['ar', 'en'];
 
-    public function __construct(private readonly SitePreview $preview) {}
+    public function __construct(private readonly SitePreview $preview, private readonly LicenseCapabilities $license) {}
 
     public function defaultLocale(): string
     {
@@ -44,9 +47,12 @@ final class SiteContext
      */
     public function baseUrl(): string
     {
-        $domain = SiteDomain::query()->where('status', SiteDomain::VERIFIED)->orderBy('id')->first();
+        // Asked for by every canonical, alternate, sitemap and JSON-LD URL of a page: read once per request.
+        return app(RequestCache::class)->remember('site.base_url', function () {
+            $domain = SiteDomain::query()->where('status', SiteDomain::VERIFIED)->orderBy('id')->first();
 
-        return $domain !== null ? 'https://'.$domain->hostname : rtrim((string) config('app.url'), '/');
+            return $domain !== null ? 'https://'.$domain->hostname : rtrim((string) config('app.url'), '/');
+        });
     }
 
     public function url(string $locale, ?SitePage $page = null): string
@@ -130,6 +136,11 @@ final class SiteContext
         $owner = $attachment->attachable;
         if (($this->preview->pages() && $owner instanceof SitePage) || ($this->preview->theme() && $owner instanceof SiteTheme)) {
             return true;
+        }
+
+        // Ready products on sale are public in the store (and in its feeds and share previews); drafts stay private.
+        if ($owner instanceof CatalogReadyProduct) {
+            return $owner->isSelectable() && $this->license->allows('ready_goods');
         }
 
         $theme = ThemeSettings::published();

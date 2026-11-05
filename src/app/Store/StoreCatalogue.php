@@ -4,6 +4,7 @@ namespace App\Store;
 
 use App\Inventory\OrderStock;
 use App\Inventory\Quantity;
+use App\Models\Attachment;
 use App\Models\Catalog\CatalogReadyProduct;
 use App\Models\Catalog\CatalogReadyVariant;
 use App\Models\Inventory\StockBalance;
@@ -11,7 +12,9 @@ use App\Models\Inventory\StockItem;
 use App\Models\Inventory\StockLocation;
 use App\Models\Order;
 use App\Models\Store\StoreSettings;
+use App\Site\Seo\Slug;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
 
 /**
  * Read side of the store (WEB-05): published ready products with their selectable variants, current prices and the
@@ -35,7 +38,7 @@ final class StoreCatalogue
     {
         $query = CatalogReadyProduct::query()->selectable()
             ->whereHas('variants', fn ($q) => $q->selectable())
-            ->with(['variants' => fn ($q) => $q->selectable()->orderByDesc('is_default')->orderBy('id')])
+            ->with(['variants' => fn ($q) => $q->selectable()->orderByDesc('is_default')->orderBy('id'), 'attachments'])
             ->orderBy('id');
         if ($limit !== null) {
             $query->limit($limit);
@@ -52,7 +55,7 @@ final class StoreCatalogue
     public function find(int $productId, string $locale): ?array
     {
         $product = CatalogReadyProduct::query()->whereKey($productId)->selectable()
-            ->with(['variants' => fn ($q) => $q->selectable()->orderByDesc('is_default')->orderBy('id')])
+            ->with(['variants' => fn ($q) => $q->selectable()->orderByDesc('is_default')->orderBy('id'), 'attachments'])
             ->first();
         if ($product === null || $product->variants->isEmpty()) {
             return null;
@@ -91,6 +94,12 @@ final class StoreCatalogue
         return $out;
     }
 
+    /** `/ar/store/p/12/مقبض-ألمنيوم` (ADR-0045): the id finds the product, the slug is percent-encoded for the URL. */
+    public static function path(string $locale, int $product, string $slug): string
+    {
+        return route('store.product', array_filter(['locale' => $locale, 'product' => $product, 'slug' => $slug !== '' ? $slug : null]), false);
+    }
+
     /**
      * @param  array<int, int>  $available
      * @return array<string, mixed>
@@ -107,11 +116,26 @@ final class StoreCatalogue
             'available' => $available[$v->id] ?? 0,
         ])->values()->all();
 
+        $slugs = [];
+        foreach (['ar', 'en'] as $l) {
+            $slugs[$l] = $p->slug->only($l) ?: Slug::make($p->name->get($l));
+        }
+        $description = (string) ($p->description->get($locale) ?? '');
+
         return [
             'id' => $p->id,
             'name' => (string) $p->name->get($locale),
-            'description' => (string) ($p->description->get($locale) ?? ''),
+            'description' => $description,
+            // Search fields (ADR-0045): the editor's text, else the name / the start of the description.
+            'slug' => $slugs[$locale],
+            'slugs' => $slugs,
+            'path' => self::path($locale, $p->id, $slugs[$locale]),
+            'seo_title' => (string) ($p->seo_title->only($locale) ?: $p->name->get($locale)),
+            'seo_description' => (string) ($p->seo_description->only($locale) ?: Str::limit(trim((string) preg_replace('/\s+/u', ' ', $description)), 160, '…')),
+            'images' => array_values($p->attachments->filter(fn (Attachment $a) => in_array($a->mime, ['image/png', 'image/webp', 'image/jpeg'], true))->pluck('uuid')->all()),
+            'default_code' => (string) $variants->first()?->code,
             'from_minor' => (int) $variants->min('price_minor'),
+            'to_minor' => (int) $variants->max('price_minor'),
             'available' => array_sum(array_column($rows, 'available')),
             'variants' => $rows,
         ];

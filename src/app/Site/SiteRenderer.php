@@ -10,9 +10,12 @@ use App\Models\Site\SitePage;
 use App\Models\Site\SitePageVersion;
 use App\Site\Preview\SitePreview;
 use App\Site\Sections\SectionCatalogue;
+use App\Site\Seo\JsonLd;
+use App\Site\Seo\SiteIndexing;
 use App\Site\Theme\ThemeSettings;
 use Illuminate\Contracts\Encryption\DecryptException;
 use Illuminate\Contracts\View\View;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Str;
 
@@ -22,13 +25,11 @@ use Illuminate\Support\Str;
  */
 final class SiteRenderer
 {
-    public function __construct(private readonly SiteContext $site, private readonly LicenseCapabilities $license) {}
+    public function __construct(private readonly SiteContext $site, private readonly LicenseCapabilities $license, private readonly JsonLd $jsonLd) {}
 
     public function render(SitePage $page, SitePageVersion $version, string $locale, bool $preview = false): View
     {
-        $theme = $this->site->theme();
         $name = $this->site->facilityName($locale);
-        $facility = Facility::current();
 
         $alternates = [];
         $locales = $preview ? [] : $this->site->publishedLocales($page);
@@ -58,36 +59,28 @@ final class SiteRenderer
             ?: $name;
         $title = $page->isHome() ? ($version->title !== '' ? $version->title.' | '.$name : $name) : $version->title.' | '.$name;
 
-        $appearanceCookie = request()->cookie('appearance');
-        $appearance = in_array($appearanceCookie, ['light', 'dark', 'contrast', 'system'], true) ? $appearanceCookie : ($theme['appearance'] ?? 'system');
-
         $submission = (string) Str::uuid();
 
+        $chrome = $this->chrome($locale, $preview);
+        $jsonLd = [JsonLd::encode($this->jsonLd->business($locale, $chrome['logo']))];
+        if (($faq = JsonLd::faq($sections)) !== null) {
+            $jsonLd[] = JsonLd::encode($faq);
+        }
+
         return view('site.page', [
-            'locale' => $locale,
-            'dir' => $locale === 'ar' ? 'rtl' : 'ltr',
-            'otherLocale' => $locale === 'ar' ? 'en' : 'ar',
+            ...$chrome,
             'page' => $page,
             'version' => $version,
             'sections' => $sections,
-            'preview' => $preview,
-            'previewExit' => $preview && request()->cookie(SitePreview::COOKIE) !== null ? route('site.preview.exit') : null,
             'seo' => [
                 'title' => $title, 'description' => Str::limit(strip_tags($description), 200),
                 'canonical' => $this->site->url($locale, $page), 'alternates' => $alternates,
-                'robots' => $preview ? 'noindex, nofollow' : 'index, follow', 'site_name' => $name,
-                'image' => $this->mediaUrl($theme['logo'] ?? null),
+                'robots' => SiteIndexing::meta(! $preview), 'site_name' => $name,
+                // The share preview shows the page's own picture (hero, else gallery), else the logo.
+                'image' => $this->mediaUrl($this->firstImage($sections)) ?? $chrome['logo'],
+                'json_ld' => $jsonLd,
             ],
-            'siteName' => $name,
-            'nav' => $this->site->nav($locale),
-            'homePath' => $this->site->path($locale),
             'switchUrl' => $this->switchUrl($page, $locale),
-            'themeCss' => ThemeSettings::css($theme),
-            'logo' => $this->mediaUrl($theme['logo'] ?? null),
-            'logoDark' => $this->mediaUrl($theme['logo_dark'] ?? null),
-            'favicon' => $this->mediaUrl($theme['favicon'] ?? null),
-            'appearance' => $appearance,
-            'contact' => ['phone' => $facility?->contact_phone, 'email' => $facility?->contact_email, 'address' => $facility?->address],
             'formToken' => Crypt::encryptString(time().'|'.$submission),
             'submissionKey' => $submission,
             'media' => fn (?string $uuid) => $this->mediaUrl($uuid),
@@ -96,6 +89,55 @@ final class SiteRenderer
             'appointmentAction' => route('site.appointment', ['locale' => $locale]),
             'appointmentForm' => AppointmentRequestSettings::current(),
         ]);
+    }
+
+    /**
+     * The branded error page of the public surface (404 not found, 410 gone) in the language of the URL: same header,
+     * theme and footer as the site, never indexed.
+     */
+    public function error(int $status, string $locale): Response
+    {
+        $chrome = $this->chrome($locale, false);
+        $title = __('site.error.'.$status.'.title', [], $locale);
+
+        return response()->view('site.error', [
+            ...$chrome,
+            'status' => $status,
+            'seo' => [
+                'title' => $title.' | '.$chrome['siteName'], 'description' => __('site.error.'.$status.'.text', [], $locale),
+                'canonical' => null, 'alternates' => [], 'robots' => SiteIndexing::NOINDEX, 'site_name' => $chrome['siteName'], 'image' => null,
+            ],
+            'switchUrl' => $this->site->path($chrome['otherLocale']),
+        ], $status, ['X-Robots-Tag' => SiteIndexing::NOINDEX]);
+    }
+
+    /**
+     * What every public document shares (layout.blade.php): language, header, theme and footer.
+     *
+     * @return array<string, mixed>
+     */
+    public function chrome(string $locale, bool $preview): array
+    {
+        $theme = $this->site->theme();
+        $facility = Facility::current();
+        $appearanceCookie = request()->cookie('appearance');
+
+        return [
+            'locale' => $locale,
+            'dir' => $locale === 'ar' ? 'rtl' : 'ltr',
+            'otherLocale' => $locale === 'ar' ? 'en' : 'ar',
+            'preview' => $preview,
+            'previewExit' => $preview && request()->cookie(SitePreview::COOKIE) !== null ? route('site.preview.exit') : null,
+            'siteName' => $this->site->facilityName($locale),
+            'nav' => $this->site->nav($locale),
+            'homePath' => $this->site->path($locale),
+            'themeCss' => ThemeSettings::css($theme),
+            'logo' => $this->mediaUrl($theme['logo'] ?? null),
+            'logoDark' => $this->mediaUrl($theme['logo_dark'] ?? null),
+            'favicon' => $this->mediaUrl($theme['favicon'] ?? null),
+            'appearance' => in_array($appearanceCookie, ['light', 'dark', 'contrast', 'system'], true) ? $appearanceCookie : ($theme['appearance'] ?? 'system'),
+            'contact' => ['phone' => $facility?->contact_phone, 'email' => $facility?->contact_email, 'address' => $facility?->address],
+        ];
     }
 
     /**
@@ -139,6 +181,25 @@ final class SiteRenderer
         $other = $locale === 'ar' ? 'en' : 'ar';
 
         return in_array($other, $this->site->publishedLocales($page), true) ? $this->site->path($other, $page) : $this->site->path($other);
+    }
+
+    /**
+     * @param  list<array<string, mixed>>  $sections
+     */
+    private function firstImage(array $sections): ?string
+    {
+        foreach ($sections as $s) {
+            $uuid = match ($s['type']) {
+                'hero' => $s['data']['image'] ?? null,
+                'gallery' => $s['data']['images'][0]['image'] ?? null,
+                default => null,
+            };
+            if (is_string($uuid) && $uuid !== '') {
+                return $uuid;
+            }
+        }
+
+        return null;
     }
 
     /**

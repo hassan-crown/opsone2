@@ -36,7 +36,8 @@ it('StoreList, StoreProduct and StoreCart render in both languages on the site s
     $this->get('/ar/store')->assertOk()->assertSee('data-surface="site"', false)->assertSee('dir="rtl"', false)
         ->assertSee('مقبض ألمنيوم')->assertSee('45.00')->assertSee(__('store.public.in_stock', [], 'ar'));
     $this->get('/en/store')->assertOk()->assertSee('dir="ltr"', false)->assertSee(__('store.public.title', [], 'en'));
-    $this->get("/ar/store/p/{$product}")->assertOk()->assertSee(__('store.public.available', ['count' => 5], 'ar'));
+    $this->get("/ar/store/p/{$product}")->assertRedirect("/ar/store/p/{$product}/".rawurlencode('مقبض-ألمنيوم')); // readable URL (ADR-0045)
+    $this->followingRedirects()->get("/ar/store/p/{$product}")->assertOk()->assertSee(__('store.public.available', ['count' => 5], 'ar'));
     $this->get('/ar/store/p/999999')->assertNotFound();
 
     $this->post('/ar/store/cart', ['variant_id' => $this->variant->id, 'quantity' => 2])->assertRedirect('/ar/store/cart');
