@@ -1,0 +1,149 @@
+{
+  "origin": "https://www.opsone.example/",
+  "sectors": [
+    {
+      "slug": "kitchens",
+      "name": "معارض المطابخ",
+      "hint": "القياس والتصميم والتصنيع والتركيب",
+      "line": "من زيارة القياس واعتماد التصميم، إلى أمر التصنيع والتركيب والتسليم.",
+      "image": {
+        "src": "img/kitchen-hero-820.webp",
+        "w": 820,
+        "h": 612
+      },
+      "related": [
+        "custom-furniture",
+        "villa-fit-out",
+        "flooring-walls-ceilings"
+      ]
+    },
+    {
+      "slug": "custom-furniture",
+      "name": "الخزائن والأثاث حسب الطلب",
+      "hint": "الخزائن وغرف الملابس والأبواب والمجالس",
+      "line": "غرف الملابس والأبواب والمجالس: من القياس واختيار الخامة، إلى المصنع والتركيب.",
+      "image": {
+        "src": "img/furniture-hero-820.webp",
+        "w": 820,
+        "h": 612
+      },
+      "related": [
+        "kitchens",
+        "curtains-blinds",
+        "villa-fit-out"
+      ]
+    },
+    {
+      "slug": "aluminium-glass",
+      "name": "الألمنيوم والزجاج وUPVC",
+      "hint": "النوافذ والأبواب والزجاج والواجهات",
+      "line": "من القياس النهائي لكل فتحة قبل القص، إلى أمر المصنع والتركيب والتسليم.",
+      "image": {
+        "src": "img/ag-hero-820.webp",
+        "w": 820,
+        "h": 612
+      },
+      "related": [
+        "outdoor-spaces",
+        "signage-exhibitions-events",
+        "villa-fit-out"
+      ]
+    },
+    {
+      "slug": "curtains-blinds",
+      "name": "معارض الستائر والبلايند",
+      "hint": "قياس كل نافذة والتفصيل والتركيب",
+      "line": "من العينات وقياس كل نافذة، إلى عرض السعر بالمتر وأمر التفصيل والتركيب.",
+      "image": {
+        "src": "img/curtain-hero-820.webp",
+        "w": 820,
+        "h": 612
+      },
+      "related": [
+        "custom-furniture",
+        "smart-home-lighting-security",
+        "flooring-walls-ceilings"
+      ]
+    },
+    {
+      "slug": "villa-fit-out",
+      "name": "شركات التشطيب والتجهيز",
+      "hint": "تشطيب الفلل والشقق وتجهيز المكاتب",
+      "line": "من المعاينة واعتماد التصميم، إلى دفعات مربوطة بمراحل التنفيذ والاستلام.",
+      "image": {
+        "src": "img/fitout-hero-820.webp",
+        "w": 820,
+        "h": 612
+      },
+      "related": [
+        "flooring-walls-ceilings",
+        "smart-home-lighting-security",
+        "kitchens"
+      ]
+    },
+    {
+      "slug": "flooring-walls-ceilings",
+      "name": "الأرضيات والجدران والأسقف",
+      "hint": "البلاط والرخام والباركيه والجبس بورد",
+      "line": "من القياس بالمتر المربع وعرض السعر بالكرتون واللفة، إلى أمر المورّد والتركيب على مراحل.",
+      "image": {
+        "src": "img/fwc-hero-820.webp",
+        "w": 820,
+        "h": 612
+      },
+      "related": [
+        "villa-fit-out",
+        "kitchens",
+        "curtains-blinds"
+      ]
+    },
+    {
+      "slug": "smart-home-lighting-security",
+      "name": "المنازل الذكية والإنارة والأنظمة الأمنية",
+      "hint": "المنزل الذكي والكاميرات والإنارة",
+      "line": "من المعاينة وجدول الأجهزة، إلى التمديد قبل التشطيب والتركيب والبرمجة والتسليم.",
+      "image": {
+        "src": "img/sh-hero-820.webp",
+        "w": 820,
+        "h": 550
+      },
+      "related": [
+        "villa-fit-out",
+        "curtains-blinds",
+        "outdoor-spaces"
+      ]
+    },
+    {
+      "slug": "outdoor-spaces",
+      "name": "المظلات والسواتر والمساحات الخارجية",
+      "hint": "المظلات والسواتر والبرجولات والحدائق",
+      "line": "من زيارة الموقع والمخطط الذي يعتمده العميل، إلى التصنيع والتركيب في الموقع.",
+      "image": {
+        "src": "img/outdoor-hero-820.webp",
+        "w": 820,
+        "h": 612
+      },
+      "related": [
+        "aluminium-glass",
+        "villa-fit-out",
+        "smart-home-lighting-security"
+      ]
+    },
+    {
+      "slug": "signage-exhibitions-events",
+      "name": "اللوحات وأجنحة المعارض",
+      "hint": "اللوحات الإعلانية وأجنحة المعارض والفعاليات",
+      "line": "من الموجز واعتماد البروفة من الجوال، إلى التصنيع والتركيب في موعده والفك.",
+      "image": {
+        "src": "img/signage-hero-820.webp",
+        "w": 820,
+        "h": 612
+      },
+      "related": [
+        "aluminium-glass",
+        "outdoor-spaces",
+        "villa-fit-out"
+      ]
+    }
+  ]
+}

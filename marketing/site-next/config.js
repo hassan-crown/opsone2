@@ -3,8 +3,9 @@
  *
  * DEMO FORM
  *   demoEndpoint  URL that accepts a POST of JSON:
- *                 { name, company, phone, city, trade (what they sell: ready, custom or both), utm_source, utm_medium, utm_campaign, utm_term,
- *                   utm_content, gclid, fbclid, page, sentAt }
+ *                 { name, company, phone, city, trade (what they sell: ready, custom or both), sector (sector pages only, e.g. "kitchens"),
+ *                   utm_source, utm_medium, utm_campaign, utm_term, utm_content, gclid, fbclid, page, sentAt }
+ *                 Campaign values are kept for the visit, so a lead sent from another page still carries the landing UTM.
  *                 Any 2xx response is shown as "received"; anything else as a failure.
  *   demoEmail     Optional fallback, used only while demoEndpoint is empty: the form opens the visitor's
  *                 mail app with the request written out (mailto:).

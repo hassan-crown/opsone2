@@ -1,13 +1,15 @@
 #!/usr/bin/env node
 // Builds a sector page: node marketing/site-next/solutions/build.mjs kitchens
 // Reads solutions/<sector>/data.json and writes solutions/<sector>/index.html as plain static HTML.
-// No dependencies. The icon sprite, the demo form, the footer and the consent banner are taken from the
-// home page (../index.html) so they stay identical everywhere; only the sector's own sections come from data.
+// No dependencies. The icon sprite, the demo form and the consent banner are taken from the
+// home page (../index.html) so they stay identical everywhere; the header, footer and «قطاعات قريبة» come from
+// ../site/partials.mjs (shared with the home page); only the sector's own sections come from data.
 // A sector can own the sections between the hero and the form: if solutions/<sector>/compose.mjs exists, its `sections`
 // (an array of HTML) replace the template's six, and its optional `styles` / `scripts` are linked after the shared ones.
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { header, footer as siteFooter, related } from '../site/partials.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const sector = process.argv[2];
@@ -34,12 +36,13 @@ const form = cut(home, '<form class="coupon"', '</form>')
   .replace('<h2 class="head" id="demo-title">جرّب OpsOne على طلباتك</h2>', `<h2 class="head" id="demo-title">${esc(d.form.title)}</h2>`)
   .replace(/<p>اترك بياناتك[^<]*<\/p>/, `<p>${esc(d.form.lede)}</p><p class="coupon__sector">${icon(d.form.icon)}${esc(d.form.sectorLabel)}</p>`);
 const consent = cut(home, '<div class="consent"', '</div>\n</div>');
-let footer = cut(home, '<footer class="foot">', '</footer>').replaceAll('href="#', `href="${root}#`).replace(/src="assets\//g, `src="${root}assets/`).replaceAll('href="solutions/', `href="${root}solutions/`);
+const footer = siteFooter({ root, slug: d.slug });
 
 /* ---------- head ---------- */
 const url = d.seo.canonical;
+const snippet = d.seo.snippet || d.seo.description;
 const ld = { '@context': 'https://schema.org', '@graph': [
-  { '@type': 'SoftwareApplication', name: 'OpsOne', applicationCategory: 'BusinessApplication', operatingSystem: 'Web', inLanguage: 'ar', url, description: d.seo.description, audience: { '@type': 'BusinessAudience', audienceType: d.seo.audience } },
+  { '@type': 'SoftwareApplication', name: 'OpsOne', applicationCategory: 'BusinessApplication', operatingSystem: 'Web', inLanguage: 'ar', url, description: d.seo.description, image: d.seo.ogImage, publisher: { '@id': 'https://www.opsone.example/#organization' }, audience: { '@type': 'BusinessAudience', audienceType: d.seo.audience } },
   { '@type': 'BreadcrumbList', itemListElement: d.breadcrumb.map((b, i) => ({ '@type': 'ListItem', position: i + 1, name: b.name, item: b.url })) },
   { '@type': 'FAQPage', mainEntity: d.faq.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })) },
 ] };
@@ -49,7 +52,7 @@ const head = `<!doctype html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>${esc(d.seo.title)}</title>
-<meta name="description" content="${esc(d.seo.description)}">
+<meta name="description" content="${esc(snippet)}">
 <meta name="robots" content="index, follow, max-image-preview:large">
 <link rel="canonical" href="${esc(url)}">
 <link rel="alternate" hreflang="ar" href="${esc(url)}">
@@ -57,7 +60,7 @@ const head = `<!doctype html>
 <meta property="og:site_name" content="OpsOne">
 <meta property="og:locale" content="ar_SA">
 <meta property="og:title" content="${esc(d.seo.title)}">
-<meta property="og:description" content="${esc(d.seo.description)}">
+<meta property="og:description" content="${esc(snippet)}">
 <meta property="og:url" content="${esc(url)}">
 <meta property="og:image" content="${esc(d.seo.ogImage)}">
 <meta property="og:image:width" content="1200">
@@ -65,7 +68,7 @@ const head = `<!doctype html>
 <meta property="og:image:alt" content="${esc(d.seo.ogAlt)}">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="${esc(d.seo.title)}">
-<meta name="twitter:description" content="${esc(d.seo.description)}">
+<meta name="twitter:description" content="${esc(snippet)}">
 <meta name="twitter:image" content="${esc(d.seo.ogImage)}">
 <meta name="theme-color" content="#FFFFFF">
 <link rel="icon" href="${root}assets/brand/opsone-mark.svg" type="image/svg+xml">
@@ -82,16 +85,7 @@ const head = `<!doctype html>
 </head>`;
 
 /* ---------- sections ---------- */
-const bar = `<a class="skip" href="#main">تخطَّ إلى المحتوى</a>
-<header class="bar" id="top">
-  <div class="wrap bar__in">
-    <a class="bar__logo" href="${root}" aria-label="OpsOne، الصفحة الرئيسية"><img src="${root}assets/brand/opsone-logo.svg" width="115" height="28" alt="OpsOne"></a>
-    <nav aria-label="أقسام الصفحة">
-      <ul class="bar__links">${d.nav.map((n) => `<li><a href="#${n.id}">${esc(n.label)}</a></li>`).join('')}</ul>
-    </nav>
-    <a class="btn btn--go btn--small" href="#demo">اطلب عرضًا تجريبيًا</a>
-  </div>
-</header>`;
+const bar = header({ root, slug: d.slug });
 
 const crumbs = `<nav class="crumbs wrap" aria-label="مسار الصفحة"><ol>${d.breadcrumb.map((b, i) => i < d.breadcrumb.length - 1 ? `<li><a href="${esc(b.href)}">${esc(b.name)}</a></li>` : `<li aria-current="page">${esc(b.name)}</li>`).join('')}</ol></nav>`;
 
@@ -99,10 +93,10 @@ const live = d.stations.findIndex((s) => s.live);
 const hero = `<section class="hero shero wrap" aria-labelledby="hero-title">
   <div class="shero__top">
     <div class="shero__copy">
-      <h1 class="display" id="hero-title">${esc(d.hero.title1)}<br><span>${esc(d.hero.title2)}</span></h1>
+      <h1 class="display" id="hero-title">${d.seo.h1 ? `<span class="shero__kicker">${esc(d.seo.h1)}</span>` : ''}${esc(d.hero.title1)}<br><span>${esc(d.hero.title2)}</span></h1>
       <p class="lead">${esc(d.hero.lede)}</p>
       <div class="acts">
-        <a class="btn btn--go" href="#demo">اطلب عرضًا تجريبيًا ${icon('i-arrow', 'ic ic--dir')}</a>
+        <a class="btn btn--go" href="#demo" data-cta="hero">اطلب عرضًا تجريبيًا ${icon('i-arrow', 'ic ic--dir')}</a>
         <a class="btn btn--quiet" href="#order">${esc(d.hero.second)}</a>
       </div>
     </div>
@@ -235,6 +229,7 @@ ${crumbs}
 ${hero}
 ${(own ? own.sections : [order, pains, channels, config, roles, faq]).join('\n')}
 ${demo}
+${related({ root, slug: d.slug })}
 </main>
 
 ${footer}
@@ -242,6 +237,7 @@ ${footer}
 ${consent}
 <script src="${root}config.js"></script>
 <script src="${root}tags.js" defer></script>
+<script src="${root}nav.js" defer></script>
 <script src="../sector.js" defer></script>${scripts}
 </body>
 </html>

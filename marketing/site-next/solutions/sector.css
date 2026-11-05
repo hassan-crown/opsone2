@@ -186,3 +186,8 @@
   .reel__track { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); width: auto; max-width: 85rem; margin-inline: auto; padding: 0.5rem var(--margin) 0; }
   .role { width: auto; }
 }
+
+/* ---------- the keyword line above the headline (part of the H1) and «قطاعات قريبة» ---------- */
+.display .shero__kicker { display: block; margin-bottom: 0.75rem; font-size: clamp(0.9375rem, 0.85rem + 0.3vw, 1.0625rem); font-weight: 600; line-height: 1.5; letter-spacing: 0; color: var(--teal-strong); }
+.related { border-top: 1px solid var(--rule); }
+@media (min-width: 761px) { .solutions__grid--related { grid-template-columns: repeat(auto-fit, minmax(0, 1fr)); } }

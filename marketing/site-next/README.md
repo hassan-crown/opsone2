@@ -397,3 +397,19 @@ code-led (لا أداة توليد صور معتمدة). المتحدّون ال
 - كل الصفحات تُبنى بأمر واحد: `node marketing/site-next/solutions/build.mjs <نشاط>`، سواء كان للنشاط `compose.mjs` أم لا.
 - الصفحات الحالية (9): `kitchens` (بأقسام القالب)، و`villa-fit-out` و`custom-furniture` و`aluminium-glass` و`curtains-blinds` و`flooring-walls-ceilings` و`smart-home-lighting-security` و`outdoor-spaces` و`signage-exhibitions-events` (بأقسامها في `compose.mjs`). لقطات كل صفحة في `solutions/<نشاط>/screens/`.
 - قسم «حلول حسب نشاطك» شبكة بطاقات (`.solutions__grid`)؛ النشاط الجديد يُضاف بطاقةً فيها ورابطًا في عمود «لمن» في التذييل.
+
+## 12. موقع واحد: الهيدر والفوتر المشتركان، والبناء الكامل
+
+| الملف | ما هو |
+|---|---|
+| `build-site.mjs` | يبني الموقع كله: `node marketing/site-next/build-site.mjs`. يكتب الهيدر والفوتر وبطاقات القطاعات في `index.html` بين علامات `<!-- @header -->` و`<!-- @footer -->` و`<!-- @solutions -->`، ثم يبني صفحات القطاعات، ثم يكتب `sitemap.xml` (‏lastmod من آخر commit لمصادر الصفحة، أو تاريخ اليوم إن كانت معدّلة). |
+| `site/sectors.json` | قائمة القطاعات التسع: الاسم، وسطر القائمة، وسطر البطاقة، والصورة، و«قطاعات قريبة» (٢–٣ لكل قطاع). مصدر واحد للقائمة والفوتر والبطاقات والسايت ماب. |
+| `site/partials.mjs` | الهيدر (قائمة «الحلول» وقائمة الجوال)، والفوتر، وبطاقة القطاع، وبلوك «قطاعات قريبة». |
+| `nav.js` | تحسين فقط: القائمتان `<details>` تعملان دون JavaScript؛ الملف يضيف Escape وإغلاقًا عند النقر خارجها وقائمة واحدة مفتوحة. |
+
+- لا تعدّل الهيدر أو الفوتر أو بطاقات «حلول حسب نشاطك» داخل `index.html` يدويًا: عدّل `site/` ثم شغّل `build-site.mjs`.
+- **قطاع جديد:** أضفه إلى `site/sectors.json` (ومعه `related`)، وأنشئ `solutions/<نشاط>/data.json`، ثم شغّل `build-site.mjs`. يظهر في القائمة والفوتر والبطاقات والسايت ماب تلقائيًا.
+- **SEO لكل قطاع (`data.json` ← `seo`):** `title` (≤ 60 حرفًا)، و`h1` (عبارة البحث، تظهر سطرًا صغيرًا فوق العنوان وهي جزء من H1)، و`snippet` (وصف البحث والمشاركة ≤ 155 حرفًا)، و`description` الطويل في JSON-LD، و`audience`، و`keywords`.
+- **التتبع (`tags.js`):** يقرأ `utm_*` و`gclid` و`fbclid` من الرابط في أي صفحة ويحفظها للزيارة (sessionStorage)، فتبقى عند الانتقال بين الصفحات. ترافق `sector` و`utm_*` حدث page_view (‏config في GA4 ودفعة GTM) وحدث `demo_cta_click` (كل زر `[data-cta]`) وحدث الطلب `generate_lead`/`demo_request`، ويرسلها النموذج في حقوله المخفية.
+- **الاستهداف والإعلانات:** `docs/targeting.md`.
+- اللقطات: `screens/site/`.

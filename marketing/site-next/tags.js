@@ -1,12 +1,24 @@
 /* OpsOne landing: consent-aware marketing tags.
    Nothing loads until a tag ID is set in config.js AND the visitor accepts the banner. Declining (the default)
    loads nothing. The choice is remembered in this browser; «إعدادات الخصوصية» in the footer reopens the banner.
-   window.opsTrack('lead') reports the demo request to whichever tags are loaded. */
+   window.opsTrack('lead') reports the demo request to whichever tags are loaded; a click on any [data-cta] link
+   («اطلب عرضًا تجريبيًا») is reported as demo_cta_click.
+   Campaign parameters (utm_*, gclid, fbclid) are read from the URL on any page and kept for the visit
+   (sessionStorage «ops-<name>», the keys the demo form reads), so they survive moving between the site's pages
+   and ride, with the sector, on page_view, on the CTA click and on the lead. */
 (() => {
   const ids = (window.OPSONE_LANDING && window.OPSONE_LANDING.tags) || {};
   // sector pages set window.OPSONE_PAGE = { sector: 'kitchens' }; the sector rides on page_view and on the lead
   const sector = ((window.OPSONE_PAGE || {}).sector || '').trim();
-  const withSector = (o) => (sector ? { ...o, sector } : o);
+  const CAMPAIGN = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content', 'gclid', 'fbclid'];
+  const params = new URLSearchParams(location.search);
+  const campaign = {};
+  CAMPAIGN.forEach((k) => {
+    let v = (params.get(k) || '').slice(0, 200);
+    try { if (v) sessionStorage.setItem('ops-' + k, v); else v = sessionStorage.getItem('ops-' + k) || ''; } catch { /* private mode */ }
+    if (v && k.startsWith('utm_')) campaign[k] = v;
+  });
+  const withSector = (o) => ({ ...o, ...(sector ? { sector } : {}), ...campaign });
   const KEY = 'opsone-consent';
   const any = ['ga4', 'gtm', 'metaPixel', 'tiktokPixel', 'snapPixel', 'linkedin'].some((k) => ids[k]);
   const store = { get: () => { try { return localStorage.getItem(KEY); } catch { return null; } }, set: (v) => { try { localStorage.setItem(KEY, v); } catch { /* private mode */ } } };
@@ -21,7 +33,7 @@
   const load = () => {
     if (loaded) return; loaded = true;
     gtag('consent', 'update', { ad_storage: 'granted', analytics_storage: 'granted', ad_user_data: 'granted', ad_personalization: 'granted' });
-    if (ids.gtm) { if (sector) window.dataLayer.push({ sector }); window.dataLayer.push({ 'gtm.start': Date.now(), event: 'gtm.js' }); script(`https://www.googletagmanager.com/gtm.js?id=${encodeURIComponent(ids.gtm)}`); }
+    if (ids.gtm) { window.dataLayer.push(withSector({})); window.dataLayer.push({ 'gtm.start': Date.now(), event: 'gtm.js' }); script(`https://www.googletagmanager.com/gtm.js?id=${encodeURIComponent(ids.gtm)}`); }
     if (ids.ga4) { gtag('js', new Date()); gtag('config', ids.ga4, withSector({})); script(`https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(ids.ga4)}`); }
     if (ids.metaPixel) {
       const f = window.fbq = function fbq() { f.callMethod ? f.callMethod.apply(f, arguments) : f.queue.push(arguments); };
@@ -44,9 +56,15 @@
     }
   };
 
-  // the demo request, reported once to each loaded tag
-  window.opsTrack = (name) => {
-    if (!loaded || name !== 'lead') return;
+  // the demo request, reported once to each loaded tag; a CTA click to GA4 / GTM only
+  window.opsTrack = (name, detail = {}) => {
+    if (!loaded) return;
+    if (name === 'cta') {
+      gtag('event', 'demo_cta_click', withSector({ cta_location: detail.location || '' }));
+      if (ids.gtm) window.dataLayer.push(withSector({ event: 'demo_cta_click', cta_location: detail.location || '' }));
+      return;
+    }
+    if (name !== 'lead') return;
     gtag('event', 'generate_lead', withSector({ form_name: 'demo_request' }));
     if (ids.googleAdsLead) gtag('event', 'conversion', { send_to: ids.googleAdsLead });
     if (ids.gtm) window.dataLayer.push(withSector({ event: 'demo_request' }));
@@ -55,6 +73,8 @@
     if (window.snaptr) snaptr('track', 'SIGN_UP', sector ? { item_category: sector } : {});
     if (window.lintrk && ids.linkedinLeadConversion) lintrk('track', { conversion_id: +ids.linkedinLeadConversion });
   };
+
+  document.addEventListener('click', (e) => { const a = e.target.closest('[data-cta]'); if (a) window.opsTrack('cta', { location: a.dataset.cta }); });
 
   const banner = document.querySelector('[data-consent]');
   const reopen = document.querySelector('[data-consent-open]');
