@@ -83,7 +83,7 @@ const channels = `<section class="band schan" id="channels" aria-labelledby="cha
     <div class="fascia" role="tablist" aria-labelledby="channels-title">
 ${ch.map((c, i) => `      <button class="fascia__tab" role="tab" type="button" id="tab-${c.key}" aria-controls="panel-${c.key}" aria-selected="${i === 0}"${i ? ' tabindex="-1"' : ''}>${icon(c.icon)}<span>${esc(c.title)}</span></button>`).join('\n')}
     </div>
-${ch.map((c) => `    <div class="fascia__panel" role="tabpanel" id="panel-${c.key}" aria-labelledby="tab-${c.key}" tabindex="0"><img src="${esc(c.image.src)}" width="${c.image.w}" height="${c.image.h}" alt="${esc(c.image.alt)}" loading="lazy" decoding="async"><div><h3>${esc(c.title)}</h3><p>${esc(c.text)}</p><div class="chcard" data-ui><b>${esc(c.card.title)}</b><ul>${c.card.rows.map(([k, v]) => `<li><span>${esc(k)}</span><span class="nums">${esc(v)}</span></li>`).join('')}</ul></div></div></div>`).join('\n')}
+${ch.map((c) => `    <div class="fascia__panel" role="tabpanel" id="panel-${c.key}" aria-labelledby="tab-${c.key}" tabindex="0"><img src="${esc(c.image.src)}"${c.image.srcset ? ` srcset="${esc(c.image.srcset)}" sizes="(max-width: 760px) 100vw, 45vw"` : ''} width="${c.image.w}" height="${c.image.h}" alt="${esc(c.image.alt)}" loading="lazy" decoding="async"><div><h3>${esc(c.title)}</h3><p>${esc(c.text)}</p><div class="chcard" data-ui><b>${esc(c.card.title)}</b><ul>${c.card.rows.map(([k, v]) => `<li><span>${esc(k)}</span><span class="nums">${esc(v)}</span></li>`).join('')}</ul></div></div></div>`).join('\n')}
   </div>
 </section>`;
 

@@ -1,51 +1,55 @@
 {
-  "_note": "Internal provenance record for the photographs on the flooring, walls and ceilings page. Nothing here is shown on the page; every image is CC0 and needs no attribution. The villa plan is drawn in code (compose.mjs). To replace an image, swap the file and its path/size in data.json (hero.image, channels.items[].image); at most 8 image slots.",
+  "_note": "Internal provenance record for the images on the flooring, walls and ceilings page. Nothing here is shown on the page. All four images were generated with AI on the OpsOne Magnific account (Premium plan) on 2026-11-05; tool, cost and licence notes are in ../kitchens/IMAGES.md. The villa plan is drawn in code (compose.mjs). To replace an image, swap the files and their path/size/srcset in data.json (hero.image, channels.items[].image).",
   "images": [
     {
-      "file": "img/fwc-hero-1400.jpg, img/fwc-hero-820.jpg",
-      "used": "hero; OG image; home page «حلول حسب نشاطك» card (to merge later)",
-      "source": "https://commons.wikimedia.org/wiki/File:Tile_Store_1.jpg",
-      "original": "https://upload.wikimedia.org/wikipedia/commons/1/1b/Tile_Store_1.jpg",
-      "author": "Stilfehler (Wikimedia Commons)",
-      "licence": "CC0 1.0 (as stated on the Wikimedia Commons file page)",
+      "file": "img/fwc-hero-820.webp, img/fwc-hero-1200.webp, img/fwc-hero-1600.webp",
+      "used": "hero; home page «حلول حسب نشاطك» card; left part of og-flooring-walls-ceilings.jpg",
+      "source": "Magnific images_generate, model Google Nano Banana 2.1, 4:3, 2k (2400x1792 PNG)",
+      "creation": "P3aBRVO42C",
+      "prompt": "Finished majlis in a Riyadh villa: large-format beige marble-look porcelain floor with a dark stone border, gypsum ceiling with cove lighting, textured wallpaper wall, mashrabiya-inspired window screen; no people, text or logos",
+      "credits": 65,
+      "licence": "AI generation on a paid Magnific plan; commercial use per Magnific terms (see kitchens/IMAGES.md)",
       "people": "none",
-      "edits": "cropped to 4:3 (right-hand stand with a brand sign removed), resized, recompressed"
+      "edits": "resized, encoded to WebP q76"
     },
     {
-      "file": "img/fwc-samples-1000.jpg",
+      "file": "img/fwc-showroom-640.webp, img/fwc-showroom-1200.webp",
       "used": "channels: showroom and samples",
-      "source": "https://commons.wikimedia.org/wiki/File:Tile_Store_2.jpg",
-      "original": "https://upload.wikimedia.org/wikipedia/commons/b/bf/Tile_Store_2.jpg",
-      "author": "Stilfehler (Wikimedia Commons)",
-      "licence": "CC0 1.0 (as stated on the Wikimedia Commons file page)",
+      "source": "Magnific images_generate, model Google Nano Banana 2.1, 4:3, 2k (2400x1792 PNG)",
+      "creation": "CqZPb7SEEy",
+      "prompt": "Flooring and tile showroom in Riyadh: large porcelain slabs on vertical display panels, parquet and vinyl sample racks, patterned tile wall; no people, signs, price tags, text or logos",
+      "credits": 65,
+      "licence": "AI generation on a paid Magnific plan; commercial use per Magnific terms (see kitchens/IMAGES.md)",
       "people": "none",
-      "edits": "cropped to the left-hand sample rack (product labels removed), resized, recompressed"
+      "edits": "resized, encoded to WebP q76"
     },
     {
-      "file": "img/fwc-parquet-1000.jpg",
-      "used": "channels: online store",
-      "source": "https://commons.wikimedia.org/wiki/File:Parquet_floor_wood_texture.jpg",
-      "original": "https://upload.wikimedia.org/wikipedia/commons/f/f1/Parquet_floor_wood_texture.jpg",
-      "author": "Kurt Kaiser (Wikimedia Commons)",
-      "licence": "CC0 1.0 (as stated on the Wikimedia Commons file page)",
+      "file": "img/fwc-store-640.webp, img/fwc-store-1200.webp",
+      "used": "channels: ready materials store",
+      "source": "Magnific images_generate, model Google Nano Banana 2.1, 4:3, 2k (2400x1792 PNG)",
+      "creation": "hu67QSWvqL",
+      "prompt": "Store shelves with wallpaper rolls, skirting boards, plain unlabeled tile adhesive bags, trowels, spacers and leveling clips; no people, labels, text or logos",
+      "credits": 65,
+      "licence": "AI generation on a paid Magnific plan; commercial use per Magnific terms (see kitchens/IMAGES.md)",
       "people": "none",
-      "edits": "cropped, resized, recompressed"
+      "edits": "resized, encoded to WebP q76"
     },
     {
-      "file": "img/fwc-stone-1000.jpg",
+      "file": "img/fwc-measure-640.webp, img/fwc-measure-1200.webp",
       "used": "channels: field sales at the customer's site",
-      "source": "https://commons.wikimedia.org/wiki/File:%2B15_Marble-like_Tile_Floor_Example.jpg",
-      "original": "https://upload.wikimedia.org/wikipedia/commons/1/18/%2B15_Marble-like_Tile_Floor_Example.jpg",
-      "author": "SubscribeTransport (Wikimedia Commons)",
-      "licence": "CC0 1.0 (as stated on the Wikimedia Commons file page)",
-      "people": "none",
-      "edits": "cropped to 4:3, resized, recompressed"
+      "source": "Magnific images_generate, model Google Nano Banana 2.1, 4:3, 2k (2400x1792 PNG)",
+      "creation": "LweW7YyswO",
+      "prompt": "Unfinished villa room in Riyadh; a man's hands with white thobe sleeves hold a laser distance measurer and a tablet with a room plan; face out of frame; no women, text or logos",
+      "credits": 65,
+      "licence": "AI generation on a paid Magnific plan; commercial use per Magnific terms (see kitchens/IMAGES.md)",
+      "people": "AI-generated man, hands and forearms only, not a real person",
+      "edits": "resized, encoded to WebP q76"
     },
     {
       "file": "og-flooring-walls-ceilings.jpg",
       "used": "Open Graph / Twitter image",
-      "source": "composed from img/fwc-hero-1400.jpg with the OpsOne logo and the page title",
-      "licence": "derived from CC0",
+      "source": "previous OG card with its left 640 px replaced by a cover crop of the hero PNG",
+      "licence": "derived from the hero image above",
       "people": "none"
     }
   ]

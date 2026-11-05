@@ -1,11 +1,56 @@
 {
-  "_note": "Internal provenance record for the images on the signage, exhibitions and events page. Nothing here is shown on the page. Every image is drawn in code for OpsOne (draw-images.mjs), so none needs attribution. Four slots; to swap one for a photograph, put the file in img/ and change its src (and w/h) in data.json, then add its licence here.",
+  "_note": "Internal provenance record for the images on the signage, exhibitions and events page. Nothing here is shown on the page. All four images were generated with AI on the OpsOne Magnific account (Premium plan) on 2026-11-05; see IMAGES.md for tool, cost and licence notes. They replace the code-drawn SVGs (draw-images.mjs removed).",
   "images": [
-    { "file": "img/signage-hero.svg", "used": "hero; proposed home page «حلول حسب نشاطك» card", "source": "drawn in code: draw-images.mjs (isometric 6 × 4 m booth)", "licence": "OpsOne original", "people": "none" },
-    { "file": "img/signage-facade.svg", "used": "channels: showroom and factory", "source": "drawn in code: draw-images.mjs (shopfront elevation with a lit fascia)", "licence": "OpsOne original", "people": "none" },
-    { "file": "img/signage-rollup.svg", "used": "channels: ready-made print store", "source": "drawn in code: draw-images.mjs (roll-up stands)", "licence": "OpsOne original", "people": "none" },
-    { "file": "img/signage-survey.svg", "used": "channels: field rep at the client's site", "source": "drawn in code: draw-images.mjs (tape measure across a facade)", "licence": "OpsOne original", "people": "none" },
-    { "file": "og-signage.jpg", "used": "Open Graph / Twitter image", "source": "composed from img/signage-hero.svg with the OpsOne logo and the page title", "licence": "OpsOne original", "people": "none" }
-  ],
-  "_why_no_photos": "Magnific was not authorised in this session, Wikimedia Commons rate-limited the search (HTTP 429), and the open exhibition-stand photos found carry exhibitors' trademarks."
+    {
+      "file": "img/signage-hero-820.webp, img/signage-hero-1200.webp, img/signage-hero-1600.webp",
+      "used": "hero; home page «حلول حسب نشاطك» card; left panel of og-signage.jpg",
+      "source": "Magnific images_generate, model Google Nano Banana 2.1, 2k, 4:3 (2400x1792 PNG)",
+      "creation": "tC9UQ63mZJ",
+      "prompt": "Custom 6x4 m exhibition booth in a Riyadh exhibition hall on setup day: back wall with abstract Najdi-pattern print in teal and sand, backlit geometric header, walnut-top reception counter, blank screen, lounge chairs; no people, letters or logos",
+      "credits": 65,
+      "licence": "AI generation on a paid Magnific plan; commercial use per Magnific terms (see IMAGES.md)",
+      "people": "none",
+      "edits": "resized, encoded to WebP q76"
+    },
+    {
+      "file": "img/signage-facade-640.webp, img/signage-facade-1200.webp",
+      "used": "channels: showroom and factory",
+      "source": "Magnific images_generate, model Google Nano Banana 2.1, 2k, 4:3 (2400x1792 PNG)",
+      "creation": "eIwxh4hdqL",
+      "prompt": "Shopfront in a Riyadh commercial street at dusk, dark aluminium fascia with a backlit abstract emblem and LED line; no people, letters or logos",
+      "credits": 65,
+      "licence": "AI generation on a paid Magnific plan; commercial use per Magnific terms (see IMAGES.md)",
+      "people": "none",
+      "edits": "resized, encoded to WebP q76"
+    },
+    {
+      "file": "img/signage-rollup-640.webp, img/signage-rollup-1200.webp",
+      "used": "channels: ready-made print store",
+      "source": "Magnific images_generate, model Google Nano Banana 2.1, 2k, 4:3 (2400x1792 PNG)",
+      "creation": "gOBT4aTSXO",
+      "prompt": "Four roll-up banner stands and a flag banner in a Riyadh print showroom, printed with abstract Najdi-inspired geometric patterns; no people, letters or logos",
+      "credits": 65,
+      "licence": "AI generation on a paid Magnific plan; commercial use per Magnific terms (see IMAGES.md)",
+      "people": "none",
+      "edits": "resized, encoded to WebP q76"
+    },
+    {
+      "file": "img/signage-survey-640.webp, img/signage-survey-1200.webp",
+      "used": "channels: field rep at the client's site",
+      "source": "Magnific images_generate, model Google Nano Banana 2.1, 2k, 4:3 (2400x1792 PNG)",
+      "creation": "BhOsfRToQR",
+      "prompt": "Saudi man in white thobe and shemagh, face out of frame, measuring a blank shopfront fascia with a tape measure and holding a tablet with a line drawing; no women, no readable text or logos",
+      "credits": 65,
+      "licence": "AI generation on a paid Magnific plan; commercial use per Magnific terms (see IMAGES.md)",
+      "people": "one AI-generated man (not a real person), face turned away",
+      "edits": "resized, encoded to WebP q76"
+    },
+    {
+      "file": "og-signage.jpg",
+      "used": "Open Graph / Twitter image",
+      "source": "left 560x630 panel replaced with a crop of the hero image; the right half (logo and title) kept as it was",
+      "licence": "OpsOne original + AI image above",
+      "people": "none"
+    }
+  ]
 }

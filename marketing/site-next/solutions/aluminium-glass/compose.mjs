@@ -119,7 +119,7 @@ const channels = `<section class="band agchan" id="channels" aria-labelledby="ch
     <div class="lanes">
       <ol class="lanes__list">
 ${c.items.map((x) => `        <li class="lane">
-          <img src="${esc(x.image.src)}" width="${x.image.w}" height="${x.image.h}" alt="${esc(x.image.alt)}" loading="lazy" decoding="async">
+          <img src="${esc(x.image.src)}"${x.image.srcset ? ` srcset="${esc(x.image.srcset)}" sizes="(max-width: 760px) 100vw, 30vw"` : ''} width="${x.image.w}" height="${x.image.h}" alt="${esc(x.image.alt)}" loading="lazy" decoding="async">
           <h3>${icon(x.icon)}${esc(x.title)}</h3>
           <ol class="lane__steps">${x.steps.map((s) => `<li>${esc(s)}</li>`).join('')}</ol>
         </li>`).join('\n')}
