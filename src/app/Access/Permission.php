@@ -119,6 +119,8 @@ enum Permission: string
     // Not in matrix v1.1: dispatch to field sales reps, change an order's sales channel (ADR-0041).
     case P105 = 'P-105';
     case P106 = 'P-106';
+    // Not in matrix v1.1: marketing and tracking settings of the public site (ADR-0045).
+    case P107 = 'P-107';
 
     public static function fromCode(string $code): ?self
     {

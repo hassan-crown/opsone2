@@ -1,4 +1,9 @@
-export type SiteTabs = { pages: boolean; theme: boolean; domain: boolean };
+export type SiteTabs = {
+    pages: boolean;
+    theme: boolean;
+    domain: boolean;
+    marketing: boolean;
+};
 
 export type PageState =
     | 'draft'

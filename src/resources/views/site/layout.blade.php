@@ -24,6 +24,7 @@
     <style>html{background-color:#fff}html.dark{background-color:#08121f}</style>
     @vite(['resources/css/site.css'])
     @stack('head')
+    @include('site._tracking')
     @if ($themeCss !== '')
         <style>{!! $themeCss !!}</style>
     @endif
@@ -69,9 +70,10 @@
         <div class="mx-auto flex max-w-content flex-wrap items-center justify-between gap-4 px-4 py-6 text-caption text-weak md:px-8">
             <div>
                 <p class="font-medium text-strong">{{ $siteName }}</p>
-                @if ($contact['phone'])<p dir="ltr" class="text-start">{{ $contact['phone'] }}</p>@endif
+                @if ($contact['phone'])<p dir="ltr" class="text-start"><a class="hover:underline" href="tel:{{ preg_replace('/[^0-9+]/', '', $contact['phone']) }}" data-track="click_call">{{ $contact['phone'] }}</a></p>@endif
                 @if ($contact['email'])<p>{{ $contact['email'] }}</p>@endif
             </div>
+            @include('site._footer-links')
             <p>{{ __('site.public.by_opsone') }}</p>
         </div>
     </footer>
@@ -92,5 +94,6 @@
             });
         })();
     </script>
+    @include('site._body-end')
 </body>
 </html>

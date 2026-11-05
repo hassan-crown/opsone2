@@ -24,7 +24,7 @@ abstract class SiteAdminController extends Controller
     }
 
     /**
-     * @return array{pages: bool, theme: bool, domain: bool}
+     * @return array{pages: bool, theme: bool, domain: bool, marketing: bool}
      */
     protected function tabs(User $actor): array
     {
@@ -32,6 +32,7 @@ abstract class SiteAdminController extends Controller
             'pages' => $this->access->can($actor, Permission::P55) || $this->access->can($actor, Permission::P56),
             'theme' => $this->access->can($actor, Permission::P100) || $this->access->can($actor, Permission::P101),
             'domain' => $this->access->can($actor, Permission::P101),
+            'marketing' => $this->access->can($actor, Permission::P107),
         ];
     }
 

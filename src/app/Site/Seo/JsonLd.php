@@ -4,6 +4,7 @@ namespace App\Site\Seo;
 
 use App\Models\Facility;
 use App\Models\FinanceSettings;
+use App\Models\Marketing\MarketingSettings;
 use App\Money\Money;
 use App\Site\SiteContext;
 
@@ -36,6 +37,8 @@ final class JsonLd
             'email' => $facility?->contact_email,
             'address' => $facility?->address ? ['@type' => 'PostalAddress', 'streetAddress' => $facility->address, 'addressCountry' => 'SA'] : null,
             'currenciesAccepted' => strtoupper((string) ($facility->currency ?? 'SAR')),
+            // The facility's own profiles (Instagram, Google Business…), so search engines tie them to the business.
+            'sameAs' => array_values(MarketingSettings::current()->profiles()) ?: null,
         ], fn ($v) => $v !== null && $v !== '');
     }
 

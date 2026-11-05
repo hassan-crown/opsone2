@@ -22,6 +22,7 @@ use Illuminate\Testing\TestResponse;
 
 require_once __DIR__.'/../Store/StoreTestHelpers.php';
 require_once __DIR__.'/../Site/SiteTestHelpers.php';
+require_once __DIR__.'/MarketingTestHelpers.php';
 
 uses(RefreshDatabase::class);
 
@@ -43,14 +44,6 @@ function saveProduct(object $test, CatalogReadyProduct $product, array $extra = 
         'description' => ['ar' => 'مقبض متين للأبواب والخزائن.', 'en' => 'A sturdy handle for doors and cabinets.'],
         ...$extra,
     ]);
-}
-
-/** @return list<array<string, mixed>> */
-function jsonLdBlocks(string $html): array
-{
-    preg_match_all('#<script type="application/ld\+json">(.*?)</script>#s', $html, $m);
-
-    return array_map(fn ($j) => json_decode($j, true, flags: JSON_THROW_ON_ERROR), $m[1]);
 }
 
 it('makes readable slugs in Arabic and English', function () {

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Store;
 
 use App\Finance\Gateway\GatewayUnavailable;
 use App\Http\Controllers\Controller;
+use App\Marketing\Tracking;
 use App\Models\Finance\GatewaySession;
 use App\Models\Store\StoreCheckout;
 use App\Models\Store\StoreLink;
@@ -67,8 +68,19 @@ final class CheckoutController extends Controller
             $names[(int) $row['variant_id']] = $variant === null ? '' : $variant->product->name->get($locale).' — '.$variant->name->get($locale);
         }
         $settings = StoreSettings::current();
+        $items = [];
+        foreach ($preview['pricing']['lines'] as $row) {
+            if (($variant = $this->catalogue->variant((int) $row['variant_id'])) !== null) {
+                $items[] = Tracking::variantItem($variant, $locale, (int) $row['quantity']);
+            }
+        }
+        $beginCheckout = Tracking::event('begin_checkout', array_filter([
+            ...Tracking::commerce($items, (int) $preview['pricing']['totals']['total_minor']),
+            'coupon' => $preview['coupon'] !== null ? $request->session()->get(self::COUPON) : null,
+        ], fn ($v) => $v !== null));
 
         return $this->view->render('store.checkout', $locale, __('checkout.title'), [
+            'trackingEvents' => [$beginCheckout],
             'pricing' => $preview['pricing'],
             'names' => $names,
             'coupon' => $preview['coupon'],
@@ -169,7 +181,10 @@ final class CheckoutController extends Controller
     {
         $checkout = $this->own($reference);
 
+        $purchase = Tracking::purchaseOnce($checkout, $locale);
+
         return $this->view->render('store.pending', $locale, __('checkout.pending.title'), [
+            'trackingEvents' => $purchase === null ? [] : [$purchase],
             'checkout' => $checkout,
             'order' => $checkout->order,
             'payUrl' => $checkout->status === CheckoutStatus::PendingPayment && $checkout->payment_id !== null

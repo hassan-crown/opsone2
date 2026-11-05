@@ -13,6 +13,7 @@ use App\Models\Site\SitePageVersion;
 use App\Models\Site\SiteTheme;
 use App\Site\Preview\SitePreview;
 use App\Site\Theme\ThemeSettings;
+use App\Support\RequestCache;
 
 /**
  * Read side of the public site: what a visitor may see. Only published versions of non-archived pages are ever
@@ -46,9 +47,12 @@ final class SiteContext
      */
     public function baseUrl(): string
     {
-        $domain = SiteDomain::query()->where('status', SiteDomain::VERIFIED)->orderBy('id')->first();
+        // Asked for by every canonical, alternate, sitemap and JSON-LD URL of a page: read once per request.
+        return app(RequestCache::class)->remember('site.base_url', function () {
+            $domain = SiteDomain::query()->where('status', SiteDomain::VERIFIED)->orderBy('id')->first();
 
-        return $domain !== null ? 'https://'.$domain->hostname : rtrim((string) config('app.url'), '/');
+            return $domain !== null ? 'https://'.$domain->hostname : rtrim((string) config('app.url'), '/');
+        });
     }
 
     public function url(string $locale, ?SitePage $page = null): string

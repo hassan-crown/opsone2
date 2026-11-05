@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Site\DomainController;
+use App\Http\Controllers\Site\MarketingController;
 use App\Http\Controllers\Site\MediaController;
 use App\Http\Controllers\Site\SitePageController;
 use App\Http\Controllers\Site\SitePreviewController;
@@ -43,4 +44,8 @@ Route::middleware(['auth', 'verified'])->prefix('site-admin')->name('site.admin.
     Route::delete('domain', [DomainController::class, 'destroy'])->name('domain.destroy');
 
     Route::get('media/{attachment:uuid}', [MediaController::class, 'admin'])->name('media');
+
+    // Marketing and tracking settings (ADR-0045, P-107).
+    Route::get('marketing', [MarketingController::class, 'edit'])->name('marketing.edit');
+    Route::put('marketing', [MarketingController::class, 'update'])->middleware('throttle:records-create')->name('marketing.update');
 });
