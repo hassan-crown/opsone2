@@ -104,7 +104,7 @@ const channels = `<section class="band cchan" id="channels" aria-labelledby="cha
     <div class="rail" role="tablist" aria-labelledby="channels-title">
 ${ch.map((c, i) => `      <button class="ring" role="tab" type="button" id="tab-${c.key}" aria-controls="panel-${c.key}" aria-selected="${i === 0}"${i ? ' tabindex="-1"' : ''}><span class="ring__o" aria-hidden="true"></span><span class="ring__tag">${icon(c.icon)}${esc(c.title)}</span></button>`).join('\n')}
     </div>
-${ch.map((c, i) => `    <div class="rail__panel" role="tabpanel" id="panel-${c.key}" aria-labelledby="tab-${c.key}" tabindex="0"><img src="${esc(c.image.src)}" width="${c.image.w}" height="${c.image.h}" alt="${esc(c.image.alt)}" loading="lazy" decoding="async"><div><h3>${esc(c.title)}</h3><p>${esc(c.text)}</p></div></div>`).join('\n')}
+${ch.map((c, i) => `    <div class="rail__panel" role="tabpanel" id="panel-${c.key}" aria-labelledby="tab-${c.key}" tabindex="0"><img src="${esc(c.image.src)}"${c.image.srcset ? ` srcset="${esc(c.image.srcset)}" sizes="(max-width: 760px) 100vw, 50vw"` : ''} width="${c.image.w}" height="${c.image.h}" alt="${esc(c.image.alt)}" loading="lazy" decoding="async"><div><h3>${esc(c.title)}</h3><p>${esc(c.text)}</p></div></div>`).join('\n')}
   </div>
 </section>`;
 

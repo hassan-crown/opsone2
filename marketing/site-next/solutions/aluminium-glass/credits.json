@@ -1,47 +1,55 @@
 {
-  "_note": "Internal provenance record for the photographs on the aluminium & glass page. Nothing here is shown on the page; every image is CC0 and needs no attribution. Magnific was not authenticated in this session, so no Magnific credits were spent.",
+  "_note": "Internal provenance record for the images on the aluminium & glass page. Nothing here is shown on the page. All four images were generated with AI on the OpsOne Magnific account (Premium plan) on 2026-11-05 (260 credits); the original 2k PNGs stay in the account's Personal project. Tool, cost and licence notes: kitchens/IMAGES.md.",
   "images": [
     {
-      "file": "img/ag-hero-1280.jpg, img/ag-hero-820.jpg",
-      "used": "hero; Open Graph image; suggested home page «حلول حسب نشاطك» card",
-      "source": "https://commons.wikimedia.org/wiki/File:Glass_plate_facade_edge_(Unsplash).jpg",
-      "original": "https://upload.wikimedia.org/wikipedia/commons/9/91/Glass_plate_facade_edge_%28Unsplash%29.jpg",
-      "licence": "CC0 1.0 (as stated on the Wikimedia Commons file page)",
+      "file": "img/ag-hero-820.webp, img/ag-hero-1200.webp, img/ag-hero-1600.webp",
+      "used": "hero; home page «حلول حسب نشاطك» card; left panel of og-aluminium-glass.jpg",
+      "source": "Magnific images_generate, model Google Nano Banana 2.1, 4:3, 2k (2400x1792 PNG)",
+      "creation": "YMrFDmjWeC",
+      "prompt": "Modern Riyadh villa, beige limestone facade, charcoal aluminium sliding doors and windows, frameless glass balcony railing and glass entrance canopy; no people, cars, text or logos",
+      "credits": 65,
+      "licence": "AI generation on a paid Magnific plan; commercial use per Magnific terms (see kitchens/IMAGES.md)",
       "people": "none",
-      "edits": "Commons 1280px rendition, centre-cropped to 4:3, recompressed"
+      "edits": "resized, encoded to WebP q76"
     },
     {
-      "file": "img/ag-shower-900.jpg",
+      "file": "img/ag-showroom-640.webp, img/ag-showroom-1200.webp",
       "used": "channels: showroom",
-      "source": "https://commons.wikimedia.org/wiki/File:Kabina_prysznicowa_Radaway_Furo_SL_Black_KDD.jpg",
-      "original": "https://upload.wikimedia.org/wikipedia/commons/7/72/Kabina_prysznicowa_Radaway_Furo_SL_Black_KDD.jpg",
-      "licence": "CC0 1.0 (as stated on the Wikimedia Commons file page)",
+      "source": "Magnific images_generate, model Google Nano Banana 2.1, 4:3, 2k (2400x1792 PNG)",
+      "creation": "aF3OHlxfSh",
+      "prompt": "Aluminium and glass showroom in Riyadh: frameless glass shower cabin, sample aluminium windows on stands, profile cut-aways on a wall rack; no people, signage, text or logos",
+      "credits": 65,
+      "licence": "AI generation on a paid Magnific plan; commercial use per Magnific terms (see kitchens/IMAGES.md)",
       "people": "none",
-      "edits": "cropped to exclude the showroom price label on the wall, resized, recompressed"
+      "edits": "resized, encoded to WebP q76"
     },
     {
-      "file": "img/ag-mirror-900.jpg",
+      "file": "img/ag-store-640.webp, img/ag-store-1200.webp",
       "used": "channels: online store",
-      "source": "https://commons.wikimedia.org/wiki/File:Tall_mirror-like_fa%C3%A7ade_(Unsplash).jpg",
-      "original": "https://upload.wikimedia.org/wikipedia/commons/6/66/Tall_mirror-like_fa%C3%A7ade_%28Unsplash%29.jpg",
-      "licence": "CC0 1.0 (as stated on the Wikimedia Commons file page)",
+      "source": "Magnific images_generate, model Google Nano Banana 2.1, 4:3, 2k (2400x1792 PNG)",
+      "creation": "Tds5XuWVNR",
+      "prompt": "Ready-made glass items: round backlit mirror, black-framed mirror, tempered glass shelves, shower hinges and handles on a stone counter; no packaging, labels, text or logos",
+      "credits": 65,
+      "licence": "AI generation on a paid Magnific plan; commercial use per Magnific terms (see kitchens/IMAGES.md)",
       "people": "none",
-      "edits": "resized, recompressed"
+      "edits": "resized, encoded to WebP q76"
     },
     {
-      "file": "img/ag-facade-900.jpg",
+      "file": "img/ag-site-640.webp, img/ag-site-1200.webp",
       "used": "channels: field sales on site",
-      "source": "https://commons.wikimedia.org/wiki/File:Glass_wall_(Unsplash).jpg",
-      "original": "https://upload.wikimedia.org/wikipedia/commons/2/2c/Glass_wall_%28Unsplash%29.jpg",
-      "licence": "CC0 1.0 (as stated on the Wikimedia Commons file page)",
-      "people": "none",
-      "edits": "cropped to 5:4, resized, recompressed"
+      "source": "Magnific images_generate, model Google Nano Banana 2.1, 4:3, 2k (2400x1792 PNG)",
+      "creation": "6AutGBbiJO",
+      "prompt": "A man's hands in white thobe sleeves measuring an empty window opening in a villa under construction in Riyadh, phone in hand; no text or logos",
+      "credits": 65,
+      "licence": "AI generation on a paid Magnific plan; commercial use per Magnific terms (see kitchens/IMAGES.md)",
+      "people": "one AI-generated man; seen from behind, his head cropped out",
+      "edits": "left 300px cropped to remove the side of the face, resized, encoded to WebP q76"
     },
     {
       "file": "og-aluminium-glass.jpg",
       "used": "Open Graph / Twitter image",
-      "source": "composed from img/ag-hero-1280.jpg with the OpsOne logo and the page title (browser render, 1200×630)",
-      "licence": "derived from CC0",
+      "source": "left 520px panel replaced with a crop of the hero image; logo and title panel kept as before",
+      "licence": "derived from the AI image above",
       "people": "none"
     }
   ]
