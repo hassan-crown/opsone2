@@ -78,7 +78,7 @@ const channels = `<section class="band fo-chan" id="channels" aria-labelledby="c
   <div class="wrap">
     <div class="sec-head"><h2 class="head" id="channels-title">${esc(d.channels.title)}</h2><p class="lead">${esc(d.channels.lede)}</p></div>
     <ul class="robe">
-${d.channels.items.map((c, i) => `      <li class="robe__bay${i === 0 ? ' is-open' : ''}"><div class="robe__inside" id="bay-${c.key}"><img src="${esc(c.image.src)}" width="${c.image.w}" height="${c.image.h}" alt="${esc(c.image.alt)}" loading="lazy" decoding="async"><h3>${icon(c.icon)}${esc(c.title)}</h3><p>${esc(c.text)}</p></div><button class="robe__door" type="button" aria-expanded="${i === 0}" aria-controls="bay-${c.key}"><span class="robe__panel" aria-hidden="true"></span><span class="robe__handle" aria-hidden="true"></span><span class="robe__label">${icon(c.icon)}<b>${esc(c.title)}</b><small>${i === 0 ? 'أغلق الباب' : 'افتح الباب'}</small></span></button></li>`).join('\n')}
+${d.channels.items.map((c, i) => `      <li class="robe__bay${i === 0 ? ' is-open' : ''}"><div class="robe__inside" id="bay-${c.key}"><img src="${esc(c.image.src)}"${c.image.srcset ? ` srcset="${esc(c.image.srcset)}" sizes="(max-width: 760px) 100vw, 30vw"` : ''} width="${c.image.w}" height="${c.image.h}" alt="${esc(c.image.alt)}" loading="lazy" decoding="async"><h3>${icon(c.icon)}${esc(c.title)}</h3><p>${esc(c.text)}</p></div><button class="robe__door" type="button" aria-expanded="${i === 0}" aria-controls="bay-${c.key}"><span class="robe__panel" aria-hidden="true"></span><span class="robe__handle" aria-hidden="true"></span><span class="robe__label">${icon(c.icon)}<b>${esc(c.title)}</b><small>${i === 0 ? 'أغلق الباب' : 'افتح الباب'}</small></span></button></li>`).join('\n')}
     </ul>
   </div>
 </section>`;
