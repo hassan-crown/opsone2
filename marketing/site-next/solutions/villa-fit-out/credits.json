@@ -1,0 +1,24 @@
+{
+  "_note": "Internal provenance record for the images on the fit-out page. Nothing here is shown on the page. The Magnific MCP server was not authenticated in this session, so no image was generated or bought and no credits were used. The photograph is CC0 and needs no attribution. The channels section uses product fragments built in HTML instead of photographs: the CC0 candidates found (lighting and tile shops, plastering) carried shop signs, printed text, logos or people.",
+  "images": [
+    {
+      "file": "img/fitout-hero-1400.jpg, img/fitout-hero-820.jpg",
+      "used": "hero; home page «حلول حسب نشاطك» card",
+      "source": "https://commons.wikimedia.org/wiki/File:False_ceiling.jpg",
+      "original": "https://upload.wikimedia.org/wikipedia/commons/6/6d/False_ceiling.jpg",
+      "author": "Suhail sartaj ahmed shaikh (as stated on the file page)",
+      "licence": "CC0 1.0 (as stated on the Wikimedia Commons file page)",
+      "people": "none",
+      "text": "none in the crop (an exit sign on the left of the original is cropped out)",
+      "location": "not stated on the file page",
+      "edits": "cropped to 4:3 from the right side, resized, recompressed"
+    },
+    {
+      "file": "og-villa-fit-out.jpg",
+      "used": "Open Graph / Twitter image (1200×630)",
+      "source": "composed from img/fitout-hero-1400.jpg with the OpsOne logo and the page title, rendered locally",
+      "licence": "derived from CC0",
+      "people": "none"
+    }
+  ]
+}
