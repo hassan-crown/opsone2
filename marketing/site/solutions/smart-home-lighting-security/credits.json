@@ -1,0 +1,56 @@
+{
+  "_note": "Internal provenance record for the images on the smart home, lighting and security page. Nothing here is shown on the page. All four images were generated with AI on the OpsOne Magnific account (Premium plan) on 2026-11-05; tool, cost and licence notes are in ../kitchens/IMAGES.md. The keypad and shell drawings in compose.mjs (ART) are no longer used: a lane shows its drawing only when data.json gives it `art`.",
+  "images": [
+    {
+      "file": "img/sh-hero-820.webp, img/sh-hero-1200.webp, img/sh-hero-1600.webp",
+      "used": "hero; home page «حلول حسب نشاطك» card; left part of og-smart-home-lighting-security.jpg (_og.html)",
+      "source": "Magnific images_generate, model Google Nano Banana 2.1, 3:2, 2k (2528x1696 PNG)",
+      "creation": "fHRyqPzCDY",
+      "prompt": "Riyadh villa living room at dusk: cove lighting, recessed spots, lit walnut shelves, wall smart keypad, small ceiling dome camera, courtyard with palms; no people, text or logos",
+      "credits": 65,
+      "licence": "AI generation on a paid Magnific plan; commercial use per Magnific terms (see kitchens/IMAGES.md)",
+      "people": "none",
+      "edits": "resized, encoded to WebP q76"
+    },
+    {
+      "file": "img/sh-showroom-640.webp, img/sh-showroom-1200.webp",
+      "used": "channels: showroom",
+      "source": "Magnific images_generate, model Google Nano Banana 2.1, 3:2, 2k (2528x1696 PNG)",
+      "creation": "ksTAlYs16B",
+      "prompt": "Smart home showroom in Riyadh: demo wall of smart switches and keypads, wall control tablet, dimmable living-room corner, cameras on a shelf; no people, signs, text or logos",
+      "credits": 65,
+      "licence": "AI generation on a paid Magnific plan; commercial use per Magnific terms (see kitchens/IMAGES.md)",
+      "people": "none",
+      "edits": "resized, encoded to WebP q76"
+    },
+    {
+      "file": "img/sh-store-640.webp, img/sh-store-1200.webp",
+      "used": "channels: lighting and devices store",
+      "source": "Magnific images_generate, model Google Nano Banana 2.1, 3:2, 2k (2528x1696 PNG)",
+      "creation": "JNme6IzOq4",
+      "prompt": "Store shelf with smart bulbs, spotlights, track lights, indoor cameras and video doorbells in plain white boxes; no people, labels, price tags, text or logos",
+      "credits": 65,
+      "licence": "AI generation on a paid Magnific plan; commercial use per Magnific terms (see kitchens/IMAGES.md)",
+      "people": "none",
+      "edits": "resized, encoded to WebP q76"
+    },
+    {
+      "file": "img/sh-survey-640.webp, img/sh-survey-1200.webp",
+      "used": "channels: field sales at the customer's site",
+      "source": "Magnific images_generate, model Google Nano Banana 2.1, 3:2, 2k (2528x1696 PNG)",
+      "creation": "5jcZLcjKxe",
+      "prompt": "Villa shell in Riyadh with conduits running to switch boxes and a camera point; a man's hand with a white thobe sleeve holds a tablet with a floor plan; face out of frame; no women, text or logos",
+      "credits": 65,
+      "licence": "AI generation on a paid Magnific plan; commercial use per Magnific terms (see kitchens/IMAGES.md)",
+      "people": "AI-generated man, hand and forearm only, not a real person",
+      "edits": "resized, encoded to WebP q76"
+    },
+    {
+      "file": "og-smart-home-lighting-security.jpg",
+      "used": "Open Graph / Twitter image",
+      "source": "previous OG card with its left 600 px replaced by a cover crop of the hero PNG (layout in _og.html)",
+      "licence": "derived from the hero image above",
+      "people": "none"
+    }
+  ]
+}

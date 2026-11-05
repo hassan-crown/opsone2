@@ -1,0 +1,56 @@
+{
+  "_note": "Internal provenance record for the images on the curtains and blinds page. Nothing here is shown on the page. All four images were generated with AI on the OpsOne Magnific account (Premium plan) on 2026-11-05 (260 credits); the original 2k PNGs stay in the account's Personal project. Tool, cost and licence notes: kitchens/IMAGES.md.",
+  "images": [
+    {
+      "file": "img/curtain-hero-820.webp, img/curtain-hero-1200.webp, img/curtain-hero-1600.webp",
+      "used": "hero; home page «حلول حسب نشاطك» card; left panel of og-curtains-blinds.jpg",
+      "source": "Magnific images_generate, model Google Nano Banana 2.1, 4:3, 2k (2400x1792 PNG)",
+      "creation": "KL02sgukqp",
+      "prompt": "Majlis in a modern Riyadh villa: sheer white voile and sand linen drapes on a track recessed into a cove-lit gypsum ceiling, one roller blind; no people, text or logos",
+      "credits": 65,
+      "licence": "AI generation on a paid Magnific plan; commercial use per Magnific terms (see kitchens/IMAGES.md)",
+      "people": "none",
+      "edits": "resized, encoded to WebP q76"
+    },
+    {
+      "file": "img/curtain-showroom-640.webp, img/curtain-showroom-1200.webp",
+      "used": "channels: showroom and samples",
+      "source": "Magnific images_generate, model Google Nano Banana 2.1, 4:3, 2k (2400x1792 PNG)",
+      "creation": "CqZPbrKEEy",
+      "prompt": "Curtains and blinds showroom in Riyadh: hanging fabric swatches, open sample books, display windows with curtains, roller and wooden blinds; no people, signage, text or logos",
+      "credits": 65,
+      "licence": "AI generation on a paid Magnific plan; commercial use per Magnific terms (see kitchens/IMAGES.md)",
+      "people": "none",
+      "edits": "resized, encoded to WebP q76"
+    },
+    {
+      "file": "img/curtain-measure-640.webp, img/curtain-measure-1200.webp",
+      "used": "channels: selling at the customer's home",
+      "source": "Magnific images_generate, model Google Nano Banana 2.1, 4:3, 2k (2400x1792 PNG)",
+      "creation": "s7dcJ6wl8e",
+      "prompt": "A man's hands in white thobe sleeves measuring a window in an empty new villa room before curtains are fitted; face out of frame; no text or logos",
+      "credits": 65,
+      "licence": "AI generation on a paid Magnific plan; commercial use per Magnific terms (see kitchens/IMAGES.md)",
+      "people": "hands and sleeves of one AI-generated man, face out of frame",
+      "edits": "resized, encoded to WebP q76"
+    },
+    {
+      "file": "img/curtain-store-640.webp, img/curtain-store-1200.webp",
+      "used": "channels: online store for ready-made items",
+      "source": "Magnific images_generate, model Google Nano Banana 2.1, 4:3, 2k (2400x1792 PNG)",
+      "creation": "SyoVPZ8Ub8",
+      "prompt": "Ready-made curtain panels, roller blind, brass rod, aluminium track, rings and tassel tiebacks on a wooden table; no packaging, labels, text or logos",
+      "credits": 65,
+      "licence": "AI generation on a paid Magnific plan; commercial use per Magnific terms (see kitchens/IMAGES.md)",
+      "people": "none",
+      "edits": "resized, encoded to WebP q76"
+    },
+    {
+      "file": "og-curtains-blinds.jpg",
+      "used": "Open Graph / Twitter image",
+      "source": "left 520px panel replaced with a crop of the hero image; logo and title panel kept as before",
+      "licence": "derived from the AI image above",
+      "people": "none"
+    }
+  ]
+}

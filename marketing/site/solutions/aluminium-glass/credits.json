@@ -1,0 +1,56 @@
+{
+  "_note": "Internal provenance record for the images on the aluminium & glass page. Nothing here is shown on the page. All four images were generated with AI on the OpsOne Magnific account (Premium plan) on 2026-11-05 (260 credits); the original 2k PNGs stay in the account's Personal project. Tool, cost and licence notes: kitchens/IMAGES.md.",
+  "images": [
+    {
+      "file": "img/ag-hero-820.webp, img/ag-hero-1200.webp, img/ag-hero-1600.webp",
+      "used": "hero; home page «حلول حسب نشاطك» card; left panel of og-aluminium-glass.jpg",
+      "source": "Magnific images_generate, model Google Nano Banana 2.1, 4:3, 2k (2400x1792 PNG)",
+      "creation": "YMrFDmjWeC",
+      "prompt": "Modern Riyadh villa, beige limestone facade, charcoal aluminium sliding doors and windows, frameless glass balcony railing and glass entrance canopy; no people, cars, text or logos",
+      "credits": 65,
+      "licence": "AI generation on a paid Magnific plan; commercial use per Magnific terms (see kitchens/IMAGES.md)",
+      "people": "none",
+      "edits": "resized, encoded to WebP q76"
+    },
+    {
+      "file": "img/ag-showroom-640.webp, img/ag-showroom-1200.webp",
+      "used": "channels: showroom",
+      "source": "Magnific images_generate, model Google Nano Banana 2.1, 4:3, 2k (2400x1792 PNG)",
+      "creation": "aF3OHlxfSh",
+      "prompt": "Aluminium and glass showroom in Riyadh: frameless glass shower cabin, sample aluminium windows on stands, profile cut-aways on a wall rack; no people, signage, text or logos",
+      "credits": 65,
+      "licence": "AI generation on a paid Magnific plan; commercial use per Magnific terms (see kitchens/IMAGES.md)",
+      "people": "none",
+      "edits": "resized, encoded to WebP q76"
+    },
+    {
+      "file": "img/ag-store-640.webp, img/ag-store-1200.webp",
+      "used": "channels: online store",
+      "source": "Magnific images_generate, model Google Nano Banana 2.1, 4:3, 2k (2400x1792 PNG)",
+      "creation": "Tds5XuWVNR",
+      "prompt": "Ready-made glass items: round backlit mirror, black-framed mirror, tempered glass shelves, shower hinges and handles on a stone counter; no packaging, labels, text or logos",
+      "credits": 65,
+      "licence": "AI generation on a paid Magnific plan; commercial use per Magnific terms (see kitchens/IMAGES.md)",
+      "people": "none",
+      "edits": "resized, encoded to WebP q76"
+    },
+    {
+      "file": "img/ag-site-640.webp, img/ag-site-1200.webp",
+      "used": "channels: field sales on site",
+      "source": "Magnific images_generate, model Google Nano Banana 2.1, 4:3, 2k (2400x1792 PNG)",
+      "creation": "6AutGBbiJO",
+      "prompt": "A man's hands in white thobe sleeves measuring an empty window opening in a villa under construction in Riyadh, phone in hand; no text or logos",
+      "credits": 65,
+      "licence": "AI generation on a paid Magnific plan; commercial use per Magnific terms (see kitchens/IMAGES.md)",
+      "people": "one AI-generated man; seen from behind, his head cropped out",
+      "edits": "left 300px cropped to remove the side of the face, resized, encoded to WebP q76"
+    },
+    {
+      "file": "og-aluminium-glass.jpg",
+      "used": "Open Graph / Twitter image",
+      "source": "left 520px panel replaced with a crop of the hero image; logo and title panel kept as before",
+      "licence": "derived from the AI image above",
+      "people": "none"
+    }
+  ]
+}

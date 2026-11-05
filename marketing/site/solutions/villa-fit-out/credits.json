@@ -1,0 +1,22 @@
+{
+  "_note": "Internal provenance record for the images on the fit-out page. Nothing here is shown on the page. The page has one photograph: the hero. It was generated on the Magnific account (Premium plan, MCP server `magnific`) on 2026-11-05 with Google Nano Banana 2.1 (`imagen-nano-banana-2-1`) at 2k, 65 credits. The 2k PNG original stays in the account's Personal project. Commercial use without attribution on a paid plan follows Magnific/Freepik's general terms and was not verified from inside the tools: the account owner confirms it on magnific.com before launch. The channels section shows product fragments built in HTML, not photographs, so no other image was generated; the unused `image` fields in data.json point at the hero.",
+  "images": [
+    {
+      "file": "img/fitout-hero-820.webp, img/fitout-hero-1200.webp, img/fitout-hero-1600.webp",
+      "used": "hero; Open Graph image; home page «حلول حسب نشاطك» card",
+      "source": "AI-generated on Magnific (Nano Banana 2.1, 2400×1792)",
+      "prompt": "just-finished villa fit-out in Riyadh: double-height living and majlis area, multi-level curved gypsum ceiling with hidden warm LED cove and spotlights, travertine porcelain feature wall, wood-slat panelling, tall windows with mashrabiya-inspired screens, light marble floor, low neutral sofas; no people, no logos, no text",
+      "licence": "Magnific generated content, paid plan (see _note)",
+      "people": "none",
+      "text": "none",
+      "edits": "resized, WebP quality 76"
+    },
+    {
+      "file": "og-villa-fit-out.jpg",
+      "used": "Open Graph / Twitter image (1200×630)",
+      "source": "the earlier OG layout with its logo and title unchanged; the picture on the left (520×630) replaced by a crop of the hero photograph",
+      "licence": "own composition of Magnific generated content",
+      "people": "none"
+    }
+  ]
+}
