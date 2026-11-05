@@ -1,23 +1,21 @@
 {
-  "_note": "Internal provenance record for the images on the fit-out page. Nothing here is shown on the page. The Magnific MCP server was not authenticated in this session, so no image was generated or bought and no credits were used. The photograph is CC0 and needs no attribution. The channels section uses product fragments built in HTML instead of photographs: the CC0 candidates found (lighting and tile shops, plastering) carried shop signs, printed text, logos or people.",
+  "_note": "Internal provenance record for the images on the fit-out page. Nothing here is shown on the page. The page has one photograph: the hero. It was generated on the Magnific account (Premium plan, MCP server `magnific`) on 2026-11-05 with Google Nano Banana 2.1 (`imagen-nano-banana-2-1`) at 2k, 65 credits. The 2k PNG original stays in the account's Personal project. Commercial use without attribution on a paid plan follows Magnific/Freepik's general terms and was not verified from inside the tools: the account owner confirms it on magnific.com before launch. The channels section shows product fragments built in HTML, not photographs, so no other image was generated; the unused `image` fields in data.json point at the hero.",
   "images": [
     {
-      "file": "img/fitout-hero-1400.jpg, img/fitout-hero-820.jpg",
-      "used": "hero; home page «حلول حسب نشاطك» card",
-      "source": "https://commons.wikimedia.org/wiki/File:False_ceiling.jpg",
-      "original": "https://upload.wikimedia.org/wikipedia/commons/6/6d/False_ceiling.jpg",
-      "author": "Suhail sartaj ahmed shaikh (as stated on the file page)",
-      "licence": "CC0 1.0 (as stated on the Wikimedia Commons file page)",
+      "file": "img/fitout-hero-820.webp, img/fitout-hero-1200.webp, img/fitout-hero-1600.webp",
+      "used": "hero; Open Graph image; home page «حلول حسب نشاطك» card",
+      "source": "AI-generated on Magnific (Nano Banana 2.1, 2400×1792)",
+      "prompt": "just-finished villa fit-out in Riyadh: double-height living and majlis area, multi-level curved gypsum ceiling with hidden warm LED cove and spotlights, travertine porcelain feature wall, wood-slat panelling, tall windows with mashrabiya-inspired screens, light marble floor, low neutral sofas; no people, no logos, no text",
+      "licence": "Magnific generated content, paid plan (see _note)",
       "people": "none",
-      "text": "none in the crop (an exit sign on the left of the original is cropped out)",
-      "location": "not stated on the file page",
-      "edits": "cropped to 4:3 from the right side, resized, recompressed"
+      "text": "none",
+      "edits": "resized, WebP quality 76"
     },
     {
       "file": "og-villa-fit-out.jpg",
       "used": "Open Graph / Twitter image (1200×630)",
-      "source": "composed from img/fitout-hero-1400.jpg with the OpsOne logo and the page title, rendered locally",
-      "licence": "derived from CC0",
+      "source": "the earlier OG layout with its logo and title unchanged; the picture on the left (520×630) replaced by a crop of the hero photograph",
+      "licence": "own composition of Magnific generated content",
       "people": "none"
     }
   ]

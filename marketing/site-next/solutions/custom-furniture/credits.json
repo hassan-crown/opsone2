@@ -1,47 +1,58 @@
 {
-  "_note": "Internal provenance record for the images on the custom-furniture page. Nothing here is shown on the page. The Magnific MCP server was not authenticated in this session, so no generated or stock images were used and no credits were spent. Photos are CC0 and need no attribution; the hero drawing is own work.",
+  "_note": "Internal provenance record for the images on the custom-furniture page. Nothing here is shown on the page. The four photographs were generated on the Magnific account (Premium plan, MCP server `magnific`) on 2026-11-05 with Google Nano Banana 2.1 (`imagen-nano-banana-2-1`) at 2k, 65 credits each, 260 in all. The 2k PNG originals stay in the account's Personal project. Commercial use without attribution on a paid plan follows Magnific/Freepik's general terms and was not verified from inside the tools: the account owner confirms it on magnific.com before launch. Prompts asked for Saudi villa settings, no women, no logos, no brand names and no readable text.",
   "images": [
     {
-      "file": "img/dressing-elevation.svg",
-      "used": "hero; Open Graph image; home page «حلول حسب نشاطك» card (suggested)",
-      "source": "own work: front elevation of a made-to-measure dressing room drawn in SVG for this page",
-      "licence": "own work (OpsOne marketing)",
+      "file": "img/furniture-hero-820.webp, img/furniture-hero-1200.webp, img/furniture-hero-1600.webp",
+      "used": "hero; Open Graph image; home page «حلول حسب نشاطك» card",
+      "source": "AI-generated on Magnific (Nano Banana 2.1, 2400×1792)",
+      "prompt": "made-to-measure walk-in dressing room in a modern Riyadh villa: oak veneer and sand lacquer wardrobes, white thobes hanging, glass doors with lit shelves, walnut-topped drawer island, gypsum ceiling with hidden LED cove, mashrabiya-inspired window screen; no people, no logos, no text",
+      "licence": "Magnific generated content, paid plan (see _note)",
       "people": "none",
-      "text": "none"
+      "text": "none",
+      "edits": "resized, WebP quality 76"
     },
     {
-      "file": "img/majlis-sadu-1000.jpg",
+      "file": "img/furniture-showroom-640.webp, img/furniture-showroom-1200.webp",
       "used": "channels: showroom",
-      "source": "https://commons.wikimedia.org/wiki/File:Majlis_in_Sadu_style.jpg",
-      "author": "Ashley Columbus (own work, 15 August 2025)",
-      "licence": "CC0 1.0 (as stated on the Wikimedia Commons file page)",
+      "source": "AI-generated on Magnific (Nano Banana 2.1, 2400×1792)",
+      "prompt": "custom furniture and upholstery showroom in Riyadh: a displayed majlis set in cream and deep red with sadu-inspired cushions, a sample wardrobe with wood doors, a wall rack of fabric and veneer samples; no people, no signs, no price tags, no text",
+      "licence": "Magnific generated content, paid plan (see _note)",
       "people": "none",
-      "edits": "resized to 1000 px wide, recompressed"
+      "text": "none",
+      "edits": "resized, WebP quality 76"
     },
     {
-      "file": "img/fabric-swatches-1000.jpg",
+      "file": "img/furniture-store-640.webp, img/furniture-store-1200.webp",
       "used": "channels: online store",
-      "source": "https://commons.wikimedia.org/wiki/File:Fabric_swatches.jpg",
-      "author": "Thegreatmutata (own work, 9 July 2022)",
-      "licence": "CC0 1.0 (as stated on the Wikimedia Commons file page)",
-      "people": "none (cropped to the fabric only)",
-      "edits": "cropped, resized to 1000×750, recompressed"
+      "source": "AI-generated on Magnific (Nano Banana 2.1, 2400×1792)",
+      "prompt": "ready-made pieces on an oak shelf: majlis cushions in sand, olive and burgundy, a small wooden side table, brass and black wardrobe handles, folded upholstery fabric; no labels, no price tags, no text",
+      "licence": "Magnific generated content, paid plan (see _note)",
+      "people": "none",
+      "text": "none",
+      "edits": "resized, WebP quality 76"
     },
     {
-      "file": "img/tape-1000.jpg",
+      "file": "img/furniture-measure-640.webp, img/furniture-measure-1200.webp",
       "used": "channels: field sales in the customer's home",
-      "source": "https://commons.wikimedia.org/wiki/File:Measuring_tape_(51029469626).jpg",
-      "original": "https://www.flickr.com/photos/welikesharing/51029469626",
-      "author": "We Like Sharing (Flickr); credit line on Commons names Éloïse Ruby",
-      "licence": "CC0 1.0 (Flickr licence confirmed by FlickreviewR on Wikimedia Commons)",
-      "people": "none",
-      "edits": "resized to 1000×750, recompressed"
+      "source": "AI-generated on Magnific (Nano Banana 2.1, 2400×1792)",
+      "prompt": "a man's hands in white thobe sleeves stretching a measuring tape across a wall niche for a built-in wardrobe in a new Saudi villa, a tablet with a wardrobe line drawing nearby; face out of frame, no text",
+      "licence": "Magnific generated content, paid plan (see _note)",
+      "people": "a man's hands and sleeves only; not a real person, face out of frame",
+      "text": "tape graduations only; the tablet drawing has no text",
+      "edits": "resized, WebP quality 76"
+    },
+    {
+      "file": "img/swatch-sadu-240.jpg",
+      "used": "order section: the sadu fabric chip (furniture.css)",
+      "source": "not recorded by the session that added it; most likely a crop of the CC0 photo https://commons.wikimedia.org/wiki/File:Majlis_in_Sadu_style.jpg (Ashley Columbus), which the page used before the Magnific images. Kept unchanged; confirm before launch",
+      "licence": "CC0 1.0 if from the file above",
+      "people": "none"
     },
     {
       "file": "og-custom-furniture.jpg",
-      "used": "Open Graph / Twitter image",
-      "source": "composed from img/dressing-elevation.svg with the OpsOne logo and the page title",
-      "licence": "own work",
+      "used": "Open Graph / Twitter image (1200×630)",
+      "source": "the earlier OG layout with its logo and title unchanged; the rounded picture on the left replaced by a crop of the hero photograph",
+      "licence": "own composition of Magnific generated content",
       "people": "none"
     }
   ]
