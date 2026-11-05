@@ -980,3 +980,6 @@ summary.nav__link::-webkit-details-marker, .drawer__btn::-webkit-details-marker,
 /* the footer gains a «تواصل» column once a WhatsApp or phone number is set */
 @media (min-width: 1024px) { .foot__main:has([data-contact-group]:not([hidden])) { grid-template-columns: 1.2fr minmax(0, 1.7fr) minmax(0, 0.8fr) minmax(0, 1fr); } }
 .foot__col a { gap: 0.35rem; }
+/* nothing inside the page may widen it, absolutely placed screen-reader text included: also holds while the
+   non-critical stylesheet is still loading */
+main { position: relative; overflow-x: clip; }

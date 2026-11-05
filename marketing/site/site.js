@@ -5,6 +5,8 @@
    - the footer credit links out only once its URL is set;
    - the demo request form. */
 (() => {
+  // the page's full stylesheet loads without blocking the first paint (media="print"); switch it on now
+  document.querySelectorAll('link[data-async-css]').forEach((l) => { l.media = 'all'; });
   const cfg = window.OPSONE_LANDING || {};
   const sector = ((window.OPSONE_PAGE || {}).sector || '').trim();
 

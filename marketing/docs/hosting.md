@@ -3,7 +3,10 @@
 Nothing in this repository's infrastructure serves this folder yet. When a host is chosen, apply the following on that
 host (Nginx, a CDN, or a static host's headers file). Serve the folder `marketing/site/` as the site root (the 404 page uses root paths).
 
-## Compression
+## Compression (required)
+
+Without compression the pages are about 3–5 times larger on the wire: each HTML page carries its first-screen CSS inline
+(the home page is ~117 KB, ~25 KB with Brotli). Turn on Brotli (or gzip at least) before measuring Lighthouse.
 
 Serve text with Brotli (gzip as fallback): `text/html`, `text/css`, `text/javascript`, `application/json`, `image/svg+xml`,
 `application/xml`, `application/manifest+json`, `text/plain`. Do not compress `woff2`, `webp`, `png`, `jpg`, `webm`.
@@ -15,7 +18,7 @@ Serve text with Brotli (gzip as fallback): `text/html`, `text/css`, `text/javasc
 | `/`, every `index.html`, `/404.html` | `no-cache` (revalidate every visit) |
 | `/config.js` | `no-cache` (it holds the IDs and the form endpoint) |
 | `/robots.txt`, `/sitemap.xml`, `/site.webmanifest` | `public, max-age=3600` |
-| `/styles.css`, `/main.js`, `/site.js`, `/tags.js`, `/solutions/sector.*`, `/solutions/*/*.css|js` | `public, max-age=86400` until file names carry a version; then `max-age=31536000, immutable` |
+| `/styles*.css`, `**/page.bundle.min.css`, `/main.js`, `/site.js`, `/tags.js`, `/solutions/sector.*`, `/solutions/*/*.css|js` | `public, max-age=86400` until file names carry a version; then `max-age=31536000, immutable` |
 | `/assets/**`, `/solutions/*/img/**`, `/solutions/*/og-*.jpg` | `public, max-age=31536000, immutable` (rename a file when it changes) |
 
 ## Security headers
@@ -79,3 +82,9 @@ location ^~ /site/ { return 404; }
 ## Contact links
 
 The WhatsApp button opens `https://wa.me/…` in a new tab and the call link is `tel:`; neither needs a CSP entry.
+
+## Long cache for fingerprinted files (optional, recommended)
+
+The CSS, JS and image names do not carry a content hash yet, so they get one day of cache above. To cache them for a year,
+publish with hashed names (e.g. `styles.3f9a1c.min.css`) and rewrite the references at deploy time, then serve
+`Cache-Control: public, max-age=31536000, immutable` for the hashed files. HTML stays `no-cache`.

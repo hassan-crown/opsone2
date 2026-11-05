@@ -4,15 +4,19 @@
 //    <!-- @header --> … <!-- /@header --> markers (also @footer, @solutions). The rest of index.html is hand-written.
 // 2. Builds every sector page listed in site/sectors.json (solutions/build.mjs <slug>).
 // 3. Writes the plain pages (site/pages.mjs): privacy, terms and cookies drafts, thanks, 404.
-// 4. Writes sitemap.xml: the home page and every sector page, lastmod = the last commit that touched the page's
+// 4. Per page CSS: the rules the page can use (site/purgecss.mjs); those of the header, hero and fixed layers go
+//    inline in <head>, the rest load without blocking from <page>/page.bundle.min.css (site.js switches it on;
+//    <noscript> links it for visitors without JavaScript). Pages without a hero inline all of their CSS.
+// 5. Writes sitemap.xml: the home page and every sector page, lastmod = the last commit that touched the page's
 //    sources, or today while they have uncommitted changes.
 import { execFileSync } from 'node:child_process';
-import { readFileSync, writeFileSync } from 'node:fs';
-import { dirname, join } from 'node:path';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
+import { dirname, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { header, footer, consent, pricing, solutionsGrid, site, sectors } from './site/partials.mjs';
 import { pages as plainPages, render } from './site/pages.mjs';
 import { minifyCss } from './site/mincss.mjs';
+import { purge } from './site/purgecss.mjs';
 import { readdirSync } from 'node:fs';
 import { mkdirSync } from 'node:fs';
 
@@ -53,7 +57,68 @@ for (const p of plainPages) {
 }
 console.log(`pages: ${plainPages.map((p) => p.path).join(', ')}`);
 
-/* ---------- 4. sitemap ---------- */
+/* ---------- 4. per-page CSS: critical inline, the rest non-blocking ---------- */
+const toPosix = (p) => p.split('\\').join('/');
+// one page's stylesheets, read in order, with url() rewritten to be relative to the page's folder
+const cssFor = (pageFile, hrefs) => hrefs.map((h) => {
+  const file = h.startsWith('/') ? join(here, h) : resolve(dirname(pageFile), h);
+  return readFileSync(file, 'utf8').replace(/url\((['"]?)([^'")]+)\1\)/g, (m, q, u) => {
+    if (/^(data:|https?:|\/|#)/.test(u)) return m;
+    return `url(${q}${toPosix(relative(dirname(pageFile), resolve(dirname(file), u)))}${q})`;
+  });
+}).join('');
+const scriptsOf = (pageFile, html) => [...html.matchAll(/<script src="([^"]+)"/g)].map((m) => m[1])
+  .map((src) => (src.startsWith('/') ? join(here, src) : resolve(dirname(pageFile), src))).filter(existsSync).map((f) => readFileSync(f, 'utf8')).join('\n');
+// the first screen: everything up to the end of the section after the hero, plus the fixed layers (consent, WhatsApp button)
+const firstScreen = (html) => {
+  const hero = html.indexOf('<section class="hero');
+  // the hero and the section after it: on a wide screen the next section starts inside the first 900px
+  const heroEnd = hero >= 0 ? html.indexOf('</section>', hero) : -1;
+  const next = heroEnd >= 0 ? html.indexOf('<section', heroEnd) : -1;
+  const end = next >= 0 ? html.indexOf('</section>', next) : hero >= 0 ? heroEnd : html.indexOf('</main>');
+  const fixed = html.indexOf('<div class="consent');
+  return html.slice(0, end) + (fixed >= 0 ? html.slice(fixed) : '') + html.slice(html.indexOf('<a class="wa-float'), html.indexOf('</a>', html.indexOf('<a class="wa-float')) + 4);
+};
+const styleTags = (pageFile, html, hrefs, inlineAll) => {
+  const js = scriptsOf(pageFile, html);
+  const all = cssFor(pageFile, hrefs);
+  const used = purge(all, html + js);
+  if (inlineAll) return `<style>${used}</style>`;
+  const bundle = join(dirname(pageFile), 'page.bundle.min.css');
+  writeFileSync(bundle, used + '\n');
+  // the first screen's own markup, plus only the state classes the scripts toggle (is-*, has-*): a class that JS
+  // merely mentions belongs to a later section and would arrive here without its container's rules
+  const states = [...new Set(js.match(/\b(?:is|has)-[a-z][\w-]*/g) || [])].join(' ');
+  // the hero's own script block (sector.js renders the station screens from a template) belongs to the first screen too
+  const heroJs = (js.match(/\/\* -+ hero[\s\S]*?(?=\/\* -+ )/) || [''])[0];
+  const crit = purge(all, firstScreen(html) + heroJs + ' class="' + states + '"');
+  return `<style>${crit}</style>\n<link rel="stylesheet" href="page.bundle.min.css" media="print" data-async-css>\n<noscript><link rel="stylesheet" href="page.bundle.min.css"></noscript>`;
+};
+const linkRe = /(?:<link rel="stylesheet" href="[^"]+">\n?)+/;
+const cssPages = [...sectors.map((s) => join(here, 'solutions', s.slug, 'index.html')), ...plainPages.map((p) => join(here, p.path.endsWith('/') ? join(p.path, 'index.html') : p.path))];
+for (const file of cssPages) {
+  let html = readFileSync(file, 'utf8');
+  const links = html.match(linkRe);
+  if (!links) throw new Error(`${file}: no stylesheet links`);
+  const hrefs = [...links[0].matchAll(/href="([^"]+)"/g)].map((m) => m[1]);
+  // pages without a hero (legal pages, thanks, 404) are short: all their CSS goes inline
+  const short = !html.includes('<section class="hero');
+  html = html.replace(links[0], styleTags(file, html, hrefs, short) + '\n');
+  writeFileSync(file, html);
+}
+// the home page keeps its source list in the marker: <!-- @css styles.min.css --> … <!-- /@css -->
+{
+  const file = join(here, 'index.html');
+  let html = readFileSync(file, 'utf8');
+  const open = html.match(/<!-- @css ([^>]+?) -->/), close = '<!-- /@css -->';
+  if (!open || html.indexOf(close) < open.index) throw new Error('index.html: missing <!-- @css … --> marker');
+  const start = open.index + open[0].length, end = html.indexOf(close);
+  html = html.slice(0, start) + '\n' + styleTags(file, html.slice(0, start) + html.slice(end), open[1].split(/\s+/), false) + '\n' + html.slice(end);
+  writeFileSync(file, html);
+}
+console.log(`css: critical inline and page bundles for ${cssPages.length + 1} pages`);
+
+/* ---------- 5. sitemap ---------- */
 const today = new Date().toISOString().slice(0, 10);
 const git = (args) => { try { return execFileSync('git', args, { cwd: here, encoding: 'utf8' }).trim(); } catch { return ''; } };
 const lastmod = (paths) => (git(['status', '--porcelain', '--', ...paths]) ? today : git(['log', '-1', '--format=%cs', '--', ...paths]) || today);
