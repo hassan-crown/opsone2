@@ -1,6 +1,10 @@
 <?php
 
+use App\EInvoicing\Zatca\InvoiceHasher;
+use App\EInvoicing\Zatca\InvoiceSigner;
 use App\Models\Customer;
+use App\Models\EInvoicing\EInvoice;
+use App\Models\Flow;
 use App\Models\Order;
 use Carbon\CarbonImmutable;
 use Database\Seeders\ShowcaseSeeder;
@@ -45,6 +49,17 @@ it('seeds a coherent history and keeps the ledger and stock invariants', functio
         ->and(DB::table('payments')->count())->toBeGreaterThan(5)
         ->and(DB::table('site_page_locales')->whereNotNull('published_version_id')->count())->toBeGreaterThanOrEqual(10);
 
+    // ADR-0041: every channel is represented, and the field rep sold, visited and earned through the dispatched leads.
+    $rep = (int) DB::table('users')->where('email', 'sami.khaled@opsone-demo.test')->value('id');
+    expect(Order::query()->distinct()->pluck('sales_channel')->map(fn ($c) => $c instanceof BackedEnum ? $c->value : $c)->sort()->values()->all())
+        ->toBe(['field_sales', 'online_store', 'showroom'])
+        ->and(Order::query()->where('seller_id', $rep)->count())->toBe(6)
+        ->and(DB::table('field_assignments')->where('rep_id', $rep)->count())->toBe(9)
+        ->and(DB::table('sales_visits')->whereNotNull('finished_at')->count())->toBe(5)
+        ->and(DB::table('order_sales')->where('user_id', $rep)->where('owner_source', 'seller')->count())->toBe(3)
+        ->and(DB::table('discount_limits')->where('membership_id', DB::table('memberships')->where('user_id', $rep)->value('id'))->value('custom_bp'))->toBe(300)
+        ->and(DB::table('member_grants')->where('effect', 'deny')->where('permission', 'P-32')->count())->toBe(1);
+
     // Money: every journal sums to what its kind allows; a reversal negates the journal it names.
     foreach (DB::table('money_journals')->get() as $j) {
         $sum = (int) DB::table('money_entries')->where('journal_id', $j->id)->sum('amount_minor');
@@ -77,6 +92,42 @@ it('seeds a coherent history and keeps the ledger and stock invariants', functio
         ->and(DB::table('customer_messages')->where('status', 'queued')->count())->toBe(0)
         ->and(DB::table('customer_messages as m')->join('customers as c', 'c.id', '=', 'm.customer_id')->whereNotNull('c.whatsapp_opt_out_at')->where('m.channel', 'whatsapp')->count())->toBe(0);
 
+    // ZATCA e-invoicing (ADR-0033): invoices on first payments, notes, phase 1 then a signed chain after onboarding.
+    $einvoices = EInvoice::query()->orderBy('id')->get();
+    expect($einvoices->where('kind', 'invoice')->count())->toBeGreaterThan(3)
+        ->and($einvoices->where('kind', 'credit_note')->count())->toBeGreaterThanOrEqual(2)
+        ->and($einvoices->where('kind', 'debit_note')->count())->toBe(1)
+        ->and($einvoices->where('submission_status', 'not_required')->count())->toBeGreaterThan(0)
+        ->and($einvoices->where('signed', true)->count())->toBeGreaterThan(0)
+        ->and($einvoices->whereIn('submission_status', ['pending', 'failed', 'rejected'])->count())->toBe(0)
+        ->and(DB::table('zatca_devices')->where('status', 'active')->count())->toBe(1);
+    foreach ($einvoices->groupBy(fn ($i) => (string) $i->device_id) as $chain) {
+        $previous = InvoiceHasher::FIRST_PIH;
+        foreach ($chain->sortBy('icv')->values() as $n => $invoice) {
+            expect($invoice->icv)->toBe($n + 1)->and($invoice->previous_hash)->toBe($previous);
+            $previous = $invoice->hash;
+        }
+    }
+    foreach ($einvoices->where('signed', true) as $invoice) {
+        expect(InvoiceSigner::verify($invoice->xml)['valid'])->toBeTrue();
+    }
+
+    // ADR-0038: the retail flow with external workshops — workshop purchase orders confirmed (sent) and received,
+    // each verifying its order's workshop actions from the purchase order only.
+    expect(Flow::current()->template_key)->toBe('retail_outsourced')
+        ->and(DB::table('suppliers')->where('is_workshop', true)->count())->toBe(3);
+    $workshopPos = DB::table('purchase_orders')->whereIn('supplier_id', DB::table('suppliers')->where('is_workshop', true)->select('id'))->get();
+    expect($workshopPos->where('status', '!=', 'draft')->count())->toBeGreaterThan(0);
+    foreach (DB::table('order_actions')->where('type', 'workshop_order')->where('status', 'verified')->get() as $action) {
+        expect(json_decode((string) $action->source_reference, true)['type'] ?? null)->toBeIn(['purchase_order', 'purchase_receipt']);
+    }
+
+    // Payment plans (ADR-0037): two plans, every agreed order copied one of them, and 40/40/20 orders have a second
+    // payment due when installation starts.
+    expect(DB::table('payment_plans')->orderBy('key')->pluck('key')->all())->toBe(['fifty_fifty', 'forty_forty_twenty'])
+        ->and(DB::table('order_finances')->whereNotNull('agreement_id')->whereNotIn('payment_plan_key', ['fifty_fifty', 'forty_forty_twenty'])->count())->toBe(0)
+        ->and(DB::table('order_dues')->where('reference', 'second')->where('stage_key', '!=', 'install')->count())->toBe(0);
+
     // Gapless numbering: receipts follow each other without holes.
     $numbers = DB::table('receipts')->orderBy('id')->pluck('number')->map(fn ($n) => (int) substr((string) $n, -6))->all();
     expect($numbers)->toBe(range(1, count($numbers)));
@@ -84,6 +135,16 @@ it('seeds a coherent history and keeps the ledger and stock invariants', functio
     // E-signatures (ADR-0029): signed quotes/contracts with their signed PDF, and documents awaiting signature with a live link.
     expect(DB::table('document_signatures')->whereNotNull('signed_pdf_id')->count())->toBeGreaterThanOrEqual(3)
         ->and(DB::table('document_sign_links')->whereNull('used_at')->whereNull('revoked_at')->count())->toBeGreaterThanOrEqual(2);
+
+    // Installation field app (ADR-0036): finished visits each with before/after photos and a signature.
+    $finished = DB::table('installation_visits')->whereNotNull('finished_at')->get();
+    expect($finished->count())->toBeGreaterThanOrEqual(1);
+    foreach ($finished as $visit) {
+        expect($visit->signed_at)->not->toBeNull()
+            ->and(DB::table('installation_photos')->where('installation_visit_id', $visit->id)->where('phase', 'before')->exists())->toBeTrue()
+            ->and(DB::table('installation_photos')->where('installation_visit_id', $visit->id)->where('phase', 'after')->exists())->toBeTrue()
+            ->and(DB::table('appointments')->where('id', $visit->appointment_id)->value('status'))->toBe('done');
+    }
 });
 
 it('refuses to run outside the local and testing environments', function () {

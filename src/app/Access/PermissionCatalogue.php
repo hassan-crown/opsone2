@@ -6,7 +6,8 @@ use App\Access\Enums\Audience;
 use App\Access\Enums\Scope;
 
 /**
- * Permission catalogue generated from «مصفوفة الصلاحيات» v1.1 (P-01..P-102).
+ * Permission catalogue generated from «مصفوفة الصلاحيات» v1.1 (P-01..P-102, plus P-103 from ADR-0035 and P-104 from
+ * ADR-0037).
  *
  * - `audience`: who the action belongs to. Only `staff` and `self` are evaluated by the facility Gate;
  *   `customer`, `public` and `platform` actions are served by their own guards (customer portal, public site,
@@ -101,8 +102,8 @@ final class PermissionCatalogue
             'audience' => 'staff',
             'ar' => 'إنشاء عميل أو اهتمام',
             'en' => 'Create a customer or interest',
-            'scopes' => ['branches', 'region', 'tenant'],
-            'roles' => ['owner', 'manager', 'sales'],
+            'scopes' => ['assigned', 'branches', 'region', 'tenant'],
+            'roles' => ['owner', 'manager', 'sales', 'field_sales'],
             'capability' => null,
         ],
         'P-10' => [
@@ -111,7 +112,7 @@ final class PermissionCatalogue
             'ar' => 'تعديل بيانات العميل وعناوينه وبياناته التجارية وأشخاص اتصاله',
             'en' => 'Edit customer data, addresses, business details and contacts',
             'scopes' => ['own', 'assigned', 'department', 'branches', 'region', 'tenant'],
-            'roles' => ['owner', 'manager', 'sales'],
+            'roles' => ['owner', 'manager', 'sales', 'field_sales'],
             'capability' => null,
         ],
         'P-11' => [
@@ -147,7 +148,7 @@ final class PermissionCatalogue
             'ar' => 'تسجيل القياسات والمواصفات',
             'en' => 'Record measurements and specifications',
             'scopes' => ['assigned', 'department', 'branches', 'region', 'tenant'],
-            'roles' => ['owner', 'manager', 'supervisor', 'sales', 'executor'],
+            'roles' => ['owner', 'manager', 'supervisor', 'sales', 'executor', 'field_sales'],
             'capability' => null,
         ],
         'P-15' => [
@@ -155,8 +156,8 @@ final class PermissionCatalogue
             'audience' => 'staff',
             'ar' => 'إنشاء المخصص أو تأكيد الجاهز',
             'en' => 'Create a made-to-order order or confirm a ready-goods order',
-            'scopes' => ['branches', 'region', 'tenant'],
-            'roles' => ['owner', 'manager', 'sales'],
+            'scopes' => ['assigned', 'branches', 'region', 'tenant'],
+            'roles' => ['owner', 'manager', 'sales', 'field_sales'],
             'capability' => null,
         ],
         'P-16' => [
@@ -165,7 +166,7 @@ final class PermissionCatalogue
             'ar' => 'عرض الطلب وملفه المسموح',
             'en' => 'View an order and its permitted file',
             'scopes' => ['own', 'assigned', 'department', 'branches', 'region', 'tenant'],
-            'roles' => ['owner', 'manager', 'supervisor', 'sales', 'finance', 'inventory'],
+            'roles' => ['owner', 'manager', 'supervisor', 'sales', 'finance', 'inventory', 'field_sales'],
             'capability' => null,
         ],
         'P-17' => [
@@ -174,7 +175,7 @@ final class PermissionCatalogue
             'ar' => 'تعديل احتياج الطلب وبنوده غير المعتمدة',
             'en' => 'Edit unapproved order needs and items',
             'scopes' => ['own', 'assigned', 'department', 'branches', 'region', 'tenant'],
-            'roles' => ['owner', 'manager', 'supervisor', 'sales'],
+            'roles' => ['owner', 'manager', 'supervisor', 'sales', 'field_sales'],
             'capability' => null,
         ],
         'P-18' => [
@@ -237,7 +238,7 @@ final class PermissionCatalogue
             'ar' => 'عرض وتنفيذ المهمة المسندة',
             'en' => 'View and execute an assigned task',
             'scopes' => ['assigned', 'department', 'branches', 'region', 'tenant'],
-            'roles' => ['owner', 'manager', 'supervisor', 'sales', 'executor', 'finance', 'inventory'],
+            'roles' => ['owner', 'manager', 'supervisor', 'sales', 'executor', 'finance', 'inventory', 'field_sales'],
             'capability' => null,
         ],
         'P-25' => [
@@ -282,7 +283,7 @@ final class PermissionCatalogue
             'ar' => 'تسعير العرض وخصم موظف الجاهز',
             'en' => 'Price a quote and apply a staff discount on ready goods',
             'scopes' => ['own', 'assigned', 'department', 'branches', 'region', 'tenant'],
-            'roles' => ['owner', 'manager', 'sales'],
+            'roles' => ['owner', 'manager', 'sales', 'field_sales'],
             'capability' => null,
         ],
         'P-30' => [
@@ -291,7 +292,7 @@ final class PermissionCatalogue
             'ar' => 'إرسال عرض أو عقد أو مستند اعتماد',
             'en' => 'Send a quote, contract or approval document',
             'scopes' => ['own', 'assigned', 'department', 'branches', 'region', 'tenant'],
-            'roles' => ['owner', 'manager', 'sales'],
+            'roles' => ['owner', 'manager', 'sales', 'field_sales'],
             'capability' => null,
         ],
         'P-31' => [
@@ -309,7 +310,7 @@ final class PermissionCatalogue
             'ar' => 'إعداد عقد من اتفاق أو ملف خارجي',
             'en' => 'Prepare a contract from an agreement or external file',
             'scopes' => ['own', 'assigned', 'department', 'branches', 'region', 'tenant'],
-            'roles' => ['owner', 'manager', 'sales'],
+            'roles' => ['owner', 'manager', 'sales', 'field_sales'],
             'capability' => null,
         ],
         'P-33' => [
@@ -354,7 +355,7 @@ final class PermissionCatalogue
             'ar' => 'عرض قيمة الاتفاق والتحصيل والمستحق',
             'en' => 'View agreement value, collections and dues',
             'scopes' => ['own', 'assigned', 'department', 'branches', 'region', 'tenant'],
-            'roles' => ['owner', 'manager', 'sales', 'finance'],
+            'roles' => ['owner', 'manager', 'sales', 'finance', 'field_sales'],
             'capability' => null,
         ],
         'P-38' => [
@@ -507,7 +508,7 @@ final class PermissionCatalogue
             'ar' => 'اقتراح وتأكيد وتعديل موعد',
             'en' => 'Propose, confirm and change an appointment',
             'scopes' => ['own', 'assigned', 'department', 'branches', 'region', 'tenant'],
-            'roles' => ['owner', 'manager', 'supervisor', 'sales'],
+            'roles' => ['owner', 'manager', 'supervisor', 'sales', 'field_sales'],
             'capability' => null,
         ],
         'P-55' => [
@@ -867,8 +868,8 @@ final class PermissionCatalogue
             'ar' => 'عرض كشوف المبيعات والعمولات',
             'en' => 'View sales and commission statements',
             'scopes' => ['own', 'assigned', 'department', 'branches', 'region', 'tenant'],
-            'roles' => ['owner', 'manager', 'finance', 'sales'],
-            'role_scopes' => ['sales' => 'own'],
+            'roles' => ['owner', 'manager', 'finance', 'sales', 'field_sales'],
+            'role_scopes' => ['sales' => 'own', 'field_sales' => 'own'],
             'capability' => null,
         ],
         'P-95' => [
@@ -943,10 +944,50 @@ final class PermissionCatalogue
             'roles' => ['owner', 'manager'],
             'capability' => 'ready_goods',
         ],
+        // Added after matrix v1.1 by the product owner's decision on debt at closure (ADR-0035).
+        'P-103' => [
+            'group' => 'finance',
+            'audience' => 'staff',
+            'ar' => 'شطب الرصيد المستحق على العميل أو عكس الشطب',
+            'en' => 'Write off a customer\'s outstanding balance or reverse the write-off',
+            'scopes' => ['own', 'assigned', 'department', 'branches', 'region', 'tenant'],
+            'roles' => ['owner'],
+            'capability' => null,
+        ],
+        // ADR-0037: owner-level business rules (payment plans, reminders, clauses, message templates, task SLA,
+        // numbering). Owner only by default; every change is audited.
+        'P-104' => [
+            'group' => 'organization',
+            'audience' => 'staff',
+            'ar' => 'تهيئة قواعد العمل (خطط الدفع، التذكير، البنود، الرسائل، المهلة، الترقيم)',
+            'en' => 'Configure business rules (payment plans, reminders, clauses, messages, SLA, numbering)',
+            'scopes' => ['tenant'],
+            'roles' => ['owner'],
+            'capability' => null,
+        ],
+        // Not in matrix v1.1: field sales (ADR-0041).
+        'P-105' => [
+            'group' => 'operations',
+            'audience' => 'staff',
+            'ar' => 'توزيع الاهتمامات وطلبات المواعيد على البائعين الميدانيين',
+            'en' => 'Dispatch leads and appointment requests to field sales reps',
+            'scopes' => ['branches', 'region', 'tenant'],
+            'roles' => ['owner', 'manager', 'supervisor'],
+            'capability' => null,
+        ],
+        'P-106' => [
+            'group' => 'orders',
+            'audience' => 'staff',
+            'ar' => 'تعديل قناة البيع والبائع الميداني للطلب',
+            'en' => 'Change an order\'s sales channel and field seller',
+            'scopes' => ['branches', 'region', 'tenant'],
+            'roles' => ['owner', 'manager'],
+            'capability' => null,
+        ],
     ];
 
     /**
-     * Default role templates (ر1..ر8). `scopes` is the role's preferred default scope order.
+     * Default role templates (ر1..ر8, plus the field sales rep of ADR-0041). `scopes` is the role's preferred default scope order.
      *
      * @var array<string, array{ar: string, en: string, scopes: list<string>}>
      */
@@ -959,6 +1000,8 @@ final class PermissionCatalogue
         'finance' => ['ar' => 'مسؤول مالي', 'en' => 'Finance officer', 'scopes' => ['branches']],
         'inventory' => ['ar' => 'مخزون وتوريد', 'en' => 'Inventory and procurement', 'scopes' => ['branches']],
         'content' => ['ar' => 'محتوى', 'en' => 'Content', 'scopes' => ['tenant']],
+        // ADR-0041: least privilege for the rep — their own leads, visits, customers and orders, no finance admin.
+        'field_sales' => ['ar' => 'بائع ميداني', 'en' => 'Field sales rep', 'scopes' => ['assigned', 'own']],
     ];
 
     /**

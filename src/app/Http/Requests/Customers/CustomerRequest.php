@@ -32,7 +32,7 @@ class CustomerRequest extends FormRequest
     protected function prepareForValidation(): void
     {
         $this->merge(CustomerData::normalize($this->only([
-            'kind', 'mobile', 'email', 'office_phone', 'commercial_registration', 'vat_number', 'internal_notes', 'preferred_channel',
+            'kind', 'mobile', 'email', 'office_phone', 'commercial_registration', 'vat_number', 'internal_notes', 'preferred_channel', 'national_address',
         ])));
     }
 
@@ -64,6 +64,14 @@ class CustomerRequest extends FormRequest
             'commercial_registration' => $organization ? ['nullable', new SaudiCommercialRegistration] : ['prohibited'],
             'vat_number' => $organization ? ['nullable', new SaudiVatNumber] : ['prohibited'],
             'office_phone' => $organization ? ['nullable', new PhoneNumber(false)] : ['prohibited'],
+            // Saudi national address, needed for standard (B2B) tax invoices (ADR-0033).
+            'national_address' => $organization ? ['nullable', 'array:'.implode(',', CustomerData::ADDRESS_PARTS)] : ['prohibited'],
+            'national_address.street' => ['nullable', 'string', 'max:120'],
+            'national_address.building_number' => ['nullable', 'regex:/^\d{4}$/'],
+            'national_address.additional_number' => ['nullable', 'regex:/^\d{4}$/'],
+            'national_address.district' => ['nullable', 'string', 'max:120'],
+            'national_address.city' => ['nullable', 'string', 'max:80'],
+            'national_address.postal_code' => ['nullable', 'regex:/^\d{5}$/'],
         ];
     }
 

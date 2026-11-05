@@ -5,6 +5,7 @@ import {
     ListChecks,
     Receipt,
     CalendarDays,
+    CalendarPlus,
     Inbox,
     LayoutGrid,
     Package,
@@ -20,8 +21,16 @@ import {
     ShoppingBag,
     BarChart3,
     Gauge,
+    Factory,
+    MapPinned,
+    Smartphone,
+    UsersRound,
 } from 'lucide-react';
 import CommissionController from '@/actions/App/Http/Controllers/Commissions/CommissionController';
+import AppointmentRequestController from '@/actions/App/Http/Controllers/AppointmentRequests/AppointmentRequestController';
+import FieldController from '@/actions/App/Http/Controllers/Field/FieldController';
+import FieldDispatchController from '@/actions/App/Http/Controllers/FieldSales/FieldDispatchController';
+import FieldTeamController from '@/actions/App/Http/Controllers/FieldSales/FieldTeamController';
 import CalendarController from '@/actions/App/Http/Controllers/Calendar/CalendarController';
 import CatalogHomeController from '@/actions/App/Http/Controllers/Catalog/CatalogHomeController';
 import SitePageController from '@/actions/App/Http/Controllers/Site/SitePageController';
@@ -37,6 +46,7 @@ import ReturnController from '@/actions/App/Http/Controllers/Returns/ReturnContr
 import ExecutiveDashboardController from '@/actions/App/Http/Controllers/Reports/ExecutiveDashboardController';
 import ReportsController from '@/actions/App/Http/Controllers/Reports/ReportsController';
 import PurchaseController from '@/actions/App/Http/Controllers/Procurement/PurchaseController';
+import WorkshopBoardController from '@/actions/App/Http/Controllers/Procurement/WorkshopBoardController';
 import OrderController from '@/actions/App/Http/Controllers/Orders/OrderController';
 import InterestController from '@/actions/App/Http/Controllers/Customers/InterestController';
 import AuditLogController from '@/actions/App/Http/Controllers/Audit/AuditLogController';
@@ -59,6 +69,10 @@ export type LocalizedNavItem = Omit<NavItem, 'title'> & {
         | 'flow'
         | 'tasks'
         | 'calendar'
+        | 'appointmentRequests'
+        | 'fieldSales'
+        | 'fieldTeam'
+        | 'fieldApp'
         | 'finance'
         | 'commissions'
         | 'stock'
@@ -100,6 +114,30 @@ export const mainNav: LocalizedNavItem[] = [
         access: 'calendar',
     },
     {
+        label: 'appointment_requests.nav',
+        href: AppointmentRequestController.index(),
+        icon: CalendarPlus,
+        access: 'appointmentRequests',
+    },
+    {
+        label: 'field_sales.nav',
+        href: FieldDispatchController.index(),
+        icon: MapPinned,
+        access: 'fieldSales',
+    },
+    {
+        label: 'field_sales.team.nav',
+        href: FieldTeamController.index(),
+        icon: UsersRound,
+        access: 'fieldTeam',
+    },
+    {
+        label: 'field_sales.nav_app',
+        href: FieldController.index(),
+        icon: Smartphone,
+        access: 'fieldApp',
+    },
+    {
         label: 'finance.nav',
         href: FinanceHomeController.index(),
         icon: Receipt,
@@ -115,6 +153,12 @@ export const mainNav: LocalizedNavItem[] = [
         label: 'procurement.nav',
         href: PurchaseController.index(),
         icon: Truck,
+        access: 'procurement',
+    },
+    {
+        label: 'workshops.nav',
+        href: WorkshopBoardController.index(),
+        icon: Factory,
         access: 'procurement',
     },
     {

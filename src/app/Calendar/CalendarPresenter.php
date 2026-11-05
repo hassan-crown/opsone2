@@ -4,7 +4,9 @@ namespace App\Calendar;
 
 use App\Access\Access;
 use App\Access\Permission;
+use App\Installation\InstallationStatus;
 use App\Models\Appointment;
+use App\Models\Installation\InstallationVisit;
 use App\Models\User;
 use App\Organization\OrgPresenter;
 use App\Workflow\AppointmentBooking;
@@ -73,6 +75,9 @@ final class CalendarPresenter
             'can_manage' => $manage,
             'maps_url' => $a->mapsUrl(),
             'address' => $a->address,
+            // ADR-0036: where the installation stands on site (null for other kinds).
+            'installation' => $a->kind === 'installation' ? InstallationStatus::of($a->relationLoaded('installationVisit')
+                ? $a->installationVisit : InstallationVisit::query()->where('appointment_id', $a->id)->first())->value : null,
         ];
     }
 
@@ -82,7 +87,7 @@ final class CalendarPresenter
      */
     public static function clashes(User $viewer, Collection $clashes): array
     {
-        (new EloquentCollection($clashes->all()))->loadMissing(['order.branch', 'order.customer', 'members']);
+        (new EloquentCollection($clashes->all()))->loadMissing(['order.branch', 'order.customer', 'members', 'installationVisit']);
         $visible = $clashes->filter(fn (Appointment $a) => self::canSee($viewer, $a))->values();
 
         return [

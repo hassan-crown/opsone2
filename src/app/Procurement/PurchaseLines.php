@@ -5,6 +5,7 @@ namespace App\Procurement;
 use App\Models\Catalog\CatalogMaterial;
 use App\Models\Catalog\CatalogReadyVariant;
 use App\Models\Order;
+use App\Models\OrderLine;
 use App\Models\Procurement\PurchaseOrder;
 use App\Models\Procurement\PurchaseOrderLine;
 use App\Support\Translatable\Translated;
@@ -21,7 +22,8 @@ final class PurchaseLines
     public const PIECE = 'piece';
 
     /**
-     * @param  list<array<string, mixed>>  $lines  {id?, item_type, item_id, quantity_milli, unit_cost_minor?, order_id?}
+     * @param  list<array<string, mixed>>  $lines  {id?, item_type, item_id, quantity_milli, unit_cost_minor?, order_id?} — an
+     *                                             `order_line` item needs its `order_id`
      */
     public function replace(PurchaseOrder $po, array $lines, bool $canCost): void
     {
@@ -52,9 +54,9 @@ final class PurchaseLines
         if ($quantity < 1 || $quantity > Quantity::MAX_MILLI) {
             throw ValidationException::withMessages([$field.'.quantity' => __('procurement.error.quantity')]);
         }
-        [$name, $unit] = $this->item($type, $id, $field);
-
         $orderId = isset($input['order_id']) && $input['order_id'] !== '' ? (int) $input['order_id'] : null;
+        [$name, $unit] = $type === PurchaseOrderLine::ORDER_LINE ? $this->orderLine($id, $orderId, $field) : $this->item($type, $id, $field);
+
         // Only an order of the purchase's own branch (no cross-branch link, no existence oracle on other branches).
         if ($orderId !== null && ! Order::query()->whereKey($orderId)->where('branch_id', $po->branch_id)->exists()) {
             throw ValidationException::withMessages([$field.'.order_id' => __('procurement.error.order_missing')]);
@@ -66,6 +68,32 @@ final class PurchaseLines
         ]);
         PurchaseAmounts::priceLine($line, PurchaseAmounts::vat($po));
         $line->save();
+    }
+
+    /**
+     * A line of the customer's order sent to a workshop (ADR-0038): it must belong to the linked order and still be
+     * on it. Its name is the product (or the need's description) as frozen on the order.
+     *
+     * @return array{0: Translated, 1: string}
+     */
+    private function orderLine(int $id, ?int $orderId, string $field): array
+    {
+        $line = $orderId === null ? null : OrderLine::query()->whereKey($id)->where('order_id', $orderId)->whereNull('removed_at')->first();
+        if ($line === null) {
+            throw ValidationException::withMessages([$field.'.item_id' => __('procurement.error.item_unavailable')]);
+        }
+
+        return [self::orderLineName($line), self::PIECE];
+    }
+
+    public static function orderLineName(OrderLine $line): Translated
+    {
+        $item = (array) ($line->snapshot['item'] ?? []);
+        $name = is_array($item['name'] ?? null) ? $item['name'] : [];
+        $ar = $name['ar'] ?? $line->description;
+        $en = $name['en'] ?? null;
+
+        return Translated::fromArray(['ar' => is_string($ar) && $ar !== '' ? mb_substr($ar, 0, 200) : '—', 'en' => is_string($en) ? mb_substr($en, 0, 200) : null]);
     }
 
     /**

@@ -107,8 +107,9 @@ before launch. No hard-coded hex values in chart code.
 | `collection.transfers_minor` | money | gross | P-37 | money_entries, money_journals | Sum of entries of transfer journals in range, on in-scope orders. |
 | `collection.refunded_minor` | money | gross | P-37 | money_entries, money_journals | Sum of entries of refund journals in range (negative: money that left). |
 | `collection.net_minor` | money | gross | P-37 | money_entries, money_journals | Sum of every entry in range = collected + corrections + transfers + refunded. |
+| `collection.written_off_minor` | money | gross | P-37 | debt_write_offs, debt_write_off_entries | Net debt written off in range (write-offs minus their reversals, ADR-0035); never part of collected or net. |
 | `collection.overdue_minor` | money | gross | P-37 | order_dues, money_entries | Remaining (due − allocated) of dues whose derived date is before today. |
-| `collection.open_minor` | money | gross | P-37 | order_dues, money_entries | Remaining of all open dues (aged or not). |
+| `collection.open_minor` | money | gross | P-37 | order_dues, money_entries, debt_write_off_entries | Remaining of all open dues (aged or not), after write-offs. |
 
 ### `refunds`
 
@@ -160,6 +161,8 @@ The dashboard also shows `sales.agreed_gross_minor`, `collection.collected_minor
 | `dashboard.interest_conversion_percent` | percent | none | — | interests | Of the interests created in range, the share now converted × 100, one decimal; 0 when none. |
 | `dashboard.orders_late` | count | none | — | order_stages, orders | Active orders whose in-progress stage started more than its target days ago. |
 | `dashboard.installations_next_14d` | count | none | — | appointments | Non-cancelled installations from today through the 14th following day, independent of the range. |
+| `dashboard.installation_first_visit_percent` | percent | none | — | installation_visits | Of the installation visits finished in range, the share that was the order's first installation visit and finished without a remark × 100, one decimal; absent when none finished. Also per team (ADR-0036). |
+| `dashboard.installation_avg_minutes` | count | none | — | installation_visits | Average minutes from arrival to finish of the installation visits finished in range, rounded half up; absent when none finished. Also per team (ADR-0036). |
 
 ### `inventory`
 
@@ -208,3 +211,25 @@ The dashboard also shows `sales.agreed_gross_minor`, `collection.collected_minor
 | `store.paid_total_minor` | money | gross | P-37 | store_checkouts | Σ total_minor of checkouts paid in range. |
 | `store.discount_minor` | money | gross | P-37 | store_checkouts | Σ discount_minor of those checkouts. |
 | `store.conversion_percent` | percent | none | — | store_checkouts | paid ÷ created in range × 100, one decimal. |
+
+### `channels` (ADR-0041)
+
+| Metric | Kind | VAT | Grant | Sources | Formula |
+|---|---|---|---|---|---|
+| `channels.orders_created` | count | none | — | orders | Orders created in range (every channel); per channel in the table. |
+| `channels.booked_minor` | money | gross | P-37 | agreements, store_checkouts | Booked sales = sales.agreed_gross_minor (custom orders first approved in range) + store.paid_total_minor (checkouts paid in range); per channel by orders.sales_channel. |
+| `channels.collected_minor` | money | gross | P-37 | money_entries, money_journals | collection.net_minor (every entry in range: collected + corrections + transfers + refunded); per channel by orders.sales_channel. |
+| `channels.field_sales_share_percent` | percent | none | P-37 | agreements, store_checkouts | Booked of field_sales orders ÷ booked of every channel × 100, one decimal (0 when nothing was booked). |
+
+### `field_sales` (ADR-0041)
+
+| Metric | Kind | VAT | Grant | Sources | Formula |
+|---|---|---|---|---|---|
+| `field_sales.leads_assigned` | count | none | — | field_assignments | Leads dispatched to a rep in range (assigned_at), a re-dispatch counting again for the new rep. |
+| `field_sales.requests_assigned` | count | none | — | field_assignments | Appointment requests dispatched to a rep in range. |
+| `field_sales.visits_done` | count | none | — | sales_visits | Sales visits finished in range (finished_at), by the rep who started them. |
+| `field_sales.conversions` | count | none | — | field_assignments | Dispatched leads whose assignment ended as converted in range (ended_at), credited to the assignment's rep. |
+| `field_sales.conversion_percent` | percent | none | — | field_assignments | conversions ÷ leads_assigned in range × 100, one decimal (0 without assigned leads). |
+| `field_sales.orders` | count | none | — | orders | Orders with sales_channel field_sales created in range, by seller. |
+| `field_sales.booked_minor` | money | gross | P-37 | agreements | channels.booked_minor restricted to field_sales orders, by seller. |
+| `field_sales.commission_minor` | money | none | P-94 | commission_entries | commissions.accrued_minor of field_sales orders whose entry belongs to the order's seller, created in range. |

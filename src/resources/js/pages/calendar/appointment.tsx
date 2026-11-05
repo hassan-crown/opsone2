@@ -38,6 +38,7 @@ import {
 import { Spinner } from '@/components/ui/spinner';
 import { useLocale, useT } from '@/lib/i18n';
 import type { TranslationKey } from '@/lib/i18n';
+import { StatusBadge as InstallationBadge } from '@/components/field/field-bits';
 
 type Detail = AppointmentRow & {
     lock_version: number;
@@ -260,11 +261,7 @@ export default function ApptChange({
                         })}
                         className="inline-flex min-h-11 items-center gap-1 text-link hover:underline"
                     >
-                        <Icon
-                            icon={ArrowLeft}
-                            size="sm"
-                            className="rtl:rotate-180"
-                        />
+                        <Icon icon={ArrowLeft} size="sm" />
                         {t('appointments.back')}
                     </Link>
                 }
@@ -390,6 +387,9 @@ export default function ApptChange({
                 <Card>
                     <div className="flex flex-wrap items-center gap-2">
                         <StatusBadge status={a.status} />
+                        {a.installation && (
+                            <InstallationBadge status={a.installation} />
+                        )}
                         {a.no_show && (
                             <span className="text-caption text-warning-text">
                                 {t('appointments.no_show')}

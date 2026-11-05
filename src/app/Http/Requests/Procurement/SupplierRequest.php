@@ -43,6 +43,8 @@ class SupplierRequest extends AgreementWriteRequest
             }, 'unique:suppliers,vat_number'.($id instanceof Supplier ? ','.$id->id : '')],
             'supplies' => ['nullable', 'string', 'max:500'],
             'notes' => ['nullable', 'string', 'max:2000'],
+            'is_workshop' => ['sometimes', 'boolean'],
+            'lead_days' => ['nullable', 'integer', 'min:1', 'max:365'],
         ];
     }
 
@@ -57,6 +59,8 @@ class SupplierRequest extends AgreementWriteRequest
             'name' => Translated::fromArray($this->validated('name'))->toArray(),
             'contact_name' => $text('contact_name'), 'phone' => $text('phone'), 'email' => $text('email'),
             'vat_number' => $text('vat_number'), 'supplies' => $text('supplies'), 'notes' => $text('notes'),
+            'is_workshop' => (bool) $this->validated('is_workshop', false),
+            'lead_days' => $this->filled('lead_days') ? (int) $this->validated('lead_days') : null,
         ];
     }
 }

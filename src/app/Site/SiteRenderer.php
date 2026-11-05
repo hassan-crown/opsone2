@@ -3,6 +3,8 @@
 namespace App\Site;
 
 use App\Access\Contracts\LicenseCapabilities;
+use App\Models\AppointmentRequest;
+use App\Models\AppointmentRequestSettings;
 use App\Models\Facility;
 use App\Models\Site\SitePage;
 use App\Models\Site\SitePageVersion;
@@ -44,6 +46,9 @@ final class SiteRenderer
             }
             if ($section['type'] === 'ready_goods' && ! $this->license->allows('ready_goods')) {
                 continue; // the store is a licensed capability: no showcase without it
+            }
+            if ($section['type'] === 'appointment' && ! AppointmentRequestSettings::current()->enabledFor(AppointmentRequest::SOURCE_SITE)) {
+                continue; // switched off in the settings (ADR-0039): no form that would only refuse
             }
             $sections[] = $section;
         }
@@ -88,6 +93,8 @@ final class SiteRenderer
             'media' => fn (?string $uuid) => $this->mediaUrl($uuid),
             'linkUrl' => fn (?string $link) => $this->linkUrl($link, $locale),
             'leadAction' => route('site.lead', ['locale' => $locale]),
+            'appointmentAction' => route('site.appointment', ['locale' => $locale]),
+            'appointmentForm' => AppointmentRequestSettings::current(),
         ]);
     }
 

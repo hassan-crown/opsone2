@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Calendar;
 
 use App\Access\Access;
 use App\Access\Permission;
+use App\AppointmentRequests\AppointmentRequests;
 use App\Calendar\CalendarPresenter;
 use App\Customers\CustomerPresenter;
 use App\Http\Controllers\Controller;
@@ -77,7 +78,14 @@ class CalendarController extends Controller
         $user = $request->user();
         abort_unless(Access::can($user, Permission::P54), 403);
 
-        $orders = OrderAccess::visible($user)->with(['customer:id,name', 'branch'])->orderByDesc('orders.id')->limit(150)->get()
+        // ADR-0039: opened from a customer appointment request — prefilled, and limited to that customer's orders.
+        $from = $request->filled('request') ? AppointmentRequests::find($user, $request->string('request')->toString()) : null;
+        abort_if($from !== null && ! $from->status->isOpen(), 404);
+
+        $orders = OrderAccess::visible($user)->with(['customer:id,name', 'branch'])
+            ->when($from?->order_id !== null, fn ($q) => $q->whereKey($from->order_id))
+            ->when($from !== null && $from->order_id === null && $from->customer_id !== null, fn ($q) => $q->where('orders.customer_id', $from->customer_id))
+            ->orderByDesc('orders.id')->limit(150)->get()
             ->filter(function (Order $o) use ($user) {
                 $probe = new Appointment(['order_id' => $o->id, 'created_by' => $user->id]);
                 $probe->setRelation('order', $o);
@@ -91,12 +99,18 @@ class CalendarController extends Controller
             'orders' => array_values($orders->map(fn (Order $o) => [
                 'id' => $o->id, 'number' => $o->number, 'customer' => $o->customer->name, 'branch' => OrgPresenter::name($o->branch),
             ])->all()),
-            'orderId' => $request->integer('order') ?: null,
+            'orderId' => $from->order_id ?? ($request->integer('order') ?: null),
             'members' => CustomerPresenter::memberOptions(),
             'slotMinutes' => $settings->appointment_slot_minutes,
             'allowsConflicts' => $settings->allowsConflicts(),
             'timezone' => AppointmentBooking::timezone(),
-            'date' => $request->string('date')->toString() ?: null,
+            'date' => $from?->preferred_from?->format('Y-m-d') ?? ($request->string('date')->toString() ?: null),
+            'fromRequest' => $from === null ? null : [
+                'id' => $from->id, 'reference' => $from->reference, 'kind' => $from->kind, 'name' => $from->name, 'phone' => $from->phone,
+                'address' => trim(implode('، ', array_filter([$from->city, $from->address]))),
+                'preferred_from' => $from->preferred_from?->format('Y-m-d'), 'preferred_to' => $from->preferred_to?->format('Y-m-d'),
+                'time_of_day' => $from->time_of_day, 'note' => $from->note,
+            ],
         ]);
     }
 

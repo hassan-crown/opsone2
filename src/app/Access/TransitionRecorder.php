@@ -22,6 +22,9 @@ final class TransitionRecorder
 
     public const SOURCE_PROVISIONING = 'provisioning';
 
+    /** ADR-0042: the system acting on behalf of an automation rule. */
+    public const SOURCE_AUTOMATION = 'automation';
+
     /**
      * @param  array<string, mixed>  $context
      */

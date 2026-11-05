@@ -5,6 +5,10 @@ use App\Actions\StateMachines\M08Document\T05ExpireDocuments;
 use App\Actions\StateMachines\M37OwnershipTransfer\T04ExpireOwnershipTransfer;
 use App\Actions\StateMachines\M38SupportAccess\T00RequestSupportAccess;
 use App\Actions\StateMachines\M38SupportAccess\T04ExpireSupportAccess;
+use App\AppointmentRequests\AppointmentRequestSla;
+use App\Automation\AutomationTimers;
+use App\EInvoicing\MissingInvoices;
+use App\FieldSales\FieldAssignmentSla;
 use App\Finance\CollectionReminders;
 use App\Models\Membership;
 use App\Models\OutboxMessage;
@@ -12,7 +16,9 @@ use App\Models\SupportRequest;
 use App\Models\User;
 use App\Notifications\OutboxDeliverer;
 use App\Notifications\OutboxStatus;
+use App\Procurement\WorkshopLateAlerts;
 use App\Reports\Export\ReportExports;
+use App\Tasks\TaskSla;
 use App\Whatsapp\CustomerEvents;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
@@ -45,6 +51,35 @@ Artisan::command('finance:remind', function (CollectionReminders $reminders) {
 
 Schedule::command('finance:remind')->hourly()->withoutOverlapping();
 
+// Task SLA (ADR-0037): `work.reminder` on the due day, `work.escalated` once late, inside the reminder hours.
+Artisan::command('tasks:remind', function (TaskSla $sla) {
+    $this->info(sprintf('Created %d task notice(s).', $sla->run(now())));
+})->purpose('Remind assignees of tasks due and escalate late ones (inside the reminder hours)');
+
+Schedule::command('tasks:remind')->hourly()->withoutOverlapping();
+
+// Appointment requests (ADR-0039): `appointment_request.overdue` once an assigned request passed its response time.
+Artisan::command('appointment-requests:remind', function (AppointmentRequestSla $sla) {
+    $this->info(sprintf('Created %d appointment request notice(s).', $sla->run(now())));
+})->purpose('Alert assignees of appointment requests past their response time (inside the reminder hours)');
+
+Schedule::command('appointment-requests:remind')->hourly()->withoutOverlapping();
+
+// Automation rules (ADR-0042): time-based triggers (due soon/overdue, idle leads, late tasks) inside the reminder hours,
+// and events whose processing job was lost are queued again.
+Artisan::command('automation:tick', function (AutomationTimers $timers) {
+    $this->info(sprintf('Recorded %d automation event(s).', $timers->tick(now())));
+})->purpose('Raise time-based automation events and re-queue unprocessed ones');
+
+Schedule::command('automation:tick')->everyFifteenMinutes()->withoutOverlapping();
+
+// Field sales (ADR-0041): `field_sales.lead_overdue` once a lead dispatched to a rep passed its response time.
+Artisan::command('field-sales:remind', function (FieldAssignmentSla $sla) {
+    $this->info(sprintf('Created %d field sales notice(s).', $sla->run(now())));
+})->purpose('Alert field reps and dispatchers of leads past their response time (inside the reminder hours)');
+
+Schedule::command('field-sales:remind')->hourly()->withoutOverlapping();
+
 // Outbox safety net: re-queue messages whose delivery job was lost, and drop delivered ones after 30 days.
 Artisan::command('outbox:process', function (OutboxDeliverer $deliverer) {
     $this->info(sprintf('Re-queued %d outbound message(s).', $deliverer->redispatchDue()));
@@ -60,6 +95,21 @@ Artisan::command('outbox:prune', function () {
 
 Schedule::command('outbox:process')->everyMinute()->withoutOverlapping();
 Schedule::command('outbox:prune')->daily();
+
+// ZATCA e-invoicing (ADR-0033): invoices the payment listener could not issue (blocked or failed) are retried.
+Artisan::command('einvoicing:sweep', function (MissingInvoices $missing) {
+    $result = $missing->sweep();
+    $this->info(sprintf('Issued %d e-invoice(s); blocked: %s.', $result['issued'], json_encode($result['blocked'])));
+})->purpose('Issue tax invoices missing for paid orders');
+
+Schedule::command('einvoicing:sweep')->hourly()->withoutOverlapping();
+
+// ADR-0038: open workshop purchase orders past their expected date notify their followers (once per order and date).
+Artisan::command('workshops:late-alerts', function (WorkshopLateAlerts $alerts) {
+    $this->info(sprintf('Sent %d late-workshop notification(s).', $alerts->run()));
+})->purpose('Notify the followers of workshop purchase orders past their expected date');
+
+Schedule::command('workshops:late-alerts')->dailyAt('07:30')->withoutOverlapping();
 
 // OpsOne support access (M-38). Until the central app exists, OpsOne operations use these from the server shell.
 Artisan::command('support:identity {email} {name}', function (string $email, string $name) {
@@ -126,9 +176,9 @@ Artisan::command('reports:purge-exports', function (ReportExports $exports) {
 
 Schedule::command('reports:purge-exports')->hourly()->withoutOverlapping();
 
-// WhatsApp/SMS reminders 24 hours before a confirmed measurement or installation (ADR-0030), inside the reminder hours.
+// WhatsApp/SMS reminders before a confirmed measurement or installation (ADR-0030; lead time ADR-0037), inside the reminder hours.
 Artisan::command('whatsapp:remind', function () {
     $this->info(sprintf('Queued %d appointment reminder(s).', CustomerEvents::remindDue(now())));
-})->purpose('Remind customers 24 hours before a measurement or installation');
+})->purpose('Remind customers before a measurement or installation');
 
 Schedule::command('whatsapp:remind')->hourly()->withoutOverlapping();

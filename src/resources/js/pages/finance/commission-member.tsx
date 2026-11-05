@@ -79,7 +79,7 @@ export default function CommissionMember(initial: Statement) {
                         href={CommissionController.index.url()}
                         className="inline-flex items-center gap-1 text-caption text-weak hover:underline"
                     >
-                        <Icon icon={ArrowLeft} className="rtl:rotate-180" />
+                        <Icon icon={ArrowLeft} />
                         {t('commissions.title')}
                     </Link>
                 }

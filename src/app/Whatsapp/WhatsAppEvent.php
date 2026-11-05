@@ -26,7 +26,13 @@ enum WhatsAppEvent: string
         return array_map(fn (self $case) => $case->value, self::cases());
     }
 
+    /** The approved template name: the facility's own (ADR-0037), else the environment's. */
     public function template(): string
+    {
+        return app(WhatsAppSettings::class)->templateNames()[$this->value] ?? $this->defaultTemplate();
+    }
+
+    public function defaultTemplate(): string
     {
         return (string) config('whatsapp.templates.'.$this->value, config('whatsapp.template_prefix').$this->value);
     }

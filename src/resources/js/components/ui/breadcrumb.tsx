@@ -2,6 +2,7 @@ import { Slot } from "@radix-ui/react-slot"
 import { ChevronRight, MoreHorizontal } from "lucide-react"
 import * as React from "react"
 
+import { Icon } from "@/components/opsone/icon"
 import { cn } from "@/lib/utils"
 
 function Breadcrumb({ ...props }: React.ComponentProps<"nav">) {
@@ -72,10 +73,11 @@ function BreadcrumbSeparator({
       data-slot="breadcrumb-separator"
       role="presentation"
       aria-hidden="true"
-      className={cn("text-weak [&>svg]:size-4 [&>svg]:rtl:-scale-x-100", className)}
+      className={cn("text-weak [&>svg]:size-4", className)}
       {...props}
     >
-      {children ?? <ChevronRight />}
+      {/* Icon mirrors the chevron in RTL, so it points along the reading direction. */}
+      {children ?? <Icon icon={ChevronRight} size="sm" />}
     </li>
   )
 }

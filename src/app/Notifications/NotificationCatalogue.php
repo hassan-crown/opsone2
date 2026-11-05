@@ -68,6 +68,52 @@ final class NotificationCatalogue
             'body' => 'returns.notify.inspected.body',
             'route' => null,
         ],
+        // ADR-0038: a workshop purchase order passed its expected date (once per order and date); opening re-checks
+        // P-46 on the live purchase order.
+        'workshop.late' => [
+            'mandatory' => false,
+            'permission' => Permission::P46,
+            'title' => 'workshops.notify.late.title',
+            'body' => 'workshops.notify.late.body',
+            'route' => null,
+        ],
+        // ADR-0042: a notice an automation rule sends (its own text in `message`); opening re-checks the permission on
+        // the live order, task, lead or appointment request.
+        'automation.order' => [
+            'mandatory' => false,
+            'permission' => Permission::P16,
+            'title' => 'automation.notify.title',
+            'body' => 'automation.notify.body',
+            'route' => null,
+        ],
+        'automation.task' => [
+            'mandatory' => false,
+            'permission' => Permission::P24,
+            'title' => 'automation.notify.title',
+            'body' => 'automation.notify.body',
+            'route' => null,
+        ],
+        'automation.lead' => [
+            'mandatory' => false,
+            'permission' => Permission::P09,
+            'title' => 'automation.notify.title',
+            'body' => 'automation.notify.body',
+            'route' => null,
+        ],
+        'automation.request' => [
+            'mandatory' => false,
+            'permission' => Permission::P54,
+            'title' => 'automation.notify.title',
+            'body' => 'automation.notify.body',
+            'route' => null,
+        ],
+        'automation.notice' => [
+            'mandatory' => false,
+            'permission' => null,
+            'title' => 'automation.notify.title',
+            'body' => 'automation.notify.body',
+            'route' => null,
+        ],
         'work.assigned' => [
             'mandatory' => false,
             'permission' => null,
@@ -79,7 +125,15 @@ final class NotificationCatalogue
             'mandatory' => false,
             'permission' => null,
             'title' => 'notifications.type.work_reminder.title',
-            'body' => null,
+            'body' => 'notifications.type.work_reminder.body',
+            'route' => null,
+        ],
+        // ADR-0037: a task late beyond the facility's escalation days, to its follower; opening re-checks P-24.
+        'work.escalated' => [
+            'mandatory' => false,
+            'permission' => Permission::P24,
+            'title' => 'notifications.type.work_escalated.title',
+            'body' => 'notifications.type.work_escalated.body',
             'route' => null,
         ],
         // P5: work and appointments; opening re-checks P-24 on the live task or appointment.
@@ -95,6 +149,67 @@ final class NotificationCatalogue
             'permission' => Permission::P24,
             'title' => 'notifications.type.task_unassigned.title',
             'body' => 'notifications.type.task_unassigned.body',
+            'route' => null,
+        ],
+        'installation.remark_blocking' => [
+            'mandatory' => true,
+            'permission' => Permission::P16,
+            'title' => 'notifications.type.installation_remark_blocking.title',
+            'body' => 'notifications.type.installation_remark_blocking.body',
+            'route' => null,
+        ],
+        // ADR-0039: a customer appointment request handed to someone, a new one for the order's responsible person and
+        // one still not booked when its response time passed; opening re-checks P-54 on the request.
+        'appointment_request.assigned' => [
+            'mandatory' => false,
+            'permission' => Permission::P54,
+            'title' => 'notifications.type.appointment_request_assigned.title',
+            'body' => 'notifications.type.appointment_request_assigned.body',
+            'route' => null,
+        ],
+        // ADR-0041: a lead or an appointment request dispatched to a field sales rep, and one still open when its
+        // response time passed (to the rep); opening re-checks P-15 on the lead, P-54 on the request.
+        'field_sales.lead_assigned' => [
+            'mandatory' => false,
+            'permission' => Permission::P15,
+            'title' => 'notifications.type.field_sales_lead_assigned.title',
+            'body' => 'notifications.type.field_sales_lead_assigned.body',
+            'route' => null,
+        ],
+        'field_sales.request_assigned' => [
+            'mandatory' => false,
+            'permission' => Permission::P54,
+            'title' => 'notifications.type.field_sales_request_assigned.title',
+            'body' => 'notifications.type.field_sales_request_assigned.body',
+            'route' => null,
+        ],
+        'field_sales.lead_overdue' => [
+            'mandatory' => false,
+            'permission' => Permission::P15,
+            'title' => 'notifications.type.field_sales_lead_overdue.title',
+            'body' => 'notifications.type.field_sales_lead_overdue.body',
+            'route' => null,
+        ],
+        // A rep's dispatched lead/request or workflow task is late: their supervisors, opening the team view (P-105).
+        'field_sales.team_overdue' => [
+            'mandatory' => false,
+            'permission' => Permission::P105,
+            'title' => 'notifications.type.field_sales_team_overdue.title',
+            'body' => 'notifications.type.field_sales_team_overdue.body',
+            'route' => 'field-sales.team',
+        ],
+        'appointment_request.new' => [
+            'mandatory' => false,
+            'permission' => Permission::P54,
+            'title' => 'notifications.type.appointment_request_new.title',
+            'body' => 'notifications.type.appointment_request_new.body',
+            'route' => null,
+        ],
+        'appointment_request.overdue' => [
+            'mandatory' => false,
+            'permission' => Permission::P54,
+            'title' => 'notifications.type.appointment_request_overdue.title',
+            'body' => 'notifications.type.appointment_request_overdue.body',
             'route' => null,
         ],
         'appointment.confirmed' => [

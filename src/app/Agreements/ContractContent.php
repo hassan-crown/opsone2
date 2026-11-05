@@ -2,13 +2,16 @@
 
 namespace App\Agreements;
 
+use App\Enums\DocumentKind;
 use App\Models\Agreements\Agreement;
+use App\Models\EInvoicing\ZatcaSettings;
 use App\Models\Facility;
 use App\Models\Order;
 
 /**
- * A contract built from the agreement (AGR-03, Q-36 c): the parties' data and the agreed lines, value, terms and
- * execution period copied in at preparation, in the facility's default language with the fixed v1 clauses. Missing
+ * A contract built from the agreement (AGR-03, Q-36 c): the parties' data (the facility's registration and VAT number
+ * from the seller tax profile) and the agreed lines, value, terms and execution period copied in at preparation, in
+ * the facility's default language with the facility's clause library (ADR-0037) or the built-in v1 clauses. Missing
  * party data is listed for the preparer and never blocks preparing it (SRS domain 04).
  */
 final class ContractContent
@@ -24,6 +27,7 @@ final class ContractContent
         $customer = $order->customer;
         $language = $facility?->default_locale === 'en' ? 'en' : 'ar';
         $content = $agreement->content;
+        $seller = ZatcaSettings::current();
 
         $nameEn = $facility?->name_en;
         $parties = [
@@ -31,9 +35,9 @@ final class ContractContent
                 'name' => $language === 'en' && (string) $nameEn !== '' ? $nameEn : $facility?->name_ar,
                 'address' => $facility?->address,
                 'phone' => $facility?->contact_phone,
-                // Not held by the facility profile yet (open data gap): shown as missing to the preparer.
-                'commercial_registration' => null,
-                'vat_number' => null,
+                // From the seller tax profile (ZATCA, ADR-0033): one source for invoices and contracts.
+                'commercial_registration' => $seller->commercial_registration,
+                'vat_number' => $seller->vat_number,
             ],
             'customer' => [
                 'name' => $customer->name,
@@ -51,6 +55,8 @@ final class ContractContent
             }
         }
 
+        $library = DocumentClauses::forDocument(DocumentKind::Contract, $order, $content, $language);
+
         return [
             'source' => 'agreement',
             'agreement_version' => $agreement->version,
@@ -62,7 +68,9 @@ final class ContractContent
             'vat' => $content['vat'] ?? [],
             'execution_days' => $content['execution_days'] ?? null,
             'agreement_terms' => $content['terms'] ?? null,
-            'clauses' => array_map(fn (int $i) => __("agreements.contract.clause.{$i}", [], $language), range(1, self::CLAUSES)),
+            // The facility's clause library (ADR-0037), else the built-in v1 clauses.
+            'clauses' => $library['clauses'] !== [] ? $library['clauses'] : array_map(fn (int $i) => __("agreements.contract.clause.{$i}", [], $language), range(1, self::CLAUSES)),
+            'clause_versions' => $library['clause_versions'],
             'terms' => $terms,
         ];
     }

@@ -11,6 +11,7 @@ import {
     TextField,
 } from '@/components/opsone/field';
 import { PageHeader } from '@/components/opsone/page-header';
+import { StickyActions } from '@/components/opsone/sticky-actions';
 import { Table, TableWrap, Td, Th } from '@/components/org/data-table';
 import { Alert, AlertBody, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
@@ -219,14 +220,16 @@ export default function SettingsSales({
                             )}
                         </fieldset>
                         {canEdit && (
-                            <Button
-                                type="submit"
-                                loading={processing}
-                                data-test="save-sales-settings"
-                            >
-                                {processing && <Spinner />}
-                                {t('ui.save')}
-                            </Button>
+                            <StickyActions>
+                                <Button
+                                    type="submit"
+                                    loading={processing}
+                                    data-test="save-sales-settings"
+                                >
+                                    {processing && <Spinner />}
+                                    {t('ui.save')}
+                                </Button>
+                            </StickyActions>
                         )}
                     </>
                 )}
@@ -241,7 +244,8 @@ export default function SettingsSales({
                     title={t('agreements.settings.limits')}
                     description={t('agreements.settings.limits_hint')}
                 />
-                <TableWrap>
+                {/* `relative` keeps the sr-only caption inside the scroll box (it would stick out in RTL). */}
+                <TableWrap className="relative">
                     <Table caption={t('agreements.settings.limits')}>
                         <thead>
                             <tr>

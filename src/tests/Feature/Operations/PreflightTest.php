@@ -6,6 +6,8 @@ use App\Operations\Upgrade\MigrationCatalogue;
 use App\Operations\Upgrade\MigrationKind;
 use App\Operations\Upgrade\Preflight;
 use App\Operations\Upgrade\PreflightCheck;
+use Illuminate\Contracts\Foundation\MaintenanceMode as MaintenanceModeContract;
+use Illuminate\Foundation\CacheBasedMaintenanceMode;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
@@ -26,6 +28,9 @@ beforeEach(function () {
         'ops.backup.key' => BackupKey::generate(),
     ]);
     useCatalogue([database_path('migrations'), $this->extra]);
+    // The default driver writes storage/framework/down, one file shared by every parallel test process: another
+    // process's requests would answer 503 while this test is «down». Keep this test's maintenance mode in memory.
+    app()->instance(MaintenanceModeContract::class, new CacheBasedMaintenanceMode(app('cache'), 'array', 'preflight-maintenance'));
 });
 
 afterEach(function () {
@@ -170,4 +175,21 @@ it('requires a marker on every migration from ADR-0028 on', function () {
             }
         }
     }
+});
+
+it('fails when the fixed portal demo code is set outside a demo environment (audit M-5)', function () {
+    config(['portal.demo_otp' => '424242']);
+    app()->detectEnvironment(fn () => 'production');
+
+    $check = preflight(true)['demo_otp'];
+    expect($check->result)->toBe('fail')
+        ->and($check->message)->not->toContain('424242');
+    $this->artisan('ops:preflight', ['--skip-backup-check' => true])->expectsOutputToContain('Preflight failed')->assertFailed();
+
+    app()->detectEnvironment(fn () => 'demo');
+    expect(preflight(true)['demo_otp']->result)->toBe('warn');
+
+    config(['portal.demo_otp' => '']);
+    app()->detectEnvironment(fn () => 'production');
+    expect(preflight(true)['demo_otp']->result)->toBe('pass');
 });

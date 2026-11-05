@@ -11,6 +11,7 @@ use App\Models\Finance\Receipt;
 use App\Models\Order;
 use App\Models\User;
 use App\Money\Money;
+use Illuminate\Support\Facades\DB;
 use LogicException;
 
 /**
@@ -69,6 +70,9 @@ final class PaymentPosting
         }
 
         $this->notices->receiptIssued($receipt, $orders[$payment->order_id] ?? $payment->order, $actor);
+
+        $event = new PaymentConfirmed($payment->id, array_keys($shares));
+        DB::afterCommit(fn () => event($event));
 
         return $receipt;
     }

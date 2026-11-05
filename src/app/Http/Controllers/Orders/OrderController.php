@@ -13,18 +13,22 @@ use App\Delivery\OrderDeliveryPanel;
 use App\Enums\CustomOrderStatus;
 use App\Enums\OrderKind;
 use App\Enums\ReadyOrderStatus;
+use App\FieldSales\SalesChannelPanel;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Orders\CreateOrderRequest;
 use App\Http\Requests\Orders\UpdateOrderRequest;
+use App\Installation\InstallationPanel;
 use App\Inventory\OrderStockPanel;
 use App\Models\Branch;
 use App\Models\Order;
+use App\Models\OrderNote;
 use App\Models\StateTransition;
 use App\Models\User;
 use App\Orders\OrderAccess;
 use App\Orders\OrderClosurePanel;
 use App\Orders\OrderPicker;
 use App\Orders\OrderPresenter;
+use App\Orders\OrderStageSummary;
 use App\Organization\OrgPresenter;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -85,7 +89,8 @@ class OrderController extends Controller
 
         $page = $query->paginate(self::PER_PAGE)->withQueryString();
 
-        $rows = array_map(fn (Order $o) => OrderPresenter::row($o, $actor), $page->items());
+        $stages = OrderStageSummary::forOrders($page->items());
+        $rows = array_map(fn (Order $o) => OrderPresenter::row($o, $actor) + ['stage' => $stages[$o->id] ?? null], $page->items());
         $meta = CustomerPresenter::meta($page);
 
         if ($this->wantsJson($request)) {
@@ -226,7 +231,12 @@ class OrderController extends Controller
 
         return Inertia::render('orders/show', [
             'order' => $detail,
+            // The header's «current stage → next» strip (custom orders with a workflow; null otherwise).
+            'stage' => OrderStageSummary::forOrder($order),
             'history' => $this->history($order),
+            // ADR-0042: notes added to the order (by automation rules), newest first.
+            'notes' => array_values(OrderNote::query()->where('order_id', $order->id)->orderByDesc('id')->limit(50)->get()
+                ->map(fn (OrderNote $n) => ['id' => $n->id, 'body' => $n->body, 'source' => $n->source, 'rule' => $n->rule_key, 'at' => $n->created_at->toIso8601String()])->all()),
             'members' => CustomerPresenter::memberOptions(),
             'invoiceTypes' => Order::INVOICE_TYPES,
             // P7a: availability, reservations and the stock actions of this order (ADR-0017).
@@ -235,6 +245,10 @@ class OrderController extends Controller
             'delivery' => OrderDeliveryPanel::forOrder($order, $actor),
             // M-04-T07 / M-05-T10 closure and the blocking delivery remarks (M-14-T04).
             'closure' => OrderClosurePanel::forOrder($order, $actor),
+            // ADR-0036: installation visits — status, arrival and duration, photos, signature and remarks.
+            'installation' => app(InstallationPanel::class)->forOrder($order, $actor),
+            // ADR-0041: where it was sold and its field seller (changed with P-106).
+            'salesChannel' => SalesChannelPanel::forOrder($order, $actor),
             // P7 cancellation: the CancelReview entry point and the settlement follow-up state (ADR-0020).
             'cancellation' => OrderCancellationPanel::forOrder($order, $actor),
             // Targets for the transfer dialog; the server still checks P-19 over both branches on preview and apply.

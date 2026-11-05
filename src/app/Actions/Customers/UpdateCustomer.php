@@ -21,7 +21,7 @@ final class UpdateCustomer
 {
     private const FIELDS = [
         'kind', 'name', 'mobile', 'email', 'portal_login_enabled', 'country', 'assignee_id', 'preferred_channel',
-        'internal_notes', 'commercial_registration', 'vat_number', 'office_phone',
+        'internal_notes', 'commercial_registration', 'vat_number', 'office_phone', 'national_address',
     ];
 
     public function __construct(private readonly Authorizer $access) {}
@@ -40,6 +40,14 @@ final class UpdateCustomer
                 $locked->fill($data);
                 $changed = array_keys($locked->getDirty());
                 $before = array_intersect_key($locked->getOriginal(), array_flip($changed));
+                if (in_array('portal_login_enabled', $changed, true)) {
+                    // Turning the workspace off blocks it (a checkout code never reopens it, M-3) and voids the
+                    // activation links already sent (L-9); turning it back on lifts the block.
+                    $locked->portal_blocked_at = $locked->portal_login_enabled ? null : now();
+                    if (! $locked->portal_login_enabled) {
+                        $locked->portal_invite_version++;
+                    }
+                }
                 $locked->save();
 
                 if ($changed !== []) {

@@ -18,6 +18,7 @@ enum AuditAction: string
     case MembershipDisabled = 'membership.disabled';
     case MembershipReactivated = 'membership.reactivated';
     case MembershipAccessUpdated = 'membership.access_updated';
+    case MembershipSessionsRevoked = 'membership.sessions_revoked';
     case RoleTemplateUpdated = 'role.updated';
 
     case OwnershipTransferRequested = 'ownership.requested';
@@ -102,6 +103,18 @@ enum AuditAction: string
     case OrderClosed = 'order.closed';
     case DeliveryRemarkRecorded = 'delivery.remark_recorded';
     case DeliveryRemarkResolved = 'delivery.remark_resolved';
+    case DeliveryCorrected = 'delivery.corrected';
+    case StockCorrectionReturned = 'stock.correction_returned';
+    case DebtWrittenOff = 'finance.debt_written_off';
+    case DebtWriteOffReversed = 'finance.debt_write_off_reversed';
+
+    case InstallationArrived = 'installation.arrived';
+    case InstallationPhotoAdded = 'installation.photo_added';
+    case InstallationRemarkRecorded = 'installation.remark_recorded';
+    case InstallationRemarkResolved = 'installation.remark_resolved';
+    case InstallationSignatureRequested = 'installation.signature_requested';
+    case InstallationSigned = 'installation.signed';
+    case InstallationFinished = 'installation.finished';
     case OrderReopenedForCorrection = 'order.reopened_for_correction';
     case StageCompleted = 'order.stage_completed';
     case ActionAllowed = 'order.action_allowed';
@@ -129,6 +142,20 @@ enum AuditAction: string
     case FinanceSettingsUpdated = 'finance_settings.updated';
     case CashProofPolicyUpdated = 'finance_settings.cash_proof_updated';
     case DiscountLimitsUpdated = 'discount_limits.updated';
+    case PaymentPlanSaved = 'payment_plan.saved';
+    case PaymentPlanArchived = 'payment_plan.archived';
+    case PaymentPlanChosen = 'payment_plan.chosen';
+    case ReminderSettingsUpdated = 'reminder_settings.updated';
+    case DocumentClauseSaved = 'document_clause.saved';
+    case DocumentClauseArchived = 'document_clause.archived';
+    case MessageTemplateSaved = 'message_template.saved';
+    case MessageTemplateReset = 'message_template.reset';
+    case WhatsappTemplateNamesSaved = 'integrations.whatsapp_templates_saved';
+    case TaskSlaSettingsUpdated = 'task_sla.updated';
+    case NumberFormatSaved = 'number_format.saved';
+    case ConfigReleasePublished = 'config_release.published';
+    case ConfigReleaseRolledBack = 'config_release.rolled_back';
+    case ConfigDraftDiscarded = 'config_release.draft_discarded';
     case DocumentCreated = 'agreement_document.created';
     case DocumentDraftUpdated = 'agreement_document.draft_updated';
     case DocumentSent = 'agreement_document.sent';
@@ -214,6 +241,9 @@ enum AuditAction: string
     case PurchaseReceived = 'purchase.received';
     case PurchaseAdjusted = 'purchase.adjusted';
     case PurchaseRemainderCancelled = 'purchase.remainder_cancelled';
+    // ADR-0038: the facility's purchase-order document and its emailed copies.
+    case PurchaseDocumentSaved = 'purchase.document_saved';
+    case PurchaseEmailed = 'purchase.emailed';
     // P7 delivery (domain 06, M-14).
     case DeliveryDrafted = 'delivery.drafted';
     case DeliveryConfirmed = 'delivery.confirmed';
@@ -242,6 +272,23 @@ enum AuditAction: string
     case PortalSignInLocked = 'portal.sign_in_locked';
     case CancellationWithdrawn = 'cancellation.withdrawn';
     case AppointmentCustomerChangeRequested = 'appointment.customer_change_requested';
+    // Customer appointment requests (ADR-0039).
+    case AppointmentRequestSubmitted = 'appointment_request.submitted';
+    case AppointmentRequestAssigned = 'appointment_request.assigned';
+    // ADR-0041: field sales.
+    case FieldLeadAssigned = 'field_sales.lead_assigned';
+    case FieldRequestAssigned = 'field_sales.request_assigned';
+    case FieldVisitStarted = 'field_sales.visit_started';
+    case FieldVisitNoted = 'field_sales.visit_noted';
+    case FieldVisitPhotoAdded = 'field_sales.visit_photo_added';
+    case FieldVisitFinished = 'field_sales.visit_finished';
+    case FieldSalesSettingsUpdated = 'field_sales.settings_updated';
+    case FieldRepPermissionChanged = 'field_sales.rep_permission_changed';
+    case FieldRepDiscountChanged = 'field_sales.rep_discount_changed';
+    case OrderSalesChannelChanged = 'order.sales_channel_changed';
+    case AppointmentRequestScheduled = 'appointment_request.scheduled';
+    case AppointmentRequestClosed = 'appointment_request.closed';
+    case AppointmentRequestSettingsUpdated = 'appointment_request.settings_updated';
     // P9 reports and exports (domain 09, SHR-12).
     case ReportExportRequested = 'report_export.requested';
     case ReportExportGenerated = 'report_export.generated';
@@ -293,15 +340,36 @@ enum AuditAction: string
     case FacilityExportRequested = 'ops.export_requested';
     case FacilityExportDownloaded = 'ops.export_downloaded';
 
+    // ZATCA e-invoicing (ADR-0033)
+    case EInvoiceIssued = 'einvoice.issued';
+    case EInvoiceSigned = 'einvoice.signed';
+    case EInvoiceSubmitted = 'einvoice.submitted';
+    case EInvoiceResponse = 'einvoice.response';
+    case EInvoiceRetryRequested = 'einvoice.retry_requested';
+    case ZatcaSettingsSaved = 'zatca.settings_saved';
+    case ZatcaOnboardingStarted = 'zatca.onboarding_started';
+    case ZatcaOnboarded = 'zatca.onboarded';
+    case ZatcaOnboardingFailed = 'zatca.onboarding_failed';
+    case ZatcaDeviceRetired = 'zatca.device_retired';
+    // No-Code phase 3 (ADR-0042): automation rules (draft edits, the live kill switch) and what their actions did.
+    case AutomationRuleSaved = 'automation_rule.saved';
+    case AutomationRuleArchived = 'automation_rule.archived';
+    case AutomationRuleKilled = 'automation_rule.killed';
+    case AutomationRuleRevived = 'automation_rule.revived';
+    case AutomationActionExecuted = 'automation.action_executed';
+
     public function area(): string
     {
         return match ($this) {
+            self::AutomationRuleSaved, self::AutomationRuleArchived, self::AutomationRuleKilled, self::AutomationRuleRevived, self::AutomationActionExecuted => 'automation',
+            self::EInvoiceIssued, self::EInvoiceSigned, self::EInvoiceSubmitted, self::EInvoiceResponse, self::EInvoiceRetryRequested,
+            self::ZatcaSettingsSaved, self::ZatcaOnboardingStarted, self::ZatcaOnboarded, self::ZatcaOnboardingFailed, self::ZatcaDeviceRetired => 'einvoicing',
             self::ReportExportRequested, self::ReportExportGenerated, self::ReportExportFailed, self::ReportExportDownloaded, self::ReportExportPurged => 'reports',
             self::StoreSettingsUpdated, self::PaymentGatewaySettingsSaved, self::StoreCheckoutStarted, self::StoreCheckoutPaid, self::StoreCheckoutReleased, self::StoreCheckoutNeedsAttention, self::StoreLinkIssued, self::StoreLinkCancelled, self::StoreLinkUsed, self::CouponCreated, self::CouponUpdated, self::CouponPaused, self::CouponResumed => 'store',
             self::SitePageCreated, self::SitePageDraftSaved, self::SitePagePublished, self::SitePageUnpublished, self::SitePageDraftDiscarded, self::SitePageArchived, self::SitePageRestored, self::SiteThemeDraftSaved, self::SiteThemeApplied, self::SiteThemeDraftDiscarded, self::SiteThemeRestored, self::SitePreviewLinkIssued, self::SiteDomainRequested, self::SiteDomainVerified, self::SiteDomainRemoved => 'site',
             self::InvitationCreated, self::InvitationAccepted, self::InvitationCancelled, self::InvitationRenewed,
             self::OwnerInvitationCreated, self::OwnerEstablished,
-            self::MembershipDisabled, self::MembershipReactivated, self::MembershipAccessUpdated => 'team',
+            self::MembershipDisabled, self::MembershipReactivated, self::MembershipAccessUpdated, self::MembershipSessionsRevoked => 'team',
             self::RoleTemplateUpdated => 'roles',
             self::OwnershipTransferRequested, self::OwnershipTransferAccepted,
             self::OwnershipTransferRejected, self::OwnershipTransferCancelled => 'ownership',
@@ -326,26 +394,35 @@ enum AuditAction: string
             self::OrderCreated, self::OrderUpdated, self::OrderLineAdded, self::OrderLineRemoved,
             self::OrderBranchTransferred, self::ReadyOrderConfirmed, self::ReadyOrderCancelled => 'orders',
             self::StockLocationSaved, self::StockItemUpdated, self::InventorySettingsUpdated, self::StockAdjusted, self::StockReserved,
-            self::StockReleased, self::StockIssued, self::StockTransferCreated, self::StockTransferMoved, self::StockCountRecorded => 'stock',
+            self::StockReleased, self::StockIssued, self::StockTransferCreated, self::StockTransferMoved, self::StockCountRecorded, self::StockCorrectionReturned => 'stock',
             self::FlowTemplateChosen, self::FlowDraftSaved, self::FlowPublished, self::FlowDraftDiscarded, self::OrderPaused, self::OrderResumed, self::OrderExecutionFinished, self::OrderClosed, self::OrderReopenedForCorrection, self::StageCompleted, self::ActionAllowed, self::ActionReworked, self::ActionNeedChanged, self::UpcomingWorkEdited, self::MeasurementRecorded, self::MeasurementCorrected => 'workflow',
             self::TaskAssigned, self::TaskRouted, self::TaskReassigned, self::TaskClaimed, self::TaskCompleted, self::TaskCancelled, self::TaskReleased => 'tasks',
-            self::AppointmentProposed, self::AppointmentSent, self::AppointmentConfirmed, self::AppointmentChangeRequested, self::AppointmentChangeDiscarded, self::AppointmentChanged, self::AppointmentCompleted, self::AppointmentCancelled, self::AppointmentCustomerChangeRequested => 'appointments',
-            self::WorkSettingsUpdated, self::FinanceSettingsUpdated, self::CashProofPolicyUpdated, self::DiscountLimitsUpdated => 'settings',
+            self::AppointmentProposed, self::AppointmentSent, self::AppointmentConfirmed, self::AppointmentChangeRequested, self::AppointmentChangeDiscarded, self::AppointmentChanged, self::AppointmentCompleted, self::AppointmentCancelled, self::AppointmentCustomerChangeRequested,
+            self::AppointmentRequestSubmitted, self::AppointmentRequestAssigned, self::AppointmentRequestScheduled, self::AppointmentRequestClosed => 'appointments',
+            self::WorkSettingsUpdated, self::FinanceSettingsUpdated, self::CashProofPolicyUpdated, self::DiscountLimitsUpdated,
+            self::PaymentPlanSaved, self::PaymentPlanArchived, self::ReminderSettingsUpdated, self::DocumentClauseSaved, self::DocumentClauseArchived,
+            self::MessageTemplateSaved, self::MessageTemplateReset, self::WhatsappTemplateNamesSaved, self::TaskSlaSettingsUpdated, self::NumberFormatSaved, self::AppointmentRequestSettingsUpdated, self::FieldSalesSettingsUpdated,
+            self::ConfigReleasePublished, self::ConfigReleaseRolledBack, self::ConfigDraftDiscarded => 'settings',
             self::DocumentCreated, self::DocumentDraftUpdated, self::DocumentSent, self::DocumentApproved, self::DocumentChangesRequested,
             self::DocumentReplaced, self::DocumentExpired, self::DocumentExtended, self::DocumentCancelled, self::AgreementActivated,
             self::DocumentSigned, self::DocumentSignLinkSent, self::DocumentSignLinksRevoked,
             self::ChangeCreated, self::ChangeDraftUpdated, self::ChangePresented, self::ChangeRevisionRequested, self::ChangeApplied,
             self::ChangeWithdrawn, self::DiscountRequested, self::DiscountApproved, self::DiscountRejected, self::DiscountCancelled => 'agreement',
-            self::FinanceScheduleSynced, self::FinanceScheduleUpdated, self::PaymentRecorded, self::PaymentGatewayResult,
+            self::FinanceScheduleSynced, self::FinanceScheduleUpdated, self::PaymentPlanChosen, self::PaymentRecorded, self::PaymentGatewayResult,
             self::PaymentReallocated, self::CreditTransferred, self::MoneyReversed, self::ProofSubmitted, self::ProofConfirmed,
-            self::ProofCorrectionRequested, self::ProofCancelled, self::CollectionRemindersSent => 'finance',
+            self::ProofCorrectionRequested, self::ProofCancelled, self::CollectionRemindersSent, self::DebtWrittenOff, self::DebtWriteOffReversed => 'finance',
             self::CommissionSettingsUpdated, self::CommissionPayoutCreated, self::CommissionPayoutReserved, self::CommissionPayoutPaid,
             self::CommissionPayoutCancelled, self::CommissionPayoutCorrected, self::SaleCorrectionRequested,
             self::SaleCorrectionApproved, self::SaleCorrectionRejected, self::SaleCorrectionCancelled => 'commissions',
             self::SupplierCreated, self::SupplierUpdated, self::SupplierDisabled, self::SupplierEnabled,
             self::PurchaseCreated, self::PurchaseUpdated, self::PurchaseConfirmed, self::PurchaseReceived,
-            self::PurchaseAdjusted, self::PurchaseRemainderCancelled => 'procurement',
-            self::DeliveryDrafted, self::DeliveryConfirmed, self::DeliveryCancelled, self::DeliveryRemarkRecorded, self::DeliveryRemarkResolved => 'delivery',
+            self::PurchaseAdjusted, self::PurchaseRemainderCancelled, self::PurchaseDocumentSaved, self::PurchaseEmailed => 'procurement',
+            self::DeliveryDrafted, self::DeliveryConfirmed, self::DeliveryCancelled, self::DeliveryRemarkRecorded, self::DeliveryRemarkResolved, self::DeliveryCorrected => 'delivery',
+            self::InstallationArrived, self::InstallationPhotoAdded, self::InstallationRemarkRecorded, self::InstallationRemarkResolved,
+            self::InstallationSignatureRequested, self::InstallationSigned, self::InstallationFinished => 'installation',
+            self::FieldLeadAssigned, self::FieldRequestAssigned, self::FieldVisitStarted, self::FieldVisitNoted,
+            self::FieldVisitPhotoAdded, self::FieldVisitFinished, self::OrderSalesChannelChanged,
+            self::FieldRepPermissionChanged, self::FieldRepDiscountChanged => 'field_sales',
             self::CancellationRequested, self::CancellationAccepted, self::CancellationRejected, self::CancellationWithdrawn,
             self::SettlementItemResolved, self::SettlementClosed => 'cancellation',
             self::ReturnRequested, self::ReturnAccepted, self::ReturnRejected, self::ReturnReceived, self::ReturnInspected,

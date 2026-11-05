@@ -51,6 +51,7 @@ export type DeliveryRow = {
 };
 
 export type DeliveryLine = {
+    id: number;
     order_line_id: number;
     position: number;
     name: string;
@@ -58,7 +59,19 @@ export type DeliveryLine = {
     unit_price_minor?: number;
     value_minor?: number;
     quantity: string;
+    corrected: string;
+    net: string;
     deliverable: string | null;
+};
+
+export type DeliveryCorrection = {
+    id: number;
+    destination: 'stock' | 'reservation' | null;
+    reason: string;
+    by: string | null;
+    at: string;
+    first_delivery_on: string | null;
+    lines: { line_id: number; quantity: string }[];
 };
 
 export type DeliveryDetail = DeliveryRow & {
@@ -70,5 +83,11 @@ export type DeliveryDetail = DeliveryRow & {
     order: OrderRef;
     lines: DeliveryLine[];
     proofs: { uuid: string; name: string; url: string | null }[];
-    can: { confirm: boolean; cancel: boolean };
+    corrections: DeliveryCorrection[];
+    can: {
+        confirm: boolean;
+        cancel: boolean;
+        correct: boolean;
+        correct_needs_destination: boolean;
+    };
 };

@@ -7,9 +7,11 @@ use App\Audit\Audit;
 use App\Audit\AuditAction;
 use App\Enums\DueBasis;
 use App\Enums\DueEvent;
+use App\Finance\Plans\PaymentPlans;
 use App\Models\Agreements\Agreement;
 use App\Models\Finance\OrderDue;
 use App\Models\Finance\OrderFinance;
+use App\Models\Finance\PaymentPlan;
 use App\Models\Order;
 use App\Models\User;
 use App\Money\Money;
@@ -17,30 +19,15 @@ use Illuminate\Support\Collection;
 use Illuminate\Validation\ValidationException;
 
 /**
- * The order's payment schedule (FIN-02). It appears when the agreement is fixed — the approval creates it from the
- * facility template (`FlowAction_appr`) — and follows the active agreement: percentages and the «rest» are recomputed
+ * The order's payment schedule (FIN-02). It appears when the agreement is fixed — the approval copies the lines of the
+ * order's payment plan (the one chosen on the order, else the facility default, ADR-0037) — and follows the active
+ * agreement: percentages and the «rest» are recomputed
  * from `OrderAgreement`, never from event numbers. `sync()` is idempotent on the agreement id and runs from the
  * `AgreementApplied` listener and at the start of every finance read and write, so a lost event heals itself.
  * Amounts never exceed the agreement; the «rest» (or the last percentage when they make 100%) takes the rounding.
  */
 final class OrderSchedule
 {
-    /** Default template: 50% at the agreement, the rest when the final payment's stage starts (domain 05). */
-    public const DEFAULT_TEMPLATE = 'half';
-
-    /**
-     * @var array<string, list<array{reference: string, name: array{ar: string, en: string}, basis: string, value: int|null, event: string}>>
-     */
-    public const TEMPLATES = [
-        'half' => [
-            ['reference' => 'first', 'name' => ['ar' => 'الدفعة الأولى', 'en' => 'First payment'], 'basis' => 'percent', 'value' => 5000, 'event' => 'agreement'],
-            ['reference' => 'final', 'name' => ['ar' => 'الدفعة الأخيرة', 'en' => 'Final payment'], 'basis' => 'rest', 'value' => null, 'event' => 'payment_stage'],
-        ],
-        'single' => [
-            ['reference' => 'first', 'name' => ['ar' => 'كامل المبلغ', 'en' => 'Full amount'], 'basis' => 'rest', 'value' => null, 'event' => 'agreement'],
-        ],
-    ];
-
     public const MAX_DUES = 12;
 
     public function __construct(private readonly Allocator $allocator) {}
@@ -61,8 +48,11 @@ final class OrderSchedule
             'dues.*.reference' => ['required', 'string', 'regex:/^[a-z0-9_]{1,30}$/', 'distinct'],
             'dues.*.basis' => ['required', 'in:amount,percent,rest'],
             'dues.*.value' => ['nullable', 'string', 'max:20'],
-            'dues.*.event' => ['required', 'in:agreement,payment_stage,delivery,date'],
+            'dues.*.event' => ['required', 'in:'.implode(',', DueEvent::values())],
             'dues.*.due_date' => ['nullable', 'required_if:dues.*.event,date', 'date_format:Y-m-d'],
+            'dues.*.stage_key' => ['nullable', 'required_if:dues.*.event,stage.started', 'string', 'max:40'],
+            'dues.*.offset_days' => ['sometimes', 'integer', 'min:0', 'max:'.PaymentPlans::MAX_OFFSET_DAYS],
+            'dues.*.grace_days' => ['sometimes', 'integer', 'min:0', 'max:'.PaymentPlans::MAX_GRACE_DAYS],
         ];
     }
 
@@ -79,13 +69,18 @@ final class OrderSchedule
         $value = $agreement->total();
         $dues = Allocator::openDues($order->id);
         $before = self::summary($dues);
+        self::refuseWhileWrittenOff($order);
         if ($dues->isEmpty() && $head->agreement_id === null) {
-            foreach (self::TEMPLATES[self::DEFAULT_TEMPLATE] as $position => $row) {
+            // The plan's lines are copied here, once: later edits of the plan never reach this order.
+            $plan = PaymentPlans::forOrder($head->payment_plan_id, $order);
+            foreach ($plan['lines'] as $position => $line) {
                 OrderDue::query()->create([
-                    'order_id' => $order->id, 'position' => $position + 1, 'reference' => $row['reference'], 'name' => $row['name'],
-                    'basis' => $row['basis'], 'basis_value' => $row['value'], 'amount_minor' => 0, 'due_event' => $row['event'],
+                    'order_id' => $order->id, 'position' => $position + 1, 'reference' => $line['key'], 'name' => $line['name'],
+                    'basis' => $line['basis'], 'basis_value' => $line['value'], 'amount_minor' => 0, 'due_event' => $line['event'],
+                    'stage_key' => $line['stage_key'], 'offset_days' => $line['offset_days'], 'grace_days' => $line['grace_days'],
                 ]);
             }
+            $head->forceFill(['payment_plan_id' => $plan['plan']?->id, 'payment_plan_key' => $plan['key']]);
             $dues = Allocator::openDues($order->id);
         }
 
@@ -102,7 +97,7 @@ final class OrderSchedule
         $this->allocator->settle($order, $actor, $source);
 
         Audit::record(AuditAction::FinanceScheduleSynced, $order, $actor, before: ['dues' => $before], after: [
-            'agreement_version' => $agreement->version, 'value_minor' => $value->minor, 'dues' => self::summary(Allocator::openDues($order->id)),
+            'agreement_version' => $agreement->version, 'plan' => $head->payment_plan_key, 'value_minor' => $value->minor, 'dues' => self::summary(Allocator::openDues($order->id)),
         ], source: $source, label: $order->number);
 
         return true;
@@ -112,16 +107,60 @@ final class OrderSchedule
      * Replaces the schedule (FinSchedule, P-38). Refused when it exceeds the agreement or would leave a due holding
      * less than what was already allocated to it (`due_has_allocations`): a paid due never changes silently.
      *
-     * @param  list<array{name: array{ar: string, en?: string|null}, reference: string, basis: string, value?: string|null, event: string, due_date?: string|null}>  $rows
+     * @param  list<array{name: array{ar: string, en?: string|null}, reference: string, basis: string, value?: string|null, event: string, due_date?: string|null, stage_key?: string|null, offset_days?: int|null, grace_days?: int|null}>  $rows
      */
     public function replace(Order $order, Agreement $agreement, array $rows, User $actor, string $source): void
     {
-        $value = $agreement->total();
+        self::refuseWhileWrittenOff($order);
         $parsed = [];
         foreach ($rows as $i => $row) {
-            $parsed[] = ['basis' => DueBasis::from($row['basis']), 'value' => self::parseValue($row, $i)];
+            $event = DueEvent::from($row['event']);
+            $stage = $event->needsStage() ? trim((string) ($row['stage_key'] ?? '')) : null;
+            if ($event->needsStage() && ! in_array($stage, PaymentPlans::stageKeys(), true)) {
+                throw ValidationException::withMessages(["dues.{$i}.stage_key" => __('finance.plans.validation.stage_unknown')]);
+            }
+            $parsed[] = [
+                'reference' => $row['reference'], 'name' => $row['name'], 'basis' => DueBasis::from($row['basis']), 'value' => self::parseValue($row, $i),
+                'event' => $event, 'due_date' => $event === DueEvent::Date ? ($row['due_date'] ?? null) : null, 'stage_key' => $stage,
+                'offset_days' => (int) ($row['offset_days'] ?? 0), 'grace_days' => (int) ($row['grace_days'] ?? 0),
+            ];
         }
-        $amounts = self::amounts($parsed, $value, strict: true);
+        $before = $this->write($order, $agreement, $parsed, $actor, $source);
+        Audit::record(AuditAction::FinanceScheduleUpdated, $order, $actor, before: ['dues' => $before], after: [
+            'dues' => self::summary(Allocator::openDues($order->id)),
+        ], source: $source, label: $order->number);
+    }
+
+    /**
+     * Applies a payment plan to an order whose schedule already exists (P-38): the plan's lines replace the schedule
+     * under the same rules as a hand-made one, and the order now records that plan.
+     */
+    public function applyPlan(Order $order, OrderFinance $head, Agreement $agreement, PaymentPlan $plan, User $actor, string $source): void
+    {
+        self::refuseWhileWrittenOff($order);
+        $parsed = array_map(fn (array $l) => [
+            'reference' => $l['key'], 'name' => $l['name'], 'basis' => DueBasis::from($l['basis']), 'value' => $l['value'],
+            'event' => DueEvent::from($l['event']), 'due_date' => null, 'stage_key' => $l['stage_key'],
+            'offset_days' => $l['offset_days'], 'grace_days' => $l['grace_days'],
+        ], $plan->lines);
+        $before = $this->write($order, $agreement, $parsed, $actor, $source);
+        $previous = $head->payment_plan_key;
+        $head->forceFill(['payment_plan_id' => $plan->id, 'payment_plan_key' => $plan->key])->save();
+        Audit::record(AuditAction::FinanceScheduleUpdated, $order, $actor, before: ['plan' => $previous, 'dues' => $before], after: [
+            'plan' => $plan->key, 'dues' => self::summary(Allocator::openDues($order->id)),
+        ], source: $source, label: $order->number);
+    }
+
+    /**
+     * Writes the rows over the open dues and re-settles the credit. Returns the schedule before the change.
+     *
+     * @param  list<array{reference: string, name: array{ar: string, en?: string|null}, basis: DueBasis, value: int|null, event: DueEvent, due_date: string|null, stage_key: string|null, offset_days: int, grace_days: int}>  $rows
+     * @return list<array{reference: string, amount_minor: int}>
+     */
+    private function write(Order $order, Agreement $agreement, array $rows, User $actor, string $source): array
+    {
+        $value = $agreement->total();
+        $amounts = self::amounts(array_map(fn (array $r) => ['basis' => $r['basis'], 'value' => $r['value']], $rows), $value, strict: true);
 
         $existing = OrderDue::query()->where('order_id', $order->id)->whereNull('removed_at')->get()->keyBy('reference');
         $allocated = MoneyLedger::allocatedByDue($order->id);
@@ -135,9 +174,9 @@ final class OrderSchedule
                 throw ValidationException::withMessages(["dues.{$i}.value" => __('finance.validation.due_has_allocations')]);
             }
             $attributes = [
-                'position' => $i + 1, 'name' => $row['name'], 'basis' => $parsed[$i]['basis'], 'basis_value' => $parsed[$i]['value'],
-                'amount_minor' => $amounts[$i], 'due_event' => DueEvent::from($row['event']),
-                'due_date' => $row['event'] === DueEvent::Date->value ? ($row['due_date'] ?? null) : null,
+                'position' => $i + 1, 'name' => $row['name'], 'basis' => $row['basis'], 'basis_value' => $row['value'],
+                'amount_minor' => $amounts[$i], 'due_event' => $row['event'], 'due_date' => $row['due_date'],
+                'stage_key' => $row['stage_key'], 'offset_days' => $row['offset_days'], 'grace_days' => $row['grace_days'],
             ];
             if ($due === null) {
                 $due = OrderDue::query()->create(['order_id' => $order->id, 'reference' => $row['reference'], ...$attributes]);
@@ -157,9 +196,30 @@ final class OrderSchedule
         }
 
         $this->allocator->settle($order, $actor, $source);
-        Audit::record(AuditAction::FinanceScheduleUpdated, $order, $actor, before: ['dues' => $before], after: [
-            'dues' => self::summary(Allocator::openDues($order->id)),
-        ], source: $source, label: $order->number);
+
+        return $before;
+    }
+
+    /**
+     * The amounts a plan's lines give for a value, as a preview (quotes before the agreement, cancellation impact).
+     *
+     * @param  list<array{basis: string, value: int|null}>  $lines
+     * @return list<int>
+     */
+    public static function preview(array $lines, Money $value): array
+    {
+        return self::fit(self::amounts(array_map(fn (array $l) => ['basis' => DueBasis::from($l['basis']), 'value' => $l['value']], $lines), $value), $value);
+    }
+
+    /**
+     * A written-off debt (P-103, ADR-0035) fixes the dues it settled: the schedule changes only after the write-off is
+     * reversed, so a written-off amount never lands on a due that no longer lacks it.
+     */
+    private static function refuseWhileWrittenOff(Order $order): void
+    {
+        if (DebtWriteOffs::writtenOff($order->id) > 0) {
+            throw ValidationException::withMessages(['dues' => __('finance.write_off.schedule_locked')]);
+        }
     }
 
     /**

@@ -22,7 +22,7 @@ use RuntimeException;
  */
 final class Signatures
 {
-    private const USER_AGENT = 'Mozilla/5.0 (iPhone; CPU iPhone OS 18_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.1 Mobile/15E148 Safari/604.1';
+    public const USER_AGENT = 'Mozilla/5.0 (iPhone; CPU iPhone OS 18_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.1 Mobile/15E148 Safari/604.1';
 
     public function sendLink(User $staff, AgreementDocument $document): DocumentSignLink
     {
@@ -75,7 +75,7 @@ final class Signatures
     /**
      * A handwritten-looking signature: a few smooth strokes drawn from the showcase's seeded random numbers.
      */
-    private static function drawn(Rng $rng): string
+    public static function drawn(Rng $rng): string
     {
         $w = 520;
         $h = 170;

@@ -40,6 +40,7 @@ export function emptyData(type: SectionType): Data {
             return { heading: '', items: [] };
         case 'contact':
             return { heading: '', text: '', show_form: true };
+        case 'appointment':
         case 'ready_goods':
             return { heading: '', text: '' };
     }
@@ -238,7 +239,9 @@ export function SectionEditor({
                 </>
             )}
 
-            {(section.type === 'contact' || section.type === 'ready_goods') && (
+            {(section.type === 'contact' ||
+                section.type === 'appointment' ||
+                section.type === 'ready_goods') && (
                 <>
                     {text('heading', false, true)}
                     {text('text', true)}
@@ -255,6 +258,11 @@ export function SectionEditor({
                     {section.type === 'ready_goods' && (
                         <p className="text-caption text-weak">
                             {t('site.field.ready_goods_hint')}
+                        </p>
+                    )}
+                    {section.type === 'appointment' && (
+                        <p className="text-caption text-weak">
+                            {t('site.field.appointment_hint')}
                         </p>
                     )}
                 </>

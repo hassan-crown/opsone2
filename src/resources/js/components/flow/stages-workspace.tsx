@@ -14,10 +14,9 @@ import {
     locate,
     move,
     newAction,
+    freshKey,
     newStage,
-    parseTarget,
     pick,
-    targetValue,
 } from './definition';
 import { TargetSelect } from './target-select';
 import type {
@@ -46,6 +45,15 @@ function targetLabel(
             options.departments.find((d) => d.id === target.id)?.name ??
             t('flow.target.department')
         );
+    }
+    if (target.type === 'role') {
+        return `${t('flow.target.role')}: ${options.roles.find((r) => r.id === target.id)?.name ?? ''}`;
+    }
+    if (target.type === 'per_branch') {
+        return t('flow.target.per_branch');
+    }
+    if (target.type === 'stage') {
+        return t('flow.target.stage');
     }
 
     return t('flow.target.order_assignee');
@@ -113,6 +121,31 @@ export function StagesWorkspace({
     const addStage = () => {
         mutate((next) => next.stages.push(newStage(next)));
         onSelect(def.stages.length);
+    };
+    /** ADR-0038: insert an add-on stage pack (in-house manufacturing) after the open stage, renaming taken keys. */
+    const addPack = (stages: StageDef[]) => {
+        mutate((next) => {
+            // A scratch copy keeps track of the keys already taken, including the pack's own.
+            const work = structuredClone(next);
+            const copies: StageDef[] = [];
+            for (const source of structuredClone(stages)) {
+                const stage: StageDef = {
+                    ...source,
+                    key: freshKey(work, source.key),
+                    actions: [],
+                };
+                work.stages.push(stage);
+                for (const action of source.actions) {
+                    stage.actions.push({
+                        ...action,
+                        key: freshKey(work, action.key),
+                    });
+                }
+                copies.push(stage);
+            }
+            next.stages.splice(index + 1, 0, ...copies);
+        });
+        onSelect(index + 1);
     };
     const removeStage = (i: number) => {
         mutate((next) => next.stages.splice(i, 1));
@@ -272,6 +305,19 @@ export function StagesWorkspace({
                         {t('flow.stage.add')}
                     </Button>
                 )}
+                {!readOnly &&
+                    options.addons.map((addon) => (
+                        <Button
+                            key={addon.key}
+                            type="button"
+                            variant="ghost"
+                            onClick={() => addPack(addon.stages)}
+                            data-test={`add-pack-${addon.key}`}
+                        >
+                            <Icon icon={Plus} />
+                            {pick(addon.label, locale)}
+                        </Button>
+                    ))}
             </Card>
 
             {stage === undefined ? (
@@ -426,13 +472,13 @@ export function StagesWorkspace({
                                 />
                                 <TargetSelect
                                     label={t('flow.field.follow_up')}
-                                    value={targetValue(stage.follow_up)}
+                                    value={stage.follow_up}
                                     options={options}
                                     disabled={false}
                                     error={stageError('follow_up')}
-                                    onChange={(v) =>
+                                    onChange={(followUp) =>
                                         patchStage({
-                                            follow_up: parseTarget(v),
+                                            follow_up: followUp,
                                         })
                                     }
                                 />

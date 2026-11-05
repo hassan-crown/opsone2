@@ -4,6 +4,13 @@ export type { Meta, Option };
 
 export type OrderKind = 'custom' | 'ready';
 
+/** The active stage of a custom order's flow; `days_late` is 0 while on time. */
+export type OrderStageSummary = {
+    key: string;
+    name: string;
+    days_late: number;
+};
+
 export type OrderRow = {
     id: number;
     number: string;
@@ -17,6 +24,16 @@ export type OrderRow = {
     financials_hidden: boolean;
     /** Present only with P-37; `null` is an unknown price (never 0). */
     total_minor?: number | null;
+    /** Order list only: `null` for ready orders and orders without a flow. */
+    stage?: OrderStageSummary | null;
+};
+
+/** Order header: where the order is, its due date and what comes after. */
+export type OrderStageHeader = OrderStageSummary & {
+    due_on: string | null;
+    position: number;
+    total: number;
+    next: string | null;
 };
 
 export type Localized = { ar?: string; en?: string; label?: string };

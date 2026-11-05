@@ -3,6 +3,7 @@
 namespace Database\Seeders\ShowcaseKit;
 
 use App\Access\Exceptions\InvalidTransition;
+use App\Actions\Finance\ChoosePaymentPlan;
 use App\Actions\Orders\CreateOrders;
 use App\Actions\Orders\ManageOrderLines;
 use App\Actions\Orders\UpdateOrder;
@@ -18,6 +19,9 @@ use App\Actions\StateMachines\M08Document\T02RecordExternalApproval;
 use App\Actions\StateMachines\M08Document\UpdateDocumentDraft;
 use App\Actions\StateMachines\M10Proof\T01ConfirmProof;
 use App\Actions\StateMachines\M11Payment\T01RecordPayment;
+use App\Actions\StateMachines\M13PurchaseOrder\T00CreatePurchaseOrder;
+use App\Actions\StateMachines\M13PurchaseOrder\T01ConfirmPurchaseOrder;
+use App\Actions\StateMachines\M13PurchaseOrder\T02ReceivePurchase;
 use App\Actions\StateMachines\M14Delivery\T00CreateDraft;
 use App\Actions\StateMachines\M14Delivery\T01ConfirmDelivery;
 use App\Actions\StateMachines\M16Appointment\T00ProposeAppointment;
@@ -39,12 +43,17 @@ use App\Models\Agreements\AgreementDocument;
 use App\Models\Agreements\DiscountDecision;
 use App\Models\Appointment;
 use App\Models\Customer;
+use App\Models\Finance\OrderDue;
+use App\Models\Finance\PaymentPlan;
 use App\Models\Finance\PaymentProof;
 use App\Models\Order;
 use App\Models\OrderLine;
+use App\Models\Procurement\PurchaseOrder;
+use App\Models\Procurement\PurchaseOrderLine;
 use App\Models\Task;
 use App\Models\User;
 use App\Money\Money;
+use App\Procurement\PurchaseOrderDocuments;
 use App\Workflow\StageEngine;
 use App\Workflow\TaskQueries;
 use Carbon\CarbonImmutable;
@@ -53,7 +62,8 @@ use Illuminate\Support\Str;
 
 /**
  * The life of one made-to-order kitchen, walked through the real workflow: measurement → design → quote and
- * agreement → deposit → manufacturing → installation → final payment → delivery. Every step is a timed event run
+ * agreement → deposit → sent to an external workshop → received and checked → installation → final payment →
+ * delivery. Every step is a timed event run
  * under the frozen clock by the Timeline, using the same Actions the screens call.
  */
 final class CustomOrders
@@ -117,7 +127,10 @@ final class CustomOrders
         foreach (['viaPortal', 'proofByCustomer', 'deposit'] as $flag) {
             ${$flag} = $opts[$flag] ?? ${$flag};
         }
-        $st->data += compact('product', 'length', 'mult', 'discount', 'viaPortal', 'proofByCustomer', 'deposit') + ['branch' => $branch, 'stopAfter' => $opts['stopAfter'] ?? null, 'unconfirmed' => $opts['unconfirmed'] ?? [],
+        // Payment plans (ADR-0037): most orders follow the default 50/50 plan; about one in three takes 40/40/20 with the
+        // second payment due when installation starts (derived from the length, so the random sequence is unchanged).
+        $installments = $opts['installments'] ?? ((int) round($length * 10) % 3 === 0);
+        $st->data += compact('product', 'length', 'mult', 'discount', 'viaPortal', 'proofByCustomer', 'deposit', 'installments') + ['branch' => $branch, 'stopAfter' => $opts['stopAfter'] ?? null, 'unconfirmed' => $opts['unconfirmed'] ?? [],
             'esign' => $opts['esign'] ?? null, 'contract' => $opts['contract'] ?? null, 'signer' => $opts['signer'] ?? null];
 
         $this->step($st, $at(0.02), 'lines', fn () => $this->setupLines($st));
@@ -148,6 +161,9 @@ final class CustomOrders
         $d += 0.1;
         $this->step($st, $at($d, 11), 'quote-send', fn () => $this->sendQuote($st));
         $d += $rng->int(1, 4);
+        if ($installments) {
+            $this->step($st, $at($d - 0.2, 12), 'payment-plan', fn () => $this->choosePlan($st, Foundation::PLAN_INSTALLMENTS));
+        }
         $this->step($st, $at($d, 13), 'quote-approve', fn () => $this->approveQuote($st));
         $this->step($st, $at($d + 0.3, 11), 'stage-design', fn () => $this->completeStage($st, 'design'));
         // Agreement and first payment
@@ -158,23 +174,46 @@ final class CustomOrders
         }
         $d += 0.8;
         $this->step($st, $at($d, 10), 'stage-agreement', fn () => $this->completeStage($st, 'agreement'));
-        // Manufacturing
+        // Workshop (ADR-0038): the kitchen is made by an external workshop and followed by its purchase order —
+        // confirming it verifies «sent», the accepted receipt verifies «received»; some arrive late, a few fail the
+        // first quality check and go back.
+        $makeDays = $rng->int(12, 24); // drawn as before, so the rest of the dataset's draws stay the same
+        $wr = $this->s->workshopRng;
+        $workshop = $wr->pick(array_keys($this->s->supply->workshops));
+        $lead = (int) $this->s->supply->workshops[$workshop]->lead_days;
+        $email = $wr->chance(60);
+        $delay = (int) $wr->weighted(['-2' => 14, '0' => 44, '3' => 20, '7' => 14, '12' => 8]);
+        $rejectFirst = $wr->chance(10);
         $d += 0.2;
-        $this->step($st, $at($d, 9), 'make-claim', fn () => $this->claimOrAssign($st, 'manufacturing'));
-        $d += $rng->int(12, 24);
-        $this->step($st, $at($d, 15), 'make-done', fn () => $this->doTaskNamed($st, 'manufacturing'));
+        $this->step($st, $at($d, 10), 'workshop-po', fn () => $this->sendToWorkshop($st, $workshop, $lead, $email));
+        $this->step($st, $at($d + 0.1, 12), 'stage-workshop', fn () => $this->completeStage($st, 'workshop'));
+        $d += max($lead + $delay, 3);
+        if ($rejectFirst) {
+            $this->step($st, $at($d, 11), 'workshop-reject', fn () => $this->receiveFromWorkshop($st, true));
+            $d += 3;
+        }
+        $this->step($st, $at($d, 11), 'workshop-receive', fn () => $this->receiveFromWorkshop($st, false));
         $d += 0.3;
         $this->step($st, $at($d, 9), 'qc-claim', fn () => $this->claimOrAssign($st, 'quality_check'));
         $d += 1;
         $this->step($st, $at($d, 13), 'qc-done', fn () => $this->doTaskNamed($st, 'quality_check'));
-        $this->step($st, $at($d + 0.2, 14), 'stage-manufacture', fn () => $this->completeStage($st, 'manufacture'));
+        $this->step($st, $at($d + 0.2, 14), 'stage-receiving', fn () => $this->completeStage($st, 'receiving'));
+        if ($installments) {
+            $this->step($st, $at($d + 0.25, 15), 'second-payment', fn () => $this->payDue($st, 'second', 'الدفعة الثانية قبل التركيب'));
+        }
+        unset($makeDays);
         // Installation
         $d += 0.3;
         $installDay = $d + $rng->int(2, 6);
         $this->step($st, $at($d, 11), 'install-appt', fn () => $this->bookVisit($st, 'installation', $installDay));
         $this->step($st, $at($d + 0.1, 12), 'install-claim', fn () => $this->claimOrAssign($st, 'installation'));
         $d = $installDay + 0.5;
-        $this->step($st, $at($d, 16), 'install-done', fn () => $this->doTaskNamed($st, 'installation'));
+        // Normally the field app's «انتهى» already completed it; otherwise its holder closes it as before.
+        $this->step($st, $at($d, 16), 'install-done', function () use ($st) {
+            if ($this->openTask($this->order($st), 'installation') !== null) {
+                $this->doTaskNamed($st, 'installation');
+            }
+        });
         $d += 0.4;
         $this->step($st, $at($d, 10), 'final-payment', fn () => $this->payFinal($st));
         $d += 0.2;
@@ -288,9 +327,13 @@ final class CustomOrders
         if ($eligible === []) {
             throw new \RuntimeException('nobody eligible for '.$actionKey);
         }
-        $userId = (int) $this->s->rng->pick($eligible)['user_id'];
+        // By user id, so the seeded pick never depends on the database's row order.
+        usort($eligible, fn (array $a, array $b) => $a['user_id'] <=> $b['user_id']);
+        $installer = $actionKey === 'installation' ? ($st->data['installer'] ?? null) : null;
+        $userId = $installer !== null && in_array($installer, array_column($eligible, 'user_id'), true)
+            ? (int) $installer : (int) $this->s->rng->pick($eligible)['user_id'];
         // Department inbox work is handed out by the department supervisor (production) or the branch manager.
-        $assigner = in_array($actionKey, ['manufacturing', 'quality_check'], true) ? $this->s->users['sup_prod'] : $this->manager($st);
+        $assigner = $actionKey === 'quality_check' ? $this->s->users['sup_prod'] : $this->manager($st);
         app(T01AssignTask::class)->handle($assigner, $task, $userId, null);
     }
 
@@ -366,7 +409,12 @@ final class CustomOrders
             $start = $start->addDay();
         }
         $sales = $this->sales($st);
+        $task = $kind === 'installation' ? $this->openTask($order, 'installation') : null;
+        if ($kind === 'installation') {
+            $st->data['installer'] = $tech->id;
+        }
         $res = app(T00ProposeAppointment::class)->handle($sales, $order, [
+            'task_id' => $task?->id,
             'kind' => $kind, 'starts_at' => $start->format('Y-m-d H:i').' Asia/Riyadh', 'ends_at' => $start->addHours(2)->format('Y-m-d H:i').' Asia/Riyadh',
             'address' => 'حي '.$this->s->people->district($branch).'، '.People::CITY[$branch].' — شارع '.$this->s->rng->int(5, 60),
             'member_ids' => [$tech->id],
@@ -380,7 +428,10 @@ final class CustomOrders
         }
         $appointment = app(T02ConfirmAppointment::class)->handle($sales, Appointment::query()->with('order')->findOrFail($appointment->id), 'phone', 'تنسيق مع فنيين آخرين في اليوم نفسه');
         $st->data['appt_'.$kind] = $appointment->id;
-        if ($start->lessThanOrEqualTo($this->s->end)) {
+        if ($kind === 'installation') {
+            // ADR-0036: the installer works the visit in the field app (arrive, photos, signature, finish).
+            $this->s->installations->schedule($st, $appointment->id, $tech, $start);
+        } elseif ($start->lessThanOrEqualTo($this->s->end)) {
             $this->s->timeline->at($start->addHours(3), $st, 'visit-'.$kind, function () use ($st, $kind, $tech) {
                 $appt = Appointment::query()->findOrFail($st->int('appt_'.$kind));
                 app(T05CompleteVisit::class)->handle($tech, $appt, $kind === 'measurement' ? 'تمت المعاينة وأُخذت القياسات.' : 'تم التركيب وسُلّم الموقع نظيفًا.', false);
@@ -406,6 +457,57 @@ final class CustomOrders
             ], $task->refresh(), null);
         }
         app(T05CompleteTask::class)->handle($actor, $task->refresh(), 'تم أخذ القياسات النهائية.');
+    }
+
+    /**
+     * A workshop purchase order for the kitchen (ADR-0038), confirmed — which verifies «sent» — and, for most, emailed
+     * to the workshop with its PDF.
+     */
+    private function sendToWorkshop(Story $st, string $workshop, int $lead, bool $email): void
+    {
+        $order = $this->order($st);
+        $inv = $this->s->users['inventory'];
+        $branch = $st->data['branch'];
+        $cost = (int) round($this->agreementTotal($order) * 0.45);
+        $lines = OrderLine::query()->where('order_id', $order->id)->whereNull('removed_at')->where('line_type', 'custom_product')->orderBy('position')->get()
+            ->map(fn (OrderLine $l) => [
+                'id' => null, 'item_type' => PurchaseOrderLine::ORDER_LINE, 'item_id' => $l->id, 'quantity_milli' => 1000,
+                'unit_cost_minor' => $cost, 'order_id' => $order->id,
+            ])->values()->all();
+        $po = app(T00CreatePurchaseOrder::class)->handle($inv, [
+            'supplier_id' => $this->s->supply->workshops[$workshop]->id, 'branch_id' => $this->s->branches[$branch]->id,
+            'location_id' => $this->s->catalog->locations[$branch]->id, 'expected_on' => CarbonImmutable::now()->addDays($lead)->toDateString(),
+            'responsible_id' => $inv->id, 'notes' => 'التصنيع حسب التصميم المعتمد والمقاسات النهائية؛ التسليم في معرض الفرع.', 'lines' => $lines,
+        ], $this->key());
+        $po = app(T01ConfirmPurchaseOrder::class)->handle($inv, $po->refresh(), $po->lock_version, $this->key());
+        $st->data['po'] = $po->id;
+        if ($email) {
+            app(PurchaseOrderDocuments::class)->send($inv, $po->refresh(), [], $this->key());
+        }
+    }
+
+    /**
+     * The kitchen arrives from the workshop: fully accepted, or — the first time for a few — rejected on inspection.
+     */
+    private function receiveFromWorkshop(Story $st, bool $reject): void
+    {
+        $po = PurchaseOrder::query()->with('lines')->findOrFail($st->int('po'));
+        $lines = [];
+        foreach ($po->lines as $line) {
+            $remaining = $line->remainingMilli();
+            if ($remaining > 0) {
+                $lines[] = $reject
+                    ? ['line_id' => $line->id, 'accepted_milli' => 0, 'rejected_milli' => $remaining, 'reject_reason' => 'خدش في واجهات الأبواب — أُعيد للورشة للإصلاح.']
+                    : ['line_id' => $line->id, 'accepted_milli' => $remaining, 'rejected_milli' => 0];
+            }
+        }
+        if ($lines === []) {
+            return;
+        }
+        app(T02ReceivePurchase::class)->handle($this->s->users['inventory'], $po, [
+            'location_id' => $this->s->catalog->locations[$st->data['branch']]->id, 'received_on' => CarbonImmutable::now()->toDateString(),
+            'reference' => 'DN-W'.$po->id, 'note' => $reject ? 'رُفض عند الفحص' : 'استلام كامل وفحص أولي', 'lines' => $lines,
+        ], [], $po->lock_version, $this->key());
     }
 
     private function completeStage(Story $st, string $key): void
@@ -581,11 +683,40 @@ final class CustomOrders
         $this->pay($st, (string) ($this->s->rng->int(10, 30) * 100), 'عربون عند اعتماد التصميم');
     }
 
+    private function choosePlan(Story $st, string $key): void
+    {
+        $order = $this->order($st);
+        $planId = (int) PaymentPlan::query()->where('key', $key)->value('id');
+        app(ChoosePaymentPlan::class)->handle($this->finance($st), $order, $planId, null, $this->key());
+    }
+
+    /** The open part of one due of the order's schedule (copied from its payment plan at the agreement). */
+    private function dueLeft(Order $order, string $reference): Money
+    {
+        $due = OrderDue::query()->where('order_id', $order->id)->where('reference', $reference)->whereNull('removed_at')->first();
+        if ($due === null) {
+            return Money::zero();
+        }
+        $held = (int) (MoneyLedger::allocatedByDue($order->id)[$due->id] ?? 0);
+
+        return Money::of(max(0, $due->amount_minor - $held));
+    }
+
+    private function payDue(Story $st, string $reference, string $note): void
+    {
+        $amount = $this->dueLeft($this->order($st), $reference);
+        if (! $amount->isZero()) {
+            $this->pay($st, $amount->toInput(), $note);
+        }
+    }
+
     private function payFirst(Story $st): void
     {
         $order = $this->order($st);
-        $total = $this->agreementTotal($order);
-        $amount = Money::of((int) round($total * 0.5));
+        $amount = $this->dueLeft($order, 'first');
+        if ($amount->isZero()) {
+            return;
+        }
         if ($st->data['proofByCustomer']) {
             $customer = $this->customerActor($order);
             $proof = app(CustomerProofs::class)->submit($customer, $order, [
@@ -596,7 +727,7 @@ final class CustomOrders
 
             return;
         }
-        $this->pay($st, $amount->toInput(), 'الدفعة الأولى 50%');
+        $this->pay($st, $amount->toInput(), 'الدفعة الأولى');
     }
 
     private function confirmProof(Story $st): void

@@ -316,7 +316,56 @@ function SupplyEditor({
     );
 }
 
-/** FlowAction_pay: verify a collection by amount, percentage or the remaining balance. */
+/**
+ * ADR-0038 workshop order: verified only from the purchase order — «sent» when it is confirmed, «received» when every
+ * line is fully accepted. The reference ties the two milestones (and a purchase order) together.
+ */
+function WorkshopEditor({
+    inputs,
+    onChange,
+    disabled,
+    error,
+}: InputsEditorProps) {
+    const t = useT();
+
+    return (
+        <div className="grid gap-3 sm:grid-cols-2">
+            <TextField
+                label={t('flow.input.reference')}
+                hint={t('flow.input.workshop_reference_hint')}
+                value={str(inputs.reference)}
+                disabled={disabled}
+                error={error('reference')}
+                dir="ltr"
+                maxLength={30}
+                onChange={(e) =>
+                    onChange({ ...inputs, reference: e.target.value })
+                }
+            />
+            <SelectField
+                label={t('flow.input.milestone')}
+                value={str(inputs.milestone)}
+                disabled={disabled}
+                error={error('milestone')}
+                onChange={(e) =>
+                    onChange({ ...inputs, milestone: e.target.value })
+                }
+                options={[
+                    { value: 'sent', label: t('flow.input.milestone_sent') },
+                    {
+                        value: 'received',
+                        label: t('flow.input.milestone_received'),
+                    },
+                ]}
+            />
+        </div>
+    );
+}
+
+/**
+ * FlowAction_pay: verify a collection — a payment of the order's plan (the plan holds the share, ADR-0037), a fixed
+ * amount or the remaining balance. A percentage is only shown on a flow saved before plans existed.
+ */
 function PaymentEditor({
     inputs,
     onChange,
@@ -370,16 +419,22 @@ function PaymentEditor({
                     onChange({
                         ...inputs,
                         basis: e.target.value,
-                        value:
-                            e.target.value === 'remaining'
-                                ? null
-                                : e.target.value === 'percent'
-                                  ? 50
-                                  : null,
+                        value: null,
                     })
                 }
+                hint={
+                    basis === 'due' ? t('flow.input.basis_due_hint') : undefined
+                }
                 options={[
-                    { value: 'percent', label: t('flow.input.basis_percent') },
+                    { value: 'due', label: t('flow.input.basis_due') },
+                    ...(basis === 'percent'
+                        ? [
+                              {
+                                  value: 'percent',
+                                  label: t('flow.input.basis_percent'),
+                              },
+                          ]
+                        : []),
                     { value: 'amount', label: t('flow.input.basis_amount') },
                     {
                         value: 'remaining',
@@ -387,7 +442,7 @@ function PaymentEditor({
                     },
                 ]}
             />
-            {basis !== 'remaining' && (
+            {(basis === 'amount' || basis === 'percent') && (
                 <TextField
                     label={
                         basis === 'amount'
@@ -426,6 +481,7 @@ export const INPUT_EDITORS: Record<
     required_document: AttachEditor,
     work_task: TaskEditor,
     supply_follow_up: SupplyEditor,
+    workshop_order: WorkshopEditor,
     payment_check: PaymentEditor,
     record_delivery: DeliveryEditor,
 };

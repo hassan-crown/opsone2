@@ -2,9 +2,11 @@
 
 namespace App\Notifications;
 
+use App\EInvoicing\EInvoiceSubmitter;
 use App\Jobs\DeliverOutboxMessage;
 use App\Models\CustomerMessage;
 use App\Models\OutboxMessage;
+use App\Models\Procurement\PurchaseOrderSend;
 use App\Notifications\Channels\EmailChannel;
 use App\Notifications\Channels\SmsChannel;
 use App\Whatsapp\MessageStatus;
@@ -32,6 +34,7 @@ final class OutboxDeliverer
         private readonly EmailChannel $email,
         private readonly SmsChannel $sms,
         private readonly WhatsAppDelivery $whatsapp,
+        private readonly EInvoiceSubmitter $einvoices,
     ) {}
 
     public function deliver(int $id): void
@@ -43,7 +46,10 @@ final class OutboxDeliverer
         }
 
         try {
-            if ($message->channel === OutboxChannel::Whatsapp) {
+            if ($message->channel === OutboxChannel::Zatca) {
+                // Settled (reported, cleared, rejected or failed) on the invoice itself; a retryable failure throws.
+                $this->einvoices->deliver($message);
+            } elseif ($message->channel === OutboxChannel::Whatsapp) {
                 // Whether it was sent or fell back to SMS, this row is done; a retryable failure throws.
                 $this->whatsapp->deliver($message);
             } elseif ($message->channel === OutboxChannel::Sms) {
@@ -63,6 +69,8 @@ final class OutboxDeliverer
 
             return;
         }
+
+        $this->mirror($message, PurchaseOrderSend::SENT);
 
         $message->forceFill([
             'status' => OutboxStatus::Sent,
@@ -119,11 +127,15 @@ final class OutboxDeliverer
     {
         $dead = $message->attempts >= self::MAX_ATTEMPTS;
         if ($dead) {
-            // A WhatsApp message that could not be delivered still reaches the customer, by SMS.
-            if ($message->channel === OutboxChannel::Whatsapp) {
+            // A WhatsApp message that could not be delivered still reaches the customer, by SMS; an e-invoice is
+            // marked failed for the owner to retry.
+            if ($message->channel === OutboxChannel::Zatca) {
+                $this->einvoices->exhausted($message);
+            } elseif ($message->channel === OutboxChannel::Whatsapp) {
                 $this->whatsapp->fallback($message, 'whatsapp_retries_exhausted');
             } else {
                 $this->follow($message, MessageStatus::Failed, 'delivery_failed');
+                $this->mirror($message, PurchaseOrderSend::FAILED);
             }
         }
         $delay = self::BACKOFF[min($message->attempts, count(self::BACKOFF)) - 1];
@@ -151,6 +163,17 @@ final class OutboxDeliverer
         $id = $message->payload['customer_message_id'] ?? null;
         if (is_int($id)) {
             CustomerMessage::query()->find($id)?->advance($status, $error);
+        }
+    }
+
+    /**
+     * Mirrors a purchase-order email's final status onto its send log (ADR-0038).
+     */
+    private function mirror(OutboxMessage $message, string $status): void
+    {
+        if ($message->kind === 'purchase_order') {
+            PurchaseOrderSend::query()->where('outbox_message_id', $message->id)
+                ->update(['status' => $status, 'sent_at' => $status === PurchaseOrderSend::SENT ? now() : null, 'updated_at' => now()]);
         }
     }
 

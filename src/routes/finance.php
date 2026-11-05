@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Finance\CollectionReportController;
+use App\Http\Controllers\Finance\DebtWriteOffController;
 use App\Http\Controllers\Finance\FinanceHomeController;
 use App\Http\Controllers\Finance\GatewayWebhookController;
 use App\Http\Controllers\Finance\OrderFinanceController;
@@ -21,6 +22,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::middleware('throttle:records-create')->group(function () {
         Route::post('orders/{order}/finance/payments', [OrderFinanceController::class, 'recordPayment'])->whereNumber('order')->name('orders.finance.payments.store');
         Route::put('orders/{order}/finance/schedule', [OrderFinanceController::class, 'updateSchedule'])->whereNumber('order')->name('orders.finance.schedule');
+        Route::put('orders/{order}/finance/plan', [OrderFinanceController::class, 'choosePlan'])->whereNumber('order')->name('orders.finance.plan');
+        // Debt write-off at closure and its reversal (P-103, ADR-0035).
+        Route::post('orders/{order}/finance/write-offs', [DebtWriteOffController::class, 'store'])->whereNumber('order')->name('orders.finance.write-offs.store');
+        Route::post('finance/write-offs/{writeOff}/reverse', [DebtWriteOffController::class, 'reverse'])->whereNumber('writeOff')->name('finance.write-offs.reverse');
         Route::post('orders/{order}/finance/transfers', [OrderFinanceController::class, 'transferCredit'])->whereNumber('order')->name('orders.finance.transfers');
 
         Route::post('finance/payments/{payment}/allocation', [PaymentController::class, 'reallocate'])->whereNumber('payment')->name('finance.payments.allocation');

@@ -95,7 +95,7 @@ export default function ReadyEdit({
                         href={ReadyProductController.index.url()}
                         className="inline-flex items-center gap-1 text-link hover:underline"
                     >
-                        <Icon icon={ArrowLeft} className="rtl:rotate-180" />
+                        <Icon icon={ArrowLeft} />
                         {t('catalog.ready.title')}
                     </Link>
                 }

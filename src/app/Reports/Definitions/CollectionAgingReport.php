@@ -39,6 +39,7 @@ final class CollectionAgingReport implements Report
             ->metric('collection.transfers_minor', $m['transfers'])
             ->metric('collection.refunded_minor', $m['refunded'])
             ->metric('collection.net_minor', $m['net'])
+            ->metric('collection.written_off_minor', $m['written_off'])
             ->metric('collection.overdue_minor', $aging['overdue_minor'])
             ->metric('collection.open_minor', $aging['open_minor']);
 

@@ -24,7 +24,8 @@ final class OpenDues
     {
         // Only orders with money still to collect: paid-up history must not fill the bound (ADR-0027).
         $open = OrderDue::query()->whereNull('removed_at')
-            ->whereRaw('order_dues.amount_minor > (SELECT COALESCE(SUM(e.amount_minor), 0) FROM money_entries e WHERE e.order_due_id = order_dues.id)')
+            ->whereRaw('order_dues.amount_minor > (SELECT COALESCE(SUM(e.amount_minor), 0) FROM money_entries e WHERE e.order_due_id = order_dues.id)'
+                .' - (SELECT COALESCE(SUM(w.amount_minor), 0) FROM debt_write_off_entries w WHERE w.order_due_id = order_dues.id)')
             ->select('order_id');
         $orderIds = (clone $orders)->whereIn('orders.id', $open)
             ->orderBy('orders.id')->limit(self::LIMIT)->pluck('orders.id')->all();
@@ -36,6 +37,8 @@ final class OpenDues
         $dues = OrderDue::query()->whereIn('order_id', $orderIds)->whereNull('removed_at')->orderBy('position')->get()->groupBy('order_id');
         $allocated = MoneyEntry::query()->whereIn('order_id', $orderIds)->whereNotNull('order_due_id')->groupBy('order_due_id')
             ->selectRaw('order_due_id, SUM(amount_minor) as allocated')->pluck('allocated', 'order_due_id')->all();
+        // Written off (P-103, ADR-0035) is no longer to collect: not in the work list, the reminders or the aging.
+        $written = DebtWriteOffs::byDue($orderIds);
 
         $dates = DueCalendar::datesFor($models, $dues);
 
@@ -46,14 +49,14 @@ final class OpenDues
                 continue;
             }
             foreach ($orderDues as $due) {
-                $held = (int) ($allocated[$due->id] ?? 0);
+                $held = (int) ($allocated[$due->id] ?? 0) + ($written[$due->id] ?? 0);
                 $remaining = $due->amount_minor - $held;
                 if ($remaining <= 0) {
                     continue;
                 }
                 $rows[] = [
                     'due' => $due, 'order' => $order, 'due_on' => $dates[$due->id],
-                    'status' => DueCalendar::status($due->amount_minor, $held, $dates[$due->id]), 'remaining' => $remaining,
+                    'status' => DueCalendar::status($due->amount_minor, $held, $dates[$due->id], graceDays: $due->grace_days), 'remaining' => $remaining,
                 ];
             }
         }

@@ -26,6 +26,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $amount_minor
  * @property DueEvent $due_event
  * @property CarbonInterface|null $due_date
+ * @property string|null $stage_key the flow stage of a `stage.started` due
+ * @property int $offset_days days after the event (ADR-0037)
+ * @property int $grace_days days after falling due before it counts as overdue
  * @property CarbonInterface|null $removed_at
  * @property-read Order $order
  */
@@ -55,6 +58,8 @@ class OrderDue extends Model
             'amount_minor' => 'integer',
             'due_event' => DueEvent::class,
             'due_date' => 'date',
+            'offset_days' => 'integer',
+            'grace_days' => 'integer',
             'removed_at' => 'datetime',
             'position' => 'integer',
         ];

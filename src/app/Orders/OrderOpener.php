@@ -12,6 +12,8 @@ use App\Enums\CustomOrderStatus;
 use App\Enums\OrderKind;
 use App\Enums\OrganizationUnitStatus;
 use App\Enums\ReadyOrderStatus;
+use App\Enums\SalesChannel;
+use App\FieldSales\SalesChannels;
 use App\Models\Branch;
 use App\Models\Customer;
 use App\Models\CustomerContact;
@@ -93,7 +95,11 @@ final class OrderOpener
             throw ValidationException::withMessages([$errorPrefix.'assignee_id' => __('orders.validation.assignee_invalid')]);
         }
 
-        $order->number = $this->sequence->format(self::SEQUENCE, 'ORD');
+        // ADR-0041: where it was sold and, for field sales, who sold it.
+        [$channel, $seller] = SalesChannels::forNewOrder($actor, isset($data['field_seller_id']) ? (int) $data['field_seller_id'] : null);
+        $order->forceFill(['sales_channel' => $channel, 'seller_id' => $seller]);
+
+        $order->number = $this->sequence->format(self::SEQUENCE, 'ORD', branchId: $order->branch_id);
         $order->save();
 
         foreach (array_values($data['lines'] ?? []) as $i => $input) {
@@ -140,8 +146,9 @@ final class OrderOpener
             'assignee_id' => $assigneeId,
             'created_by' => null,
         ]);
+        $order->sales_channel = SalesChannel::OnlineStore;
         $order->contact_id = $customer->isOrganization() ? self::contactFor($customer, null) : null;
-        $order->number = $this->sequence->format(self::SEQUENCE, 'ORD');
+        $order->number = $this->sequence->format(self::SEQUENCE, 'ORD', branchId: $branchId);
         $order->save();
 
         foreach ($lines as $i => $input) {

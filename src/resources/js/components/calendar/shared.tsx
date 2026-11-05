@@ -4,12 +4,15 @@ import { useEffect, useState } from 'react';
 import AppointmentController from '@/actions/App/Http/Controllers/Calendar/AppointmentController';
 import CalendarController from '@/actions/App/Http/Controllers/Calendar/CalendarController';
 import { Icon } from '@/components/opsone/icon';
+import { Ref } from '@/components/opsone/ref';
 import { Alert, AlertBody, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { api } from '@/lib/api';
 import { useLocale, useT } from '@/lib/i18n';
 import type { Locale, TranslationKey } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
+import { StatusBadge as InstallationBadge } from '@/components/field/field-bits';
+import type { InstallationStatus } from '@/types/field';
 
 export type AppointmentRow = {
     id: number;
@@ -31,6 +34,8 @@ export type AppointmentRow = {
     can_manage: boolean;
     maps_url: string;
     address: string;
+    /** ADR-0036: where an installation stands on site; null for other kinds. */
+    installation: InstallationStatus | null;
 };
 
 export type ClashPreview = {
@@ -122,6 +127,18 @@ export function MapLink({
     );
 }
 
+/** «A, B and C» in the UI language (never a hard-coded Arabic comma in English). */
+export function joinNames(names: string[], locale: Locale): string {
+    return new Intl.ListFormat(locale, {
+        style: 'long',
+        type: 'conjunction',
+    }).format(names);
+}
+
+/**
+ * One appointment. The week grid draws it compact (time, kind, order, customer) and adds branch and team only
+ * where the columns are wide enough (2xl); the day list passes `detailed` for the full card with the address.
+ */
 export function AppointmentCard({
     appointment,
     detailed = false,
@@ -130,6 +147,8 @@ export function AppointmentCard({
     detailed?: boolean;
 }) {
     const t = useT();
+    const { locale } = useLocale();
+    const wide = detailed ? undefined : 'hidden 2xl:block';
 
     return (
         <Link
@@ -153,26 +172,33 @@ export function AppointmentCard({
             <span className="font-semibold">
                 {t(`appointments.kind.${appointment.kind}` as TranslationKey)}
             </span>
-            <bdi
-                dir="ltr"
-                className="text-start font-mono text-caption text-weak"
-            >
-                {appointment.order.number}
-            </bdi>
+            <span className="text-caption text-weak">
+                <Ref>{appointment.order.number}</Ref>
+            </span>
             {appointment.customer && (
-                <span className="text-caption text-weak">
+                <span className="text-caption break-words text-weak">
                     {appointment.customer}
                 </span>
             )}
-            <span className="text-caption text-weak">{appointment.branch}</span>
+            <span className={cn('text-caption text-weak', wide)}>
+                {appointment.branch}
+            </span>
             {appointment.members.length > 0 && (
-                <span className="text-caption text-weak">
-                    {appointment.members.map((m) => m.name).join('، ')}
+                <span className={cn('text-caption text-weak', wide)}>
+                    {joinNames(
+                        appointment.members.map((m) => m.name),
+                        locale,
+                    )}
                 </span>
             )}
             {detailed && (
                 <span className="text-caption text-weak">
                     {appointment.address}
+                </span>
+            )}
+            {appointment.installation && (
+                <span className="flex">
+                    <InstallationBadge status={appointment.installation} />
                 </span>
             )}
             {(appointment.conflicted || appointment.has_pending_change) && (
@@ -312,11 +338,12 @@ export function ClashPanel({
                                         `appointments.kind.${c.kind}` as TranslationKey,
                                     )}
                                 </span>
-                                <bdi dir="ltr" className="font-mono">
-                                    {c.order.number}
-                                </bdi>
+                                <Ref>{c.order.number}</Ref>
                                 <span>
-                                    {c.members.map((m) => m.name).join('، ')}
+                                    {joinNames(
+                                        c.members.map((m) => m.name),
+                                        locale,
+                                    )}
                                 </span>
                                 <Link
                                     href={AppointmentController.show.url(c.id)}

@@ -69,10 +69,12 @@ final class Support
     private function open(Story $st, array $topic, string $fate): void
     {
         [$type, $subject, $body, $reply, $resolution] = $topic;
-        $order = Order::query()->whereIn('status', ['execution_finished', 'delivered'])->inRandomOrder()->first();
-        if ($order === null) {
+        // Deterministic (never the database's RAND()): the ticket number spreads tickets over the completed orders.
+        $ids = Order::query()->whereIn('status', ['execution_finished', 'delivered'])->orderBy('id')->pluck('id')->all();
+        if ($ids === []) {
             throw new \RuntimeException('no completed order yet');
         }
+        $order = Order::query()->findOrFail((int) $ids[crc32($st->name) % count($ids)]);
         $customer = Customer::query()->findOrFail($order->customer_id);
         $actor = new CustomerActor($customer->id, $customer->mobile);
         $ticket = app(CustomerTickets::class)->open($actor, ['type' => $type, 'subject' => $subject, 'body' => $body, 'order_id' => $order->id, 'client_key' => (string) Str::uuid()]);

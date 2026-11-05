@@ -70,6 +70,7 @@ final class StageEngine
                 'follow_up_type' => $definition['follow_up']['type'],
                 'follow_up_user_id' => $this->followUpUser($order, $definition['follow_up']),
                 'follow_up_department_id' => $definition['follow_up']['type'] === 'department' ? $definition['follow_up']['id'] : null,
+                'follow_up_target' => StageAssignment::stored($definition['follow_up']),
                 'target_days' => $definition['target_days'] ?? null,
                 'status' => StageStatus::NotStarted,
             ]);
@@ -88,6 +89,8 @@ final class StageEngine
                     'depends_on' => $dependencies[$action['key']] ?? [],
                     'assign_type' => $action['assign']['type'],
                     'assign_id' => $action['assign']['id'] ?? null,
+                    'assign_target' => in_array($action['assign']['type'], [StageAssignment::ROLE, StageAssignment::PER_BRANCH], true)
+                        ? StageAssignment::stored($action['assign']) : null,
                 ]);
                 $row->status = $row->appliesTo($order) ? ActionStatus::Unavailable : ActionStatus::NotRequired;
                 $row->save();
@@ -107,7 +110,12 @@ final class StageEngine
             Transition::refuse(StateMachine::M06, 'T01', 'another_stage_active');
         }
 
-        $stage->forceFill(['status' => StageStatus::InProgress, 'started_at' => now()])->save();
+        $stage->forceFill(['status' => StageStatus::InProgress, 'started_at' => now()]);
+        // A role or per-branch responsible is chosen when the stage starts (who is free, who serves the branch now).
+        if (in_array($stage->follow_up_type, [StageAssignment::ROLE, StageAssignment::PER_BRANCH], true)) {
+            $stage->follow_up_user_id = StageAssignment::resolve($stage->follow_up_target ?? [], $order, $stage) ?? TaskEligibility::followerOf($order);
+        }
+        $stage->save();
         OrderWorkflow::query()->where('order_id', $order->id)->update(['active_stage_id' => $stage->id]);
         $this->transitions->record(StateMachine::M06, 'T01', $stage, StageStatus::NotStarted, StageStatus::InProgress, $actor, TransitionRecorder::SOURCE_SYSTEM, context: [
             'order_id' => $order->id, 'position' => $stage->position, 'by' => $source,
@@ -300,13 +308,15 @@ final class StageEngine
     }
 
     /**
-     * @param  array{type: string, id?: int}  $followUp
+     * @param  array<string, mixed>  $followUp
      */
     private function followUpUser(Order $order, array $followUp): ?int
     {
         return match ($followUp['type']) {
             'member' => $followUp['id'] ?? null,
             'order_assignee' => TaskEligibility::followerOf($order),
+            // Provisional until the stage starts; then re-resolved.
+            StageAssignment::ROLE, StageAssignment::PER_BRANCH => StageAssignment::resolve($followUp, $order) ?? TaskEligibility::followerOf($order),
             default => null,
         };
     }

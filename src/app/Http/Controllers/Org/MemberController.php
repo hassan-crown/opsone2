@@ -5,9 +5,12 @@ namespace App\Http\Controllers\Org;
 use App\Access\GrantResolver;
 use App\Access\LicenseLimits;
 use App\Access\Permission;
+use App\Access\SessionRevoker;
 use App\Actions\StateMachines\M22Membership\T01DisableMembership;
 use App\Actions\StateMachines\M22Membership\T02ReactivateMembership;
 use App\Actions\StateMachines\M22Membership\T03UpdateMemberAccess;
+use App\Audit\Audit;
+use App\Audit\AuditAction;
 use App\Enums\MembershipStatus;
 use App\Http\Requests\Org\DisableMemberRequest;
 use App\Http\Requests\Org\UpdateMemberAccessRequest;
@@ -17,11 +20,13 @@ use App\Organization\OrgPresenter;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
 
 /**
- * One member: details, effective grants, role assignment (M-22-T03), disable and reactivate (M-22-T01/T02).
+ * One member: details, effective grants, role assignment (M-22-T03), disable and reactivate (M-22-T01/T02), sign-out
+ * from every device.
  */
 class MemberController extends OrgController
 {
@@ -70,6 +75,7 @@ class MemberController extends OrgController
                 'access' => ! $owner && $active && $this->access->can($actor, Permission::P04, $membership),
                 'disable' => ! $owner && $active && $membership->user_id !== $actor->id && $this->access->can($actor, Permission::P06, $membership),
                 'reactivate' => ! $active && $this->access->can($actor, Permission::P06, $membership),
+                'revoke_sessions' => ! $owner && $active && $membership->user_id !== $actor->id && $this->access->can($actor, Permission::P06, $membership),
             ],
             'seats' => $this->usage('seats', app(LicenseLimits::class)->usedSeats()),
         ]);
@@ -124,6 +130,25 @@ class MemberController extends OrgController
         $this->toast(__('org.member.disabled', ['name' => $membership->user->name]));
 
         return to_route('org.team.index');
+    }
+
+    /**
+     * Signs the member out of every device now, including a long-lived «remember me» (a technician's installed field
+     * app, ADR-0036), without disabling them. P-06; never the owner or oneself.
+     */
+    public function revokeSessions(Request $request, Membership $membership, SessionRevoker $sessions): RedirectResponse
+    {
+        $actor = $this->actor($request);
+        $this->access->authorize($actor, Permission::P06, $membership);
+        abort_if($membership->isOwner() || $membership->user_id === $actor->id || $membership->status !== MembershipStatus::Active, 409);
+
+        DB::transaction(function () use ($actor, $membership, $sessions) {
+            $sessions->revoke($membership->user_id);
+            Audit::record(AuditAction::MembershipSessionsRevoked, $membership, $actor, label: $membership->user->name);
+        });
+        $this->toast(__('org.member.sessions_revoked', ['name' => $membership->user->name]));
+
+        return back();
     }
 
     public function reactivate(Request $request, Membership $membership, T02ReactivateMembership $reactivate): RedirectResponse

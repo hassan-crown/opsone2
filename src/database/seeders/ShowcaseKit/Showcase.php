@@ -21,6 +21,9 @@ final class Showcase
 
     public Rng $rng;
 
+    /** Workshop choices and delays (ADR-0038) draw from their own stream, so the rest of the dataset stays as it was. */
+    public Rng $workshopRng;
+
     public Timeline $timeline;
 
     public Assets $assets;
@@ -49,6 +52,16 @@ final class Showcase
 
     public Messaging $messaging;
 
+    public EInvoicing $einvoicing;
+
+    public Installations $installations;
+
+    public AppointmentRequests $appointmentRequests;
+
+    public Automation $automation;
+
+    public FieldSales $fieldSales;
+
     /** @var array<string, User> */
     public array $users = [];
 
@@ -66,6 +79,7 @@ final class Showcase
         $this->start = CarbonImmutable::parse('2026-05-01 08:00', 'Asia/Riyadh');
         $this->end = CarbonImmutable::parse('2026-11-01 12:00', 'Asia/Riyadh');
         $this->rng = new Rng(20261101);
+        $this->workshopRng = new Rng(20261102);
         $this->timeline = new Timeline($this->end);
         $this->timeline->trace = (bool) getenv('SHOWCASE_TRACE');
         $this->assets = new Assets($images);
@@ -81,6 +95,11 @@ final class Showcase
         $this->site = new Site($this);
         $this->portal = new Portal($this);
         $this->messaging = new Messaging;
+        $this->einvoicing = new EInvoicing($this);
+        $this->installations = new Installations($this);
+        $this->appointmentRequests = new AppointmentRequests($this);
+        $this->automation = new Automation($this);
+        $this->fieldSales = new FieldSales($this);
     }
 
     public function n(int $full): int
@@ -114,6 +133,7 @@ final class Showcase
         $this->info('Organisation…');
         (new Foundation($this))->run();
         $this->messaging->enable();
+        $this->einvoicing->enable();
         $this->info('Catalogue…');
         $this->catalog->run();
         $this->store->setup();
@@ -128,8 +148,12 @@ final class Showcase
         $this->specials->run();
         $this->support->run();
         $this->portal->run();
+        $this->appointmentRequests->run();
+        $this->automation->run();
+        $this->fieldSales->run();
         $this->timeline->run();
         $this->messaging->settle();
+        $this->einvoicing->settle();
         foreach ($this->timeline->failures as $failure) {
             $this->warn($failure);
         }

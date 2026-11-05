@@ -30,9 +30,9 @@ or pages yet**: the three screen sessions add controllers + Form Requests that c
 
 | Call | Permission | Notes |
 |---|---|---|
-| `Flow::current()` + `->publishedVersion->definition` | P-20 to view the editor | The published definition (`{stages: [...]}`); `draft` holds an unpublished edit; `status` = `published` \| `published_with_draft`. `FlowProvisioner::ensure()` creates the default flow if missing. |
-| `ActionType::catalogue()` | — | Ten actions: `type, group, completion, label{ar,en}, inputs (rules), defaults`. Groups: `info_measurement, agreement_approval, execution_supply, finance, delivery`. |
-| `FlowTemplates::keys()`, `::label($k)`, `::definition($k)` | — | `default` (5 stages), `compact` (3). |
+| `Flow::current()` + `->publishedVersion->definition` | P-20 to view the editor | The published definition (`{stages: [...]}`); `draft` holds an unpublished edit; `status` = `published` \| `published_with_draft`. `FlowProvisioner::ensure()` creates the flow if missing from `FlowTemplates::provisioned()` (`opsone.default_flow_template`, default `retail_outsourced`, ADR-0038). |
+| `ActionType::catalogue()` | — | Eleven actions (ADR-0038 added `workshop_order`): `type, group, completion, label{ar,en}, inputs (rules), defaults`. Groups: `info_measurement, agreement_approval, execution_supply, finance, delivery`. |
+| `FlowTemplates::keys()`, `::label($k)`, `::definition($k)` | — | `retail_outsourced` (default, 6 stages: measure → design → agreement → workshop → receiving → install), `retail_kitchens` (+ optional countertop workshop order), `retail_aluminium` (measurement always), `retail_furniture` (30% first payment, 30-day workshop), `in_house` (the former 5-stage default with manufacturing), `compact` (3). `FlowTemplates::addonKeys()` → `addon_in_house_manufacturing` (a stage pack the editor inserts into a draft; options carry its `stages`). |
 | `app(FlowCheck::class)->run(array $definition)` | P-21 screen | Returns `FlowCheckResult {issues[], stages[]}`; `passes()`. Issue: `{code, path, stage, action, message}`. Safe to call on every edit for live feedback. |
 | `T02SaveDraft::handle($user, array $definition, ?int $lockVersion)` | P-20 | M-23-T02. Any shape is stored; checked only when published. |
 | `T03PublishFlow::handle($user, ?int $lockVersion)` | P-21 | M-23-T03. Runs FlowCheck → `FlowCheckFailed` or a new immutable version. New orders only. |
@@ -44,12 +44,14 @@ Definition shape (what the editor sends):
 ```json
 {"stages": [{
   "key": "measure", "name": {"ar": "...", "en": "..."}, "public_name": {"ar": "...", "en": "..."},
-  "show_to_customer": true, "follow_up": {"type": "order_assignee"} | {"type": "member", "id": 12} | {"type": "department", "id": 3},
+  "show_to_customer": true,
+  "follow_up": {"type": "order_assignee"} | {"type": "member", "id": 12} | {"type": "department", "id": 3}
+             | {"type": "role", "id": 5} | {"type": "per_branch", "branches": [{"branch_id": 1, "user_id": 12}]},
   "target_days": 3,
   "actions": [{
     "key": "measure", "type": "record_measurements", "name": {"ar": "...", "en": "..."},
     "requirement": "required" | "optional", "applies_when": "always" | "needs_measurement" | "needs_design",
-    "assign": {"type": "order_assignee"} | {"type": "member", "id": 12} | {"type": "department", "id": 3},
+    "assign": <any follow_up target> | {"type": "stage"},
     "inputs": {"purpose": "final", "measurement_kind": "final"}, "after": null | "other_action_key"
   }]
 }]}
@@ -60,7 +62,15 @@ Inputs per type: `record_measurements {purpose: initial|final, measurement_kind:
 `customer_approval {subject: design|quote|contract}`, `work_task {label{ar,en}, requires_attachment}`,
 `supply_follow_up {reference}`, `payment_check {reference, basis: amount|percent|remaining, value}` (amount in minor
 units; percent 1–100; remaining: null), `required_document {document_type, review_required}`; `capture_needs` and
-`record_delivery` have none. Keys: `^[a-z0-9_]{1,40}$`, unique across the flow.
+`record_delivery` have none; `workshop_order {reference, milestone: sent|received}` (ADR-0038). Keys:
+`^[a-z0-9_]{1,40}$`, unique across the flow.
+
+Targets (ADR-0038, `Workflow\StageAssignment`): `role` = any active member of the role template who passes
+`TaskEligibility` for the order, the one with the fewest open tasks (then the lowest user id); `per_branch` = the row
+for the order's branch (branches left out follow the order's owner); `stage` (actions only) = the stage's responsible.
+Role and per-branch stage followers are re-resolved when the stage starts; when nobody eligible is found the order's
+owner is the fallback. `FlowCheck` refuses an unknown role, an empty or broken per-branch list and `stage` as a stage
+follow-up. The order keeps the target as defined (`order_stages.follow_up_target`, `order_actions.assign_target`).
 
 ## Order progress (M-06, M-27, M-04) — `OrderStages`, `OrderCompleteStage`, `OrderPause`, `OrderRework`, `OrderEditUpcoming`
 
@@ -118,5 +128,11 @@ units; percent 1–100; remaining: null), `required_document {document_type, rev
 
 `app(ActionResults::class)->verifyFromSource($order, ActionType $type, ?string $purpose, string $sourceType, int|string $sourceId, ?User $actor)`
 — call inside or after your own transaction once the fact is final (a source taken back by a rework is ignored if replayed) (approved document, confirmed collection, accepted
-receipt, recorded full delivery). `$purpose` is the action's `reference` / `subject` / `document`. Idempotent; returns
-the matched `OrderAction` or `null` when the order's flow has no such action.
+receipt, recorded full delivery). `$purpose` is the action's `reference` / `subject` / `document` (`reference:milestone`
+for a `workshop_order`). Idempotent; returns the matched `OrderAction` or `null` when the order's flow has no such action.
+
+Procurement (ADR-0038, `Procurement\WorkshopOrders::sync`) calls it after every M-13 transition for each order its
+lines are linked to: `workshop_order` `sent` from the confirmed purchase order (source `purchase_order`), `received`
+and `supply_follow_up` once every matching line is fully accepted (source `purchase_receipt`). A purchase order
+matches by its `flow_reference`, else when it is the only action of its kind and the supplier kind agrees (workshop ↔
+`workshop_order`). It also sets the receiving stage's `expected_on` (the progress read model's `due_on`, `days_late`).

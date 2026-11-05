@@ -1,12 +1,26 @@
 import { Head, Link, router } from '@inertiajs/react';
-import { Ban, PackageCheck, Pencil, Scale, Send } from 'lucide-react';
+import {
+    Ban,
+    FileDown,
+    Mail,
+    PackageCheck,
+    Pencil,
+    Scale,
+    Send,
+} from 'lucide-react';
 import { useState } from 'react';
 import PurchaseController from '@/actions/App/Http/Controllers/Procurement/PurchaseController';
+import PurchaseDocumentController from '@/actions/App/Http/Controllers/Procurement/PurchaseDocumentController';
+import OrderController from '@/actions/App/Http/Controllers/Orders/OrderController';
 import { Amount } from '@/components/opsone/amount';
 import { Icon } from '@/components/opsone/icon';
 import { PageHeader } from '@/components/opsone/page-header';
 import { Table, TableWrap, Td, Th } from '@/components/org/data-table';
 import { AdjustDialog } from '@/components/procurement/adjust-dialog';
+import {
+    EmailDialog,
+    SendsCard,
+} from '@/components/procurement/purchase-document';
 import {
     BackLink,
     FormErrors,
@@ -43,6 +57,7 @@ export default function PurchaseShow({ purchase }: Props) {
     const { locale } = useLocale();
     const { key, renew } = useIdempotencyKey();
     const [adjusting, setAdjusting] = useState(false);
+    const [emailing, setEmailing] = useState(false);
     const [confirming, setConfirming] = useState(false);
     const [errors, setErrors] = useState<Record<string, string | undefined>>(
         {},
@@ -82,6 +97,32 @@ export default function PurchaseShow({ purchase }: Props) {
                 }
                 actions={
                     <>
+                        {can.pdf && (
+                            <Button asChild variant="secondary">
+                                <a
+                                    href={PurchaseDocumentController.pdf.url({
+                                        purchase: purchase.id,
+                                    })}
+                                    target="_blank"
+                                    rel="noopener"
+                                    data-test="purchase-pdf"
+                                >
+                                    <Icon icon={FileDown} />
+                                    {t('purchase_document.pdf')}
+                                </a>
+                            </Button>
+                        )}
+                        {can.email && (
+                            <Button
+                                type="button"
+                                variant="secondary"
+                                onClick={() => setEmailing(true)}
+                                data-test="email-purchase"
+                            >
+                                <Icon icon={Mail} />
+                                {t('purchase_document.email')}
+                            </Button>
+                        )}
                         {can.edit && (
                             <Button asChild variant="secondary">
                                 <Link
@@ -146,6 +187,15 @@ export default function PurchaseShow({ purchase }: Props) {
             />
             <div className="grid gap-4">
                 <FormErrors errors={errors} />
+                {purchase.days_late > 0 && (
+                    <Alert variant="danger" data-test="workshop-late">
+                        <AlertBody>
+                            {t('workshops.late_alert', {
+                                days: formatNumber(purchase.days_late),
+                            })}
+                        </AlertBody>
+                    </Alert>
+                )}
                 {purchase.status === 'cancelled_remainder' && (
                     <Alert variant="warning">
                         <AlertBody>
@@ -165,7 +215,34 @@ export default function PurchaseShow({ purchase }: Props) {
                         </Fact>
                         <Fact label={t('procurement.col_supplier')}>
                             {purchase.supplier.name.label}
+                            {purchase.supplier.is_workshop && (
+                                <span className="ms-2 text-caption text-weak">
+                                    {t('suppliers.workshop_badge')}
+                                </span>
+                            )}
                         </Fact>
+                        {purchase.orders.length > 0 && (
+                            <Fact label={t('workshops.col_orders')}>
+                                {purchase.orders.map((o, i) => (
+                                    <span key={o.id}>
+                                        {i > 0 && '، '}
+                                        <Link
+                                            href={OrderController.show.url({
+                                                order: o.id,
+                                            })}
+                                            className="text-link hover:underline"
+                                        >
+                                            <bdi dir="ltr">{o.number}</bdi>
+                                        </Link>
+                                    </span>
+                                ))}
+                            </Fact>
+                        )}
+                        {purchase.flow_reference && (
+                            <Fact label={t('workshops.flow_reference')}>
+                                <bdi dir="ltr">{purchase.flow_reference}</bdi>
+                            </Fact>
+                        )}
                         <Fact label={t('procurement.col_branch')}>
                             {purchase.branch.name}
                         </Fact>
@@ -478,7 +555,23 @@ export default function PurchaseShow({ purchase }: Props) {
                         ))
                     )}
                 </section>
+                {purchase.sends.length > 0 && (
+                    <section className="grid gap-3" data-test="sends">
+                        <h2 className="text-heading text-strong">
+                            {t('purchase_document.sends_title')}
+                        </h2>
+                        <SendsCard purchase={purchase} sends={purchase.sends} />
+                    </section>
+                )}
             </div>
+            {can.email && (
+                <EmailDialog
+                    key={`email-${purchase.sends.length}`}
+                    purchase={purchase}
+                    open={emailing}
+                    onOpenChange={setEmailing}
+                />
+            )}
             {can.adjust && (
                 <AdjustDialog
                     key={purchase.lock_version}

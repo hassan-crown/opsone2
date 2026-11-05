@@ -5,8 +5,10 @@ namespace App\Workflow;
 use App\Access\Contracts\LicenseCapabilities;
 use App\Enums\MembershipStatus;
 use App\Enums\OrganizationUnitStatus;
+use App\Models\Branch;
 use App\Models\Department;
 use App\Models\Membership;
+use App\Models\RoleTemplate;
 use App\Workflow\Catalogue\ActionType;
 use Illuminate\Support\Facades\Validator;
 
@@ -25,7 +27,11 @@ final class FlowCheck
 
     public const KEY_PATTERN = '/^[a-z0-9_]{1,40}$/';
 
-    public const ASSIGN_TYPES = ['order_assignee', 'member', 'department'];
+    /** Stage follow-up and action assignment targets (ADR-0038 adds a role and a person per branch). */
+    public const ASSIGN_TYPES = ['order_assignee', 'member', 'department', 'role', 'per_branch'];
+
+    /** An action may also send its work to the stage's responsible person. */
+    public const ACTION_ASSIGN_TYPES = [...self::ASSIGN_TYPES, 'stage'];
 
     public const CONDITIONS = ['always', 'needs_measurement', 'needs_design'];
 
@@ -237,7 +243,7 @@ final class FlowCheck
         $ok = match ($inputs['basis'] ?? null) {
             'amount' => is_int($value) && $value > 0,
             'percent' => is_int($value) && $value >= 1 && $value <= 100,
-            'remaining' => $value === null,
+            'remaining', 'due' => $value === null,
             default => true, // already reported as invalid_input
         };
         if (! $ok) {
@@ -263,35 +269,76 @@ final class FlowCheck
     }
 
     /**
-     * A follow-up or assignment target: the order's responsible person, an active eligible member, or an active
-     * department's inbox. Templates only use the first, so they never require people a facility may not have.
+     * A follow-up or assignment target: the order's responsible person, an active eligible member, an active
+     * department's inbox, any member of a role (ADR-0038), a person per branch, or — for an action — the stage's
+     * responsible. Templates only use targets that always exist, so they never require people a facility may not have.
      *
-     * @return array{type: string, id?: int}
+     * @return array<string, mixed>
      */
     private function target(mixed $target, string $path, ?string $stageKey, ?string $actionKey, string $what): array
     {
         $type = is_array($target) ? ($target['type'] ?? null) : null;
         $id = is_array($target) && isset($target['id']) && is_int($target['id']) ? $target['id'] : null;
 
-        if (! in_array($type, self::ASSIGN_TYPES, true)) {
+        if (! in_array($type, $what === 'assign' ? self::ACTION_ASSIGN_TYPES : self::ASSIGN_TYPES, true)) {
             $this->issue("{$what}_missing", $path, $stageKey, $actionKey);
 
             return ['type' => 'order_assignee'];
         }
-        if ($type === 'order_assignee') {
+        if (in_array($type, ['order_assignee', 'stage'], true)) {
             return ['type' => $type];
         }
+        if ($type === 'per_branch') {
+            return ['type' => $type, 'branches' => $this->branchTargets($target['branches'] ?? null, $path, $stageKey, $actionKey, $what)];
+        }
 
-        $valid = $id !== null && ($type === 'member'
-            ? Membership::query()->where('user_id', $id)->where('status', MembershipStatus::Active)
-                ->whereHas('user', fn ($q) => $q->where('is_support', false))->exists()
-            : Department::query()->whereKey($id)->where('status', OrganizationUnitStatus::Active)->exists());
+        $valid = $id !== null && match ($type) {
+            'member' => $this->activeMember($id),
+            'role' => RoleTemplate::query()->whereKey($id)->exists(),
+            default => Department::query()->whereKey($id)->where('status', OrganizationUnitStatus::Active)->exists(),
+        };
 
         if (! $valid) {
             $this->issue("{$what}_inactive", $path, $stageKey, $actionKey);
         }
 
         return ['type' => $type, 'id' => (int) $id];
+    }
+
+    /**
+     * Per-branch responsible people: each row an existing branch (once) and an active member. Branches left out
+     * follow the order's responsible person.
+     *
+     * @return list<array{branch_id: int, user_id: int}>
+     */
+    private function branchTargets(mixed $rows, string $path, ?string $stageKey, ?string $actionKey, string $what): array
+    {
+        if (! is_array($rows) || $rows === [] || count($rows) > 100) {
+            $this->issue("{$what}_missing", "{$path}.branches", $stageKey, $actionKey);
+
+            return [];
+        }
+
+        $out = [];
+        foreach (array_values($rows) as $i => $row) {
+            $branch = is_array($row) && is_int($row['branch_id'] ?? null) ? $row['branch_id'] : null;
+            $user = is_array($row) && is_int($row['user_id'] ?? null) ? $row['user_id'] : null;
+            if ($branch === null || $user === null || isset($out[$branch])
+                || ! Branch::query()->whereKey($branch)->exists() || ! $this->activeMember($user)) {
+                $this->issue("{$what}_inactive", "{$path}.branches.{$i}", $stageKey, $actionKey);
+
+                continue;
+            }
+            $out[$branch] = ['branch_id' => $branch, 'user_id' => $user];
+        }
+
+        return array_values($out);
+    }
+
+    private function activeMember(int $userId): bool
+    {
+        return Membership::query()->where('user_id', $userId)->where('status', MembershipStatus::Active)
+            ->whereHas('user', fn ($q) => $q->where('is_support', false))->exists();
     }
 
     /**

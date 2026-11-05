@@ -10,8 +10,10 @@ use App\Models\Order;
 use App\Models\OrderAction;
 use App\Models\OrderStage;
 use App\Models\OrderWorkflow;
+use App\Models\Procurement\PurchaseOrder;
 use App\Models\Task;
 use App\Models\User;
+use App\Workflow\Catalogue\ActionType;
 
 /**
  * Read model of an order's flow for the `OrderStages` screens (WF-06, WF-12): every stage with its actions and work,
@@ -34,6 +36,8 @@ final class WorkflowPresenter
         $actions = OrderAction::query()->where('order_id', $order->id)->orderBy('position')->get()->groupBy('order_stage_id');
         $tasks = Task::query()->where('order_id', $order->id)->orderBy('id')->get()->groupBy('order_action_id');
         $locale = app()->getLocale();
+        $today = now()->startOfDay();
+        $canPurchase = Access::can($viewer, Permission::P46, new PurchaseOrder(['branch_id' => $order->branch_id]));
 
         $data = [
             'flow_version' => $workflow->flowVersion->number,
@@ -73,6 +77,13 @@ final class WorkflowPresenter
                     'allowed_reason' => $action->allowed_reason,
                     'rework_count' => $action->rework_count,
                     'has_source' => $action->source_reference !== null,
+                    // ADR-0038: a workshop action names its reference and milestone, and whether the viewer may
+                    // open a workshop purchase order for it (P-46 in the order's branch).
+                    'workshop' => $action->type === ActionType::WorkshopOrder ? [
+                        'reference' => (string) ($action->inputs['reference'] ?? ''),
+                        'milestone' => (string) ($action->inputs['milestone'] ?? ''),
+                        'can_order' => $canPurchase,
+                    ] : null,
                     'tasks' => $tasks->get($action->id, collect())->map(fn (Task $t) => [
                         'id' => $t->id,
                         'kind' => $t->kind,
@@ -109,7 +120,12 @@ final class WorkflowPresenter
                 'status' => $stage->status->value,
                 'follow_up' => ['type' => $stage->follow_up_type, 'user_id' => $stage->follow_up_user_id, 'department_id' => $stage->follow_up_department_id],
                 'target_days' => $stage->target_days,
-                'due_on' => $stage->started_at !== null && $stage->target_days !== null ? $stage->started_at->copy()->addDays($stage->target_days)->toDateString() : null,
+                'due_on' => $stage->expected_on?->toDateString()
+                    ?? ($stage->started_at !== null && $stage->target_days !== null ? $stage->started_at->copy()->addDays($stage->target_days)->toDateString() : null),
+                // The workshop's date (ADR-0038) and how late it is while the stage is still open.
+                'expected_on' => $stage->expected_on?->toDateString(),
+                'days_late' => $stage->expected_on !== null && $stage->completed_at === null && $stage->expected_on->lt($today)
+                    ? (int) $stage->expected_on->diffInDays($today) : 0,
                 'started_at' => $stage->started_at?->toIso8601String(),
                 'completed_at' => $stage->completed_at?->toIso8601String(),
                 'can_complete' => $stage->id === $workflow->active_stage_id && Access::can($viewer, Permission::P25, $stage),

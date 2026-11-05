@@ -30,6 +30,7 @@ type Props = {
             collected_minor: number;
             corrections_minor: number;
             net_minor: number;
+            written_off_minor: number;
         };
     };
     branch_id: number | null;
@@ -228,6 +229,21 @@ export default function CollectionReport({
                                 <Amount
                                     value={toMajor(report.month.net_minor)}
                                     strong
+                                />
+                            </dd>
+                        </div>
+                        <div
+                            className="flex justify-between gap-2"
+                            data-test="month-written-off"
+                        >
+                            <dt className="text-weak">
+                                {t('finance.report.written_off')}
+                            </dt>
+                            <dd>
+                                <Amount
+                                    value={toMajor(
+                                        report.month.written_off_minor,
+                                    )}
                                 />
                             </dd>
                         </div>

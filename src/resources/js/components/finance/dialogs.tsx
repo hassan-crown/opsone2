@@ -7,6 +7,7 @@ import {
     toMajor,
 } from '@/components/agreement/money';
 import { Amount } from '@/components/opsone/amount';
+import { FilePicker } from '@/components/opsone/file-picker';
 import {
     CheckboxField,
     Field,
@@ -27,7 +28,10 @@ import {
 import { useT } from '@/lib/i18n';
 import type { TranslationKey } from '@/lib/i18n';
 import type {
+    DueEvent,
     FinanceDue,
+    PaymentPlanOption,
+    PlanLine,
     FinancePayload,
     FinancePayment,
     FinanceProof,
@@ -121,11 +125,9 @@ function FileInput({
     return (
         <Field label={label} hint={hint} error={error} required={required}>
             {(control) => (
-                <input
+                <FilePicker
                     {...control}
-                    type="file"
-                    className="field-control py-2"
-                    onChange={(e) => onChange(e.target.files?.[0] ?? null)}
+                    onFilesChange={(files) => onChange(files[0] ?? null)}
                     data-test="evidence-input"
                 />
             )}
@@ -563,11 +565,41 @@ type Row = {
     en: string;
     basis: 'amount' | 'percent' | 'rest';
     value: string;
-    event: 'agreement' | 'payment_stage' | 'delivery' | 'date';
+    event: DueEvent;
     due_date: string;
+    stage_key: string;
+    offset_days: number;
+    grace_days: number;
 };
 
 let rowSequence = 0;
+
+const EVENTS: DueEvent[] = [
+    'agreement',
+    'contract.approved',
+    'design.approved',
+    'stage.started',
+    'payment_stage',
+    'delivery',
+    'delivery.completed',
+    'date',
+];
+
+function rowOfPlanLine(line: PlanLine): Row {
+    return {
+        key: `d${++rowSequence}`,
+        reference: line.key,
+        ar: line.name.ar,
+        en: line.name.en ?? '',
+        basis: line.basis,
+        value: line.value ?? '',
+        event: line.event,
+        due_date: '',
+        stage_key: line.stage_key ?? '',
+        offset_days: line.offset_days,
+        grace_days: line.grace_days,
+    };
+}
 
 function rowOf(due: FinanceDue): Row {
     return {
@@ -584,6 +616,9 @@ function rowOf(due: FinanceDue): Row {
                   : '',
         event: due.event,
         due_date: due.due_date ?? '',
+        stage_key: due.stage_key ?? '',
+        offset_days: due.offset_days,
+        grace_days: due.grace_days,
     };
 }
 
@@ -619,6 +654,8 @@ export function ScheduleDialog({
     url,
     lockVersion,
     dues,
+    plans,
+    stages,
     agreedMinor,
     onClose,
     onDone,
@@ -626,6 +663,8 @@ export function ScheduleDialog({
     url: string;
     lockVersion: number;
     dues: FinanceDue[];
+    plans: PaymentPlanOption[];
+    stages: { key: string; name: string }[];
     agreedMinor: number | null;
     onClose: () => void;
     onDone: Done;
@@ -640,44 +679,8 @@ export function ScheduleDialog({
 
     const update = (index: number, patch: Partial<Row>) =>
         setRows(rows.map((r, i) => (i === index ? { ...r, ...patch } : r)));
-    const template = (name: 'half' | 'single') =>
-        setRows(
-            name === 'half'
-                ? [
-                      {
-                          key: `d${++rowSequence}`,
-                          reference: 'first',
-                          ar: 'الدفعة الأولى',
-                          en: 'First payment',
-                          basis: 'percent',
-                          value: '50',
-                          event: 'agreement',
-                          due_date: '',
-                      },
-                      {
-                          key: `d${++rowSequence}`,
-                          reference: 'final',
-                          ar: 'الدفعة الأخيرة',
-                          en: 'Final payment',
-                          basis: 'rest',
-                          value: '',
-                          event: 'payment_stage',
-                          due_date: '',
-                      },
-                  ]
-                : [
-                      {
-                          key: `d${++rowSequence}`,
-                          reference: 'first',
-                          ar: 'كامل المبلغ',
-                          en: 'Full amount',
-                          basis: 'rest',
-                          value: '',
-                          event: 'agreement',
-                          due_date: '',
-                      },
-                  ],
-        );
+    const template = (plan: PaymentPlanOption) =>
+        setRows(plan.lines.map(rowOfPlanLine));
 
     const submit = async () => {
         const data = await call.run('PUT', url, {
@@ -690,6 +693,9 @@ export function ScheduleDialog({
                 value: r.basis === 'rest' ? null : r.value,
                 event: r.event,
                 due_date: r.event === 'date' ? r.due_date : null,
+                stage_key: r.event === 'stage.started' ? r.stage_key : null,
+                offset_days: r.offset_days,
+                grace_days: r.grace_days,
             })),
         });
         if (data) {
@@ -718,22 +724,17 @@ export function ScheduleDialog({
             }
         >
             <div className="flex flex-wrap gap-2">
-                <Button
-                    type="button"
-                    variant="secondary"
-                    size="sm"
-                    onClick={() => template('half')}
-                >
-                    {t('finance.schedule.template.half')}
-                </Button>
-                <Button
-                    type="button"
-                    variant="secondary"
-                    size="sm"
-                    onClick={() => template('single')}
-                >
-                    {t('finance.schedule.template.single')}
-                </Button>
+                {plans.map((plan) => (
+                    <Button
+                        key={plan.id}
+                        type="button"
+                        variant="secondary"
+                        size="sm"
+                        onClick={() => template(plan)}
+                    >
+                        {plan.name}
+                    </Button>
+                ))}
             </div>
             {rows.map((row, i) => (
                 <fieldset
@@ -784,14 +785,7 @@ export function ScheduleDialog({
                         onChange={(e) =>
                             update(i, { event: e.target.value as Row['event'] })
                         }
-                        options={(
-                            [
-                                'agreement',
-                                'payment_stage',
-                                'delivery',
-                                'date',
-                            ] as const
-                        ).map((ev) => ({
+                        options={EVENTS.map((ev) => ({
                             value: ev,
                             label: t(`finance.event.${ev}` as TranslationKey),
                         }))}
@@ -808,6 +802,19 @@ export function ScheduleDialog({
                                 update(i, { due_date: e.target.value })
                             }
                         />
+                    ) : row.event === 'stage.started' ? (
+                        <SelectField
+                            label={t('finance.schedule.stage')}
+                            value={row.stage_key}
+                            error={call.fieldError(`dues.${i}.stage_key`)}
+                            onChange={(e) =>
+                                update(i, { stage_key: e.target.value })
+                            }
+                            options={stages.map((st) => ({
+                                value: st.key,
+                                label: st.name,
+                            }))}
+                        />
                     ) : (
                         <TextField
                             label={t('finance.schedule.reference')}
@@ -820,6 +827,33 @@ export function ScheduleDialog({
                             }
                         />
                     )}
+                    <TextField
+                        label={t('finance.schedule.offset')}
+                        type="number"
+                        dir="ltr"
+                        min={0}
+                        value={String(row.offset_days)}
+                        disabled={row.event === 'date'}
+                        error={call.fieldError(`dues.${i}.offset_days`)}
+                        onChange={(e) =>
+                            update(i, {
+                                offset_days: Number(e.target.value) || 0,
+                            })
+                        }
+                    />
+                    <TextField
+                        label={t('finance.schedule.grace')}
+                        type="number"
+                        dir="ltr"
+                        min={0}
+                        value={String(row.grace_days)}
+                        error={call.fieldError(`dues.${i}.grace_days`)}
+                        onChange={(e) =>
+                            update(i, {
+                                grace_days: Number(e.target.value) || 0,
+                            })
+                        }
+                    />
                     <div className="flex items-center justify-between gap-2 sm:col-span-2">
                         <span className="text-weak">
                             {t('finance.field.amount')}:{' '}
@@ -860,6 +894,9 @@ export function ScheduleDialog({
                             value: '',
                             event: 'date',
                             due_date: '',
+                            stage_key: '',
+                            offset_days: 0,
+                            grace_days: 0,
                         },
                     ])
                 }

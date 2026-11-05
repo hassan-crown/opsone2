@@ -1,5 +1,6 @@
 import { bpToPercent, toMajor } from '@/components/agreement/money';
 import { Field } from '@/components/opsone/field';
+import { FilePicker } from '@/components/opsone/file-picker';
 import { Badge } from '@/components/ui/badge';
 import { useT } from '@/lib/i18n';
 import type { TranslationKey } from '@/lib/i18n';
@@ -60,11 +61,9 @@ export function FileInput({
     return (
         <Field label={label} error={error} required>
             {(control) => (
-                <input
+                <FilePicker
                     {...control}
-                    type="file"
-                    className="field-control py-2"
-                    onChange={(e) => onChange(e.target.files?.[0] ?? null)}
+                    onFilesChange={(files) => onChange(files[0] ?? null)}
                     data-test="proof-input"
                 />
             )}
@@ -99,10 +98,9 @@ export function CorrectionMove({ correction: c }: { correction: Correction }) {
     return (
         <>
             {t('commissions.corrections.move', {
-                from: owner
-                    ? (c.from ?? '')
-                    : `${bpToPercent(c.from_rate_bp)}%`,
-                to: owner ? (c.to ?? '') : `${bpToPercent(c.to_rate_bp)}%`,
+                // U+2068/U+2069 isolate each side so «5%» stays «5%» in an Arabic sentence.
+                from: `\u2068${owner ? (c.from ?? '') : `${bpToPercent(c.from_rate_bp)}%`}\u2069`,
+                to: `\u2068${owner ? (c.to ?? '') : `${bpToPercent(c.to_rate_bp)}%`}\u2069`,
             })}
         </>
     );

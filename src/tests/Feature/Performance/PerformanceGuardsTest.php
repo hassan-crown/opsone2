@@ -151,16 +151,21 @@ it('runs the same queries for a page of 3 rows and of 100 (no N+1)', function ()
 
         return $counts;
     };
+    // Pile the open work onto the same people and this week. An empty list skips its eager loads, so every list first
+    // gets 3 rows whatever the dataset's day holds, then 100: only per-row queries can then raise the count.
+    $pile = function (int $rows) use ($executor, $department): void {
+        $open = DB::table('tasks')->whereIn('status', ['assigned', 'in_progress', 'waiting'])->orderBy('id')->limit($rows)->pluck('id');
+        DB::table('tasks')->whereIn('id', $open)->update(['assignee_id' => $executor->id, 'due_at' => now()]);
+        $unassigned = DB::table('tasks')->where('status', 'unassigned')->orderBy('id')->limit($rows)->pluck('id');
+        DB::table('tasks')->whereIn('id', $unassigned)->update(['department_id' => $department]);
+        DB::table('order_stages')->whereIn('id', DB::table('tasks')->whereIn('id', $unassigned)->select('order_stage_id'))
+            ->update(['follow_up_department_id' => $department]);
+        DB::table('appointments')->orderBy('id')->limit($rows)->update(['status' => 'confirmed', 'starts_at' => now()->setTime(10, 0), 'ends_at' => now()->setTime(11, 0)]);
+    };
+    $pile(3);
     $before = $measure();
 
-    // Pile the open work onto the same people and this week: every list now has dozens of rows more.
-    $open = DB::table('tasks')->whereIn('status', ['assigned', 'in_progress', 'waiting'])->orderBy('id')->limit(100)->pluck('id');
-    DB::table('tasks')->whereIn('id', $open)->update(['assignee_id' => $executor->id, 'due_at' => now()]);
-    $unassigned = DB::table('tasks')->where('status', 'unassigned')->orderBy('id')->limit(100)->pluck('id');
-    DB::table('tasks')->whereIn('id', $unassigned)->update(['department_id' => $department]);
-    DB::table('order_stages')->whereIn('id', DB::table('tasks')->whereIn('id', $unassigned)->select('order_stage_id'))
-        ->update(['follow_up_department_id' => $department]);
-    DB::table('appointments')->orderBy('id')->limit(100)->update(['status' => 'confirmed', 'starts_at' => now()->setTime(10, 0), 'ends_at' => now()->setTime(11, 0)]);
+    $pile(100);
     expect(DB::table('tasks')->where('assignee_id', $executor->id)->whereIn('status', ['assigned', 'in_progress', 'waiting'])->count())->toBeGreaterThan(20);
 
     $after = $measure();

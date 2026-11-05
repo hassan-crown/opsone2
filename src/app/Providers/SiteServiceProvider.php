@@ -25,5 +25,10 @@ class SiteServiceProvider extends ServiceProvider
             Limit::perHour((int) config('site.lead.per_ip_per_hour'))->by('site-lead-h:'.$request->ip()),
             Limit::perDay((int) config('site.lead.per_ip_per_day'))->by('site-lead-d:'.$request->ip()),
         ]);
+        // ADR-0039: the appointment request form has its own budget (same limits), so one form never starves the other.
+        RateLimiter::for('site-appointment', fn (Request $request) => [
+            Limit::perHour((int) config('site.lead.per_ip_per_hour'))->by('site-appt-h:'.$request->ip()),
+            Limit::perDay((int) config('site.lead.per_ip_per_day'))->by('site-appt-d:'.$request->ip()),
+        ]);
     }
 }

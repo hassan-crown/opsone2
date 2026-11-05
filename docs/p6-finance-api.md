@@ -108,7 +108,8 @@ Decisions: [ADR-0014](decisions/0014-collections.md). Code: `app/Finance`, `app/
 | `MoneyLedger::placesOf(int $paymentId, int $orderId)` | `array<dueId\|0, int>` | Where one payment's money sits on an order (0 = credit). 6c: refundable base per payment. |
 | `MoneyLedger::sharesOf(int $paymentId)` | `array<orderId, int>` | A payment's share per order (split / transfers). 6d: allocations per payment for commission. |
 | `Allocator::openDues(int $orderId)` | `Collection<OrderDue>` | Active schedule, oldest first (`position`). |
-| `DueCalendar::dates(Order, $dues)` / `::status(amount, allocated, dueOn)` | | Due date from the event (agreement / payment stage start / date) and the derived `DueStatus`. |
+| `DueCalendar::dates(Order, $dues)` / `::status(amount, allocated, dueOn, today?, graceDays)` | | Due date from the trigger (ADR-0037: `agreement`, `contract.approved`, `design.approved`, `stage.started` + `stage_key`, `delivery` (first), `delivery.completed`, `payment_stage` (fallback plan), `date`) **plus `offset_days`**, and the derived `DueStatus` (overdue only after `grace_days`). |
+| `PaymentPlans::forOrder(?planId)` / `::pending(orderId)` / `OrderSchedule::preview(lines, Money)` | | The plan an order gets (its choice, else the default, else the built-in `half`) and its amounts for a value — quotes and cancellation previews before the schedule exists. |
 | `CollectionConditions::overview(Order)` / `::shortfalls(Order)` | | INT-07 checks with their threshold; checks verified earlier that the ledger no longer covers. |
 | `FinancePresenter::forOrder(Order, User)` | array | Screen payload (below). Caller checks P-16. |
 | bind `App\Finance\DisputedAmounts` | `disputedFor(OrderDue): Money` | **6c binds** open disputes; reminders exclude that part. Default `NoDisputes`. |
@@ -144,18 +145,27 @@ order), `state_transitions` (M-10, M-11) + `audit_events` (area `finance`) in th
 | `M10Proof\T01ConfirmProof::handle($user, $proof, {amount, paid_on, reference?, acknowledge_similar?, link_payment_id?}, $proofLockVersion, $key)` | P-40 | Links to the existing payment of the same trusted reference (or `link_payment_id`) — no new money; otherwise one payment + receipt. 409 `not_from_*`, `reference_conflict`, `similar_payment`. |
 | `M10Proof\T02RequestProofCorrection::handle($user, $proof, $reason, $lockVersion)` | P-40 | Reason sent to the customer (outbox). File kept. |
 | `M10Proof\T04CancelProof::handle($user, $proof, $reason, $lockVersion)` | P-40 | Only before money. |
-| `Finance\UpdateSchedule::handle($user, $order, {dues: [{name{ar,en?}, reference, basis amount\|percent\|rest, value "5000.00"\|"50"\|null, event agreement\|payment_stage\|date, due_date?}]}, $lockVersion, $key)` | P-38 | 409 `no_agreement`; 422 above the agreement, one `rest`, below what a due holds (`due_has_allocations`). |
+| `Finance\UpdateSchedule::handle($user, $order, {dues: [{name{ar,en?}, reference, basis amount\|percent\|rest, value "5000.00"\|"50"\|null, event (closed catalogue above), due_date?, stage_key? (required for stage.started), offset_days? 0..365, grace_days? 0..90}]}, $lockVersion, $key)` | P-38 | 409 `no_agreement`; 422 above the agreement, one `rest`, below what a due holds (`due_has_allocations`), unknown stage. |
+| `Finance\ChoosePaymentPlan::handle($user, $order, $planId, $lockVersion, $key)` | P-38 | ADR-0037. Before the agreement: records the plan (copied at approval; audit `payment_plan.chosen`). After it: replaces the schedule from the plan's lines under the `UpdateSchedule` rules. 422 `plan_id` for an archived/unknown plan. |
 | `Finance\ReallocatePayment::handle($user, $payment, $order, {allocations: [{due_id, amount}]}, $lockVersion, $key)` | P-38 | Within the payment's share on the order and each due's remaining. |
 | `Finance\TransferCredit::handle($user, $from, {to_order_id, amount, reason?}, $lockVersion, $key)` | P-38 on both | Same customer; credit only (409 `not_enough_credit`); no receipt. |
 | `CustomerProofs::submit / resubmit / withdraw(CustomerActor, …)` | P-68 (customer portal, P8) | M-10-T00/T03/T04. File via `AttachmentService::storeFromCustomer()`. |
 | `Gateway\GatewayPayments::begin(CustomerActor, Order, Money, $gatewayKey, $returnUrl)` | P-69 (P8) | Pending payment (M-11-T00) + provider URL; refuses ready orders (the store checkout uses `createPending()` inside its own transaction, ADR-0023). |
 | `Gateway\GatewayPayments::applyWebhook($gatewayKey, Request)` | provider (verified signature) | The **only** way an online payment becomes money: `PaymentGateway::verify()` first; T02/T03/T04/T05/T06, T08 on replay; a late success after failure is referred (notification), never posted. Since P8c it delegates to `applyVerified(PaymentGateway, VerifiedGatewayEvent)`, also fed by the gateway's server-side `fetch()`; `GatewayOutcomes` runs after each applied change under the order lock. Bound gateway: `moyasar` (ADR-0023). |
-| `CollectionReminders::runDue(now)` (`finance:remind`, hourly) / `preview($user, $dueIds)` / `send($user, $dueIds)` | scheduler / P-37 | Inside `WorkSettings` reminder hours; due soon (≤ 2 days, once per date), overdue (weekly), manual (daily); disputed part excluded. |
+| `CollectionReminders::runDue(now)` (`finance:remind`, hourly) / `preview($user, $dueIds)` / `send($user, $dueIds)` | scheduler / P-37 | Inside `WorkSettings` reminder hours, following `ReminderSettings` (ADR-0037): `before_days` (≤ 3), `on_due`, overdue every `after_every_days` after the due's grace days up to `max_after`, escalation (`finance.due_escalated`) to the order's responsible person or a role after `escalate_after_days`; manual (daily); disputed part excluded. `CollectionReminders::step()` is the pure rule. |
 
-Events: `AgreementApplied` → `SyncScheduleOnAgreement` (schedule from the facility template `half`, allocation of the
-deposit, INT-07). Notifications: `finance.receipt_recorded`, `finance.proof_submitted`, `finance.late_gateway_result`
-(link opens `orders.finance`, re-checks P-37). Customer messages (SMS + mail): `receipt:{id}`, `proof:{id}:correction`,
-`proof:{id}:amount`, `due:{id}:{soon|overdue}:{period}`.
+Events: `AgreementApplied` → `SyncScheduleOnAgreement` (schedule **copied from the order's payment plan** — its choice,
+else the facility default, else the built-in `half` — with each line's trigger, stage, offset and grace; later plan
+edits never reach it; allocation of the deposit, INT-07). Notifications: `finance.receipt_recorded`, `finance.proof_submitted`, `finance.late_gateway_result`
+(link opens `orders.finance`, re-checks P-37), `finance.due_escalated` (ADR-0037). Customer messages (SMS + mail, in the
+facility's wording when it set one — `MessageTemplates`): `receipt:{id}`, `proof:{id}:correction`, `proof:{id}:amount`,
+`due:{id}:{soon|today|overdue}:{due_on}:{step}` (`soon` step = days before, `overdue` step = 1..max_after).
+
+**Payment check basis `due` (ADR-0037).** `payment_check` inputs `{reference, basis: due, value: null}` are met when the
+order's net collection covers the schedule through the due with that reference (oldest first) — the share comes from
+the payment plan only (`CollectionConditions::threshold`). A schedule without that reference asks for the whole agreed
+value; plans are refused when they lack a reference the published flow waits for. `percent` is no longer accepted by
+`FlowCheck` (it is still read on actions already pinned to an order).
 
 ### HTTP (screens)
 
@@ -167,6 +177,7 @@ Routes in `src/routes/finance.php`, `auth` + `verified`, writes throttled by `re
 | `GET orders/{order}/finance` | `orders.finance` | `FinOrder`, `FinOrderPaid`, `FinSales` (no P-37 → statuses only), `FinOrderMobile`, `FinEnglish`, `FinDark` — Inertia `orders/finance`; JSON with `Accept: application/json` |
 | `POST orders/{order}/finance/payments` (multipart) | `orders.finance.payments.store` | `FinRecordPayment` |
 | `PUT orders/{order}/finance/schedule` | `orders.finance.schedule` | `FinSchedule` |
+| `PUT orders/{order}/finance/plan` `{plan_id, lock_version, idempotency_key}` | `orders.finance.plan` | plan picker on `FinOrder` (ADR-0037) |
 | `POST orders/{order}/finance/transfers` | `orders.finance.transfers` | `FinAllocate`, `FinSettle` (credit part) |
 | `POST finance/payments/{payment}/allocation` | `finance.payments.allocation` | allocation review (FIN-06) |
 | `POST finance/proofs/{proof}/confirm` · `/correction` · `/cancel` | `finance.proofs.*` | `FinReceiptReview`, `FinReceiptMobile`, `FinReceiptFix` |
@@ -177,10 +188,11 @@ Routes in `src/routes/finance.php`, `auth` + `verified`, writes throttled by `re
 
 Payload (`FinancePresenter::forOrder`): `amounts_visible, lock_version, has_agreement, agreement_version,
 summary{agreed_minor, collected_minor, remaining_minor, excess_minor, due_now_minor, credit_minor, unscheduled_minor,
-settlement_needed_minor} | null, dues[{id, reference, name, basis, event, due_on, status, amount_minor?, allocated_minor?,
-remaining_minor?}], payments[{id, receipt_number, method, paid_on, reference, origin, status, evidence[], amount_minor?,
+settlement_needed_minor} | null, dues[{id, reference, name, basis, event, stage_key, offset_days, grace_days, due_on, status,
+amount_minor?, allocated_minor?, remaining_minor?}], plan{key, name, chosen, copied}, plans[] (P-38 only: active plans
+with their lines), stages[{key, name}], payments[{id, receipt_number, method, paid_on, reference, origin, status, evidence[], amount_minor?,
 share_minor?, allocations?}], proofs[{id, status, replaced, claimed_minor?, matching_receipt, files[], …}],
-conditions[{reference, basis, threshold_minor?, met, verified}], shortfalls[], can{record, review, schedule, allocate},
+conditions[{reference, basis, threshold_minor?, met, verified}], shortfalls[], can{record, review, schedule, allocate, plan},
 customer_orders[]`. Without P-37 every `*_minor` key, `summary` and file links are absent — render «hidden», never 0.
 
 Not in 6b: refunds (M-12), corrections UI (M-11-T07), disputes, external invoices (6c); commissions (6d); customer
@@ -248,6 +260,26 @@ amount_minor?}], documents[{…, status, files (P-44), can{attach, review}, amou
 customer_tax{vat_number, commercial_registration, missing[]}, members[], can{request_refund, execute_refund, correct,
 dispute, documents}`. Without P-37 every `*_minor` key and money files are absent — render «hidden», never 0.
 
+## Debt write-off at closure (ADR-0035)
+
+Code: `app/Actions/Finance/WriteOffDebt.php`, `app/Finance/DebtWriteOffs.php`, `app/Models/Finance/DebtWriteOff*.php`,
+`DebtWriteOffController`. Permission **P-103** (owner by default). Made-to-order orders in a closure state only.
+
+| Method | URL | Body | Answer |
+|---|---|---|---|
+| POST | `/orders/{order}/finance/write-offs` | multipart: `idempotency_key, lock_version (finance head), amount_minor (= owed now), reason, file?` | 201 `{write_off: {id, number WO-YYYY-000123, kind, amount_minor}}`; 409 not in a closure state / ready order; 422 `amount` changed or nothing owed, `reason` |
+| POST | `/finance/write-offs/{id}/reverse` | `idempotency_key, lock_version?, reason` | `{write_off}` of kind `reversal`; 409 already reversed / a reversal |
+
+| Call | Returns | Notes |
+|---|---|---|
+| `DebtWriteOffs::writtenOff(int $orderId)` · `::byDue(array $orderIds)` · `::owedByDue(Order)` | halalas | Net of reversals. Owed = due − allocated − written off. |
+| `DebtWriteOffs::inRange($orderIds, $from, $to)` | halalas | Report metric `collection.written_off_minor`. |
+| `DebtWriteOffs::panel(Order, User)` | array\|null | The order page's write-off card (amounts only with P-37). |
+
+Journal: `debt_write_off_entries` — `receivable` per due (negative) and `bad_debt` (positive), summing to zero; a
+reversal negates them once. Never a money journal: collected, receipts and commissions are unchanged. While a write-off
+stands the schedule is fixed (`finance.write_off.schedule_locked`).
+
 ## 6d — sale ownership and commissions
 
 Decisions: [ADR-0016](decisions/0016-commissions.md). Code: `app/Commissions`, `app/Models/Commissions`,
@@ -298,3 +330,44 @@ answer `{payout_id, statement: Payload}`; sale writes `{sale: Payload}` (+ `corr
 | `GET orders/{order}/sale` | `orders.sale` | sale owner and commission correction (P-94/P-97/P-98) |
 | `POST orders/{order}/sale/corrections` · `POST sale-corrections/{c}/approve` · `/reject` · `/cancel` | `orders.sale.corrections.store`, `sale-corrections.*` | idem |
 | `PUT settings/sales/commissions` | `settings.sales.commissions` | `SettingsSales` (commission part, P-95) |
+
+## No-Code phase 1a — owner business rules (ADR-0037)
+
+Decisions: [ADR-0037](decisions/0037-no-code-phase-1a.md). Code: `app/Finance/Plans`, `app/Actions/Rules`,
+`app/Http/Controllers/Rules`, `app/Messages`, `app/Numbering`, `app/Tasks/{TaskSla,WorkingDays}`,
+`app/Agreements/DocumentClauses`, `routes/rules.php`. Every change needs **P-104** (owner by default) and writes an
+`audit_events` row (area `settings`); P-02 holders may read the pages.
+
+| Method & path | Name | Action |
+|---|---|---|
+| `GET settings/payment-plans` · `POST` · `PUT settings/payment-plans/{plan}` · `POST …/{plan}/archive` | `rules.plans*` | `SavePaymentPlan` (`PaymentPlans::rules()/normalize()`), `ArchivePaymentPlan` (never the default) |
+| `GET settings/reminders` · `PUT` | `rules.reminders*` | `UpdateReminderSettings` |
+| `GET settings/clauses` · `POST` · `PUT settings/clauses/{clause}` · `POST …/{clause}/archive` | `rules.clauses*` | `SaveDocumentClause` (new text → new immutable `document_clause_versions` row) |
+| `GET settings/messages` · `PUT` · `DELETE` (reset) · `POST settings/messages/preview` (JSON, writes nothing) · `PUT settings/messages/whatsapp` | `rules.messages*` | `SaveMessageTemplate`, `WhatsAppSettings::saveTemplateNames()` |
+| `GET settings/task-sla` · `PUT` | `rules.sla*` | `UpdateTaskSla` |
+| `GET settings/numbering` · `PUT` | `rules.numbering*` | `SaveNumberFormat` |
+
+Plan line: `{key, name{ar,en?}, basis percent|amount|rest, value "40"|"1500.00"|null, event, stage_key?, offset_days,
+grace_days}`. Refusals (422 on `lines`/`lines.N.*`): sum ≠ 100% without a final `rest`, an amount without a `rest`, more
+than one `rest` or not last, unknown trigger or stage, a missing flow gate reference, 1..12 lines, 20 active plans.
+
+## No-Code phase 2 — configuration releases (ADR-0040)
+
+Decisions: [ADR-0040](decisions/0040-configuration-releases.md). Code: `app/Configuration` (`ConfigSnapshot`,
+`ConfigReleases`, `ConfigCheck`, `ConfigDiff`, `ConfigPreview`, `ConfigRestorer`), `app/Actions/Rules/PublishConfigRelease`,
+`ConfigReleaseController`. The phase-1a pages above (and `settings/purchase-document`) now save a **draft**; the
+application reads the published release (`ConfigReleases::current()`, or `forOrder($order)` for plans and clauses).
+Orders record `config_release_id` at creation.
+
+| Method & path | Name | Action |
+|---|---|---|
+| `GET settings/releases` | `rules.releases` | draft change log + `ConfigCheck` issues, history (P-104 or P-02) |
+| `GET settings/releases/{release}` | `rules.releases.show` | change log against the previous release, pinned orders, rollback preview |
+| `POST settings/releases/preview` `{value: "37500.00", locale}` (JSON, writes nothing) | `rules.releases.preview` | `ConfigPreview::run()` — draft vs release in force |
+| `POST settings/releases` `{base, draft_hash, notes?}` | `rules.releases.publish` | `PublishConfigRelease::publish()` (P-104) |
+| `POST settings/releases/{release}/rollback` `{base, notes?}` | `rules.releases.rollback` | publishes a copy as release N+1 (P-104) |
+| `POST settings/releases/discard` `{base}` | `rules.releases.discard` | draft back to the release in force (P-104) |
+
+A stale `base` or a `draft_hash` that no longer matches the draft → 409 `stale_version` (JSON) or a `lock_version`
+error (Inertia). Bundle refusals are 422 keyed `payment_plans.<key>`, `numbering.<sequence>`, `messages.<event>…`.
+Audit: `config_release.published`, `config_release.rolled_back`, `config_release.draft_discarded` (area `settings`).

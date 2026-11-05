@@ -29,6 +29,9 @@ final class Supply
     /** @var array<string, Supplier> */
     public array $suppliers = [];
 
+    /** @var array<string, Supplier> external workshops that make the kitchens (ADR-0038) */
+    public array $workshops = [];
+
     public function __construct(private readonly Showcase $s) {}
 
     public function run(): void
@@ -60,6 +63,20 @@ final class Supply
                 'name' => ['ar' => $ar, 'en' => $en], 'contact_name' => $contact, 'phone' => '+9661'.$this->s->rng->int(1000000, 9999999),
                 'email' => 'sales'.count($this->suppliers).'@supplier-demo.test', 'vat_number' => '3'.str_pad((string) $this->s->rng->int(0, 9999999999999), 13, '0', STR_PAD_LEFT).'3',
                 'supplies' => $supplies, 'notes' => 'الدفع خلال 30 يومًا من الاستلام.',
+            ], null, $this->key());
+        }
+
+        // ADR-0038: the showroom has its kitchens made by external workshops, each with its usual lead time.
+        $workshops = [
+            'joinery_dmm' => ['ورشة الدمام للنجارة', 'Dammam Joinery Workshop', 'تصنيع خزائن المطابخ حسب التصميم', 'خالد الدوسري', 18],
+            'kitchens_ruh' => ['مصنع الرياض للمطابخ', 'Riyadh Kitchen Works', 'مطابخ أكريليك ولامينيت', 'منصور القحطاني', 14],
+            'stone' => ['ورشة الأسطح والرخام', 'Stone & Countertops Workshop', 'أسطح كوارتز ورخام', 'نبيل الحربي', 10],
+        ];
+        foreach ($workshops as $key => [$ar, $en, $supplies, $contact, $lead]) {
+            $this->workshops[$key] = app(SaveSupplier::class)->handle($this->s->users['inventory'], null, [
+                'name' => ['ar' => $ar, 'en' => $en], 'contact_name' => $contact, 'phone' => '+9661'.$this->s->workshopRng->int(1000000, 9999999),
+                'email' => 'orders-'.str_replace('_', '-', $key).'@workshop-demo.test', 'vat_number' => null,
+                'supplies' => $supplies, 'notes' => 'تسليم في معرض الفرع؛ الدفع عند الاستلام والفحص.', 'is_workshop' => true, 'lead_days' => $lead,
             ], null, $this->key());
         }
     }
@@ -287,7 +304,7 @@ final class Supply
     {
         $location = $this->s->catalog->locations[$branch];
         $lines = [];
-        $rows = StockBalance::query()->where('location_id', $location->id)->where('on_hand_milli', '>', 0)->get();
+        $rows = StockBalance::query()->where('location_id', $location->id)->where('on_hand_milli', '>', 0)->orderBy('id')->get();
         foreach ($rows->take(18) as $b) {
             $item = StockItem::query()->findOrFail($b->stock_item_id);
             $diff = $this->s->rng->chance(18) ? -1000 * $this->s->rng->int(1, 2) : 0;

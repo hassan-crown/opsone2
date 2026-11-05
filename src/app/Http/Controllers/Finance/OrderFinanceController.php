@@ -3,10 +3,12 @@
 namespace App\Http\Controllers\Finance;
 
 use App\Access\TransitionRecorder;
+use App\Actions\Finance\ChoosePaymentPlan;
 use App\Actions\Finance\TransferCredit;
 use App\Actions\Finance\UpdateSchedule;
 use App\Actions\StateMachines\M11Payment\T01RecordPayment;
 use App\Agreements\OrderAgreement;
+use App\EInvoicing\EInvoicePresenter;
 use App\Enums\OrderKind;
 use App\Enums\StateMachine;
 use App\Finance\FinanceLock;
@@ -14,6 +16,7 @@ use App\Finance\FinancePresenter;
 use App\Finance\OrderSchedule;
 use App\Finance\Settlement\SettlementPresenter;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Finance\ChoosePlanRequest;
 use App\Http\Requests\Finance\RecordPaymentRequest;
 use App\Http\Requests\Finance\ScheduleRequest;
 use App\Http\Requests\Finance\TransferRequest;
@@ -54,6 +57,7 @@ class OrderFinanceController extends Controller
             'finance' => $finance,
             'settlement' => SettlementPresenter::forOrder($order, $actor),
             'today' => AppointmentBooking::today(),
+            'einvoices' => EInvoicePresenter::forOrder($order, $actor),
         ]);
     }
 
@@ -68,6 +72,13 @@ class OrderFinanceController extends Controller
     public function updateSchedule(ScheduleRequest $request, Order $order, UpdateSchedule $update): JsonResponse
     {
         $update->handle($this->actor($request), $order, $request->body(), $request->lockVersion(), $request->key());
+
+        return $this->respond($request, $order);
+    }
+
+    public function choosePlan(ChoosePlanRequest $request, Order $order, ChoosePaymentPlan $choose): JsonResponse
+    {
+        $choose->handle($this->actor($request), $order, (int) $request->body()['plan_id'], $request->lockVersion(), $request->key());
 
         return $this->respond($request, $order);
     }

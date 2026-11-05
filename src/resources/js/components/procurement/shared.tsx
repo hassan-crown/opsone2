@@ -3,6 +3,7 @@ import { ArrowLeft, RefreshCw } from 'lucide-react';
 import { useState } from 'react';
 import PurchaseController from '@/actions/App/Http/Controllers/Procurement/PurchaseController';
 import SupplierController from '@/actions/App/Http/Controllers/Procurement/SupplierController';
+import WorkshopBoardController from '@/actions/App/Http/Controllers/Procurement/WorkshopBoardController';
 import { Icon } from '@/components/opsone/icon';
 import { Alert, AlertBody, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
@@ -43,7 +44,7 @@ export function ProcurementTabs({
     active,
     suppliers = true,
 }: {
-    active: 'purchases' | 'suppliers';
+    active: 'purchases' | 'workshops' | 'suppliers';
     suppliers?: boolean;
 }) {
     const t = useT();
@@ -52,6 +53,11 @@ export function ProcurementTabs({
             key: 'purchases' as const,
             href: PurchaseController.index.url(),
             label: t('procurement.tab_purchases'),
+        },
+        {
+            key: 'workshops' as const,
+            href: WorkshopBoardController.index.url(),
+            label: t('workshops.tab'),
         },
         ...(suppliers
             ? [

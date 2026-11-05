@@ -20,6 +20,8 @@ declare module '@inertiajs/core' {
             translations: Record<string, string>;
             license?: LicenseBanner | null;
             notifications?: NotificationFeed | null;
+            /** ADR-0040: on business-rules pages, the draft against the release in force. */
+            configDraft?: { pending: boolean; release: number | null } | null;
             orgNav?: {
                 team: boolean;
                 branches: boolean;
@@ -30,6 +32,14 @@ declare module '@inertiajs/core' {
                 orders: boolean;
                 tasks: boolean;
                 calendar: boolean;
+                /** ADR-0039: P-54, the customer appointment request queue. */
+                appointmentRequests?: boolean;
+                /** ADR-0041: P-105 with field sales on — the dispatch board. */
+                fieldSales?: boolean;
+                /** ADR-0041: P-105 — the supervisor's field team follow-up. */
+                fieldTeam?: boolean;
+                /** ADR-0041: a field sales rep — the field app link. */
+                fieldApp?: boolean;
                 finance: boolean;
                 commissions: boolean;
                 stock: boolean;

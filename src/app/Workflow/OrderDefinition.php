@@ -38,6 +38,7 @@ final class OrderDefinition
             'follow_up' => match ($stage->follow_up_type) {
                 'member' => ['type' => 'member', 'id' => $stage->follow_up_user_id],
                 'department' => ['type' => 'department', 'id' => $stage->follow_up_department_id],
+                StageAssignment::ROLE, StageAssignment::PER_BRANCH => $stage->follow_up_target ?? ['type' => 'order_assignee'],
                 default => ['type' => 'order_assignee'],
             },
             'target_days' => $stage->target_days,
@@ -47,7 +48,7 @@ final class OrderDefinition
                 'name' => $a->name->toArray(),
                 'requirement' => $a->requirement,
                 'applies_when' => $a->applies_when,
-                'assign' => $a->assign_id === null ? ['type' => $a->assign_type] : ['type' => $a->assign_type, 'id' => $a->assign_id],
+                'assign' => $a->assign_target ?? ($a->assign_id === null ? ['type' => $a->assign_type] : ['type' => $a->assign_type, 'id' => $a->assign_id]),
                 'inputs' => $a->inputs ?? [],
                 'after' => null,
             ])->values()->all(),

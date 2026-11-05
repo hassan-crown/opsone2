@@ -16,8 +16,13 @@ use Tests\Support\Org;
 
 uses(RefreshDatabase::class);
 
-it('catalogues P-01..P-102 with bilingual labels, scopes and default roles', function () {
-    expect(Permission::cases())->toHaveCount(102)
+it('catalogues P-01..P-102 with bilingual labels, scopes and default roles, plus P-103 (debt write-off, ADR-0035), P-104 (business rules, ADR-0037) and P-105/P-106 (field sales, ADR-0041)', function () {
+    expect(Permission::cases())->toHaveCount(106)
+        ->and(PermissionCatalogue::definition(Permission::P104)['roles'])->toBe(['owner'])
+        ->and(PermissionCatalogue::definition(Permission::P105)['roles'])->toBe(['owner', 'manager', 'supervisor'])
+        ->and(PermissionCatalogue::definition(Permission::P106)['roles'])->toBe(['owner', 'manager'])
+        ->and(Permission::P103->allowedScopes())->not->toBeEmpty()
+        ->and(PermissionCatalogue::definition(Permission::P103)['roles'])->toBe(['owner'])
         ->and(array_keys(PermissionCatalogue::DEFINITIONS))->toBe(array_map(fn (Permission $p) => $p->value, Permission::cases()));
 
     foreach (Permission::cases() as $permission) {
@@ -34,11 +39,11 @@ it('catalogues P-01..P-102 with bilingual labels, scopes and default roles', fun
         ->and(Permission::P07->allowedScopes())->toHaveCount(1);
 });
 
-it('seeds the eight default role templates from the matrix', function () {
+it('seeds the eight default role templates from the matrix, plus the field sales rep (ADR-0041)', function () {
     $this->seed(DatabaseSeeder::class);
 
     expect(RoleTemplate::query()->pluck('key')->all())
-        ->toEqualCanonicalizing(['owner', 'manager', 'supervisor', 'sales', 'executor', 'finance', 'inventory', 'content']);
+        ->toEqualCanonicalizing(['owner', 'manager', 'supervisor', 'sales', 'executor', 'finance', 'inventory', 'content', 'field_sales']);
 
     $sales = RoleTemplate::query()->where('key', 'sales')->firstOrFail();
     expect($sales->grants()->where('permission', 'P-94')->value('scope'))->toBe(Scope::Own)

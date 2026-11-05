@@ -19,6 +19,7 @@ import {
     PaymentStatusBadge,
     ProofStatusBadge,
 } from '@/components/finance/status';
+import { PlanPicker } from '@/components/finance/plan-picker';
 import type { FinanceDue, FinancePayload } from '@/components/finance/types';
 import { Amount } from '@/components/opsone/amount';
 import { EmptyState } from '@/components/opsone/empty-state';
@@ -27,6 +28,8 @@ import { PageHeader } from '@/components/opsone/page-header';
 import { notify } from '@/components/opsone/toast';
 import { KindBadge, StatusBadge } from '@/components/orders/status';
 import type { OrderRow } from '@/components/orders/types';
+import { OrderEInvoices } from '@/components/einvoicing/order-einvoices';
+import type { OrderEInvoice } from '@/components/einvoicing/order-einvoices';
 import { SettlementCard } from '@/components/settlement/settlement-card';
 import type { SettlementPayload } from '@/components/settlement/types';
 import { Alert, AlertBody, AlertTitle } from '@/components/ui/alert';
@@ -47,6 +50,7 @@ type Props = {
     finance: FinancePayload;
     settlement: SettlementPayload;
     today: string;
+    einvoices: OrderEInvoice[];
 };
 
 type Open =
@@ -85,6 +89,7 @@ export default function OrderFinance({
     order,
     finance,
     settlement,
+    einvoices,
     today,
 }: Props) {
     const t = useT();
@@ -370,6 +375,13 @@ export default function OrderFinance({
                                 )}
                             </div>
                         </CardHeader>
+                        <PlanPicker
+                            url={OrderFinanceController.choosePlan.url(
+                                order.id,
+                            )}
+                            payload={payload}
+                            onDone={(next) => done(next, t('rules.saved'))}
+                        />
                         {dues.length === 0 ? (
                             <EmptyState
                                 icon={CalendarClock}
@@ -428,6 +440,10 @@ export default function OrderFinance({
                                                     {t(
                                                         `finance.event.${due.event}` as TranslationKey,
                                                     )}
+                                                    {due.stage_key &&
+                                                        ` «${payload.stages.find((s) => s.key === due.stage_key)?.name ?? due.stage_key}»`}
+                                                    {due.offset_days > 0 &&
+                                                        ` + ${t('rules.days', { count: due.offset_days })}`}
                                                     {due.due_on && (
                                                         <span className="block text-caption text-weak">
                                                             {formatDate(
@@ -630,6 +646,7 @@ export default function OrderFinance({
                             setSettled(next.settlement);
                         }}
                     />
+                    <OrderEInvoices invoices={einvoices} />
                     <Card data-test="conditions">
                         <CardHeader>
                             <CardTitle>
@@ -786,6 +803,8 @@ export default function OrderFinance({
                     url={OrderFinanceController.updateSchedule.url(order.id)}
                     lockVersion={payload.lock_version}
                     dues={dues}
+                    plans={payload.plans}
+                    stages={payload.stages}
                     agreedMinor={summary?.agreed_minor ?? null}
                     onClose={() => setOpen(null)}
                     onDone={(next) => done(next, t('finance.schedule.done'))}

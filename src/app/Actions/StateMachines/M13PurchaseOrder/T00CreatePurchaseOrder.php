@@ -53,9 +53,11 @@ final class T00CreatePurchaseOrder
                 'branch_id' => (int) $data['branch_id'],
                 'location_id' => $data['location_id'] ?? null,
                 'status' => PurchaseStatus::Draft,
-                'expected_on' => $data['expected_on'] ?? null,
+                // A workshop's usual lead time proposes the date; the writer may change it before confirming.
+                'expected_on' => $data['expected_on'] ?? ($supplier->lead_days === null ? null : now()->addDays($supplier->lead_days)->toDateString()),
                 'responsible_id' => $data['responsible_id'] ?? null,
                 'notes' => $data['notes'] ?? null,
+                'flow_reference' => $data['flow_reference'] ?? null,
                 'vat_rate_bp' => $settings->vat_rate_bp,
                 'prices_include_vat' => $settings->prices_include_vat,
                 'created_by' => $actor->id,

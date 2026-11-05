@@ -58,6 +58,7 @@ final class UpdateDraftPurchase
                 'expected_on' => $data['expected_on'] ?? null,
                 'responsible_id' => $data['responsible_id'] ?? null,
                 'notes' => $data['notes'] ?? null,
+                'flow_reference' => $data['flow_reference'] ?? null,
                 'lock_version' => $fresh->lock_version + 1,
             ])->save();
             $this->lines->replace($fresh, $data['lines'], Access::can($actor, Permission::P82, $fresh));

@@ -8,14 +8,22 @@ use App\Actions\Inventory\ManageStockSetup;
 use App\Actions\Organization\CreateBranch;
 use App\Actions\Organization\EstablishOwner;
 use App\Actions\Organization\UpdateFacilityProfile;
+use App\Actions\Rules\PublishConfigRelease;
+use App\Actions\Rules\SaveDocumentClause;
+use App\Actions\Rules\SavePaymentPlan;
+use App\Actions\Rules\UpdateReminderSettings;
+use App\Actions\Rules\UpdateTaskSla;
 use App\Actions\Settings\UpdateDiscountLimits;
 use App\Actions\Settings\UpdateFinanceSettings;
 use App\Actions\Settings\UpdateWorkSettings;
 use App\Actions\StateMachines\M02Setup\T01SaveSetupStep;
 use App\Actions\StateMachines\M02Setup\T02CompleteSetup;
 use App\Actions\StateMachines\M22Membership\T00CreateMembership;
+use App\Actions\StateMachines\M23Flow\T01ChooseTemplate;
 use App\Actions\StateMachines\M23Flow\T02SaveDraft;
 use App\Actions\StateMachines\M23Flow\T03PublishFlow;
+use App\Configuration\ConfigSnapshot;
+use App\Finance\Plans\PaymentPlans;
 use App\Models\Branch;
 use App\Models\Department;
 use App\Models\Flow;
@@ -23,15 +31,21 @@ use App\Models\Region;
 use App\Models\RoleTemplate;
 use App\Models\User;
 use App\Workflow\FlowProvisioner;
+use App\Workflow\FlowTemplates;
 use Carbon\CarbonImmutable;
 
 /**
- * The organisation of OpsOne: facility profile, two regions, three branches, five departments, 17 staff accounts
+ * The organisation of OpsOne: facility profile, two regions, three branches, five departments, 19 staff accounts
  * (every role template), discount limits, commission policy, work hours and the published flow with real department
  * routing. Done on 2026-04-20, before the first business day.
  */
 final class Foundation
 {
+    /** ADR-0037: the default plan and the instalment plan some orders choose. */
+    public const PLAN_DEFAULT = 'fifty_fifty';
+
+    public const PLAN_INSTALLMENTS = 'forty_forty_twenty';
+
     public function __construct(private readonly Showcase $s) {}
 
     public function run(): void
@@ -43,6 +57,7 @@ final class Foundation
         $this->staff();
         $this->settings();
         $this->flow();
+        $this->rules();
         $this->finishSetup();
     }
 
@@ -108,6 +123,9 @@ final class Foundation
             'finance' => ['هند بنت سليمان الرشيد', 'hind.alrasheed', 'finance', $d['finance'], ['RUH', 'JED', 'DMM'], 'المحاسبة الرئيسية'],
             'inventory' => ['وليد بن عبدالرحمن الصالح', 'waleed.alsaleh', 'inventory', null, ['RUH', 'JED', 'DMM'], 'أمين المستودع والمشتريات'],
             'content' => ['دانة بنت فيصل الخالدي', 'dana.alkhalidi', 'content', null, [], 'مسؤولة المحتوى والموقع'],
+            // ADR-0041: field sales in Riyadh — a supervisor who dispatches and one rep (no department: no task inbox).
+            'sup_sales' => ['عادل محمد', 'adel.mohammed', 'supervisor', null, ['RUH'], 'مشرف المبيعات الميدانية'],
+            'field_rep' => ['سامي خالد', 'sami.khaled', 'field_sales', null, ['RUH'], 'بائع ميداني'],
         ];
 
         $create = app(T00CreateMembership::class);
@@ -146,18 +164,23 @@ final class Foundation
     }
 
     /**
-     * The published flow is the five-stage default with real routing: design work goes to the design department,
-     * manufacturing to production, measurements and installation to the installation department.
+     * The published flow is the retail default (ADR-0038: kitchens made by external workshops, followed by their
+     * purchase orders) with real routing: design work goes to the design department, the quality check on receipt
+     * to production, measurements and installation to the installation department; the workshop stages follow the
+     * procurement role.
      */
     private function flow(): void
     {
         $owner = $this->s->users['owner'];
         $flow = app(FlowProvisioner::class)->ensure();
-        $definition = $flow->publishedVersion->definition;
+        if ($flow->template_key !== FlowTemplates::RETAIL) {
+            // A deployment provisioned with another template still shows the retail story.
+            $flow = app(T01ChooseTemplate::class)->handle($owner, FlowTemplates::RETAIL, true, $flow->lock_version);
+        }
+        $definition = $flow->refresh()->publishedVersion->definition;
 
         $routing = [
-            'measure' => 'installation', 'design' => 'design', 'manufacturing' => 'production',
-            'quality_check' => 'production', 'installation' => 'installation',
+            'measure' => 'installation', 'design' => 'design', 'quality_check' => 'production', 'installation' => 'installation',
         ];
         foreach ($definition['stages'] as &$stage) {
             foreach ($stage['actions'] as &$action) {
@@ -171,6 +194,52 @@ final class Foundation
 
         app(T02SaveDraft::class)->handle($owner, $definition, Flow::current()?->lock_version);
         app(T03PublishFlow::class)->handle($owner, Flow::current()?->lock_version);
+    }
+
+    /**
+     * The owner's business rules (ADR-0037): two payment plans built from the starting templates — 50/50 (default) and
+     * 40/40/20 with the second payment when installation starts — the reminder policy with escalation to finance, task
+     * SLA holidays and the contract clause library — published as configuration release 1 (ADR-0040).
+     */
+    private function rules(): void
+    {
+        $owner = $this->s->users['owner'];
+        $save = app(SavePaymentPlan::class);
+        foreach ([self::PLAN_DEFAULT => true, self::PLAN_INSTALLMENTS => false] as $key => $default) {
+            $template = PaymentPlans::TEMPLATES[$key];
+            $save->handle($owner, null, [
+                'key' => $key, 'name' => $template['name'], 'is_default' => $default,
+                'lines' => array_map(fn (array $l) => [...$l, 'value' => PaymentPlans::valueText($l)], $template['lines']),
+            ], null, TransitionRecorder::SOURCE_SEEDER);
+        }
+
+        app(UpdateReminderSettings::class)->handle($owner, [
+            'before_days' => [3], 'on_due' => true, 'after_every_days' => 5, 'max_after' => 3,
+            'escalate_after_days' => 10, 'escalate_to' => 'finance', 'appointment_hours' => 24,
+        ], null, TransitionRecorder::SOURCE_SEEDER);
+
+        app(UpdateTaskSla::class)->handle($owner, [
+            'enabled' => true, 'default_days' => 3, 'by_type' => ['record_measurements' => 2, 'work_task' => 5], 'escalate_after_days' => 2,
+            'holidays' => ['2026-09-23', '2027-02-22'],
+        ], TransitionRecorder::SOURCE_SEEDER);
+
+        $clauses = app(SaveDocumentClause::class);
+        $clauses->handle($owner, null, [
+            'key' => 'warranty', 'title' => ['ar' => 'الضمان', 'en' => 'Warranty'],
+            'body' => ['ar' => 'تضمن {facility} هيكل المطبخ خمس سنوات والإكسسوارات سنة واحدة من تاريخ التركيب للطلب {order}.',
+                'en' => '{facility} warrants the kitchen carcass for five years and accessories for one year from installation of order {order}.'],
+            'applies_to' => ['contract'], 'included_by_default' => true, 'position' => 1,
+        ], null, TransitionRecorder::SOURCE_SEEDER);
+        $clauses->handle($owner, null, [
+            'key' => 'site_works', 'title' => ['ar' => 'أعمال الموقع', 'en' => 'Site works'],
+            'body' => ['ar' => 'لا يشمل السعر ({total} ر.س) أعمال الكهرباء والسباكة، ويُجهّز {customer} الموقع قبل موعد التركيب.',
+                'en' => 'The price (SAR {total}) excludes electrical and plumbing works; {customer} prepares the site before installation.'],
+            'applies_to' => ['quote', 'contract'], 'included_by_default' => true, 'position' => 2,
+        ], null, TransitionRecorder::SOURCE_SEEDER);
+
+        // ADR-0040: the rules apply once published — release 1 before the first order.
+        app(PublishConfigRelease::class)->publish($owner, 'الإصدار الأول: خطتا الدفع، سياسة التذكير، مهلة المهام وبنود العقد.', 0,
+            ConfigSnapshot::hash(ConfigSnapshot::capture()), TransitionRecorder::SOURCE_SEEDER);
     }
 
     private function finishSetup(): void

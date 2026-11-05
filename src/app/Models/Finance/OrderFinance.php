@@ -13,6 +13,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $id
  * @property int $order_id
  * @property int|null $agreement_id
+ * @property int|null $payment_plan_id the plan chosen before the agreement, or the one the schedule was copied from
+ * @property string|null $payment_plan_key the plan's key at that time (the built-in fallback has no row)
  * @property int $lock_version
  * @property-read Order $order
  */
@@ -32,6 +34,6 @@ class OrderFinance extends Model
 
     protected function casts(): array
     {
-        return ['lock_version' => 'integer', 'agreement_id' => 'integer'];
+        return ['lock_version' => 'integer', 'agreement_id' => 'integer', 'payment_plan_id' => 'integer'];
     }
 }

@@ -5,10 +5,12 @@ namespace App\Flow;
 use App\Customers\CustomerPresenter;
 use App\Enums\CustomOrderStatus;
 use App\Enums\OrganizationUnitStatus;
+use App\Models\Branch;
 use App\Models\Department;
 use App\Models\Flow;
 use App\Models\FlowVersion;
 use App\Models\OrderWorkflow;
+use App\Models\RoleTemplate;
 use App\Models\User;
 use App\Organization\OrgPresenter;
 use App\Workflow\Catalogue\ActionGroup;
@@ -70,8 +72,8 @@ final class FlowPresenter
     }
 
     /**
-     * Everything the stage/action editors choose from: the ten catalogue actions in five groups, the starting
-     * templates and the people and departments an assignment or follow-up may name.
+     * Everything the stage/action editors choose from: the catalogue actions in five groups, the starting templates,
+     * the add-on stage packs and the people, departments, roles and branches an assignment or follow-up may name.
      *
      * @return array<string, mixed>
      */
@@ -84,6 +86,12 @@ final class FlowPresenter
             'members' => CustomerPresenter::memberOptions(),
             'departments' => array_values(Department::query()->where('status', OrganizationUnitStatus::Active->value)->get()
                 ->map(fn (Department $d) => ['id' => $d->id, 'name' => OrgPresenter::name($d)])->all()),
+            // ADR-0038: a stage may be followed by any member of a role, or by a person per branch.
+            'roles' => array_values(RoleTemplate::query()->orderBy('id')->get()->map(fn (RoleTemplate $r) => ['id' => $r->id, 'name' => $r->name()])->all()),
+            'branches' => array_values(Branch::query()->where('status', OrganizationUnitStatus::Active->value)->orderBy('id')->get()
+                ->map(fn (Branch $b) => ['id' => $b->id, 'name' => OrgPresenter::name($b)])->all()),
+            // Stage packs the owner may insert into a draft (the in-house manufacturing add-on).
+            'addons' => array_map(fn (string $k) => ['key' => $k, 'label' => FlowTemplates::label($k), 'stages' => FlowTemplates::definition($k)['stages']], FlowTemplates::addonKeys()),
         ];
     }
 }

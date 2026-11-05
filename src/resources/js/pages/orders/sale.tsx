@@ -93,7 +93,7 @@ export default function OrderSale({ order, sale: initial }: Props) {
                         href={OrderController.show.url(order.id)}
                         className="inline-flex items-center gap-1 text-caption text-weak hover:underline"
                     >
-                        <Icon icon={ArrowLeft} className="rtl:rotate-180" />
+                        <Icon icon={ArrowLeft} />
                         <bdi dir="ltr">{order.number}</bdi>
                     </Link>
                 }

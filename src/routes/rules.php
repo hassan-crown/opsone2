@@ -1,0 +1,59 @@
+<?php
+
+use App\Http\Controllers\Rules\AutomationRuleController;
+use App\Http\Controllers\Rules\ConfigReleaseController;
+use App\Http\Controllers\Rules\DocumentClauseController;
+use App\Http\Controllers\Rules\MessageTemplateController;
+use App\Http\Controllers\Rules\NumberFormatController;
+use App\Http\Controllers\Rules\PaymentPlanController;
+use App\Http\Controllers\Rules\ReminderSettingsController;
+use App\Http\Controllers\Rules\TaskSlaController;
+use Illuminate\Support\Facades\Route;
+
+/*
+| No-Code phase 1a (ADR-0037): the owner's business rules — payment plans, reminders, clauses, messages, task SLA and
+| numbering. Reading needs P-104 or P-02, every change P-104 (checked in the actions) and is audited.
+| Changes are a draft until published as a configuration release (ADR-0040, settings/releases).
+*/
+
+Route::middleware(['auth', 'verified'])->prefix('settings')->name('rules.')->group(function () {
+    Route::get('payment-plans', [PaymentPlanController::class, 'index'])->name('plans');
+    Route::get('reminders', [ReminderSettingsController::class, 'edit'])->name('reminders');
+    Route::get('clauses', [DocumentClauseController::class, 'index'])->name('clauses');
+    Route::get('messages', [MessageTemplateController::class, 'index'])->name('messages');
+    Route::get('task-sla', [TaskSlaController::class, 'edit'])->name('sla');
+    Route::get('numbering', [NumberFormatController::class, 'index'])->name('numbering');
+    Route::get('releases', [ConfigReleaseController::class, 'index'])->name('releases');
+    Route::get('releases/{release}', [ConfigReleaseController::class, 'show'])->whereNumber('release')->name('releases.show');
+    // ADR-0042: automation rules (draft until published in a release; the kill switch is live).
+    Route::get('automation', [AutomationRuleController::class, 'index'])->name('automation');
+    Route::get('automation/new', [AutomationRuleController::class, 'create'])->name('automation.create');
+    Route::get('automation/{rule}/edit', [AutomationRuleController::class, 'edit'])->whereNumber('rule')->name('automation.edit');
+    Route::get('automation/log/{key}', [AutomationRuleController::class, 'log'])->where('key', '[a-z0-9_]{1,40}')->name('automation.log');
+    Route::post('automation/try', [AutomationRuleController::class, 'try'])->middleware('throttle:records-create')->name('automation.try');
+    Route::post('releases/preview', [ConfigReleaseController::class, 'preview'])->middleware('throttle:records-create')->name('releases.preview');
+
+    Route::middleware('throttle:records-create')->group(function () {
+        Route::post('payment-plans', [PaymentPlanController::class, 'store'])->name('plans.store');
+        Route::put('payment-plans/{plan}', [PaymentPlanController::class, 'update'])->whereNumber('plan')->name('plans.update');
+        Route::post('payment-plans/{plan}/archive', [PaymentPlanController::class, 'archive'])->whereNumber('plan')->name('plans.archive');
+        Route::put('reminders', [ReminderSettingsController::class, 'update'])->name('reminders.update');
+        Route::post('clauses', [DocumentClauseController::class, 'store'])->name('clauses.store');
+        Route::put('clauses/{clause}', [DocumentClauseController::class, 'update'])->whereNumber('clause')->name('clauses.update');
+        Route::post('clauses/{clause}/archive', [DocumentClauseController::class, 'archive'])->whereNumber('clause')->name('clauses.archive');
+        Route::put('messages', [MessageTemplateController::class, 'update'])->name('messages.update');
+        Route::delete('messages', [MessageTemplateController::class, 'reset'])->name('messages.reset');
+        Route::post('messages/preview', [MessageTemplateController::class, 'preview'])->name('messages.preview');
+        Route::put('messages/whatsapp', [MessageTemplateController::class, 'whatsapp'])->name('messages.whatsapp');
+        Route::put('task-sla', [TaskSlaController::class, 'update'])->name('sla.update');
+        Route::put('numbering', [NumberFormatController::class, 'update'])->name('numbering.update');
+        Route::post('releases', [ConfigReleaseController::class, 'publish'])->name('releases.publish');
+        Route::post('releases/discard', [ConfigReleaseController::class, 'discard'])->name('releases.discard');
+        Route::post('automation', [AutomationRuleController::class, 'store'])->name('automation.store');
+        Route::put('automation/{rule}', [AutomationRuleController::class, 'update'])->whereNumber('rule')->name('automation.update');
+        Route::post('automation/{rule}/archive', [AutomationRuleController::class, 'archive'])->whereNumber('rule')->name('automation.archive');
+        Route::post('automation/{rule}/kill', [AutomationRuleController::class, 'kill'])->whereNumber('rule')->name('automation.kill');
+        Route::post('automation/{rule}/revive', [AutomationRuleController::class, 'revive'])->whereNumber('rule')->name('automation.revive');
+        Route::post('releases/{release}/rollback', [ConfigReleaseController::class, 'rollback'])->whereNumber('release')->name('releases.rollback');
+    });
+});

@@ -4,7 +4,12 @@ namespace App\Http\Middleware;
 
 use App\Access\Access;
 use App\Access\Permission;
+use App\Configuration\ConfigReleases;
+use App\Configuration\ConfigSnapshot;
 use App\Delivery\DeliveryAccess;
+use App\FieldSales\FieldDispatch;
+use App\FieldSales\FieldReps;
+use App\FieldSales\FieldSalesConfig;
 use App\Inventory\StockAccess;
 use App\Notifications\NotificationFeed;
 use App\Reports\Dashboard\ExecutiveDashboard;
@@ -60,6 +65,21 @@ class HandleInertiaRequests extends Middleware
             'orgNav' => fn () => $this->orgNav($request),
             // Bell data (SHR-05); the client polls it with a partial reload instead of a socket (Q-26).
             'notifications' => fn () => app(NotificationFeed::class)->for($request->user()),
+            // ADR-0040: on the business-rules pages, whether the draft differs from the release in force.
+            'configDraft' => fn () => $request->routeIs('rules.*', 'settings.purchase-document') ? self::configDraft() : null,
+        ];
+    }
+
+    /**
+     * @return array{pending: bool, release: int|null}
+     */
+    private static function configDraft(): array
+    {
+        $current = ConfigReleases::latest();
+
+        return [
+            'pending' => $current === null || $current->snapshot_hash !== ConfigSnapshot::hash(ConfigSnapshot::capture()),
+            'release' => $current?->number,
         ];
     }
 
@@ -100,6 +120,10 @@ class HandleInertiaRequests extends Middleware
             'flow' => Access::can($user, Permission::P20),
             'tasks' => Access::can($user, Permission::P24) || Access::can($user, Permission::P22),
             'calendar' => Access::can($user, Permission::P54) || Access::can($user, Permission::P24),
+            'appointmentRequests' => Access::can($user, Permission::P54),
+            'fieldSales' => FieldDispatch::canDispatch($user),
+            'fieldTeam' => FieldSalesConfig::enabled() && Access::can($user, Permission::P105),
+            'fieldApp' => FieldSalesConfig::enabled() && FieldReps::isRep($user),
             'finance' => Access::can($user, Permission::P37),
             'commissions' => Access::can($user, Permission::P94),
             'reports' => Access::can($user, Permission::P60),

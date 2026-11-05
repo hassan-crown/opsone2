@@ -68,7 +68,8 @@ it('hides every amount from a viewer without P-37 (supervisor): statuses only, n
         ->and(finMinorKeys($payload))->toBe([])
         ->and($payload['dues'][0]['status'])->toBe('partially_paid')
         ->and($payload['payments'][0]['evidence'])->toBe([])
-        ->and($payload['can'])->toBe(['record' => false, 'review' => false, 'schedule' => false, 'allocate' => false]);
+        ->and($payload['can'])->toBe(['record' => false, 'review' => false, 'schedule' => false, 'allocate' => false, 'plan' => false])
+        ->and($payload['plans'])->toBe([]);
 });
 
 it('never puts money in an executor\'s task payload', function () {
@@ -142,6 +143,31 @@ it('lists due, overdue, receipts and unallocated money in FinHome, scoped by P-3
     $this->travel(10)->days();
     $later = $this->actingAs($this->f->owner)->getJson('/finance')->json();
     expect($later['counts']['overdue'])->toBe(1);
+});
+
+it('pages FinHome one tab at a time, keeping unallocated money out of «all»', function () {
+    finAgree($this->f, '20000');
+    finProof($this->f->order, '500', 'FT-PAGE');
+    $other = openCustomOrder($this->f->owner, $this->f->inB);
+    finPay($this->f->owner, $other, '700');
+
+    $this->actingAs($this->f->owner)->get('/finance')->assertOk()
+        ->assertInertia(fn (AssertableInertia $page) => $page->component('finance/index')
+            ->where('kind', 'all')
+            ->has('items', 2)
+            ->where('meta.total', 2)
+            ->where('meta.page', 1)
+            ->where('counts.settlement', 1));
+
+    $this->actingAs($this->f->owner)->get('/finance?kind=settlement&page=9')->assertOk()
+        ->assertInertia(fn (AssertableInertia $page) => $page->where('kind', 'settlement')
+            ->has('items', 1)
+            ->where('items.0.kind', 'settlement')
+            ->where('meta.page', 1)
+            ->where('meta.last_page', 1));
+
+    $this->actingAs($this->f->owner)->get('/finance?kind=bogus')->assertOk()
+        ->assertInertia(fn (AssertableInertia $page) => $page->where('kind', 'all'));
 });
 
 it('ReportCollection: ages dues from confirmed money only and sums this month\'s collections', function () {

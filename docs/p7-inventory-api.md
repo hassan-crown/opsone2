@@ -87,6 +87,7 @@ header, 8–100 chars, reused on retry) and the note's `lock_version`; errors as
 | GET | `/deliveries/{note}` | — | P-52 on the order → `{note: {id, number, status, order, lines[{…, quantity, deliverable?, value_minor?}], proofs[{uuid, name, url}], can{confirm, cancel}, lock_version}}` |
 | POST | `/deliveries/{note}/confirm` | multipart: `idempotency_key, lock_version, delivered_on (≤ today), receiver_name, note?, proofs[1..5]` | P-52 → `{note}` with `number = DN-YYYY-000123` |
 | POST | `/deliveries/{note}/cancel` | `reason, lock_version?` | P-52, drafts only |
+| POST | `/deliveries/{note}/corrections` | `idempotency_key, lock_version?, lines[{line_id (note line), quantity}], destination stock\|reservation (required for ready lines), reason` | P-52 on the order **and P-49 on each stock location that moves** → 201 `{note}` (M-14-T03, ADR-0035) |
 
 PHP seams:
 
@@ -98,6 +99,9 @@ PHP seams:
 | `Delivery\DeliveryProgress::lines($order)` / `::complete($order)` / `::deliveredByLine($orderId)` | owed per line `{ordered, delivered, released, deliverable}`; completion; the delivered base **for returns** (confirmed notes, thousandths by order line id) |
 | `Delivery\DeliveryAccess::{canRecord, canView, canSeeAmounts, orders, scoped}` | P-52 on the order, P-37 for amounts |
 | event `App\Delivery\DeliveryConfirmed(orderId, noteId, first, complete)` | after commit; listeners idempotent on `noteId` |
+| `…\T03CorrectDelivery::handle($actor, $note, {lines[{line_id, quantity}], destination?, reason}, ?$lockVersion, ?$key)` | correction: order lock → counter-movements (`correction_reserve` back into the reservation / `correction_in` to general stock) → order back to partially delivered when owed again; the note is never edited |
+| `Delivery\DeliveryCorrections::{orderAccepts, correctedByNoteLine, correctedByOrderLine, issuedPieces, firstDeliveryOn}` | read side of corrections; `DeliveryProgress::deliveredByLine()` is net of them |
+| event `App\Delivery\DeliveryCorrected(orderId, correctionId)` | after commit; no listener yet — the hook for a configurable due-rule engine (`delivery_corrections.first_delivery_on` keeps the date the current rule used) |
 
 Refusals: draft/confirm on an order that cannot accept a delivery → 409 `order_{status}`; confirming a non-draft → 409
 `not_from_{status}`; quantity above deliverable → 422 `lines.N.quantity` / `lines`; no receiver / no proof → 422.
@@ -111,6 +115,22 @@ Contracts to other domains:
 - **P7a**: stock leaves only through `IssueReadyReservation` (movement `issue_reserved`, `source_type = delivery_note`,
   `source_id = note id`, key `delivery:{note}:{line}:{reservation}`).
 - **Numbers**: `DN-YYYY-000123` (gapless per year, taken at recording; drafts and withdrawn drafts have none).
+
+### Delivery remarks (M-14-T04, ADR-0032 / ADR-0035) — stable contract
+
+An order holds any number of blocking remarks (on its confirmed notes); each is resolved on its own. The order cannot
+close while one is open. **Stable for other clients (the installation field app):** routes, names and payload keys
+below only grow; `App\Delivery\DeliveryRemarks::row()` builds every remark.
+
+| Method | URL (name) | Body | Permission → answer |
+|---|---|---|---|
+| GET | `/orders/{order}/delivery-remarks` (`deliveries.remarks.index`) | — | P-52 on the order → `{remarks: [row]}`, open first (oldest first), then resolved (latest first) |
+| POST | `/deliveries/{note}/remarks` (`deliveries.remarks.store`) | `description` (3..2000) | P-52, confirmed note → 201 `{remark: row}`; the follow-up person is the order's follower, else its assignee |
+| POST | `/delivery-remarks/{remark}/resolve` (`deliveries.remarks.resolve`) | `resolution` (3..2000), `lock_version?` | P-52 → `{remark: row}`; resolving twice → 409 `remark_resolved`; stale → 409 |
+
+`row = {id, delivery_note_id, note, description, status open|resolved, recorded_by, recorded_at, follow_up, resolution,
+resolved_by, resolved_at, lock_version}` (names, ISO-8601 times). Closure: blocker `remark_open` with `details.count` and
+`items[{id, note, description}]`; the 422 of `POST /orders/{order}/close` has one line per unresolved remark.
 
 ## Cancellation and the settlement follow-up (P7e, ADR-0020) — M-34
 
@@ -191,3 +211,28 @@ document number = RT.
 | `refunds.order_return_id` | Links a return's refunds; M-12-T07 refuses to retry one the return replaced after a failure (409 `superseded`). |
 | Stock ledger | Location row shared-locked before balances; nothing arrives at a disabled location (422 `location_id`). |
 | Audit log | Amounts of records that belong to an order (returns, delivery notes, cancellations…) follow the order's P-37 rule. |
+
+## Workshop purchase orders and the purchase-order document (No-Code phase 1b, ADR-0038)
+
+| Endpoint / seam | Body / query | Permission → result |
+|---|---|---|
+| `POST/PUT /suppliers` | `+ is_workshop: bool, lead_days?: 1..365` | P-45. A workshop's `lead_days` proposes a new purchase order's `expected_on` (create, when left empty). |
+| `POST/PUT /purchases` | `+ flow_reference?: ^[a-z0-9_]{1,30}$`; line `item_type: material \| ready_variant \| order_line` | P-46. `order_line` = a line of the linked order (`order_id` required, same order, not removed); frozen name, unit `piece`, **never stocked**. |
+| `GET /purchases/create?order=&reference=` | — | P-46 (+P-16 on the order) → `prefill {order, branch_id, supplier_id (the only active workshop), expected_on, flow_reference, lines[]}`. |
+| `GET /workshops` (`?supplier&branch&late=1`) | — | P-46 / P-47 scoped like the purchase list → `rows[{id, number, status, supplier{is_workshop}, branch, orders[{id, number}], expected_on, days_late, progress, flow_reference}], summary{open, late, by_workshop[]}`. No costs. |
+| `GET /purchases/{po}/pdf` (`?locale=en&download=1`) | — | P-46 / P-47 on the order → the PDF (stored once per content fingerprint as `purchase_order_documents` + private attachment, records `template_version`). Prices only when the layout shows them **and** the viewer holds P-82. |
+| `POST /purchases/{po}/email` | `idempotency_key, recipient?, subject?, body?, locale?: ar\|en` | P-46; ordered / partially received / received (409 otherwise) → `purchase_order_sends` row + outbox mail (kind `purchase_order`, PDF attached), audit `purchase.emailed`. Empty fields use the supplier email and the facility texts. |
+| `POST /purchases/{po}/sends/{send}/retry` | `idempotency_key` | P-46; only a `failed` send (retries exhausted, else 409) → a new send with `retry_of`. |
+| `GET /settings/purchase-document` | — | P-45 → `{version, layout{blocks[{key, visible}], flags{}, title{ar,en}, terms{ar,en}}, email{subject{ar,en}, body{ar,en}}, options}`. |
+| `PUT /settings/purchase-document` | `version (the one read), layout, email` | P-45 → a new immutable `purchase_document_versions` row (audit `purchase.document_saved`); stale `version` → `lock_version` error; unchanged → no new version; placeholders only `{number} {supplier} {facility} {branch} {expected_on}`. |
+| `POST /settings/purchase-document/preview` | `layout, locale?` | P-45 → PDF of the unsaved layout on the viewer's latest purchase order (or a sample). |
+
+Send statuses (`purchase_order_sends.status`, mirrored from the outbox, which prunes delivered rows): `queued`
+(pending or retrying with backoff), `sent`, `failed` (retries exhausted). Blocks: `facility, branch, supplier,
+order_reference, expected_on, delivery_address, lines, notes, terms, signatures`; flags: `facility_contact,
+customer_name (off), customer_phone (off), line_dimensions, line_options, line_notes, line_images, prices (off),
+signature, stamp`.
+
+Flow sync (`Procurement\WorkshopOrders::sync`, inside T01–T04): see docs/p5-engine-api.md «For P6/P7». Late alert:
+`workshops:late-alerts` (daily 07:30) notifies `workshop.late` to the purchase order's responsible, the order's owner and
+the open workshop stages' responsible, once per purchase order and expected date.

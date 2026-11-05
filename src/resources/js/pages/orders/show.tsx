@@ -1,14 +1,18 @@
 import { Head, Link, router } from '@inertiajs/react';
 import {
     BadgePercent,
+    Ban,
+    EllipsisVertical,
     EyeOff,
     FileSignature,
     GitBranch,
     Pencil,
     Plus,
     Receipt,
+    Route,
     Trash2,
 } from 'lucide-react';
+import CancellationController from '@/actions/App/Http/Controllers/Cancellation/CancellationController';
 import { lazy, Suspense, useState } from 'react';
 import OrderFinanceController from '@/actions/App/Http/Controllers/Finance/OrderFinanceController';
 import AgreementController from '@/actions/App/Http/Controllers/Agreements/AgreementController';
@@ -18,6 +22,8 @@ import OrderLineController from '@/actions/App/Http/Controllers/Orders/OrderLine
 import CustomerController from '@/actions/App/Http/Controllers/Customers/CustomerController';
 import { Amount } from '@/components/opsone/amount';
 import { Icon } from '@/components/opsone/icon';
+import { Menu } from '@/components/opsone/menu';
+import type { MenuItem } from '@/components/opsone/menu';
 import { notify } from '@/components/opsone/toast';
 import { PageHeader } from '@/components/opsone/page-header';
 import { Table, TableWrap, Td, Th } from '@/components/org/data-table';
@@ -31,8 +37,12 @@ import { OrderCancelCard } from '@/components/cancellation/order-cancel-card';
 import type { OrderCancellation } from '@/components/cancellation/order-cancel-card';
 import { OrderDeliveryCard } from '@/components/delivery/order-delivery-card';
 import type { OrderDelivery } from '@/components/delivery/order-delivery-card';
+import { InstallationCard } from '@/components/orders/installation-card';
+import { SalesChannelCard } from '@/components/orders/sales-channel-card';
+import type { OrderSalesChannel } from '@/components/orders/sales-channel-card';
 import { OrderClosureCard } from '@/components/orders/order-closure-card';
 import type { OrderClosure } from '@/components/orders/order-closure-card';
+import type { OrderInstallation } from '@/types/field';
 import { OrderStockCard } from '@/components/stock/order-stock-card';
 import type { OrderStock } from '@/components/stock/types';
 import { toPayload } from '@/components/orders/types';
@@ -40,6 +50,7 @@ import type {
     HistoryEntry,
     Option,
     OrderDetail,
+    OrderStageHeader,
 } from '@/components/orders/types';
 import { Alert, AlertBody } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
@@ -61,14 +72,24 @@ import type { TranslationKey } from '@/lib/i18n';
 
 type Props = {
     order: OrderDetail;
+    stage: OrderStageHeader | null;
     history: HistoryEntry[];
+    notes: {
+        id: number;
+        body: string;
+        source: string;
+        rule: string | null;
+        at: string;
+    }[];
     members: Option[];
     invoiceTypes: string[];
     transferBranches: Option[];
     stock?: OrderStock;
     delivery?: OrderDelivery | null;
     closure?: OrderClosure | null;
+    installation?: OrderInstallation | null;
     cancellation?: OrderCancellation | null;
+    salesChannel?: OrderSalesChannel;
 };
 
 // Loaded on demand: keeps the page's preload `Link` header (one entry per static chunk) within nginx's buffer.
@@ -79,6 +100,60 @@ const OrderStages = lazy(() =>
 );
 
 const EDITABLE = ['in_progress', 'paused', 'draft'];
+
+/** «Current stage → next»: where the order stands, its due date and what comes after (custom orders with a flow). */
+function StageStrip({ stage }: { stage: OrderStageHeader }) {
+    const t = useT();
+    const { locale } = useLocale();
+    const late = stage.days_late > 0;
+
+    return (
+        <Card className="mb-4 p-4 md:p-4" data-test="order-stage-strip">
+            <div className="flex min-w-0 items-start gap-3">
+                <span
+                    className={
+                        late
+                            ? 'grid size-10 shrink-0 place-items-center rounded-md bg-warning-bg text-warning-text'
+                            : 'grid size-10 shrink-0 place-items-center rounded-md bg-brand-subtle text-brand-subtle-text'
+                    }
+                    aria-hidden="true"
+                >
+                    <Icon icon={Route} />
+                </span>
+                <div className="min-w-0">
+                    <p className="text-caption text-weak">
+                        {t('orders.stage.current_of', {
+                            n: stage.position,
+                            total: stage.total,
+                        })}
+                    </p>
+                    <p className="flex flex-wrap items-center gap-2">
+                        <span className="text-heading text-strong">
+                            {stage.name}
+                        </span>
+                        {late && (
+                            <Badge variant="warning">
+                                {t('orders.stage.late', {
+                                    n: stage.days_late,
+                                })}
+                            </Badge>
+                        )}
+                    </p>
+                    <p className="text-caption text-weak">
+                        {stage.due_on &&
+                            t('orders.stage.due', {
+                                date: formatDate(stage.due_on, locale),
+                            })}
+                        {stage.due_on && ' · '}
+                        {stage.next
+                            ? t('orders.stage.next', { name: stage.next })
+                            : t('orders.stage.last')}
+                    </p>
+                </div>
+            </div>
+        </Card>
+    );
+}
 
 function Fact({
     label,
@@ -98,17 +173,22 @@ function Fact({
 /** OrderOverview + OrderStates (history) for one order; every action re-checks access on the server. */
 export default function OrderShow({
     order,
+    stage,
     history,
+    notes,
     members,
     invoiceTypes,
     transferBranches,
     stock,
     delivery,
     closure,
+    installation,
     cancellation,
+    salesChannel,
 }: Props) {
     const t = useT();
     const { locale } = useLocale();
+    const [tab, setTab] = useState('overview');
     const [editing, setEditing] = useState(false);
     const [transferring, setTransferring] = useState(false);
     const [adding, setAdding] = useState(false);
@@ -170,6 +250,86 @@ export default function OrderShow({
         );
     };
 
+    // One primary action (the order's next step), everything else under «More»; cancellation last, as danger.
+    const custom = order.kind === 'custom';
+    const more: MenuItem[] = [
+        ...(custom
+            ? [
+                  {
+                      label: t('agreements.title'),
+                      icon: FileSignature,
+                      href: AgreementController.show.url(order.id),
+                  },
+                  {
+                      label: t('finance.order.title'),
+                      icon: Receipt,
+                      href: OrderFinanceController.show.url(order.id),
+                  },
+              ]
+            : []),
+        ...(order.can.sale
+            ? [
+                  {
+                      label: t('commissions.sale.title'),
+                      icon: BadgePercent,
+                      href: OrderSaleController.show.url(order.id),
+                  },
+              ]
+            : []),
+        ...(order.can.transfer_branch && transferBranches.length > 0
+            ? [
+                  {
+                      label: t('orders.transfer.action'),
+                      icon: GitBranch,
+                      onSelect: () => setTransferring(true),
+                  },
+              ]
+            : []),
+        ...(stage && canEdit
+            ? [
+                  {
+                      label: t('orders.edit.action'),
+                      icon: Pencil,
+                      onSelect: () => setEditing(true),
+                  },
+              ]
+            : []),
+        ...(cancellation?.can_review && !cancellation.pending
+            ? [
+                  {
+                      label: t('cancel.order.review'),
+                      icon: Ban,
+                      href: CancellationController.show.url(order.id),
+                      danger: true,
+                      separatorBefore: true,
+                  },
+              ]
+            : []),
+    ];
+    const primary = stage ? (
+        <Button
+            type="button"
+            onClick={() => setTab('progress')}
+            data-test="primary-progress"
+        >
+            <Icon icon={Route} />
+            {t('orders.stage.open')}
+        </Button>
+    ) : canEdit ? (
+        <Button
+            type="button"
+            onClick={() => setEditing(true)}
+            data-test="edit-order"
+        >
+            <Icon icon={Pencil} />
+            {t('orders.edit.action')}
+        </Button>
+    ) : null;
+    // The cancellation card stays only while there is something to follow (a pending cancellation or settlement).
+    const showCancelCard = Boolean(
+        cancellation && (cancellation.pending || cancellation.settlement),
+    );
+
     return (
         <>
             <Head title={order.number} />
@@ -178,66 +338,21 @@ export default function OrderShow({
                 description={`${order.customer.name} · ${formatDate(order.created_at, locale)}`}
                 actions={
                     <>
-                        {order.kind === 'custom' && (
-                            <Button asChild variant="secondary">
-                                <Link
-                                    href={AgreementController.show.url(
-                                        order.id,
-                                    )}
-                                    data-test="open-agreement"
-                                >
-                                    <Icon icon={FileSignature} />
-                                    {t('agreements.title')}
-                                </Link>
-                            </Button>
-                        )}
-                        {order.kind === 'custom' && (
-                            <Button asChild variant="secondary">
-                                <Link
-                                    href={OrderFinanceController.show.url(
-                                        order.id,
-                                    )}
-                                    data-test="open-finance"
-                                >
-                                    <Icon icon={Receipt} />
-                                    {t('finance.order.title')}
-                                </Link>
-                            </Button>
-                        )}
-                        {order.can.sale && (
-                            <Button asChild variant="secondary">
-                                <Link
-                                    href={OrderSaleController.show.url(
-                                        order.id,
-                                    )}
-                                    data-test="open-sale"
-                                >
-                                    <Icon icon={BadgePercent} />
-                                    {t('commissions.sale.title')}
-                                </Link>
-                            </Button>
-                        )}
-                        {order.can.transfer_branch &&
-                            transferBranches.length > 0 && (
-                                <Button
-                                    type="button"
-                                    variant="secondary"
-                                    onClick={() => setTransferring(true)}
-                                    data-test="transfer-order"
-                                >
-                                    <Icon icon={GitBranch} />
-                                    {t('orders.transfer.action')}
-                                </Button>
-                            )}
-                        {canEdit && (
-                            <Button
-                                type="button"
-                                onClick={() => setEditing(true)}
-                                data-test="edit-order"
-                            >
-                                <Icon icon={Pencil} />
-                                {t('orders.edit.action')}
-                            </Button>
+                        {primary}
+                        {more.length > 0 && (
+                            <Menu
+                                items={more}
+                                trigger={
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        data-test="order-more"
+                                    >
+                                        <Icon icon={EllipsisVertical} />
+                                        {t('orders.more')}
+                                    </Button>
+                                }
+                            />
                         )}
                     </>
                 }
@@ -279,7 +394,9 @@ export default function OrderShow({
                 </Alert>
             )}
 
-            <Tabs defaultValue="overview" className="min-w-0">
+            {stage && <StageStrip stage={stage} />}
+
+            <Tabs value={tab} onValueChange={setTab} className="min-w-0">
                 <TabsList>
                     <TabsTrigger value="overview">
                         {t('orders.tab.overview')}
@@ -376,176 +493,297 @@ export default function OrderShow({
                                         {t('orders.lines.empty')}
                                     </p>
                                 ) : (
-                                    <TableWrap>
-                                        <Table
-                                            caption={t('orders.lines.title')}
+                                    <>
+                                        <ul
+                                            className="divide-y divide-stroke-weak border-t border-stroke-weak md:hidden"
+                                            data-test="order-line-cards"
                                         >
-                                            <thead>
-                                                <tr>
-                                                    <Th>
-                                                        {t('orders.lines.item')}
-                                                    </Th>
-                                                    <Th>
-                                                        {t(
-                                                            'orders.lines.quantity',
-                                                        )}
-                                                    </Th>
-                                                    {!hidden && (
-                                                        <Th>
-                                                            {t(
-                                                                'orders.lines.unit_price',
-                                                            )}
-                                                        </Th>
-                                                    )}
-                                                    {!hidden && (
-                                                        <Th>
-                                                            {t(
-                                                                'orders.lines.total',
-                                                            )}
-                                                        </Th>
-                                                    )}
-                                                    <Th className="relative">
-                                                        <span className="sr-only">
-                                                            {t(
-                                                                'orders.lines.actions',
-                                                            )}
-                                                        </span>
-                                                    </Th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                {order.lines.map((l) => (
-                                                    <tr
-                                                        key={l.id}
-                                                        data-test="order-line"
-                                                        className={
-                                                            l.removed
-                                                                ? 'opacity-60'
-                                                                : undefined
-                                                        }
-                                                    >
-                                                        <Td>
-                                                            <p
-                                                                className={
-                                                                    l.removed
-                                                                        ? 'font-semibold line-through'
-                                                                        : 'font-semibold text-strong'
-                                                                }
-                                                            >
-                                                                {lineName(
-                                                                    l,
-                                                                    locale,
-                                                                )}{' '}
-                                                                {l.snapshot
-                                                                    .version !==
-                                                                    undefined && (
-                                                                    <Badge
-                                                                        variant="neutral"
-                                                                        data-test="line-version"
-                                                                    >
-                                                                        {t(
-                                                                            'orders.version',
-                                                                            {
-                                                                                n: l
-                                                                                    .snapshot
-                                                                                    .version,
-                                                                            },
-                                                                        )}
-                                                                    </Badge>
-                                                                )}
-                                                                {l.removed && (
-                                                                    <Badge variant="warning">
-                                                                        {t(
-                                                                            'orders.lines.removed',
-                                                                        )}
-                                                                    </Badge>
-                                                                )}
-                                                            </p>
-                                                            {optionsText(
+                                            {order.lines.map((l) => (
+                                                <li
+                                                    key={l.id}
+                                                    className={
+                                                        l.removed
+                                                            ? 'flex items-start gap-3 p-4 opacity-60'
+                                                            : 'flex items-start gap-3 p-4'
+                                                    }
+                                                >
+                                                    <div className="min-w-0 flex-1">
+                                                        <p
+                                                            className={
+                                                                l.removed
+                                                                    ? 'font-semibold break-words line-through'
+                                                                    : 'font-semibold break-words text-strong'
+                                                            }
+                                                        >
+                                                            {lineName(
                                                                 l,
                                                                 locale,
-                                                            ) && (
-                                                                <p className="text-caption text-weak">
-                                                                    {optionsText(
-                                                                        l,
-                                                                        locale,
-                                                                    )}
-                                                                </p>
                                                             )}
-                                                        </Td>
-                                                        <Td>
+                                                        </p>
+                                                        {optionsText(
+                                                            l,
+                                                            locale,
+                                                        ) && (
+                                                            <p className="text-caption text-weak">
+                                                                {optionsText(
+                                                                    l,
+                                                                    locale,
+                                                                )}
+                                                            </p>
+                                                        )}
+                                                        <p className="mt-1 flex flex-wrap items-center gap-x-1 text-caption text-weak">
                                                             <bdi dir="ltr">
                                                                 {l.quantity}
                                                             </bdi>
                                                             {l.unit
                                                                 ? ` ${l.unit}`
                                                                 : ''}
-                                                        </Td>
-                                                        {!hidden && (
-                                                            <Td>
-                                                                {l.unit_price_minor ==
-                                                                null ? (
-                                                                    <span className="text-weak">
-                                                                        {t(
-                                                                            'orders.price_unknown',
-                                                                        )}
-                                                                    </span>
-                                                                ) : (
-                                                                    <Amount
-                                                                        value={
-                                                                            l.unit_price_minor /
-                                                                            100
-                                                                        }
-                                                                    />
-                                                                )}
-                                                            </Td>
-                                                        )}
-                                                        {!hidden && (
-                                                            <Td>
-                                                                {l.line_total_minor ==
-                                                                null ? (
-                                                                    <span className="text-weak">
-                                                                        —
-                                                                    </span>
-                                                                ) : (
-                                                                    <Amount
-                                                                        value={
-                                                                            l.line_total_minor /
-                                                                            100
-                                                                        }
-                                                                    />
-                                                                )}
-                                                            </Td>
-                                                        )}
-                                                        <Td>
-                                                            {canEdit &&
-                                                                !l.removed && (
-                                                                    <Button
-                                                                        type="button"
-                                                                        variant="ghost"
-                                                                        size="icon-sm"
-                                                                        aria-label={t(
-                                                                            'orders.lines.remove',
-                                                                        )}
-                                                                        onClick={() =>
-                                                                            void removeLine(
-                                                                                l.id,
-                                                                            )
-                                                                        }
-                                                                    >
-                                                                        <Icon
-                                                                            icon={
-                                                                                Trash2
+                                                            {!hidden &&
+                                                                l.unit_price_minor !=
+                                                                    null && (
+                                                                    <>
+                                                                        <span aria-hidden="true">
+                                                                            ×
+                                                                        </span>
+                                                                        <Amount
+                                                                            value={
+                                                                                l.unit_price_minor /
+                                                                                100
                                                                             }
                                                                         />
-                                                                    </Button>
+                                                                    </>
                                                                 )}
-                                                        </Td>
+                                                        </p>
+                                                        {l.removed && (
+                                                            <Badge
+                                                                variant="warning"
+                                                                className="mt-1"
+                                                            >
+                                                                {t(
+                                                                    'orders.lines.removed',
+                                                                )}
+                                                            </Badge>
+                                                        )}
+                                                    </div>
+                                                    <div className="flex shrink-0 flex-col items-end gap-1">
+                                                        {!hidden &&
+                                                            (l.line_total_minor ==
+                                                            null ? (
+                                                                <span className="text-weak">
+                                                                    {t(
+                                                                        'orders.price_unknown',
+                                                                    )}
+                                                                </span>
+                                                            ) : (
+                                                                <Amount
+                                                                    value={
+                                                                        l.line_total_minor /
+                                                                        100
+                                                                    }
+                                                                    strong
+                                                                />
+                                                            ))}
+                                                        {canEdit &&
+                                                            !l.removed && (
+                                                                <Button
+                                                                    type="button"
+                                                                    variant="ghost"
+                                                                    size="icon"
+                                                                    aria-label={t(
+                                                                        'orders.lines.remove',
+                                                                    )}
+                                                                    onClick={() =>
+                                                                        void removeLine(
+                                                                            l.id,
+                                                                        )
+                                                                    }
+                                                                >
+                                                                    <Icon
+                                                                        icon={
+                                                                            Trash2
+                                                                        }
+                                                                    />
+                                                                </Button>
+                                                            )}
+                                                    </div>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                        <TableWrap className="max-md:hidden">
+                                            <Table
+                                                caption={t(
+                                                    'orders.lines.title',
+                                                )}
+                                            >
+                                                <thead>
+                                                    <tr>
+                                                        <Th>
+                                                            {t(
+                                                                'orders.lines.item',
+                                                            )}
+                                                        </Th>
+                                                        <Th>
+                                                            {t(
+                                                                'orders.lines.quantity',
+                                                            )}
+                                                        </Th>
+                                                        {!hidden && (
+                                                            <Th>
+                                                                {t(
+                                                                    'orders.lines.unit_price',
+                                                                )}
+                                                            </Th>
+                                                        )}
+                                                        {!hidden && (
+                                                            <Th>
+                                                                {t(
+                                                                    'orders.lines.total',
+                                                                )}
+                                                            </Th>
+                                                        )}
+                                                        <Th className="relative">
+                                                            <span className="sr-only">
+                                                                {t(
+                                                                    'orders.lines.actions',
+                                                                )}
+                                                            </span>
+                                                        </Th>
                                                     </tr>
-                                                ))}
-                                            </tbody>
-                                        </Table>
-                                    </TableWrap>
+                                                </thead>
+                                                <tbody>
+                                                    {order.lines.map((l) => (
+                                                        <tr
+                                                            key={l.id}
+                                                            data-test="order-line"
+                                                            className={
+                                                                l.removed
+                                                                    ? 'opacity-60'
+                                                                    : undefined
+                                                            }
+                                                        >
+                                                            <Td>
+                                                                <p
+                                                                    className={
+                                                                        l.removed
+                                                                            ? 'font-semibold line-through'
+                                                                            : 'font-semibold text-strong'
+                                                                    }
+                                                                >
+                                                                    {lineName(
+                                                                        l,
+                                                                        locale,
+                                                                    )}{' '}
+                                                                    {l.snapshot
+                                                                        .version !==
+                                                                        undefined && (
+                                                                        <Badge
+                                                                            variant="neutral"
+                                                                            data-test="line-version"
+                                                                        >
+                                                                            {t(
+                                                                                'orders.version',
+                                                                                {
+                                                                                    n: l
+                                                                                        .snapshot
+                                                                                        .version,
+                                                                                },
+                                                                            )}
+                                                                        </Badge>
+                                                                    )}
+                                                                    {l.removed && (
+                                                                        <Badge variant="warning">
+                                                                            {t(
+                                                                                'orders.lines.removed',
+                                                                            )}
+                                                                        </Badge>
+                                                                    )}
+                                                                </p>
+                                                                {optionsText(
+                                                                    l,
+                                                                    locale,
+                                                                ) && (
+                                                                    <p className="text-caption text-weak">
+                                                                        {optionsText(
+                                                                            l,
+                                                                            locale,
+                                                                        )}
+                                                                    </p>
+                                                                )}
+                                                            </Td>
+                                                            <Td>
+                                                                <bdi dir="ltr">
+                                                                    {l.quantity}
+                                                                </bdi>
+                                                                {l.unit
+                                                                    ? ` ${l.unit}`
+                                                                    : ''}
+                                                            </Td>
+                                                            {!hidden && (
+                                                                <Td>
+                                                                    {l.unit_price_minor ==
+                                                                    null ? (
+                                                                        <span className="text-weak">
+                                                                            {t(
+                                                                                'orders.price_unknown',
+                                                                            )}
+                                                                        </span>
+                                                                    ) : (
+                                                                        <Amount
+                                                                            value={
+                                                                                l.unit_price_minor /
+                                                                                100
+                                                                            }
+                                                                        />
+                                                                    )}
+                                                                </Td>
+                                                            )}
+                                                            {!hidden && (
+                                                                <Td>
+                                                                    {l.line_total_minor ==
+                                                                    null ? (
+                                                                        <span className="text-weak">
+                                                                            —
+                                                                        </span>
+                                                                    ) : (
+                                                                        <Amount
+                                                                            value={
+                                                                                l.line_total_minor /
+                                                                                100
+                                                                            }
+                                                                        />
+                                                                    )}
+                                                                </Td>
+                                                            )}
+                                                            <Td>
+                                                                {canEdit &&
+                                                                    !l.removed && (
+                                                                        <Button
+                                                                            type="button"
+                                                                            variant="ghost"
+                                                                            size="icon-sm"
+                                                                            aria-label={t(
+                                                                                'orders.lines.remove',
+                                                                            )}
+                                                                            onClick={() =>
+                                                                                void removeLine(
+                                                                                    l.id,
+                                                                                )
+                                                                            }
+                                                                        >
+                                                                            <Icon
+                                                                                icon={
+                                                                                    Trash2
+                                                                                }
+                                                                            />
+                                                                        </Button>
+                                                                    )}
+                                                            </Td>
+                                                        </tr>
+                                                    ))}
+                                                </tbody>
+                                            </Table>
+                                        </TableWrap>
+                                    </>
                                 )}
                             </Card>
                         </div>
@@ -565,13 +803,22 @@ export default function OrderShow({
                                     delivery={delivery}
                                 />
                             )}
+                            {installation && (
+                                <InstallationCard installation={installation} />
+                            )}
+                            {salesChannel && (
+                                <SalesChannelCard
+                                    orderId={order.id}
+                                    sales={salesChannel}
+                                />
+                            )}
                             {closure && (
                                 <OrderClosureCard
                                     orderId={order.id}
                                     closure={closure}
                                 />
                             )}
-                            {cancellation && (
+                            {cancellation && showCancelCard && (
                                 <OrderCancelCard
                                     orderId={order.id}
                                     cancellation={cancellation}
@@ -680,7 +927,38 @@ export default function OrderShow({
                     </div>
                 </TabsContent>
 
-                <TabsContent value="history" className="min-w-0">
+                <TabsContent value="history" className="grid min-w-0 gap-4">
+                    {notes.length > 0 && (
+                        <Card data-test="order-notes">
+                            <h2 className="text-heading mb-4 text-strong">
+                                {t('orders.notes.title')}
+                            </h2>
+                            <ol className="grid gap-3">
+                                {notes.map((n) => (
+                                    <li
+                                        key={n.id}
+                                        className="rounded-lg bg-surface p-3 ring-1 ring-stroke-weak"
+                                    >
+                                        <p className="whitespace-pre-line">
+                                            {n.body}
+                                        </p>
+                                        <p className="mt-1 text-caption text-weak">
+                                            {n.source === 'automation'
+                                                ? t('orders.notes.automation', {
+                                                      rule: n.rule ?? '',
+                                                  })
+                                                : t('orders.history.system')}
+                                            {' · '}
+                                            {formatDate(n.at, locale, {
+                                                dateStyle: 'medium',
+                                                timeStyle: 'short',
+                                            })}
+                                        </p>
+                                    </li>
+                                ))}
+                            </ol>
+                        </Card>
+                    )}
                     <Card data-test="order-history">
                         <h2 className="text-heading mb-1 text-strong">
                             {t('orders.history.title')}

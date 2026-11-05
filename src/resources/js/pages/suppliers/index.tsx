@@ -1,7 +1,8 @@
 import { Head, Link, router } from '@inertiajs/react';
-import { Lock, Pencil, Plus, RotateCcw, Truck } from 'lucide-react';
+import { FileText, Lock, Pencil, Plus, RotateCcw, Truck } from 'lucide-react';
 import { useState } from 'react';
 import PurchaseController from '@/actions/App/Http/Controllers/Procurement/PurchaseController';
+import PurchaseDocumentController from '@/actions/App/Http/Controllers/Procurement/PurchaseDocumentController';
 import SupplierController from '@/actions/App/Http/Controllers/Procurement/SupplierController';
 import { FilterBar, Pager } from '@/components/catalog/shared';
 import { EmptyState } from '@/components/opsone/empty-state';
@@ -68,12 +69,26 @@ export default function SuppliersIndex({
                 description={t('suppliers.description')}
                 actions={
                     canManage && (
-                        <Button asChild data-test="add-supplier">
-                            <Link href={SupplierController.create.url()}>
-                                <Icon icon={Plus} />
-                                {t('suppliers.add')}
-                            </Link>
-                        </Button>
+                        <>
+                            <Button
+                                asChild
+                                variant="secondary"
+                                data-test="purchase-document-settings"
+                            >
+                                <Link
+                                    href={PurchaseDocumentController.settings.url()}
+                                >
+                                    <Icon icon={FileText} />
+                                    {t('purchase_document.settings_link')}
+                                </Link>
+                            </Button>
+                            <Button asChild data-test="add-supplier">
+                                <Link href={SupplierController.create.url()}>
+                                    <Icon icon={Plus} />
+                                    {t('suppliers.add')}
+                                </Link>
+                            </Button>
+                        </>
                     )
                 }
             />
@@ -146,6 +161,16 @@ export default function SuppliersIndex({
                                     <tr key={s.id} data-test="supplier-row">
                                         <Td className="font-semibold">
                                             {s.name.label}
+                                            {s.is_workshop && (
+                                                <Badge
+                                                    variant="brand"
+                                                    className="ms-2"
+                                                >
+                                                    {t(
+                                                        'suppliers.workshop_badge',
+                                                    )}
+                                                </Badge>
+                                            )}
                                         </Td>
                                         <Td>{s.contact_name ?? '—'}</Td>
                                         <Td>

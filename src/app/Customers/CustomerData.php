@@ -11,6 +11,8 @@ use App\Models\Customer;
  */
 final class CustomerData
 {
+    public const ADDRESS_PARTS = ['street', 'building_number', 'additional_number', 'district', 'city', 'postal_code'];
+
     /**
      * @param  array<string, mixed>  $input
      * @return array<string, mixed>
@@ -38,13 +40,36 @@ final class CustomerData
             }
         }
 
+        if (array_key_exists('national_address', $data)) {
+            $data['national_address'] = self::address($data['national_address']);
+        }
+
         if (($data['kind'] ?? null) === CustomerKind::Person->value) {
-            foreach (['commercial_registration', 'vat_number', 'office_phone'] as $key) {
+            foreach (['commercial_registration', 'vat_number', 'office_phone', 'national_address'] as $key) {
                 $data[$key] = null;
             }
         }
 
         return $data;
+    }
+
+    /**
+     * The Saudi national address of an organization (standard tax invoices, ADR-0033): trimmed parts, null when empty.
+     *
+     * @return array<string, string|null>|null
+     */
+    public static function address(mixed $value): ?array
+    {
+        if (! is_array($value)) {
+            return null;
+        }
+        $out = [];
+        foreach (self::ADDRESS_PARTS as $key) {
+            $part = is_string($value[$key] ?? null) ? trim($value[$key]) : null;
+            $out[$key] = $part === '' ? null : $part;
+        }
+
+        return array_filter($out, fn ($v) => $v !== null) === [] ? null : $out;
     }
 
     /**

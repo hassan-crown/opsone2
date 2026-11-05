@@ -13,6 +13,7 @@ use App\Procurement\ProcurementWrite;
 use App\Procurement\PurchaseAmounts;
 use App\Procurement\PurchaseStep;
 use App\Procurement\Quantity;
+use App\Procurement\WorkshopOrders;
 use Illuminate\Validation\ValidationException;
 
 /**
@@ -25,6 +26,7 @@ final class T04AdjustQuantities
     public function __construct(
         private readonly ProcurementWrite $write,
         private readonly TransitionRecorder $transitions,
+        private readonly WorkshopOrders $workshops,
     ) {}
 
     /**
@@ -69,6 +71,9 @@ final class T04AdjustQuantities
             $this->transitions->record(StateMachine::M13, 'T04', $locked, $from, $to, $actor, $source, $reason, ['lines' => $applied]);
             Audit::record(AuditAction::PurchaseAdjusted, $locked, $actor, after: ['number' => $locked->number, 'lines' => $applied],
                 reason: $reason, source: $source, branchIds: [$locked->branch_id], label: $locked->number);
+
+            // ADR-0038: the linked orders' workshop and supply actions follow this purchase order.
+            $this->workshops->sync($locked, $actor);
 
             return ['purchase_order_id' => $locked->id];
         });

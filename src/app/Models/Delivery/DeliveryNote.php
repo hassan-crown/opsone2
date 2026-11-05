@@ -23,6 +23,7 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
  * @property int $order_id
  * @property DeliveryStatus $status
  * @property CarbonInterface|null $delivered_on
+ * @property bool $completes_order the confirmed note that completed the order's delivery
  * @property string|null $receiver_name
  * @property string|null $note
  * @property int|null $confirmed_by
@@ -114,6 +115,7 @@ class DeliveryNote extends Model implements AttachmentOwner
         return [
             'status' => DeliveryStatus::class,
             'delivered_on' => 'date',
+            'completes_order' => 'boolean',
             'confirmed_at' => 'datetime',
             'cancelled_at' => 'datetime',
             'lock_version' => 'integer',
