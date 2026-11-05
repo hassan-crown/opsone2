@@ -1,0 +1,21 @@
+{
+  "_note": "Internal provenance record for the photographs on the outdoor spaces page. Nothing here is shown on the page; the photograph is CC0 and needs no attribution. The six sector drawings are SVG drawn in code (compose.mjs) and can be replaced by photographs through data.json scope.items[].image.",
+  "images": [
+    {
+      "file": "img/outdoor-hero-1400.jpg, img/outdoor-hero-820.jpg, og-outdoor-spaces.jpg",
+      "used": "hero; Open Graph / Twitter image; home page «حلول حسب نشاطك» card (proposed)",
+      "source": "https://commons.wikimedia.org/wiki/File:Agius_Evolution_Garden_pergola_2025-05-14.jpg",
+      "original": "https://upload.wikimedia.org/wikipedia/commons/ (via Special:FilePath/Agius_Evolution_Garden_pergola_2025-05-14.jpg, 8160×6144)",
+      "licence": "CC0 1.0 (LicenseShortName from the Wikimedia Commons API, checked 2026-11-05)",
+      "people": "none",
+      "edits": "resized, cropped to 4:3 and 1200×630, recompressed"
+    }
+  ],
+  "rejected": [
+    {
+      "source": "https://commons.wikimedia.org/wiki/File:Shade.jpg",
+      "reason": "public domain shade sail, but people and a child are in frame"
+    }
+  ],
+  "magnific": "not authorised in this session (needs /mcp); no credits used"
+}
