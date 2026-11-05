@@ -1,17 +1,13 @@
-#!/usr/bin/env node
-// The fit-out page's own sections. Run after the shared build:
-//   node marketing/site-next/solutions/build.mjs villa-fit-out && node marketing/site-next/solutions/villa-fit-out/sections.mjs
-// The shared build writes the head, the hero line, the form, the footer and the consent banner (and checks the order total
-// and the payment plan); this script replaces the sections between the hero and the form with forms of this sector's own,
-// and links villa.css and villa.js. No dependencies.
-import { readFileSync, writeFileSync } from 'node:fs';
+// The fit-out page's own sections. Built by the shared builder: node marketing/site-next/solutions/build.mjs villa-fit-out
+// build.mjs writes the head, SEO, hero line, form, footer and consent (and checks the order total and the payment plan), then
+// imports this file and puts `sections` in place of the template's six middle sections, linking `styles` and `scripts`
+// after ../sector.css and ../sector.js.
+import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const d = JSON.parse(readFileSync(join(here, 'data.json'), 'utf8'));
-const out = join(here, 'index.html');
-let html = readFileSync(out, 'utf8');
 
 const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 const fmt = (n) => Number(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -164,12 +160,8 @@ ${d.faq.map((f) => `      <div class="answer"><h3>${esc(f.q)}</h3><p>${esc(f.a)}
   </div>
 </section>`;
 
-/* ---------- splice into the shared build's output ---------- */
-const from = html.indexOf('<section class="band korder"');
-const to = html.indexOf('<section class="demo band"');
-if (from < 0 || to < 0) throw new Error('run build.mjs villa-fit-out first');
-html = html.slice(0, from) + [order, pains, channels, config, roles, faq].join('\n') + '\n' + html.slice(to);
-html = html.replace('<link rel="stylesheet" href="../sector.css">', '<link rel="stylesheet" href="../sector.css">\n<link rel="stylesheet" href="villa.css">');
-html = html.replace('<script src="../sector.js" defer></script>', '<script src="../sector.js" defer></script>\n<script src="villa.js" defer></script>');
-writeFileSync(out, html);
-console.log(`spliced villa-fit-out sections (${(html.length / 1024).toFixed(1)} kB); total ${fmt(total)}, VAT ${fmt(vat)}, ${span} days`);
+/* ---------- what build.mjs puts in place of the template's sections ---------- */
+export const sections = [order, pains, channels, config, roles, faq];
+export const styles = ['villa.css'];
+export const scripts = ['villa.js'];
+console.log(`villa-fit-out: total ${fmt(total)}, VAT ${fmt(vat)}, ${span} days`);

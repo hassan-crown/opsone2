@@ -1,7 +1,7 @@
 # Surface brief: villa and home fit-out sector page
 
-Scope: `solutions/villa-fit-out/index.html`, built by `../build.mjs villa-fit-out` (head, hero line, form, footer, consent) and then
-`sections.mjs` (this sector's own sections, `villa.css`, `villa.js`). Mode: Persuade. Action: request a demo (sector `villa-fit-out`).
+Scope: `solutions/villa-fit-out/index.html`, built by `../build.mjs villa-fit-out` (head, hero line, form, footer, consent) which imports
+`compose.mjs` (this sector's own sections, `villa.css`, `villa.js`). Mode: Persuade. Action: request a demo (sector `villa-fit-out`).
 Audience: owners and managers of Saudi companies that design and finish villas and apartments and fit out offices and shops.
 Research and the claim-to-code map: `RESEARCH.md`. Image provenance: `credits.json`.
 Constraints: home-page rules; every claim maps to a capability on `main`; no warranty, no inbound WhatsApp, no ready «fit-out» flow

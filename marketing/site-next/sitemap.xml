@@ -10,4 +10,24 @@
     <xhtml:link rel="alternate" hreflang="ar" href="https://www.opsone.example/solutions/kitchens/"/>
     <lastmod>2026-11-04</lastmod>
   </url>
+  <url>
+    <loc>https://www.opsone.example/solutions/custom-furniture/</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://www.opsone.example/solutions/custom-furniture/"/>
+    <lastmod>2026-11-05</lastmod>
+  </url>
+  <url>
+    <loc>https://www.opsone.example/solutions/aluminium-glass/</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://www.opsone.example/solutions/aluminium-glass/"/>
+    <lastmod>2026-11-05</lastmod>
+  </url>
+  <url>
+    <loc>https://www.opsone.example/solutions/curtains-blinds/</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://www.opsone.example/solutions/curtains-blinds/"/>
+    <lastmod>2026-11-05</lastmod>
+  </url>
+  <url>
+    <loc>https://www.opsone.example/solutions/villa-fit-out/</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://www.opsone.example/solutions/villa-fit-out/"/>
+    <lastmod>2026-11-05</lastmod>
+  </url>
 </urlset>

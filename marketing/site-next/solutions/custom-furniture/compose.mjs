@@ -1,21 +1,13 @@
-#!/usr/bin/env node
-// Builds the custom-furniture page: node marketing/site-next/solutions/custom-furniture/build-sector.mjs
-// Runs the shared builder (../build.mjs custom-furniture) unchanged for the head, the hero and its line, the form,
-// the footer and the consent banner, then replaces the sections between the hero and the form with this sector's own
-// forms (a material board, hang tags, wardrobe doors, a day ruler, a role lens, a grouped Q&A index) and links
-// furniture.css / furniture.js after the shared sector files. The shared builder's own checks (order total, 100% plan)
-// still run first; this script repeats them against its own numbers.
-import { execFileSync } from 'node:child_process';
-import { readFileSync, writeFileSync } from 'node:fs';
+// The custom-furniture page's own sections. Built by the shared builder: node marketing/site-next/solutions/build.mjs custom-furniture
+// build.mjs writes the head, SEO, hero line, form, footer and consent (and checks the order total and the payment plan), then
+// imports this file and puts `sections` in place of the template's six middle sections, linking `styles` and `scripts`
+// after ../sector.css and ../sector.js.
+import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const here = dirname(fileURLToPath(import.meta.url));
-execFileSync(process.execPath, [join(here, '..', 'build.mjs'), 'custom-furniture'], { stdio: 'inherit' });
-
 const d = JSON.parse(readFileSync(join(here, 'data.json'), 'utf8'));
-const file = join(here, 'index.html');
-let html = readFileSync(file, 'utf8');
 
 const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 const fmt = (n) => Number(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -174,11 +166,8 @@ ${d.faqGroups.map((g) => `      <section class="index__group" aria-label="${esc(
 const used = d.faqGroups.flatMap((g) => g.ids).sort((a, b) => a - b);
 if (used.length !== d.faq.length || used.some((v, i) => v !== i)) throw new Error('every FAQ entry must be in exactly one group');
 
-/* ---------- splice into the shared page ---------- */
-const from = html.indexOf('<section class="band korder"'), to = html.indexOf('<section class="demo band"');
-if (from < 0 || to < 0) throw new Error('shared page layout changed: section markers not found');
-html = html.slice(0, from) + [order, pains, channels, config, roles, faq].join('\n') + '\n' + html.slice(to);
-html = html.replace('<link rel="stylesheet" href="../sector.css">', '<link rel="stylesheet" href="../sector.css">\n<link rel="stylesheet" href="furniture.css">');
-html = html.replace('<script src="../sector.js" defer></script>', '<script src="../sector.js" defer></script>\n<script src="furniture.js" defer></script>');
-writeFileSync(file, html);
-console.log(`custom-furniture: sector sections written (${(html.length / 1024).toFixed(1)} kB); total ${fmt(total)}, VAT ${fmt(vat)}`);
+/* ---------- what build.mjs puts in place of the template's sections ---------- */
+export const sections = [order, pains, channels, config, roles, faq];
+export const styles = ['furniture.css'];
+export const scripts = ['furniture.js'];
+console.log(`custom-furniture: total ${fmt(total)}, VAT ${fmt(vat)}`);

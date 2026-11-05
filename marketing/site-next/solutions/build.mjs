@@ -3,17 +3,24 @@
 // Reads solutions/<sector>/data.json and writes solutions/<sector>/index.html as plain static HTML.
 // No dependencies. The icon sprite, the demo form, the footer and the consent banner are taken from the
 // home page (../index.html) so they stay identical everywhere; only the sector's own sections come from data.
-import { readFileSync, writeFileSync } from 'node:fs';
+// A sector can own the sections between the hero and the form: if solutions/<sector>/compose.mjs exists, its `sections`
+// (an array of HTML) replace the template's six, and its optional `styles` / `scripts` are linked after the shared ones.
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const sector = process.argv[2];
 if (!sector) { console.error('usage: node build.mjs <sector>'); process.exit(1); }
 const d = JSON.parse(readFileSync(join(here, sector, 'data.json'), 'utf8'));
 const home = readFileSync(join(here, '..', 'index.html'), 'utf8');
+const ownFile = join(here, sector, 'compose.mjs');
+const own = existsSync(ownFile) ? await import(pathToFileURL(ownFile).href) : null;
+if (own && !(Array.isArray(own.sections) && own.sections.length)) throw new Error(`${sector}/compose.mjs must export sections`);
 
 const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+const links = (own?.styles || []).map((h) => `\n<link rel="stylesheet" href="${esc(h)}">`).join('');
+const scripts = (own?.scripts || []).map((h) => `\n<script src="${esc(h)}" defer></script>`).join('');
 const fmt = (n) => Number(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const icon = (id, cls = 'ic') => `<svg class="${cls}" aria-hidden="true"><use href="#${id}"/></svg>`;
 const cut = (src, start, end) => { const i = src.indexOf(start); const j = src.indexOf(end, i); if (i < 0 || j < 0) throw new Error(`missing ${start}`); return src.slice(i, j + end.length); };
@@ -69,7 +76,7 @@ const head = `<!doctype html>
 <link rel="preload" href="${root}assets/fonts/IBMPlexSansArabic-Regular.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" as="image" href="${esc(d.hero.image.src)}" imagesrcset="${esc(d.hero.image.srcset)}" imagesizes="(max-width: 760px) 100vw, 45vw" fetchpriority="high">
 <link rel="stylesheet" href="${root}styles.css">
-<link rel="stylesheet" href="../sector.css">
+<link rel="stylesheet" href="../sector.css">${links}
 <script>document.documentElement.classList.add('js');window.OPSONE_PAGE={sector:${JSON.stringify(d.slug)}};</script>
 <script type="application/ld+json">${JSON.stringify(ld)}</script>
 </head>`;
@@ -226,12 +233,7 @@ ${bar}
 <main id="main">
 ${crumbs}
 ${hero}
-${order}
-${pains}
-${channels}
-${config}
-${roles}
-${faq}
+${(own ? own.sections : [order, pains, channels, config, roles, faq]).join('\n')}
 ${demo}
 </main>
 
@@ -240,7 +242,7 @@ ${footer}
 ${consent}
 <script src="${root}config.js"></script>
 <script src="${root}tags.js" defer></script>
-<script src="../sector.js" defer></script>
+<script src="../sector.js" defer></script>${scripts}
 </body>
 </html>
 `;

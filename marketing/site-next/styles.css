@@ -878,13 +878,21 @@ p { text-wrap: pretty; }
 .bento { min-width: 0; overflow-wrap: anywhere; }
 .bento__fig, .bento b { overflow-wrap: anywhere; }
 
-/* ---------- «حلول حسب نشاطك»: one link card per sector page ---------- */
-.solution { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); align-items: stretch; margin-top: clamp(2rem, 4vw, 3rem); overflow: hidden; border-radius: 24px; background: var(--fill); text-decoration: none; color: var(--ink); transition: box-shadow var(--t-hover) ease; }
-.solution img { width: 100%; height: 100%; min-height: 16rem; object-fit: cover; }
-.solution__body { display: grid; align-content: center; gap: 0.6rem; padding: clamp(1.5rem, 4vw, 3rem); }
-.solution__body b { font-size: clamp(1.5rem, 1.1rem + 1.4vw, 2.25rem); line-height: 1.3; }
+/* ---------- «حلول حسب نشاطك»: one link card per sector page, in a grid that grows with the sectors ---------- */
+.solutions__grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 20rem), 1fr)); gap: clamp(1rem, 2vw, 1.5rem); margin: clamp(2rem, 4vw, 3rem) 0 0; padding: 0; list-style: none; }
+.solutions__grid > li { display: grid; min-width: 0; }
+.solution { display: grid; grid-template-rows: auto 1fr; overflow: hidden; border-radius: 20px; background: var(--fill); text-decoration: none; color: var(--ink); transition: box-shadow var(--t-hover) ease; }
+.solution img { width: 100%; height: auto; aspect-ratio: 4 / 3; object-fit: cover; background: var(--rule); }
+.solution__body { display: grid; align-content: start; gap: 0.5rem; min-width: 0; padding: clamp(1.25rem, 2.5vw, 1.75rem); overflow-wrap: anywhere; }
+.solution__body b { font-size: clamp(1.2rem, 1.05rem + 0.5vw, 1.4rem); line-height: 1.35; }
 .solution__body > span:not(.solution__go) { color: var(--muted); }
-.solution__go { display: inline-flex; align-items: center; gap: 0.5rem; margin-top: 0.5rem; font-weight: 600; color: var(--teal-strong); }
+.solution__go { display: inline-flex; align-items: center; align-self: end; gap: 0.5rem; margin-top: 0.5rem; font-weight: 600; color: var(--teal-strong); }
 .solution__go .ic { transition: transform var(--t-hover) var(--ease-out); }
 @media (hover: hover) and (pointer: fine) { .solution:hover { box-shadow: var(--lift); } .solution:hover .solution__go .ic { transform: translateX(-4px); } }
-@media (max-width: 760px) { .solution { grid-template-columns: minmax(0, 1fr); } .solution img { min-height: 0; aspect-ratio: 16 / 9; } }
+@media (max-width: 760px) {
+  .solution { grid-template-rows: none; grid-template-columns: 28% minmax(0, 1fr); }
+  .solution img { height: 100%; aspect-ratio: auto; min-height: 7.5rem; }
+  .solution__body { padding: 1rem 1.1rem; gap: 0.35rem; }
+  .solution__body > span:not(.solution__go) { font-size: 0.9375rem; }
+  .solution__go { margin-top: 0.25rem; }
+}

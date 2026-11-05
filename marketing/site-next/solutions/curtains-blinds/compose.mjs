@@ -1,19 +1,13 @@
-#!/usr/bin/env node
-// Builds the curtains and blinds page: node marketing/site-next/solutions/curtains-blinds/compose.mjs
-// Runs the shared ../build.mjs unchanged (head, SEO, hero line, form, footer, consent), then replaces the sections
-// between the hero and the form with this sector's own forms, and links curtains.css / curtains.js after the shared
-// files. Once build.mjs accepts per-sector renderers, renderSections() moves there as-is (proposal in RESEARCH.md §6).
-import { execFileSync } from 'node:child_process';
-import { readFileSync, writeFileSync } from 'node:fs';
+// The curtains and blinds page's own sections. Built by the shared builder: node marketing/site-next/solutions/build.mjs curtains-blinds
+// build.mjs writes the head, SEO, hero line, form, footer and consent (and checks the order total and the payment plan), then
+// imports this file and puts `sections` in place of the template's six middle sections, linking `styles` and `scripts`
+// after ../sector.css and ../sector.js.
+import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const here = dirname(fileURLToPath(import.meta.url));
-const slug = 'curtains-blinds';
-execFileSync(process.execPath, [join(here, '..', 'build.mjs'), slug], { stdio: 'inherit' });
 const d = JSON.parse(readFileSync(join(here, 'data.json'), 'utf8'));
-const out = join(here, 'index.html');
-let html = readFileSync(out, 'utf8');
 
 const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 const fmt = (n) => Number(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -170,11 +164,8 @@ ${d.faq.map((f, i) => `      <div><dt><span class="nums" aria-hidden="true">${St
   </div>
 </section>`;
 
-/* ---------- splice into the shared page ---------- */
-const a = html.indexOf('<section class="band korder"'), b = html.indexOf('<section class="demo band"');
-if (a < 0 || b < 0) throw new Error('shared section markers not found');
-html = html.slice(0, a) + [order, pains, channels, setup, roles, faq].join('\n') + '\n' + html.slice(b);
-html = html.replace('<link rel="stylesheet" href="../sector.css">', '<link rel="stylesheet" href="../sector.css">\n<link rel="stylesheet" href="curtains.css">')
-  .replace('<script src="../sector.js" defer></script>', '<script src="../sector.js" defer></script>\n<script src="curtains.js" defer></script>');
-writeFileSync(out, html);
-console.log(`composed solutions/${slug}/index.html (${(html.length / 1024).toFixed(1)} kB); ${winCount} windows, total ${fmt(total)}, VAT ${fmt(vat)}`);
+/* ---------- what build.mjs puts in place of the template's sections ---------- */
+export const sections = [order, pains, channels, setup, roles, faq];
+export const styles = ['curtains.css'];
+export const scripts = ['curtains.js'];
+console.log(`curtains-blinds: ${winCount} windows, total ${fmt(total)}, VAT ${fmt(vat)}`);

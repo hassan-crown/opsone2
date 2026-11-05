@@ -88,9 +88,7 @@ https://quoterite.com/curtain-quoting-software ، https://www.blinq.com.au/real-
 
 ## 6. البناء، وما يحتاج تعديلًا في الملفات المشتركة (لم يُعدَّل شيء منها)
 
-**البناء:** `node marketing/site-next/solutions/curtains-blinds/compose.mjs`. يشغّل `solutions/build.mjs curtains-blinds` كما هو (الرأس وSEO وJSON-LD وخط المحطات والنموذج والتذييل)، ثم يستبدل الأقسام بين الواجهة والنموذج بأشكال هذا النشاط، ويضيف `curtains.css` و`curtains.js` بعد الملفين المشتركين. السبب: `build.mjs` يكتب أقسام المطابخ بأشكالها، والمطلوب شكل مختلف لكل قسم.
-
-**تعديل مقترح على `build.mjs` (لم يُنفَّذ):** إن وُجد `solutions/<نشاط>/sections.mjs` يُستورد منه `render(d, helpers)` ويُستعمل ناتجه بدل الأقسام الافتراضية، وإن وُجد `<نشاط>/<نشاط>.css` أو `.js` يُربطان بعد `sector.css`/`sector.js`. عندها تنتقل دوال `compose.mjs` إلى `sections.mjs` كما هي ويُحذف `compose.mjs`.
+**البناء:** `node marketing/site-next/solutions/build.mjs curtains-blinds`. يكتب `build.mjs` الرأس وSEO وJSON-LD وخط المحطات والنموذج والتذييل، ثم يستورد `curtains-blinds/compose.mjs` ويضع أقسامه بين الواجهة والنموذج، ويربط `curtains.css` و`curtains.js` بعد الملفين المشتركين.
 
 **يُضاف إلى `sitemap.xml`:**
 ```xml
