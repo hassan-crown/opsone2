@@ -169,7 +169,7 @@ const channels = `<section class="band kchan" id="channels" aria-labelledby="cha
   <div class="wrap">
     <div class="sec-head"><h2 class="head" id="channels-title">${esc(d.channels.title)}</h2><p class="lead">${esc(d.channels.lede)}</p></div>
     <ul class="panes">
-${d.channels.items.map((c, i) => `      <li class="pane${i === 0 ? ' is-open' : ''}"><button class="pane__btn" type="button" aria-expanded="${i === 0}" aria-controls="pane-${c.key}"><img src="${esc(c.image.src)}" width="${c.image.w}" height="${c.image.h}" alt="${esc(c.image.alt)}" loading="lazy" decoding="async"><span class="pane__label">${icon(c.icon)}<b>${esc(c.title)}</b></span></button><div class="pane__body" id="pane-${c.key}"><p>${esc(c.text)}</p></div></li>`).join('\n')}
+${d.channels.items.map((c, i) => `      <li class="pane${i === 0 ? ' is-open' : ''}"><button class="pane__btn" type="button" aria-expanded="${i === 0}" aria-controls="pane-${c.key}"><img src="${esc(c.image.src)}"${c.image.srcset ? ` srcset="${esc(c.image.srcset)}" sizes="(max-width: 760px) 100vw, 60vw"` : ''} width="${c.image.w}" height="${c.image.h}" alt="${esc(c.image.alt)}" loading="lazy" decoding="async"><span class="pane__label">${icon(c.icon)}<b>${esc(c.title)}</b></span></button><div class="pane__body" id="pane-${c.key}"><p>${esc(c.text)}</p></div></li>`).join('\n')}
     </ul>
   </div>
 </section>`;
