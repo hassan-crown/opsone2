@@ -107,7 +107,7 @@ it('serves a dynamic robots.txt that points at the sitemap and hides the admin',
 
     expect($res->headers->get('Content-Type'))->toContain('text/plain')
         ->and($res->getContent())->toContain('Sitemap: '.rtrim(config('app.url'), '/').'/sitemap.xml')
-        ->and($res->getContent())->toContain('Disallow: /site-admin/');
+        ->and($res->getContent())->toContain("Disallow: /site-admin\n")->toContain("Disallow: /portal\n");
 });
 
 it('uses the verified custom domain as canonical origin', function () {

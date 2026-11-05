@@ -6,6 +6,7 @@ use App\Models\Facility;
 use App\Money\Money;
 use App\Portal\PortalSession;
 use App\Site\Preview\SitePreview;
+use App\Site\Seo\SiteIndexing;
 use App\Site\SiteContext;
 use App\Site\Theme\ThemeSettings;
 use Illuminate\Contracts\View\View;
@@ -40,7 +41,7 @@ final class StoreView
             'dir' => $locale === 'ar' ? 'rtl' : 'ltr',
             'otherLocale' => $other,
             'title' => $title.' | '.$name,
-            'robots' => $index && ! $this->preview->active() ? 'index, follow' : 'noindex, nofollow',
+            'robots' => SiteIndexing::meta($index && ! $this->preview->active()),
             'preview' => $this->preview->active(),
             'previewExit' => $this->preview->active() ? route('site.preview.exit') : null,
             'siteName' => $name,

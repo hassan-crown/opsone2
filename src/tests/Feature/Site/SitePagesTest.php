@@ -107,11 +107,11 @@ it('unpublish returns a content page to draft and hides it', function () {
     expect($this->writer->readiness($page)['en']['has_draft'])->toBeTrue(); // content kept for editing
 });
 
-it('archives without deleting, redirects the public link home and restores as a draft', function () {
+it('archives without deleting, answers the public link 410 Gone and restores as a draft', function () {
     $page = makePage($this->owner);
     $this->writer->archive($this->owner, $page);
 
-    $this->get('/en/about')->assertRedirect('/en');
+    $this->get('/en/about')->assertStatus(410); // gone for good, not a redirect home (ADR-0045)
     expect(SitePage::query()->count())->toBeGreaterThan(0)->and(SitePageVersion::query()->where('page_id', $page->id)->count())->toBe(2);
     $this->get('/sitemap.xml')->assertDontSee('/about');
 

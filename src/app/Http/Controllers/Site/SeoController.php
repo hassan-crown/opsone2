@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Site;
 
 use App\Http\Controllers\Controller;
 use App\Models\Site\SitePage;
+use App\Site\Seo\SiteIndexing;
 use App\Site\SiteContext;
 use Illuminate\Http\Response;
 
@@ -36,14 +37,16 @@ final class SeoController extends Controller
 
     public function robots(): Response
     {
-        $lines = [
-            'User-agent: *',
-            'Disallow: /site-admin/',
-            'Disallow: /dashboard',
-            'Disallow: /settings/',
-            'Disallow: /api/',
-            'Sitemap: '.$this->site->baseUrl().'/sitemap.xml',
-        ];
+        // Outside production (or with indexing switched off) the whole host is closed to crawlers.
+        if (! SiteIndexing::enabled()) {
+            return response("User-agent: *\nDisallow: /\n", 200, ['Content-Type' => 'text/plain; charset=UTF-8']);
+        }
+
+        $lines = ['User-agent: *'];
+        foreach (SiteIndexing::DISALLOW as $path) {
+            $lines[] = 'Disallow: '.$path;
+        }
+        $lines[] = 'Sitemap: '.$this->site->baseUrl().'/sitemap.xml';
 
         return response(implode("\n", $lines)."\n", 200, ['Content-Type' => 'text/plain; charset=UTF-8']);
     }

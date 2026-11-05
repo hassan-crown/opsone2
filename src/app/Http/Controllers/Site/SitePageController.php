@@ -12,6 +12,7 @@ use App\Models\Site\SitePage;
 use App\Models\Site\SitePageVersion;
 use App\Site\Preview\SitePreview;
 use App\Site\Sections\SectionCatalogue;
+use App\Site\Seo\SiteIndexing;
 use App\Site\SiteContext;
 use App\Site\SiteRenderer;
 use Illuminate\Contracts\View\View;
@@ -49,6 +50,7 @@ final class SitePageController extends SiteAdminController
             'tabs' => $this->tabs($actor),
             'canCreate' => $this->access->can($actor, Permission::P55),
             'canPublish' => $this->access->can($actor, Permission::P56),
+            'indexing' => SiteIndexing::enabled(),
         ]);
     }
 

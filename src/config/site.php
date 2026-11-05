@@ -8,6 +8,9 @@ return [
     // Zones a facility may never claim as its custom domain (the OpsOne platform and local names).
     'reserved_domains' => array_values(array_filter(array_map('trim', explode(',', (string) env('SITE_RESERVED_DOMAINS', 'opsone.sa,opsone.app,localhost,example.com,example.org,example.net,test,local,internal'))))),
 
+    // Search-engine indexing of the public site and store (ADR-0045). Unset = only in production; dev/stage stay noindex.
+    'indexing' => env('SITE_INDEXING') === null ? null : filter_var(env('SITE_INDEXING'), FILTER_VALIDATE_BOOLEAN),
+
     // Private preview links (THM-04): default and maximum lifetime, in minutes.
     'preview' => [
         'ttl_minutes' => (int) env('SITE_PREVIEW_TTL_MINUTES', 60),

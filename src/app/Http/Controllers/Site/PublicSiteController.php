@@ -11,7 +11,7 @@ use Illuminate\Http\RedirectResponse;
 
 /**
  * The public site (P-83): only published versions of live pages, in the language of the URL. Unpublished or system
- * pages are 404, an archived page redirects home, a language without a published copy falls back to the other
+ * pages are 404, an archived page is 410 (ADR-0045), a language without a published copy falls back to the other
  * language's page — a draft is never shown.
  */
 final class PublicSiteController extends Controller
@@ -29,9 +29,8 @@ final class PublicSiteController extends Controller
         $page = $this->site->page($slug);
         abort_if($page === null || $page->isSystem(), 404);
 
-        if ($page->isArchived()) {
-            return redirect($this->site->path($locale));
-        }
+        // An archived page is gone for good, not moved: 410 tells search engines to drop it (a redirect home reads as a soft 404).
+        abort_if($page->isArchived(), 410);
 
         $version = $this->site->publishedVersion($page, $locale);
         if ($version === null) {
