@@ -209,6 +209,13 @@
     const sign = document.querySelector('.doc__sign svg path');
     if (sign) once(sign.closest('.doc'), () => { const len = sign.getTotalLength(); sign.animate([{ strokeDasharray: len, strokeDashoffset: len }, { strokeDasharray: len, strokeDashoffset: 0 }], { duration: 1200, easing: EASE_IN_OUT }); }, 0.6);
   }
+  // posters load as their video nears the screen, not with the first paint (three of them, ~105 KB)
+  document.querySelectorAll('video[data-poster]').forEach((v) => {
+    const set = () => { v.poster = v.dataset.poster; };
+    if (!('IntersectionObserver' in window)) { set(); return; }
+    const io = new IntersectionObserver(([e]) => { if (e.isIntersecting) { set(); io.disconnect(); } }, { rootMargin: '800px 0px' });
+    io.observe(v);
+  });
   document.querySelectorAll('video[data-autoplay]').forEach((v) => {
     if (!('IntersectionObserver' in window)) return;
     new IntersectionObserver(([e]) => { if (e.isIntersecting && !reduce && !v.closest('.is-off')) { v.preload = 'auto'; v.play().catch(() => {}); } else v.pause(); }, { threshold: 0.3 }).observe(v);
