@@ -37,6 +37,25 @@
 - إذا كان المنفذ مستخدمًا ينقله `manage.sh` إلى أول منفذ متاح، ويحدّث `.env`. وإذا تغيّر `APP_PORT` يحدّث `APP_URL` في `src/.env` أيضًا.
 - لعرض المنافذ الحالية وفحصها يدويًا: `./manage.sh ports`.
 - في `dev` و`stage` و`prod` لا تُنشر منافذ web وDB وRedis على المضيف، لأن Traefik يتولى التوجيه.
+- phpMyAdmin مربوط على `127.0.0.1:<PHPMYADMIN_PORT>` في كل البيئات، فيُفحص منفذه في كل البيئات.
+
+## البيئات المنشورة (dev/stage/prod)
+
+- `dev` منشورة على الإنترنت، لذلك `APP_ENV=development` و`APP_DEBUG=false` (التدقيق H-1). `local` محجوزة لجهاز المطوّر فقط.
+  - كل الحراسات المربوطة بـ `local` تعمل في dev كما في الإنتاج: TrustHosts، وحارس SSRF في SMTP (`PublicHost`)، وقيد `PORTAL_DEMO_OTP`.
+  - نتيجة ذلك في dev: الرسائل النصية وواتساب لا تُكتب في السجل بل تحتاج مزوّدًا حقيقيًا، و`license:dev-issue` غير متاح (استخدم `license:install`)، وصفحة `/_design` غير موجودة.
+  - بيئة dev قائمة تعمل بـ `local`: شغّل `scripts/sync-app-env.sh` (أو عدّل `APP_ENV`/`APP_DEBUG` في `src/.env`) ثم `./manage.sh install`.
+- `./manage.sh config` و`start` و`restart` و`install` و`deploy` ترفض `APP_ENV=local|testing` أو `APP_DEBUG=true` في `src/.env` خارج local، والـ installer يرفضها أيضًا، و`ops:preflight` يفشل في فحص `exposure` إذا كان `APP_URL` عامًا.
+- الـ installer لا يثبّت حزم `require-dev` في dev/stage/prod. الاستثناء: `./manage.sh install refresh` في dev يثبّتها للـ seed ثم يزيلها.
+
+## phpMyAdmin
+
+- `local`: `./manage.sh pma` ثم `http://127.0.0.1:<PHPMYADMIN_PORT>`.
+- `prod`: لا مسار عبر Traefik (التدقيق M-6). `./manage.sh pma` ثم من جهازك:
+  `ssh -N -L 8081:127.0.0.1:<PHPMYADMIN_PORT> <user>@<server>` وافتح `http://127.0.0.1:8081`. أوقفه بعدها: `./manage.sh stop-pma`.
+- `dev`/`stage`: يُنشر على `PMA_DOMAIN` عبر `docker-compose.pma.yml` بشرطين في root `.env`:
+  `PMA_IP_ALLOWLIST` (IPs/CIDRs مفصولة بفواصل، لا `0.0.0.0/0`) و`PMA_BASIC_AUTH` (من `htpasswd -nb`، مع `$$` بدل `$`).
+  `./manage.sh pma` يرفض التشغيل عند غياب أي منهما أو بقاء قيمة المثال، و`./manage.sh config` يذكر السبب.
 
 ## الترخيص محليًا
 

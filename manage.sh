@@ -7,7 +7,8 @@ set -euo pipefail
 # This script manages Laravel Docker infrastructure using:
 #
 #   docker-compose.yml          -> shared services
-#   docker-compose.prod.yml     -> Traefik production/stage override
+#   docker-compose.prod.yml     -> Traefik dev/stage/prod override
+#   docker-compose.pma.yml      -> phpMyAdmin through Traefik (dev/stage only, ./manage.sh pma)
 #
 # Environment is controlled by .env:
 #   ENVIRONMENT=local|dev|stage|prod
@@ -126,11 +127,11 @@ fi
 # Read required infra values safely from .env
 # -----------------------------------------------------------------------------
 get_env_value() {
-  local key="$1"
+  local key="$1" file="${2:-.env}"
   local value
 
   value="$(
-    grep -E "^${key}=" .env 2>/dev/null \
+    grep -E "^${key}=" "$file" 2>/dev/null \
       | tail -n 1 \
       | cut -d '=' -f2- \
       || true
@@ -290,11 +291,12 @@ ensure_free_port() {
   fi
 }
 
-# Only local publishes web/db/redis/pma ports; dev/stage/prod reset them (docker-compose.prod.yml).
+# Only local publishes web/db/redis ports; dev/stage/prod reset them (docker-compose.prod.yml).
+# phpMyAdmin is bound to 127.0.0.1 everywhere (SSH tunnel on servers), so its port is checked in every environment.
 ensure_free_ports() {
   local key
   for key in "$@"; do
-    if [ "$key" = "VITE_PORT" ] || [ "$ENV_LOWER" = "local" ]; then
+    if [ "$key" = "VITE_PORT" ] || [ "$key" = "PHPMYADMIN_PORT" ] || [ "$ENV_LOWER" = "local" ]; then
       ensure_free_port "$key"
     fi
   done
@@ -352,12 +354,13 @@ show_help() {
     deploy        Full deploy flow: git pull + build + install + node-build + start
     jobs          Start jobs profile containers: worker and scheduler
     stop-jobs     Stop jobs profile containers
-    pma           Start phpMyAdmin tooling service
+    pma           Start phpMyAdmin (local: 127.0.0.1; dev/stage: Traefik + IP allowlist + Basic Auth; prod: SSH tunnel only)
+    stop-pma      Stop phpMyAdmin
     logs          Follow app logs
     logs-web      Follow web/nginx logs
     logs-worker   Follow worker logs
     ps            Show containers status
-    config        Render final Docker Compose config
+    config        Check src/.env safety for published environments, then render final Docker Compose config
     shell         Open shell inside app container
     artisan       Run artisan command, example: ./manage.sh artisan migrate
     composer      Run composer command, example: ./manage.sh composer install
@@ -377,6 +380,65 @@ EOF
 COMMAND="${1:-help}"
 shift || true
 
+# -----------------------------------------------------------------------------
+# Published environments (audit H-1, M-6)
+# -----------------------------------------------------------------------------
+# dev/stage/prod answer on a public domain. Laravel's APP_ENV=local switches off TrustHosts, the SMTP SSRF guard
+# and the demo-code restriction, and APP_DEBUG=true shows stack traces to anyone: both are refused there.
+check_app_env_safety() {
+  local app_env app_debug
+  [ "$ENV_LOWER" = "local" ] && return 0
+  [ -f ./src/.env ] || return 0
+  app_env="$(get_env_value APP_ENV ./src/.env | tr '[:upper:]' '[:lower:]')"
+  app_debug="$(get_env_value APP_DEBUG ./src/.env | tr '[:upper:]' '[:lower:]')"
+  case "$app_env" in
+    ''|local|testing)
+      echo "ERROR: ENVIRONMENT=$ENV_LOWER is published, but src/.env has APP_ENV='${app_env}'." >&2
+      echo "  Use APP_ENV=development (dev), staging (stage) or production (prod): run scripts/sync-app-env.sh." >&2
+      return 1
+      ;;
+  esac
+  case "$app_debug" in
+    true|1|on|yes)
+      echo "ERROR: ENVIRONMENT=$ENV_LOWER is published, but src/.env has APP_DEBUG=true. Set APP_DEBUG=false." >&2
+      return 1
+      ;;
+  esac
+  return 0
+}
+
+# phpMyAdmin on dev/stage is published only behind an IP allowlist and Basic Auth; prod never publishes it.
+# Prints the problems (never the values) and fails when the Traefik route would be unsafe.
+check_pma_settings() {
+  local auth allowlist domain ok=0 range
+  auth="$(get_env_value PMA_BASIC_AUTH)"
+  allowlist="$(get_env_value PMA_IP_ALLOWLIST | tr -d ' ')"
+  domain="$(get_env_value PMA_DOMAIN)"
+  if [ -z "$domain" ]; then
+    echo "  - PMA_DOMAIN is not set." >&2; ok=1
+  fi
+  if [ -z "$auth" ] || [[ "$auth" != *:* ]] || [[ "$auth" == *xxxxxxxx* ]]; then
+    echo "  - PMA_BASIC_AUTH is empty or the sample value (generate: htpasswd -nb admin STRONG_PASSWORD, escape \$ as \$\$)." >&2; ok=1
+  fi
+  if [ -z "$allowlist" ]; then
+    echo "  - PMA_IP_ALLOWLIST is not set (comma-separated IPs/CIDRs, e.g. 203.0.113.10/32)." >&2; ok=1
+  elif [[ ! "$allowlist" =~ ^[0-9A-Fa-f:./,]+$ ]]; then
+    echo "  - PMA_IP_ALLOWLIST may contain only IPs/CIDRs separated by commas." >&2; ok=1
+  else
+    for range in $(printf '%s' "$allowlist" | tr ',' ' '); do
+      case "$range" in
+        0.0.0.0/0|::/0|0.0.0.0|::) echo "  - PMA_IP_ALLOWLIST must not allow every address ($range)." >&2; ok=1 ;;
+      esac
+    done
+  fi
+  return "$ok"
+}
+
+PMA_COMPOSE_ARGS=("${COMPOSE_ARGS[@]}")
+if [[ "$ENV_LOWER" == "dev" || "$ENV_LOWER" == "stage" ]]; then
+  PMA_COMPOSE_ARGS+=(-f docker-compose.pma.yml)
+fi
+
 # Do not allow deployments/local services to use sample credentials verbatim.
 validate_credentials() {
   local key value
@@ -390,6 +452,9 @@ validate_credentials() {
 }
 case "$COMMAND" in
   start|restart|install|jobs|deploy|pma) validate_credentials ;;
+esac
+case "$COMMAND" in
+  start|restart|install|jobs|deploy|config) check_app_env_safety || exit 1 ;;
 esac
 
 case "$COMMAND" in
@@ -536,9 +601,26 @@ case "$COMMAND" in
     ;;
 
   pma)
+    if [[ "$ENV_LOWER" == "dev" || "$ENV_LOWER" == "stage" ]]; then
+      if ! check_pma_settings; then
+        echo "ERROR: phpMyAdmin is not started: fix the settings above in root .env (audit M-6)." >&2
+        exit 1
+      fi
+    fi
     ensure_free_ports PHPMYADMIN_PORT
     echo ">>> [${ENV_LOWER}] Starting phpMyAdmin..."
-    dc --profile tooling up -d phpmyadmin
+    docker compose "${PMA_COMPOSE_ARGS[@]}" --profile tooling up -d phpmyadmin
+    if [ "$ENV_LOWER" = "prod" ]; then
+      echo ">>> [prod] phpMyAdmin has no public route. From your machine:"
+      echo "    ssh -N -L 8081:127.0.0.1:$(configured_port PHPMYADMIN_PORT) <user>@<server>  then open http://127.0.0.1:8081"
+      echo "    Stop it when done: ./manage.sh stop-pma"
+    fi
+    ;;
+
+  stop-pma)
+    echo ">>> [${ENV_LOWER}] Stopping phpMyAdmin..."
+    dc stop phpmyadmin 2>/dev/null || true
+    dc rm -f phpmyadmin 2>/dev/null || true
     ;;
 
   logs)
@@ -558,7 +640,19 @@ case "$COMMAND" in
     ;;
 
   config)
-    dc config
+    # Render what "pma" would start too, when its settings are complete; otherwise say why it would refuse.
+    if [[ "$ENV_LOWER" == "dev" || "$ENV_LOWER" == "stage" ]]; then
+      if check_pma_settings 2>/dev/null; then
+        docker compose "${PMA_COMPOSE_ARGS[@]}" config
+      else
+        dc config
+        echo ">>> [${ENV_LOWER}] NOTE: ./manage.sh pma will refuse to start until these are fixed in root .env:" >&2
+        check_pma_settings || true
+      fi
+    else
+      dc config
+      [ "$ENV_LOWER" != "prod" ] || echo ">>> [prod] phpMyAdmin has no public route; use an SSH tunnel to 127.0.0.1 (./manage.sh pma)." >&2
+    fi
     ;;
 
   shell)

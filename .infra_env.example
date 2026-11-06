@@ -29,12 +29,14 @@ DB_ROOT_PASSWORD=strong_root_password_here
 DB_PASSWORD=strong_user_password_here
 
 # -----------------------------------------------------------------------------
-# phpMyAdmin Basic Auth
-# Generate using:
-# htpasswd -nb admin STRONG_PASSWORD
-# Use double $$ to escape $ in .env files.
+# phpMyAdmin (./manage.sh pma)
+# local and prod: never published; prod is reached only through an SSH tunnel to 127.0.0.1:PHPMYADMIN_PORT.
+# dev and stage: published on PMA_DOMAIN through Traefik ONLY when both values below are set (pma refuses otherwise):
+#   PMA_BASIC_AUTH: generate using: htpasswd -nb admin STRONG_PASSWORD  (use double $$ to escape $ in .env files)
+#   PMA_IP_ALLOWLIST: comma-separated IPs/CIDRs allowed to reach it, e.g. 203.0.113.10/32 (never 0.0.0.0/0)
 # -----------------------------------------------------------------------------
 PMA_BASIC_AUTH=admin:$$apr1$$xxxxxxxx$$xxxxxxxxxxxxxxxxxxxxxx
+PMA_IP_ALLOWLIST=
 
 # -----------------------------------------------------------------------------
 # Resource tuning (optional, default shown)
