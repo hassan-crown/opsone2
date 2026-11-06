@@ -162,6 +162,9 @@ summary.nav__link::-webkit-details-marker, .drawer__btn::-webkit-details-marker,
 .station.is-live .dot { background: var(--teal); box-shadow: 0 0 0 6px var(--teal-50); color: #fff; }
 .station.is-done, .station.is-live { color: var(--ink); }
 .station[aria-pressed="true"] .station__name { font-weight: 700; color: var(--ink); }
+/* the bold width is reserved, so pressing a station (by hand or by autoplay) never moves its name or the tag after it */
+.station__name[data-label] { display: inline-grid; }
+.station__name[data-label]::after { content: attr(data-label); height: 0; overflow: hidden; visibility: hidden; font-weight: 700; }
 .station__tag { display: none; }
 @media (hover: hover) and (pointer: fine) {
   .station:hover .station__name { color: var(--ink); }
@@ -178,6 +181,24 @@ summary.nav__link::-webkit-details-marker, .drawer__btn::-webkit-details-marker,
 .screen__notch { position: absolute; top: -7px; right: 0; width: 14px; height: 14px; background: #fff; transform: translateX(var(--n, 0px)) rotate(45deg); box-shadow: -1px -1px 0 rgba(11, 27, 51, 0.08); transition: transform var(--t-move) var(--ease-in-out); }
 .screen__body { transition: opacity var(--t-swap) var(--ease-out), transform var(--t-swap) var(--ease-out); }
 .screen__body.is-leaving { opacity: 0; transform: translateY(4px); }
+/* all five screens share one grid cell, so the card is always as tall as the tallest: switching never moves the page */
+.screen__stack { display: grid; }
+.screen__stack > .screen__body { grid-area: 1 / 1; min-width: 0; }
+.screen__body:not(.is-on) { visibility: hidden; opacity: 0; transform: translateY(4px); }
+.stations--auto .screen__card { position: relative; }
+.screen__stack .shead { padding-inline-end: 2.5rem; }
+/* autoplay: pause/play in the card's corner (WCAG 2.2.2) and a thin teal line timing the station on show */
+.screen__toggle { position: absolute; top: 0.55rem; inset-inline-end: 0.55rem; z-index: 1; display: grid; place-items: center; width: 2rem; height: 2rem; border-radius: 50%; color: var(--muted); box-shadow: inset 0 0 0 1px var(--rule); transition: color var(--t-hover) ease, box-shadow var(--t-hover) ease, transform var(--t-press) var(--ease-out); }
+.screen__toggle .ic { width: 1rem; height: 1rem; stroke-width: 2.25; }
+.screen__toggle .ic-play, .screen__toggle.is-paused .ic-pause { display: none; }
+.screen__toggle.is-paused .ic-play { display: inline; fill: currentColor; }
+.screen__toggle:active { transform: scale(0.95); }
+@media (hover: hover) and (pointer: fine) { .screen__toggle:hover { color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink-300); } }
+.screen__progress { position: absolute; inset-inline: 0; bottom: 0; height: 3px; overflow: hidden; border-radius: 0 0 14px 14px; pointer-events: none; }
+.screen__progress i { display: block; height: 100%; background: var(--teal); transform: scaleX(0); transform-origin: right center; }
+[dir="ltr"] .screen__progress i { transform-origin: left center; }
+.screen.is-running .screen__progress i { animation: station-time var(--station-t, 4500ms) linear forwards; }
+@keyframes station-time { to { transform: scaleX(1); } }
 .shead { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 0 1rem; padding-bottom: 0.6rem; border-bottom: 1px solid var(--rule); }
 .shead b { font-size: 1rem; white-space: nowrap; }
 .shead small { color: var(--muted); font-size: 0.8125rem; white-space: nowrap; }
@@ -278,6 +299,10 @@ summary.nav__link::-webkit-details-marker, .drawer__btn::-webkit-details-marker,
   .ticket { display: none; }
   .station.is-live .station__tag { display: inline-flex; padding: 0.1rem 0.5rem; border-radius: 6px; background: var(--ink); color: #fff; font-size: 0.75rem; font-weight: 600; }
   .screen { width: auto; margin: 0.25rem 0 0.75rem; margin-inline-start: 3.75rem; transform: none; }
+  /* the screen keeps its place in the markup; main.js slides it and the stations with translate, which moves no layout */
+  .stations--auto > .station, .stations--auto > .screen { transition: translate var(--t-move) var(--ease-in-out); }
+  /* after the first draw the fill follows the slide at the same pace, so it never lags behind the live station */
+  .stations--auto.is-drawn .track__fill { transition-duration: var(--t-move); }
   .screen__notch { display: none; }
   .benefits__stage { padding: 0.75rem; border-radius: 16px; }
   .field-pair { grid-template-columns: 1fr; }
@@ -287,7 +312,7 @@ summary.nav__link::-webkit-details-marker, .drawer__btn::-webkit-details-marker,
 
 /* ---------- reduced motion: fewer and gentler, never hidden ---------- */
 @media (prefers-reduced-motion: reduce) {
-  .track__fill, .screen, .screen__notch, .ticket { transition: none; }
+  .track__fill, .screen, .screen__notch, .ticket, .stations--auto > .station { transition: none; }
   .screen__body { transition: opacity 150ms ease; transform: none !important; }
   .roles__panel ul:not([hidden]) li, .roles__media .film__item:not([hidden]) { animation: none; }
 }

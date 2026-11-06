@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Portal;
 
+use App\Finance\BankTransfer\BankTransferDetails;
 use App\Models\AppointmentRequest;
 use App\Models\AppointmentRequestSettings;
 use App\Portal\PortalAccess;
@@ -43,6 +44,8 @@ final class WorkspaceController extends PortalController
 
         return Inertia::render('portal/order', [
             'order' => PortalPresenter::orderDetail($customer, $record),
+            // ADR-0046: transfer details beside the payment schedule; null hides the section.
+            'bank' => BankTransferDetails::forCustomer(),
             // ADR-0039: the customer may ask for an appointment on an open order when the workspace form is on.
             'canRequestAppointment' => ! $record->state()->isFinal() && AppointmentRequestSettings::current()->enabledFor(AppointmentRequest::SOURCE_PORTAL),
         ]);

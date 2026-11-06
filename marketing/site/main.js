@@ -26,36 +26,43 @@
   };
 
   /* ---------- hero: one order on one line ---------- */
-  // Every value comes from the approved copy and its demo order ORD-2026-00178.
-  const screens = {
-    showroom: ['فرصة البيع INT-0231', 'المعرض', [['عبدالله سعد، زيارة المعرض', 'فرع الرياض'], ['2 سبتمبر', 'سُجّل الاهتمام'], ['4 سبتمبر', 'طلب موعد قياس'], ['تحويل إلى طلب', ['done', 'ORD-2026-00178']]]],
-    office: ['العقد والدفعة الأولى', 'العقد والدفعة', [['عرض سعر QUO-2026-00071', '48,300.00 ر.س'], ['العقد CON-2026-00031', ['done', 'موقّع 23 سبتمبر']], ['الدفعة الأولى 50%، RCV-2026-00412', ['done', 'مسدد']], ['الدفعة الأخيرة عند التركيب', ['next', '24,150.00']]]],
-    factory: ['مراحل الطلب ORD-2026-00178', 'المصنع', [['العقد والدفعة الأولى', ['done', 'مكتملة']], ['إصدار أمر التصنيع، الإنتاج', ['done', 'مكتملة']], ['التصنيع، 6 نوفمبر', ['live', 'جارية']], ['التركيب والتسليم، 8 نوفمبر', ['next', 'لاحقًا']]]],
-    dispatch: ['مواعيد اليوم', 'التسليم', [['08:00 تركيب، حي النرجس', 'زياد سالم'], ['12:00 قياس، حي الياسمين', 'حسن علي'], ['14:00 تسليم بنود جاهزة', 'عمر يوسف']]],
-    site: ['تركيب في موقع العميل', 'موقع العميل', [['ORD-2026-00178، حي النرجس', '8 نوفمبر، 08:00'], ['صور قبل التركيب وبعده', 'من جوال الفني'], ['توقيع العميل على الاستلام', ['next', 'لاحقًا']]]],
-  };
+  // Every value comes from the approved copy and its demo order ORD-2026-00178. The five screens are in the HTML,
+  // stacked in one grid cell, so the card is as tall as the tallest and switching never moves the page.
   const LIVE = 2;
   const route = document.getElementById('route');
   if (route) {
     const stationsEl = document.getElementById('stations');
     const stations = [...stationsEl.querySelectorAll('.station')];
     const fill = document.getElementById('fill'), ticket = document.getElementById('ticket');
-    const screen = document.getElementById('screen'), body = document.getElementById('screen-body'), notch = document.getElementById('notch');
+    const screen = document.getElementById('screen'), stack = document.getElementById('screen-body'), notch = document.getElementById('notch');
+    const panels = [...stack.querySelectorAll('.screen__body')];
     const vertical = () => matchMedia('(max-width: 760px)').matches;
-    const dotOf = (k) => stations.find((s) => s.dataset.k === k).querySelector('.dot');
-    const cell = (v) => (Array.isArray(v) ? `<span class="pill-s pill-s--${v[0]}">${v[1]}</span>` : `<b class="nums">${v}</b>`);
-    const render = (k) => { const [t, room, rows] = screens[k]; return `<div class="shead"><b class="nums">${t}</b><small>${room}</small></div><ul class="srows">${rows.map((r) => `<li><span class="nums">${r[0]}</span>${cell(r[1])}</li>`).join('')}</ul>`; };
+    const stationOf = (k) => stations.find((s) => s.dataset.k === k);
+    const dotOf = (k) => stationOf(k).querySelector('.dot');
+    const show = (k) => panels.forEach((p) => p.classList.toggle('is-on', p.dataset.k === k));
+    const shift = new Map();
     let current = 'factory', swapTimer, drawn = false;
 
     // The screen sits in the stations' grid: inline under its station on phones, a full-width second row on wide screens,
     // where it slides under the selected station. It starts under the factory in the HTML, so nothing moves on load.
     const place = (k) => {
       if (vertical()) {
-        const st = stations.find((s) => s.dataset.k === k);
-        if (screen.previousElementSibling !== st) st.after(screen);
+        // Phones: the screen stays after the factory in the markup; stations and screen slide with translate into the
+        // order «stations up to k, the screen, the rest», which moves no layout, so autoplay keeps CLS at 0.
+        const first = stations[0], order = stations.flatMap((s) => (s.dataset.k === k ? [s, screen] : [s]));
+        const gap = parseFloat(getComputedStyle(stationsEl).rowGap) || 0;
+        let y = first.offsetTop - parseFloat(getComputedStyle(first).marginTop);
+        order.forEach((el) => {
+          const cs = getComputedStyle(el), top = y + parseFloat(cs.marginTop);
+          shift.set(el, top - el.offsetTop);
+          el.style.translate = `0 ${top - el.offsetTop}px`;
+          y = top + el.offsetHeight + parseFloat(cs.marginBottom) + gap;
+        });
         screen.style.setProperty('--x', '0px');
         return;
       }
+      shift.clear();
+      [screen, ...stations].forEach((el) => { el.style.translate = ''; });
       const box = route.getBoundingClientRect(), [dx] = centre(dotOf(k));
       const w = screen.offsetWidth, cx = dx - box.left;
       const fromStart = isRTL ? box.width - cx : cx; // translate is physical: measure from the inline start
@@ -66,12 +73,17 @@
       if (!isRTL) { notch.style.right = 'auto'; notch.style.left = '0'; }
     };
     // The fill ends exactly on the live station's centre, measured, so it holds when the phone screen opens inline.
+    // On phones it is measured where the slide ends (layout position plus translate), not mid-transition.
     const fillTo = () => {
       if (!drawn) return;
-      const track = fill.parentElement.getBoundingClientRect(), [lx, ly] = centre(dotOf('factory'));
-      fill.style.transform = vertical()
-        ? `scaleY(${((ly - track.top) / track.height).toFixed(4)})`
-        : `scaleX(${((isRTL ? track.right - lx : lx - track.left) / track.width).toFixed(4)})`;
+      if (vertical()) {
+        const track = fill.parentElement, live = stationOf('factory'), dot = live.querySelector('.dot');
+        const ly = live.offsetTop + (shift.get(live) || 0) + dot.offsetTop + dot.offsetHeight / 2;
+        fill.style.transform = `scaleY(${((ly - track.offsetTop) / track.offsetHeight).toFixed(4)})`;
+        return;
+      }
+      const track = fill.parentElement.getBoundingClientRect(), [lx] = centre(dotOf('factory'));
+      fill.style.transform = `scaleX(${((isRTL ? track.right - lx : lx - track.left) / track.width).toFixed(4)})`;
     };
     const select = (k, animate) => {
       current = k;
@@ -79,11 +91,62 @@
       place(k);
       fillTo();
       clearTimeout(swapTimer);
-      if (!animate) { body.innerHTML = render(k); return; }
-      body.classList.add('is-leaving');
-      swapTimer = setTimeout(() => { body.innerHTML = render(k); body.classList.remove('is-leaving'); }, reduce ? 0 : 160);
+      panels.forEach((p) => p.classList.remove('is-leaving'));
+      const out = panels.find((p) => p.classList.contains('is-on'));
+      if (!animate || !out) { show(k); return; }
+      out.classList.add('is-leaving');
+      swapTimer = setTimeout(() => { out.classList.remove('is-leaving'); show(k); }, reduce ? 0 : 160);
     };
-    stations.forEach((s) => s.addEventListener('click', () => { if (s.dataset.k !== current) select(s.dataset.k, true); }));
+
+    // Autoplay: one station every STEP, in order and round again, only while the line is on screen and the tab is
+    // visible. Pointer over the line or focus inside it holds it; it resumes RESUME after the last of these. A click
+    // or key press that picks a station stops it for good: the visitor took over, and the pause/play button
+    // (WCAG 2.2.2) is how they hand it back. With reduced motion it starts stopped. Focus is never moved, and the
+    // screen is not a live region while it runs, so screen readers only hear the visitor's own choices.
+    const STEP = 4500, RESUME = 8000;
+    const toggle = document.getElementById('autoplay');
+    const LABEL_PAUSE = 'إيقاف التنقل التلقائي بين المراحل', LABEL_PLAY = 'تشغيل التنقل التلقائي بين المراحل';
+    let stopped = reduce, held = false, focused = false, inView = false, stepTimer, resumeTimer;
+    const running = () => !stopped && !held && inView && !document.hidden;
+    const arm = () => {
+      clearTimeout(stepTimer);
+      screen.classList.remove('is-running');
+      stack.setAttribute('aria-live', running() ? 'off' : 'polite');
+      if (!running()) return;
+      void screen.offsetWidth; // restart the progress line
+      screen.classList.add('is-running');
+      stepTimer = setTimeout(() => {
+        const i = stations.findIndex((s) => s.dataset.k === current);
+        select(stations[(i + 1) % stations.length].dataset.k, true);
+        arm();
+      }, STEP);
+    };
+    const setStopped = (v) => {
+      stopped = v;
+      toggle.classList.toggle('is-paused', v);
+      toggle.setAttribute('aria-label', v ? LABEL_PLAY : LABEL_PAUSE);
+      arm();
+    };
+    const hold = () => { held = true; clearTimeout(resumeTimer); arm(); };
+    const release = () => { clearTimeout(resumeTimer); resumeTimer = setTimeout(() => { held = false; arm(); }, RESUME); };
+    screen.style.setProperty('--station-t', `${STEP}ms`);
+    stations.forEach((s) => s.addEventListener('click', () => {
+      clearTimeout(resumeTimer);
+      setStopped(true);
+      if (s.dataset.k !== current) select(s.dataset.k, true);
+    }));
+    toggle.addEventListener('click', () => { held = false; clearTimeout(resumeTimer); setStopped(!stopped); });
+    route.addEventListener('pointerenter', (e) => { if (e.pointerType === 'mouse') hold(); });
+    route.addEventListener('pointerleave', (e) => { if (e.pointerType === 'mouse' && !focused) release(); });
+    route.addEventListener('focusin', (e) => { focused = e.target !== toggle; if (focused) hold(); });
+    route.addEventListener('focusout', (e) => { if (route.contains(e.relatedTarget)) return; focused = false; if (!route.matches(':hover')) release(); });
+    route.addEventListener('keydown', (e) => { if (e.target !== toggle) hold(); });
+    document.addEventListener('visibilitychange', arm);
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver(([e]) => { inView = e.isIntersecting; arm(); }, { threshold: 0.4 }).observe(route);
+    }
+    toggle.hidden = false;
+    setStopped(stopped);
     const placeTicket = () => {
       const box = stationsEl.getBoundingClientRect(), [lx] = centre(dotOf('factory')), [sx] = centre(dotOf('showroom'));
       ticket.style.left = `${lx - box.left}px`;
@@ -107,6 +170,7 @@
         if (i > LIVE) return;
         setTimeout(() => s.classList.add(i === LIVE ? 'is-live' : 'is-done'), DRAW * (i / LIVE));
       });
+      setTimeout(() => stationsEl.classList.add('is-drawn'), DRAW);
     };
     select('factory', false);
     placeTicket();

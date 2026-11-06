@@ -5,6 +5,7 @@ namespace App\Finance;
 use App\Access\Access;
 use App\Access\Permission;
 use App\Enums\MembershipStatus;
+use App\Finance\BankTransfer\BankTransferDetails;
 use App\Messages\MessageCatalogue;
 use App\Messages\MessageTemplates;
 use App\Models\Customer;
@@ -107,8 +108,12 @@ final class CollectionNotices
      */
     public function dueReminder(OrderDue $due, Order $order, Money $remaining, string $kind, string $period): bool
     {
+        $locale = self::locale($order->customer);
+
         return $this->toCustomer($order->customer, "finance.message.due_{$kind}", [
-            'order' => $order->number, 'amount' => $remaining->toInput(), 'due' => (string) $due->name->get(self::locale($order->customer)),
+            'order' => $order->number, 'amount' => $remaining->toInput(), 'due' => (string) $due->name->get($locale),
+            // ADR-0046: where to transfer, with the order number as the reference; empty without an active account.
+            'bank' => BankTransferDetails::messageLine($locale, $order->number),
         ], "due:{$due->id}:{$kind}:{$period}", WhatsAppEvent::PaymentDue, $order);
     }
 

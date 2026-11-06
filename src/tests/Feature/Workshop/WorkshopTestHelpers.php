@@ -22,7 +22,7 @@ function workshopFixture(string $template = FlowTemplates::RETAIL): object
     config(['opsone.default_flow_template' => $template]);
     $f = procFixture();
     $f->workshop = procSupplier([
-        'name' => ['ar' => 'ورشة الدمام', 'en' => 'Dammam workshop'], 'is_workshop' => true, 'lead_days' => 18, 'email' => 'orders@workshop.test',
+        'name' => ['ar' => 'مصنع الدمام', 'en' => 'Dammam factory'], 'is_workshop' => true, 'lead_days' => 18, 'email' => 'orders@workshop.test',
     ]);
     $f->customer = Customer::factory()->create(['branch_id' => $f->org->a->id, 'name' => 'عميل سري', 'mobile' => '0551234567']);
     $f->order = openCustomOrder($f->sales, $f->customer);
@@ -31,7 +31,7 @@ function workshopFixture(string $template = FlowTemplates::RETAIL): object
 }
 
 /**
- * Completes the needs, design and agreement stages so the order reaches «sent to the workshop».
+ * Completes the needs, design and agreement stages so the order reaches «sent to the factory».
  */
 function toWorkshopStage(object $f): void
 {

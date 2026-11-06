@@ -124,14 +124,14 @@ final class Site
             'cta_label' => 'Book a free survey', 'cta_link' => '#contact', 'image' => $images[0]]];
         $services = fn (string $l) => ['id' => 'home-services', 'type' => 'services', 'visible' => true, 'data' => ['heading' => $l === 'ar' ? 'خدماتنا' : 'What we do', 'items' => $l === 'ar' ? [
             ['title' => 'تصميم ثلاثي الأبعاد', 'text' => 'مصمّمونا يحوّلون مساحتك وأسلوب حياتك إلى تصميم واقعي تراه قبل التصنيع وتعتمده بنفسك.'],
-            ['title' => 'تصنيع محلي بجودة عالية', 'text' => 'ورشتنا في الرياض تصنع من ألواح مقاومة للرطوبة وواجهات أكريليك وخشب طبيعي بفحص جودة قبل كل تسليم.'],
+            ['title' => 'تصنيع محلي بجودة عالية', 'text' => 'مصنعنا في الرياض يصنع من ألواح مقاومة للرطوبة وواجهات أكريليك وخشب طبيعي بفحص جودة قبل كل تسليم.'],
             ['title' => 'تركيب بفرق متخصصة', 'text' => 'فنيو تركيب في كل فرع يلتزمون بالمواعيد ويسلّمون الموقع نظيفًا مع ضمان على التصنيع والتركيب.'],
             ['title' => 'أسطح كوارتز ورخام', 'text' => 'نوفّر أجود الأسطح بقص وتركيب دقيقين وحواف مصقولة وحوض مدمج.'],
             ['title' => 'إكسسوارات مطبخ جاهزة', 'text' => 'مقابض ومفصلات ومجاري أدراج ومنظمات وخلاطات وإضاءة LED، متوفرة بالمخزون في فروعنا ومن المتجر.'],
             ['title' => 'ضمان وخدمة ما بعد البيع', 'text' => 'ضمان سنتين، وبلاغات الصيانة تُتابع من حسابك حتى الإغلاق.'],
         ] : [
             ['title' => '3D design', 'text' => 'Our designers turn your space and lifestyle into a realistic design you can see and approve before we build.'],
-            ['title' => 'High-quality local manufacturing', 'text' => 'Our Riyadh workshop builds with moisture-resistant boards, acrylic fronts and natural wood, with a quality check before every handover.'],
+            ['title' => 'High-quality local manufacturing', 'text' => 'Our Riyadh factory builds with moisture-resistant boards, acrylic fronts and natural wood, with a quality check before every handover.'],
             ['title' => 'Installation by specialists', 'text' => 'Installation crews in every branch keep to schedule and hand over a clean site with a manufacturing and fitting warranty.'],
             ['title' => 'Quartz and marble tops', 'text' => 'The finest worktops, precisely cut and fitted, with polished edges and an integrated sink.'],
             ['title' => 'Ready kitchen accessories', 'text' => 'Handles, hinges, drawer slides, organizers, mixers and LED lighting, in stock in our branches and in the store.'],
@@ -139,10 +139,10 @@ final class Site
         ]]];
         $process = fn (string $l) => ['id' => 'home-process', 'type' => 'text', 'visible' => true, 'data' => $l === 'ar' ? [
             'heading' => 'كيف نعمل: من الفكرة إلى مطبخ جاهز',
-            'body' => "١. معاينة وقياس: يزورك مختص في الموقع ويأخذ المقاسات بدقة.\n٢. تصميم واعتماد: تصميم ثلاثي الأبعاد ثم عرض سعر واضح بالتفصيل وضريبة القيمة المضافة.\n٣. اتفاق ودفعة أولى: دفعة أولى 50% وتتابع مراحل مشروعك من حسابك الشخصي.\n٤. تصنيع: في ورشتنا 3 إلى 4 أسابيع مع فحص جودة.\n٥. تركيب وتسليم: فريق التركيب في الموعد، والدفعة الأخيرة بعد التسليم والمعاينة النهائية.",
+            'body' => "١. معاينة وقياس: يزورك مختص في الموقع ويأخذ المقاسات بدقة.\n٢. تصميم واعتماد: تصميم ثلاثي الأبعاد ثم عرض سعر واضح بالتفصيل وضريبة القيمة المضافة.\n٣. اتفاق ودفعة أولى: دفعة أولى 50% وتتابع مراحل مشروعك من حسابك الشخصي.\n٤. تصنيع: في مصنعنا 3 إلى 4 أسابيع مع فحص جودة.\n٥. تركيب وتسليم: فريق التركيب في الموعد، والدفعة الأخيرة بعد التسليم والمعاينة النهائية.",
         ] : [
             'heading' => 'How we work: from idea to finished kitchen',
-            'body' => "1. Survey and measure: a specialist visits and measures your site precisely.\n2. Design and approval: a 3D design, then a clear itemised quote including VAT.\n3. Agreement and first payment: 50% down, and you follow every stage from your own account.\n4. Manufacturing: 3 to 4 weeks in our workshop with a quality check.\n5. Installation and handover: our crew on the agreed day, final payment after the final walkthrough.",
+            'body' => "1. Survey and measure: a specialist visits and measures your site precisely.\n2. Design and approval: a 3D design, then a clear itemised quote including VAT.\n3. Agreement and first payment: 50% down, and you follow every stage from your own account.\n4. Manufacturing: 3 to 4 weeks in our factory with a quality check.\n5. Installation and handover: our crew on the agreed day, final payment after the final walkthrough.",
         ]];
         $gal = fn (string $l) => ['id' => 'home-gallery', 'type' => 'gallery', 'visible' => $gallery[$l] !== [], 'data' => ['heading' => $l === 'ar' ? 'من مطابخنا' : 'Featured kitchens', 'images' => $gallery[$l]]];
         $goods = fn (string $l) => ['id' => 'home-goods', 'type' => 'ready_goods', 'visible' => true, 'data' => $l === 'ar'
@@ -205,7 +205,7 @@ final class Site
         return [
             'ar' => ['title' => 'من نحن', 'meta_description' => 'تعرّف على أوبس ون: فريق سعودي يصمّم ويصنّع ويركّب المطابخ منذ سنوات، بثلاثة فروع في الرياض وجدة والدمام.', 'sections' => [
                 $hero('نبني مطابخ تُعاش، لا تُشاهد فقط', 'فريق سعودي من المصممين والفنيين يجمع بين الحرفة والتقنية في كل مطبخ.', 'تواصل معنا'),
-                ['id' => 'about-story', 'type' => 'text', 'visible' => true, 'data' => ['heading' => 'قصتنا', 'body' => "بدأت أوبس ون من ورشة صغيرة في الرياض بهدف واحد: أن يحصل كل بيت على مطبخ يناسب عائلته ويصمد لسنوات. اليوم نخدم عملاء الرياض وجدة والدمام عبر ثلاثة فروع وورشة تصنيع مركزية، ومعارض نعرض فيها خاماتنا وإكسسواراتنا.\n\nنؤمن أن الشفافية جزء من الجودة؛ لذلك يتابع العميل مشروعه من حسابه: المراحل والمواعيد والعروض والدفعات والإيصالات، دون مفاجآت."]],
+                ['id' => 'about-story', 'type' => 'text', 'visible' => true, 'data' => ['heading' => 'قصتنا', 'body' => "بدأت أوبس ون من مصنع صغير في الرياض بهدف واحد: أن يحصل كل بيت على مطبخ يناسب عائلته ويصمد لسنوات. اليوم نخدم عملاء الرياض وجدة والدمام عبر ثلاثة فروع ومصنع مركزي، ومعارض نعرض فيها خاماتنا وإكسسواراتنا.\n\nنؤمن أن الشفافية جزء من الجودة؛ لذلك يتابع العميل مشروعه من حسابه: المراحل والمواعيد والعروض والدفعات والإيصالات، دون مفاجآت."]],
                 ['id' => 'about-values', 'type' => 'services', 'visible' => true, 'data' => ['heading' => 'قيمنا', 'items' => [
                     ['title' => 'الدقة', 'text' => 'قياس في الموقع وتصميم ثلاثي الأبعاد وفحص جودة قبل كل تسليم.'],
                     ['title' => 'الوضوح', 'text' => 'عرض سعر مفصّل شامل الضريبة، وإيصال رسمي لكل دفعة.'],
@@ -215,7 +215,7 @@ final class Site
             ]],
             'en' => ['title' => 'About us', 'meta_description' => 'Meet OpsOne: a Saudi team that has designed, built and installed kitchens for years, with three branches in Riyadh, Jeddah and Dammam.', 'sections' => [
                 $hero('We build kitchens to be lived in, not just looked at', 'A Saudi team of designers and technicians combining craft and technology in every kitchen.', 'Contact us'),
-                ['id' => 'about-story', 'type' => 'text', 'visible' => true, 'data' => ['heading' => 'Our story', 'body' => "OpsOne started as a small workshop in Riyadh with one aim: every home should have a kitchen that fits its family and lasts for years. Today we serve Riyadh, Jeddah and Dammam through three branches and a central workshop, with showrooms for our materials and accessories.\n\nWe believe transparency is part of quality, so customers follow their project from their account: stages, appointments, quotes, payments and receipts, with no surprises."]],
+                ['id' => 'about-story', 'type' => 'text', 'visible' => true, 'data' => ['heading' => 'Our story', 'body' => "OpsOne started as a small factory in Riyadh with one aim: every home should have a kitchen that fits its family and lasts for years. Today we serve Riyadh, Jeddah and Dammam through three branches and a central factory, with showrooms for our materials and accessories.\n\nWe believe transparency is part of quality, so customers follow their project from their account: stages, appointments, quotes, payments and receipts, with no surprises."]],
                 ['id' => 'about-values', 'type' => 'services', 'visible' => true, 'data' => ['heading' => 'Our values', 'items' => [
                     ['title' => 'Precision', 'text' => 'On-site measurement, 3D design and a quality check before every handover.'],
                     ['title' => 'Clarity', 'text' => 'An itemised quote including VAT and an official receipt for every payment.'],

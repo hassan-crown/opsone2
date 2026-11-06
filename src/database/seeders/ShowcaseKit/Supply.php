@@ -68,9 +68,9 @@ final class Supply
 
         // ADR-0038: the showroom has its kitchens made by external workshops, each with its usual lead time.
         $workshops = [
-            'joinery_dmm' => ['ورشة الدمام للنجارة', 'Dammam Joinery Workshop', 'تصنيع خزائن المطابخ حسب التصميم', 'خالد الدوسري', 18],
+            'joinery_dmm' => ['مصنع الدمام للنجارة', 'Dammam Joinery Factory', 'تصنيع خزائن المطابخ حسب التصميم', 'خالد الدوسري', 18],
             'kitchens_ruh' => ['مصنع الرياض للمطابخ', 'Riyadh Kitchen Works', 'مطابخ أكريليك ولامينيت', 'منصور القحطاني', 14],
-            'stone' => ['ورشة الأسطح والرخام', 'Stone & Countertops Workshop', 'أسطح كوارتز ورخام', 'نبيل الحربي', 10],
+            'stone' => ['مصنع الأسطح والرخام', 'Stone & Countertops Factory', 'أسطح كوارتز ورخام', 'نبيل الحربي', 10],
         ];
         foreach ($workshops as $key => [$ar, $en, $supplies, $contact, $lead]) {
             $this->workshops[$key] = app(SaveSupplier::class)->handle($this->s->users['inventory'], null, [
@@ -178,7 +178,7 @@ final class Supply
             foreach (['mdf_moisture' => [60, 120, 7500], 'mdf_laminate' => [40, 90, 6500], 'hinge_hardware' => [400, 900, 700], 'slide_hardware' => [150, 300, 2200], 'edge_banding' => [500, 1200, 180], 'led_profile' => [100, 260, 950]] as $key => [$min, $max, $cost]) {
                 $lines[] = $this->line('material', $m[$key]->id, $this->s->rng->int($min, $max) * 1000, $cost);
             }
-            $po = $this->purchase('RUH', $this->suppliers['boards'], $lines, 'خامات الورشة للشهر الأول');
+            $po = $this->purchase('RUH', $this->suppliers['boards'], $lines, 'خامات المصنع للشهر الأول');
             $this->receive('RUH', $po);
         });
         // Showroom display stock moved from the Riyadh warehouse.

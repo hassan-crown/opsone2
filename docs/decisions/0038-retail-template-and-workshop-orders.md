@@ -62,9 +62,9 @@ itself. OpsOne is pre-launch with no tenants, so the new default simply replaces
   history, VAT number and access rules). `lead_days` proposes `expected_on` on create.
 - A new purchase line type `order_line` sends lines of the customer's order to the workshop: same order only, not
   removed, frozen name, unit `piece`, **never stocked** (receipt records quantities, no `StockReceiver` call).
-- The order page offers «workshop purchase order» on the `sent` action (P-46 in the order's branch), opening the
+- The order page offers «factory purchase order» on the `sent` action (P-46 in the order's branch), opening the
   purchase form prefilled with the order's custom lines, its branch, the only active workshop and the reference.
-- «Orders at workshops» (`/workshops`): open workshop purchase orders (workshop supplier, a `flow_reference` or an
+- «Orders at factories» (`/workshops`): open workshop purchase orders (workshop supplier, a `flow_reference` or an
   `order_line` line) with expected date, days late and received progress, filtered by workshop, branch and late only;
   scoped exactly like the purchase list (P-46/P-47); no costs.
 - `workshops:late-alerts` (daily 07:30): notification `workshop.late` (link re-checks P-46) to the purchase order's

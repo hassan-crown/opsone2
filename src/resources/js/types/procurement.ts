@@ -141,7 +141,7 @@ export type PurchaseSend = {
     retry_of: number | null;
 };
 
-/** A row of «orders at workshops» (ADR-0038). */
+/** A row of «orders at factories» (ADR-0038). */
 export type WorkshopRow = {
     id: number;
     number: string;

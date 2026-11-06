@@ -79,6 +79,40 @@ if [ -n "$DEMO_OTP_VALUE" ]; then
 fi
 unset DEMO_OTP_VALUE
 
+# dev, stage and prod are published on a public domain (Traefik + TLS). APP_ENV=local there switches off TrustHosts,
+# the SMTP SSRF guard and the demo-code restriction, and APP_DEBUG=true prints stack traces to anyone (audit H-1).
+DEPLOYED=false
+case "$INFRA_ENVIRONMENT" in dev|stage|prod) DEPLOYED=true ;; esac
+case "$APP_ENVIRONMENT" in production|staging|development) DEPLOYED=true ;; esac
+
+APP_DEBUG_VALUE="${APP_DEBUG:-}"
+if [ -z "$APP_DEBUG_VALUE" ] && [ -f .env ]; then
+  APP_DEBUG_VALUE="$(grep -E '^APP_DEBUG=' .env | tail -n 1 | cut -d '=' -f2- | tr -d '"' | tr -d "'" | tr -d '[:space:]' || true)"
+fi
+APP_DEBUG_VALUE="$(printf '%s' "$APP_DEBUG_VALUE" | tr '[:upper:]' '[:lower:]')"
+
+if [ "$DEPLOYED" = "true" ]; then
+  if [ "$APP_ENVIRONMENT" = "local" ] || [ "$APP_ENVIRONMENT" = "testing" ]; then
+    echo ">>> [installer] ERROR: INFRA ENVIRONMENT is '$INFRA_ENVIRONMENT' (published), but APP_ENV is '$APP_ENVIRONMENT'."
+    echo ">>>   Use APP_ENV=development (dev), staging (stage) or production (prod): run scripts/sync-app-env.sh."
+    exit 1
+  fi
+  case "$APP_DEBUG_VALUE" in
+    true|1|on|yes)
+      echo ">>> [installer] ERROR: APP_DEBUG is enabled in the published '$INFRA_ENVIRONMENT' environment."
+      echo ">>>   Set APP_DEBUG=false in /var/www/html/.env (stack traces would be public)."
+      exit 1
+      ;;
+  esac
+fi
+unset APP_DEBUG_VALUE
+
+if [ "$INFRA_ENVIRONMENT" = "dev" ] && [ "$APP_ENVIRONMENT" != "development" ]; then
+  echo ">>> [installer] WARNING:"
+  echo ">>>   INFRA ENVIRONMENT is dev, but Laravel APP_ENV is '$APP_ENVIRONMENT'."
+  echo ">>>   You should set APP_ENV=development in /var/www/html/.env."
+fi
+
 if [ "$INFRA_ENVIRONMENT" = "prod" ] && [ "$APP_ENVIRONMENT" != "production" ]; then
   echo ">>> [installer] WARNING:"
   echo ">>>   INFRA ENVIRONMENT is prod, but Laravel APP_ENV is '$APP_ENVIRONMENT'."
@@ -109,8 +143,15 @@ else
   echo ">>> [installer] vendor directory exists, ensuring dependencies are installed..."
 fi
 
-if [ "$APP_ENVIRONMENT" = "production" ] || [ "$APP_ENVIRONMENT" = "staging" ] || [ "$INFRA_ENVIRONMENT" = "prod" ] || [ "$INFRA_ENVIRONMENT" = "stage" ]; then
-  echo ">>> [installer] Installing Composer dependencies for production/staging..."
+INSTALL_MODE="${1:-update}"
+
+# Published environments never carry require-dev (Boost, Pail, Sail...). The one exception is a dev refresh: the
+# seeders need Faker, so dev packages are installed for the seed and removed again right after it (step 8).
+if [ "$DEPLOYED" = "true" ] && [ "$INSTALL_MODE" = "refresh" ] && [ "$INFRA_ENVIRONMENT" = "dev" ]; then
+  echo ">>> [installer] Installing Composer dependencies with dev packages for the dev seed (removed after seeding)..."
+  composer install --no-interaction --prefer-dist
+elif [ "$DEPLOYED" = "true" ]; then
+  echo ">>> [installer] Installing Composer dependencies for a published environment (no dev packages)..."
   composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
 else
   echo ">>> [installer] Installing Composer dependencies for local/development..."
@@ -150,7 +191,6 @@ fi
 # -----------------------------------------------------------------------------
 # 7) Database migrations
 # -----------------------------------------------------------------------------
-INSTALL_MODE="${1:-update}"
 
 echo ">>> [installer] Running database migrations in $INSTALL_MODE mode..."
 if [ "$INSTALL_MODE" = "refresh" ]; then
@@ -177,6 +217,11 @@ if [ "$INSTALL_MODE" = "refresh" ]; then
 
   echo ">>> [installer] Refresh mode detected, running db:seed..."
   php artisan db:seed --force --no-interaction
+
+  if [ "$DEPLOYED" = "true" ]; then
+    echo ">>> [installer] Removing dev packages again after seeding..."
+    composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
+  fi
 else
   echo ">>> [installer] Update mode detected, skipping db:seed."
 fi
@@ -203,7 +248,7 @@ fi
 # -----------------------------------------------------------------------------
 # 10) Final optimization
 # -----------------------------------------------------------------------------
-if [ "$APP_ENVIRONMENT" = "production" ] || [ "$APP_ENVIRONMENT" = "staging" ] || [ "$INFRA_ENVIRONMENT" = "prod" ] || [ "$INFRA_ENVIRONMENT" = "stage" ]; then
+if [ "$DEPLOYED" = "true" ]; then
   echo ">>> [installer] Optimizing application for production/staging..."
   php artisan optimize
 else

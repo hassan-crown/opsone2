@@ -106,7 +106,7 @@ Schedule::command('einvoicing:sweep')->hourly()->withoutOverlapping();
 
 // ADR-0038: open workshop purchase orders past their expected date notify their followers (once per order and date).
 Artisan::command('workshops:late-alerts', function (WorkshopLateAlerts $alerts) {
-    $this->info(sprintf('Sent %d late-workshop notification(s).', $alerts->run()));
+    $this->info(sprintf('Sent %d late-factory notification(s).', $alerts->run()));
 })->purpose('Notify the followers of workshop purchase orders past their expected date');
 
 Schedule::command('workshops:late-alerts')->dailyAt('07:30')->withoutOverlapping();

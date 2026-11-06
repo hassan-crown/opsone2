@@ -20,7 +20,8 @@ import { useT } from '@/lib/i18n';
 import type { TranslationKey } from '@/lib/i18n';
 import { approve, changes, show } from '@/routes/customer/documents';
 import { show as showOrder } from '@/routes/customer/orders';
-import type { PortalDocument } from '@/types/portal';
+import { BankTransferCard } from '@/components/portal/bank-transfer';
+import type { PortalBankDetails, PortalDocument } from '@/types/portal';
 
 // An amount a clause template inserted as plain digits, next to its currency: «(50315.20 ر.س)», «SAR 50315.20».
 const CLAUSE_AMOUNT =
@@ -67,8 +68,10 @@ function ClauseText({ text }: { text: string }) {
  */
 export default function PortalDocumentPage({
     document: doc,
+    bank,
 }: {
     document: PortalDocument;
+    bank: PortalBankDetails | null;
 }) {
     const t = useT();
     const [asking, setAsking] = useState(false);
@@ -247,6 +250,16 @@ export default function PortalDocumentPage({
                             </dl>
                         )}
                     </Card>
+                </Section>
+            )}
+
+            {bank && doc.kind !== 'design' && (
+                <Section title={t('portal.bank.section')}>
+                    <BankTransferCard
+                        bank={bank}
+                        amountMinor={c.totals?.total_minor}
+                        reference={doc.order}
+                    />
                 </Section>
             )}
 

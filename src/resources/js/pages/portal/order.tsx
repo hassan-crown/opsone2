@@ -21,6 +21,7 @@ import {
 import { Button, buttonVariants } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Spinner } from '@/components/ui/spinner';
+import { BankTransferCard } from '@/components/portal/bank-transfer';
 import { useT } from '@/lib/i18n';
 import type { TranslationKey } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
@@ -31,7 +32,11 @@ import { show as showDocument } from '@/routes/customer/documents';
 import { cancel, index as ordersIndex, pay } from '@/routes/customer/orders';
 import { withdraw as withdrawProof } from '@/routes/customer/proofs';
 import { create as newTicket } from '@/routes/customer/tickets';
-import type { PortalAppointment, PortalOrderDetail } from '@/types/portal';
+import type {
+    PortalAppointment,
+    PortalBankDetails,
+    PortalOrderDetail,
+} from '@/types/portal';
 
 type Stage = PortalOrderDetail['timeline'][number];
 
@@ -59,9 +64,11 @@ function journey(timeline: Stage[]): Stage[] {
 export default function PortalOrder({
     order,
     canRequestAppointment,
+    bank,
 }: {
     order: PortalOrderDetail;
     canRequestAppointment: boolean;
+    bank: PortalBankDetails | null;
 }) {
     const t = useT();
     const f = order.finance;
@@ -245,6 +252,19 @@ export default function PortalOrder({
                             ))}
                         </ul>
                     )}
+                    {bank &&
+                        order.can.upload_proof &&
+                        (f.remaining_minor ?? 1) > 0 && (
+                            <BankTransferCard
+                                bank={bank}
+                                amountMinor={
+                                    f.due_now_minor > 0
+                                        ? f.due_now_minor
+                                        : f.remaining_minor
+                                }
+                                reference={order.number}
+                            />
+                        )}
                     {order.can.upload_proof && (
                         <Link
                             href={pay(order.id).url}

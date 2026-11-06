@@ -25,7 +25,7 @@ const current = (slug, s) => (slug === s.slug ? ' aria-current="page"' : '');
 
 const sectorLinks = (root, slug, cls) => sectors.map((s) => `<li><a class="${cls}" href="${root}solutions/${s.slug}/"${current(slug, s)}><b>${esc(s.name)}</b><span>${esc(s.hint)}</span></a></li>`).join('');
 
-// demo: where «اطلب عرضًا تجريبيًا» goes ('#demo' on pages with the form, the home page's form elsewhere)
+// demo: where «احجز عرضًا توضيحيًا» goes ('#demo' on pages with the form, the home page's form elsewhere)
 export function header({ root = '', slug = '', demo = '#demo' } = {}) {
   const links = product.filter(([id]) => id !== 'people').map(([id, label]) => `<li><a class="nav__link" href="${hash(root, id)}">${label}</a></li>`).join('');
   return `<a class="skip" href="#main">تخطَّ إلى المحتوى</a>
@@ -44,7 +44,7 @@ export function header({ root = '', slug = '', demo = '#demo' } = {}) {
         ${links}
       </ul>
     </nav>
-    <a class="btn btn--go btn--small" href="${demo}" data-cta="header">اطلب عرضًا تجريبيًا</a>
+    <a class="btn btn--go btn--small" href="${demo}" data-cta="header">احجز عرضًا توضيحيًا</a>
     <details class="drawer" data-menu>
       <summary class="drawer__btn" aria-label="القائمة">${burger}${close}</summary>
       <nav class="drawer__panel" aria-label="القائمة">
@@ -65,7 +65,7 @@ export function footer({ root = '', slug = '', demo = '#demo' } = {}) {
       <div class="foot__brand">
         <a class="foot__logo" href="${home(root)}" aria-label="OpsOne، الصفحة الرئيسية"><img src="${root}assets/brand/opsone-logo.svg" width="148" height="36" loading="lazy" alt="OpsOne"></a>
         <p>نظام واحد للبيع والطلبات والتنفيذ والتحصيل.</p>
-        <a class="btn btn--go" href="${demo}" data-cta="footer">اطلب عرضًا تجريبيًا</a>
+        <a class="btn btn--go" href="${demo}" data-cta="footer">احجز عرضًا توضيحيًا</a>
       </div>
       <nav class="foot__col foot__col--wide" aria-label="حلول حسب نشاطك"><h2>حلول حسب نشاطك</h2><ul>${sectors.map((s) => `<li><a href="${root}solutions/${s.slug}/"${current(slug, s)}>${esc(s.name)}</a></li>`).join('')}</ul></nav>
       <div class="foot__col" data-contact-group hidden><h2>تواصل</h2><ul><li><a href="${demo}" data-contact="whatsapp" target="_blank" rel="noopener" data-where="footer" hidden>واتساب</a></li><li><a href="${demo}" data-contact="call" data-where="footer" hidden><span>اتصل</span><span dir="ltr" data-contact-number></span></a></li></ul></div>

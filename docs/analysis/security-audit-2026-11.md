@@ -17,7 +17,7 @@
 
 لا توجد ثغرة تسمح لزائر مجهول بالوصول إلى بيانات أو تنفيذ أوامر في بيئة **production** مضبوطة كما يفترض الـ installer. أخطر ما وُجد:
 
-1. **H-1** بيئة `dev` المنشورة على الإنترنت تعمل بـ `APP_ENV=local` و`APP_DEBUG=true`، فتتعطل كل الحمايات المربوطة بـ `environment('local')`: حارس demo-OTP، وحارس SSRF على SMTP، وTrustHosts، وصفحات الأخطاء.
+1. **H-1** بيئة `dev` المنشورة على الإنترنت تعمل بـ `APP_ENV=local` و`APP_DEBUG=true`، فتتعطل كل الحمايات المربوطة بـ `environment('local')`: حارس demo-OTP، وحارس SSRF على SMTP، وTrustHosts، وصفحات الأخطاء. **(أُصلح)**
 2. **M-1** صاحب صلاحية P-95 على مستوى فرع يغيّر سياسة العمولات للمنشأة كلها ونِسب كل الموظفين (ويرفع نسبته بشكل غير مباشر).
 3. **M-2** انقلاب الهرمية في إدارة الأعضاء: مدير فرع يعطّل أو يسحب أدوار مدير منطقة أو مدير منشأة فرعه الأساسي هو نفس الفرع.
 4. **M-3** رمز التحقق في الدفع يعيد تفعيل بوابة عميل عطّلها الموظفون، بميزانية تخمين منفصلة.
@@ -26,6 +26,8 @@
 ## 2. النتائج مرتبة حسب الخطورة
 
 ### H-1 — High: بيئة `dev` المنشورة تعمل كـ `local` مع `APP_DEBUG=true`
+
+- **الحالة:** أُصلح (نوفمبر 2026، بموافقة صاحب المنتج). `sync-app-env.sh` يربط dev بـ `APP_ENV=development` و`APP_DEBUG=false`. `manage.sh` (`config`/`start`/`restart`/`install`/`jobs`/`deploy`) والـ installer يرفضان `APP_ENV=local|testing` أو `APP_DEBUG=true` في dev/stage/prod. `ops:preflight` أضاف فحص `exposure` لأي `APP_URL` عام. الـ installer لا يثبّت `require-dev` في البيئات المنشورة. الاختبارات في `tests/Feature/Security/DeployedDevEnvironmentTest.php` (demo code وحارس SSRF وTrustHosts وpreflight في `development`).
 
 - **الموقع:** `../scripts/sync-app-env.sh:57-64` (أي `ENVIRONMENT` غير prod/stage يصبح `APP_ENV=local` و`APP_DEBUG=true`)، و`../manage.sh:183-185` (dev تستخدم `docker-compose.prod.yml`، أي Traefik مع TLS عام)، و`APP_URL=https://${WEB_DOMAIN}` في dev. وكذلك `../scripts/installer.sh` يثبّت `require-dev` (Boost وPail) خارج prod/stage.
 - **ما يتعطل في dev:**
@@ -114,6 +116,8 @@
 - **اختبار يُضاف:** في `APP_ENV=demo` لا يُقبل الرمز الثابت لعميل ليس من بيانات العرض. وفي `APP_ENV=production` يعيد `CustomerOtp::demoCode()` قيمة null رغم ضبط `PORTAL_DEMO_OTP` (يُبقى كاختبار انحدار).
 
 ### M-6 — Medium (infra): phpMyAdmin منشور عبر Traefik بحماية Basic Auth فقط
+
+- **الحالة:** أُصلح (نوفمبر 2026، بموافقة صاحب المنتج). أُزيلت labels الـ Traefik لـ phpMyAdmin من `docker-compose.prod.yml`، فيبقى في prod على الشبكة الداخلية و`127.0.0.1` فقط (نفق SSH). في dev/stage يحمّل `./manage.sh pma` الملف `docker-compose.pma.yml` (ipallowlist قبل basicauth، مع `${VAR:?}` إلزامية)، ويرفض التشغيل عند غياب `PMA_IP_ALLOWLIST` أو `PMA_BASIC_AUTH` أو بقاء قيمة المثال أو `0.0.0.0/0`. و`./manage.sh config` يذكر السبب.
 
 - **الموقع:** `../docker-compose.prod.yml:51-74`: routers على `PMA_DOMAIN` مع `basicauth.users=${PMA_BASIC_AUTH}`، بلا IP allowlist ولا rate limit. يعمل عند `./manage.sh pma` (profile tooling) في dev/stage/prod.
 - **سيناريو الاستغلال:** متى شُغّل phpMyAdmin صار عامًا. تخمين basic-auth ثم بيانات DB يعطي وصولًا كاملًا للقاعدة. وسلوك Traefik إذا كان `PMA_BASIC_AUTH` فارغًا غير مضمون (يحتاج فحص runtime).

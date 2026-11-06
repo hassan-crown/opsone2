@@ -21,7 +21,7 @@ Build time: node-build (pnpm/Vite) --> src/public/build
 Development: node-dev (Vite HMR port 5173)
 ```
 
-Traefik مستقل عن هذا المستودع. بيئات dev/stage/prod تستخدم `docker-compose.prod.yml` لربط web بشبكة `proxy` ومصادقة phpMyAdmin إذا شُغلت الخدمة.
+Traefik مستقل عن هذا المستودع. بيئات dev/stage/prod تستخدم `docker-compose.prod.yml` لربط web بشبكة `proxy`. phpMyAdmin لا يُنشر عبر Traefik في prod (نفق SSH إلى `127.0.0.1`)، وفي dev/stage يُنشر عبر `docker-compose.pma.yml` خلف IP allowlist وBasic Auth.
 
 ## النشر
 

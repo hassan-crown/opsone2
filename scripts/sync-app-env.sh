@@ -54,14 +54,17 @@ web_domain="$(read_value WEB_DOMAIN)"
 if [[ ! "$app_name" =~ ^[a-zA-Z0-9_]+$ ]] || [[ ! "$environment" =~ ^(local|dev|stage|prod)$ ]]; then
   echo 'ERROR: APP_NAME must be alphanumeric/underscore; ENVIRONMENT must be local/dev/stage/prod.' >&2; exit 1
 fi
+# Only the developer's own machine is "local". dev is published on a public domain, so it must keep every guard
+# Laravel and the app tie to APP_ENV=local (TrustHosts, SSRF, demo code) and hide stack traces (audit H-1).
 case "$environment" in
   prod) app_env=production;;
   stage) app_env=staging;;
+  dev) app_env=development;;
   *) app_env=local;;
 esac
 
 set_key APP_ENV "$app_env"
-set_key APP_DEBUG "$([ "$environment" = prod ] || [ "$environment" = stage ] && echo false || echo true)"
+set_key APP_DEBUG "$([ "$environment" = local ] && echo true || echo false)"
 if [ "$environment" = local ]; then
   set_key APP_URL "http://localhost:${app_port}"
 else

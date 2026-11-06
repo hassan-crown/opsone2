@@ -23,6 +23,7 @@ import {
     CalendarPlus,
     MapPinned,
     Hash,
+    Landmark,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import type { ComponentProps } from 'react';
@@ -50,7 +51,7 @@ import {
     sla,
 } from '@/routes/rules';
 import { edit as security } from '@/routes/security';
-import { basic, home, sales, work } from '@/routes/settings';
+import { bank, basic, home, sales, work } from '@/routes/settings';
 import { index as sessions } from '@/routes/sessions';
 import { index as supportAccess } from '@/routes/support-access';
 
@@ -86,6 +87,7 @@ type Props = {
     };
     pendingTransferForMe: boolean;
     pendingSupportRequests: number;
+    bankMissing: boolean;
 };
 
 type Card = {
@@ -149,6 +151,7 @@ export default function SettingsHome({
     can,
     pendingTransferForMe,
     pendingSupportRequests,
+    bankMissing,
 }: Props) {
     const t = useT();
 
@@ -176,6 +179,14 @@ export default function SettingsHome({
         });
     }
     if (can.editProfile || can.viewPlan) {
+        facilityCards.push({
+            key: 'bank',
+            href: bank(),
+            icon: Landmark,
+            title: t('bank.title'),
+            description: t('bank.card'),
+            badge: bankMissing ? t('bank.missing.badge') : undefined,
+        });
         facilityCards.push({
             key: 'work',
             href: work(),

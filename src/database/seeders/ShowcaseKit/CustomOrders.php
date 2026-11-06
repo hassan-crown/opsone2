@@ -497,7 +497,7 @@ final class CustomOrders
             $remaining = $line->remainingMilli();
             if ($remaining > 0) {
                 $lines[] = $reject
-                    ? ['line_id' => $line->id, 'accepted_milli' => 0, 'rejected_milli' => $remaining, 'reject_reason' => 'خدش في واجهات الأبواب — أُعيد للورشة للإصلاح.']
+                    ? ['line_id' => $line->id, 'accepted_milli' => 0, 'rejected_milli' => $remaining, 'reject_reason' => 'خدش في واجهات الأبواب — أُعيد للمصنع للإصلاح.']
                     : ['line_id' => $line->id, 'accepted_milli' => $remaining, 'rejected_milli' => 0];
             }
         }

@@ -1,0 +1,5 @@
+[     788ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:8092/login:0
+[   49537ms] [LOG] 🔍 Browser logger active (MCP server detected). Posting to: http://localhost:8094/_boost/browser-logs @ http://localhost:8094/login:47
+[   51008ms] [LOG] 🔍 Browser logger active (MCP server detected). Posting to: http://localhost:8094/_boost/browser-logs @ http://localhost:8094/dashboard:47
+[   52983ms] [LOG] 🔍 Browser logger active (MCP server detected). Posting to: http://localhost:8094/_boost/browser-logs @ http://localhost:8094/settings:47
+[   53826ms] [LOG] 🔍 Browser logger active (MCP server detected). Posting to: http://localhost:8094/_boost/browser-logs @ http://localhost:8094/settings/bank-accounts:47

@@ -207,7 +207,7 @@ enum ActionType: string
             self::PaymentCheck => ['ar' => 'تحقق التحصيل', 'en' => 'Verify collection'],
             self::RequiredDocument => ['ar' => 'إرفاق مستند مطلوب', 'en' => 'Attach a required document'],
             self::RecordDelivery => ['ar' => 'تسجيل تسليم', 'en' => 'Record a delivery'],
-            self::WorkshopOrder => ['ar' => 'طلب من الورشة (إرسال أو استلام)', 'en' => 'Workshop order (sent or received)'],
+            self::WorkshopOrder => ['ar' => 'طلب من المصنع (إرسال أو استلام)', 'en' => 'Factory order (sent or received)'],
         };
     }
 

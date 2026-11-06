@@ -2,6 +2,7 @@ import { Form, Head, Link } from '@inertiajs/react';
 import { Info } from 'lucide-react';
 import { SelectField, TextField } from '@/components/opsone/field';
 import { Icon } from '@/components/opsone/icon';
+import { BankTransferCard } from '@/components/portal/bank-transfer';
 import { FileField } from '@/components/portal/file-field';
 import {
     DateText,
@@ -15,12 +16,17 @@ import { Spinner } from '@/components/ui/spinner';
 import { useT } from '@/lib/i18n';
 import { show as showOrder } from '@/routes/customer/orders';
 import { resubmit, store } from '@/routes/customer/proofs';
-import type { PortalFinance, PortalOrder } from '@/types/portal';
+import type {
+    PortalBankDetails,
+    PortalFinance,
+    PortalOrder,
+} from '@/types/portal';
 
 type Props = {
     order: PortalOrder;
     finance: PortalFinance;
     accepts_proofs: boolean;
+    bank: PortalBankDetails | null;
     replaces: string | null;
 };
 
@@ -32,6 +38,7 @@ export default function PortalPay({
     order,
     finance,
     accepts_proofs,
+    bank,
     replaces,
 }: Props) {
     const t = useT();
@@ -88,6 +95,20 @@ export default function PortalPay({
                             </li>
                         ))}
                     </ul>
+                </Section>
+            )}
+
+            {bank && accepts_proofs && (finance.remaining_minor ?? 1) > 0 && (
+                <Section title={t('portal.bank.section')}>
+                    <BankTransferCard
+                        bank={bank}
+                        amountMinor={
+                            finance.due_now_minor > 0
+                                ? finance.due_now_minor
+                                : finance.remaining_minor
+                        }
+                        reference={order.number}
+                    />
                 </Section>
             )}
 

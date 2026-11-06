@@ -17,7 +17,7 @@ use Inertia\Inertia;
 use Inertia\Response;
 
 /**
- * «Orders at workshops» (ADR-0038): the open purchase orders placed with workshops — or followed by an order's flow —
+ * «Orders at factories» (ADR-0038): the open purchase orders placed with workshops — or followed by an order's flow —
  * with their expected date and days late, filtered by workshop and branch. Scoped like the purchase list (P-46/P-47
  * over the order's branch); costs never appear here.
  */
