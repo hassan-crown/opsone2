@@ -39,39 +39,9 @@ services:
       # Service
       - "traefik.http.services.${APP_NAME}-${ENVIRONMENT}-https.loadbalancer.server.port=80"
 
-  phpmyadmin:
-    ports: !reset []
-    networks:
-      - internal
-      - proxy
-    labels:
-      - "traefik.enable=true"
-
-      # HTTP router
-      - "traefik.http.routers.${APP_NAME}-${ENVIRONMENT}-pma-http.rule=Host(`${PMA_DOMAIN}`)"
-      - "traefik.http.routers.${APP_NAME}-${ENVIRONMENT}-pma-http.entrypoints=web"
-      - "traefik.http.routers.${APP_NAME}-${ENVIRONMENT}-pma-http.middlewares=${APP_NAME}-${ENVIRONMENT}-pma-https-redirect"
-
-      # HTTPS redirect middleware
-      - "traefik.http.middlewares.${APP_NAME}-${ENVIRONMENT}-pma-https-redirect.redirectscheme.scheme=https"
-
-      # HTTPS router
-      - "traefik.http.routers.${APP_NAME}-${ENVIRONMENT}-pma-https.rule=Host(`${PMA_DOMAIN}`)"
-      - "traefik.http.routers.${APP_NAME}-${ENVIRONMENT}-pma-https.entrypoints=websecure"
-      - "traefik.http.routers.${APP_NAME}-${ENVIRONMENT}-pma-https.tls=true"
-      - "traefik.http.routers.${APP_NAME}-${ENVIRONMENT}-pma-https.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.${APP_NAME}-${ENVIRONMENT}-pma-https.middlewares=${APP_NAME}-${ENVIRONMENT}-pma-auth"
-
-      # Basic Auth middleware for phpMyAdmin
-      # Generate using:
-      # htpasswd -nb admin STRONG_PASSWORD
-      #
-      # In .env, escape $ as $$:
-      # PMA_BASIC_AUTH=admin:$$apr1$$xxxxxxxx$$xxxxxxxxxxxxxxxxxxxxxx
-      - "traefik.http.middlewares.${APP_NAME}-${ENVIRONMENT}-pma-auth.basicauth.users=${PMA_BASIC_AUTH}"
-
-      # Service
-      - "traefik.http.services.${APP_NAME}-${ENVIRONMENT}-pma-https.loadbalancer.server.port=80"
+  # phpMyAdmin has no public route here (audit M-6): it stays on the internal network and on 127.0.0.1 of the
+  # server (docker-compose.yml), reached through an SSH tunnel. dev/stage may add docker-compose.pma.yml, which
+  # publishes it through Traefik behind an IP allowlist and Basic Auth; ./manage.sh pma never loads it in prod.
 
 networks:
   proxy:

@@ -1,0 +1,50 @@
+# -----------------------------------------------------------------------------
+# phpMyAdmin through Traefik: dev and stage only (audit M-6)
+# -----------------------------------------------------------------------------
+# Loaded by "./manage.sh pma" on dev/stage, after it checks PMA_DOMAIN, PMA_BASIC_AUTH and PMA_IP_ALLOWLIST.
+# Never used in prod: there phpMyAdmin is reached only through an SSH tunnel to 127.0.0.1:${PHPMYADMIN_PORT}.
+# The ${VAR:?} guards make Compose refuse to start if this file is used directly without the required values.
+# Usage:
+# docker compose -f docker-compose.yml -f docker-compose.prod.yml -f docker-compose.pma.yml --profile tooling up -d phpmyadmin
+# -----------------------------------------------------------------------------
+
+services:
+  phpmyadmin:
+    networks:
+      - internal
+      - proxy
+    labels:
+      - "traefik.enable=true"
+
+      # HTTP router
+      - "traefik.http.routers.${APP_NAME}-${ENVIRONMENT}-pma-http.rule=Host(`${PMA_DOMAIN:?PMA_DOMAIN is required}`)"
+      - "traefik.http.routers.${APP_NAME}-${ENVIRONMENT}-pma-http.entrypoints=web"
+      - "traefik.http.routers.${APP_NAME}-${ENVIRONMENT}-pma-http.middlewares=${APP_NAME}-${ENVIRONMENT}-pma-allowlist,${APP_NAME}-${ENVIRONMENT}-pma-https-redirect"
+
+      # HTTPS redirect middleware
+      - "traefik.http.middlewares.${APP_NAME}-${ENVIRONMENT}-pma-https-redirect.redirectscheme.scheme=https"
+
+      # HTTPS router: the IP allowlist runs before Basic Auth, so other addresses never reach the password prompt.
+      - "traefik.http.routers.${APP_NAME}-${ENVIRONMENT}-pma-https.rule=Host(`${PMA_DOMAIN:?PMA_DOMAIN is required}`)"
+      - "traefik.http.routers.${APP_NAME}-${ENVIRONMENT}-pma-https.entrypoints=websecure"
+      - "traefik.http.routers.${APP_NAME}-${ENVIRONMENT}-pma-https.tls=true"
+      - "traefik.http.routers.${APP_NAME}-${ENVIRONMENT}-pma-https.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.${APP_NAME}-${ENVIRONMENT}-pma-https.middlewares=${APP_NAME}-${ENVIRONMENT}-pma-allowlist,${APP_NAME}-${ENVIRONMENT}-pma-auth"
+
+      # IP allowlist: comma-separated IPs/CIDRs, e.g. PMA_IP_ALLOWLIST=203.0.113.10/32,198.51.100.0/24
+      - "traefik.http.middlewares.${APP_NAME}-${ENVIRONMENT}-pma-allowlist.ipallowlist.sourcerange=${PMA_IP_ALLOWLIST:?PMA_IP_ALLOWLIST is required}"
+
+      # Basic Auth middleware
+      # Generate using:
+      # htpasswd -nb admin STRONG_PASSWORD
+      #
+      # In .env, escape $ as $$:
+      # PMA_BASIC_AUTH=admin:$$apr1$$xxxxxxxx$$xxxxxxxxxxxxxxxxxxxxxx
+      - "traefik.http.middlewares.${APP_NAME}-${ENVIRONMENT}-pma-auth.basicauth.users=${PMA_BASIC_AUTH:?PMA_BASIC_AUTH is required}"
+
+      # Service
+      - "traefik.http.services.${APP_NAME}-${ENVIRONMENT}-pma-https.loadbalancer.server.port=80"
+
+networks:
+  proxy:
+    external: true

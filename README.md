@@ -103,7 +103,7 @@ LARAVEL_PRESET=plain LARAVEL_VERSION=13 ./scripts/new-laravel-from-docker.sh
 ./manage.sh init my_project      # first run only: create .env
 ./manage.sh help
 ./manage.sh ports                # show/resolve host ports
-./manage.sh config
+./manage.sh config               # checks src/.env safety on dev/stage/prod, then renders Compose
 ./manage.sh build                  # PHP image
 ./manage.sh build-node             # Node image
 ./manage.sh start                  # app, web, mariaDB, redis
@@ -112,6 +112,8 @@ LARAVEL_PRESET=plain LARAVEL_VERSION=13 ./scripts/new-laravel-from-docker.sh
 ./manage.sh node-dev               # Vite HMR on localhost:<VITE_PORT> (local/dev only)
 ./manage.sh jobs                   # scheduler + Redis worker
 ./manage.sh stop-jobs
+./manage.sh pma                    # phpMyAdmin (see the environments table below)
+./manage.sh stop-pma
 ./manage.sh artisan about
 ./manage.sh logs
 ./manage.sh restart
@@ -129,12 +131,15 @@ LARAVEL_PRESET=plain LARAVEL_VERSION=13 ./scripts/new-laravel-from-docker.sh
 
 ## البيئات وTraefik
 
-| Environment | Compose override | Traefik |
-|---|---|---|
-| `local` | base فقط | لا |
-| `dev` | base + prod override | نعم، يحتاج شبكة proxy خارجية |
-| `stage` | base + prod override | نعم، يحتاج شبكة proxy خارجية |
-| `prod` | base + prod override | نعم، يحتاج شبكة proxy خارجية |
+| Environment | Compose override | Traefik | Laravel `APP_ENV` / `APP_DEBUG` | phpMyAdmin |
+|---|---|---|---|---|
+| `local` | base فقط | لا | `local` / `true` | `127.0.0.1:<PHPMYADMIN_PORT>` |
+| `dev` | base + prod override | نعم، يحتاج شبكة proxy خارجية | `development` / `false` | `PMA_DOMAIN` عبر Traefik بشرط `PMA_IP_ALLOWLIST` و`PMA_BASIC_AUTH` |
+| `stage` | base + prod override | نعم، يحتاج شبكة proxy خارجية | `staging` / `false` | مثل dev |
+| `prod` | base + prod override | نعم، يحتاج شبكة proxy خارجية | `production` / `false` | غير منشور؛ نفق SSH إلى `127.0.0.1` فقط |
+
+- `dev` بيئة منشورة على نطاق عام، فلا تعمل أبدًا بـ `APP_ENV=local` أو `APP_DEBUG=true` (التدقيق H-1): `local` يعطّل TrustHosts وحارس SSRF في SMTP وقيد رمز العرض. `scripts/sync-app-env.sh` يضبط القيم أعلاه، و`./manage.sh start|restart|install|deploy|config` والـ installer و`ops:preflight` ترفض المخالفة. ولا تُثبَّت حزم `require-dev` في dev/stage/prod (إلا مؤقتًا لـ `install refresh` في dev لأن الـ seeders تحتاج Faker، ثم تُزال).
+- phpMyAdmin (التدقيق M-6): في `prod` لا يمر عبر Traefik إطلاقًا؛ شغّله بـ `./manage.sh pma` ثم افتح نفقًا: `ssh -N -L 8081:127.0.0.1:<PHPMYADMIN_PORT> <user>@<server>`، وأوقفه بعد الاستخدام بـ `./manage.sh stop-pma`. في `dev`/`stage` يُحمَّل `docker-compose.pma.yml` (IP allowlist قبل Basic Auth)، و`./manage.sh pma` يرفض التشغيل إذا كان `PMA_IP_ALLOWLIST` أو `PMA_BASIC_AUTH` فارغًا أو قيمة المثال أو يسمح بكل العناوين.
 
 تهيئة Traefik تفترض أن هناك شبكة Docker خارجية باسم `proxy` وEntryPoints باسم `web` و`websecure` وResolver باسم `letsencrypt`. تأكد من مطابقة بيئتك الفعلية. لم يتم تضمين حاوية Traefik نفسها في المشروع.
 
@@ -143,7 +148,7 @@ LARAVEL_PRESET=plain LARAVEL_VERSION=13 ./scripts/new-laravel-from-docker.sh
 - تأكد من تطابق UID/GID مع المستخدم المحلي؛ تجنب إنشاء ملفات جذرية في `src/`.
 - بناء الواجهة يتم عبر صورة Node مستقلة؛ لا تفترض أن Node مثبت في حاوية PHP.
 - يمكن الوصول لقاعدة البيانات وRedis من المضيف على `127.0.0.1` في `local` فقط؛ في البيئات التي تستخدم Traefik تُلغى هذه المنافذ.
-- phpMyAdmin خدمة اختيارية، تشغيلها: `./manage.sh pma`، ولا ينصح بنشرها علنًا بلا ضوابط إضافية.
+- phpMyAdmin خدمة اختيارية، تشغيلها: `./manage.sh pma` (انظر جدول البيئات: نفق SSH في prod، وallowlist + Basic Auth في dev/stage).
 - `Redis` محدود الذاكرة؛ استخدام volatile-lru يمنع طرد مفاتيح Queues التي لا TTL لها، لكنه لا يلغي احتمال OOM عند امتلاء الذاكرة.
 - يجب تحديث الاختبارات والتحقق منها بعد تثبيت كل تطبيق؛ القالب وحده لا يثبت نجاح Laravel ولا جاهزية الإنتاج.
 

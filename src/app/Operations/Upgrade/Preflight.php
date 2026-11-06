@@ -21,6 +21,7 @@ use Throwable;
  * - queue: the listed queues are empty (jobs serialized by the old code must not meet the new code mid-flight).
  * - backup: the newest backup is within the RPO before any pending migration runs.
  * - demo code: PORTAL_DEMO_OTP is set only in a demo environment (pre-launch audit M-5).
+ * - exposure: an APP_URL on a public host never runs with APP_ENV=local/testing or APP_DEBUG=true (audit H-1).
  */
 final class Preflight
 {
@@ -48,6 +49,7 @@ final class Preflight
             $this->backup($pending, $skipBackupCheck),
             $this->licenseInfo(),
             $this->demoOtp(),
+            $this->exposure(),
         ];
     }
 
@@ -175,6 +177,28 @@ final class Preflight
         return $this->app->environment($environments)
             ? PreflightCheck::warn('demo_otp', 'The fixed demo code is enabled for the showcase customers (APP_ENV='.$this->app->environment().').')
             : PreflightCheck::fail('demo_otp', 'PORTAL_DEMO_OTP is set while APP_ENV='.$this->app->environment().' (allowed only in '.implode(', ', $environments).'): remove it.');
+    }
+
+    /**
+     * A published deployment (dev included) must keep the guards tied to APP_ENV=local/testing (TrustHosts, the SMTP
+     * SSRF guard, the demo code) and must not print stack traces. Only an APP_URL on this machine may skip them.
+     */
+    private function exposure(): PreflightCheck
+    {
+        $host = strtolower(trim((string) parse_url((string) config('app.url'), PHP_URL_HOST), '[]'));
+        if ($host === '' || in_array($host, ['localhost', '127.0.0.1', '::1'], true)
+            || str_ends_with($host, '.localhost') || str_ends_with($host, '.test')) {
+            return PreflightCheck::pass('exposure', 'APP_URL is a local address.');
+        }
+
+        $problems = array_values(array_filter([
+            $this->app->environment('local', 'testing') ? 'APP_ENV='.$this->app->environment().' turns off TrustHosts and the SMTP SSRF guard' : null,
+            config('app.debug') ? 'APP_DEBUG=true shows stack traces' : null,
+        ]));
+
+        return $problems === []
+            ? PreflightCheck::pass('exposure', 'Published APP_URL with APP_ENV='.$this->app->environment().' and APP_DEBUG=false.')
+            : PreflightCheck::fail('exposure', 'APP_URL is public but '.implode('; ', $problems).': use APP_ENV=development/staging/production and APP_DEBUG=false.');
     }
 
     private function licenseInfo(): PreflightCheck
