@@ -126,7 +126,7 @@ it('applies a workshop result recorded before its stage opens, and never on a ca
     toWorkshopStage($f);
     expect($sent->refresh()->status)->toBe(ActionStatus::Verified);
 
-    app(T03CancelRemainder::class)->handle($f->inventory, $po->refresh(), 'الورشة اعتذرت', $po->lock_version, procKey());
+    app(T03CancelRemainder::class)->handle($f->inventory, $po->refresh(), 'المصنع اعتذر', $po->lock_version, procKey());
     expect(actionOf($f->order, 'workshop_received')->source_reference)->toBeNull();
 });
 

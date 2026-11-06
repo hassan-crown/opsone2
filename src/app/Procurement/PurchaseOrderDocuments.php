@@ -195,7 +195,7 @@ final class PurchaseOrderDocuments
             'notes' => __('purchase_document.sample.notes'), 'gross_minor' => 1150000,
         ]);
         $po->forceFill(['id' => 0, 'created_at' => now()]);
-        $po->setRelation('supplier', new Supplier(['name' => Translated::fromArray(['ar' => 'ورشة نموذجية', 'en' => 'Sample workshop'])->toArray(), 'phone' => '0500000000']));
+        $po->setRelation('supplier', new Supplier(['name' => Translated::fromArray(['ar' => 'مصنع نموذجي', 'en' => 'Sample factory'])->toArray(), 'phone' => '0500000000']));
         $po->setRelation('branch', Branch::query()->orderBy('id')->first() ?? new Branch(['name_ar' => 'الفرع الرئيسي']));
         $po->setRelation('lines', new Collection([new PurchaseOrderLine([
             'line_no' => 1, 'item_type' => PurchaseOrderLine::MATERIAL, 'item_id' => 0, 'unit' => 'piece', 'quantity_milli' => 1000,
