@@ -2,6 +2,7 @@ import { Head, Link, usePage } from '@inertiajs/react';
 import { BellRing, LayoutDashboard, ListChecks } from 'lucide-react';
 import ExecutiveDashboardController from '@/actions/App/Http/Controllers/Reports/ExecutiveDashboardController';
 import OrderController from '@/actions/App/Http/Controllers/Orders/OrderController';
+import { BankMissingAlert } from '@/components/bank/bank-missing-alert';
 import { Icon } from '@/components/opsone/icon';
 import { EmptyState } from '@/components/opsone/empty-state';
 import { PageHeader } from '@/components/opsone/page-header';
@@ -237,6 +238,7 @@ function Section({
 
 export default function Dashboard({
     setup,
+    bankMissing,
     widgets,
     taskCards,
     ordersAttention,
@@ -245,6 +247,8 @@ export default function Dashboard({
     exec,
 }: {
     setup: SetupSummary | null;
+    /** Deferred (ADR-0046): undefined until loaded after the first paint. */
+    bankMissing?: boolean;
     widgets: Widgets;
     taskCards: TaskCards;
     ordersAttention: OrdersAttention | null;
@@ -283,6 +287,7 @@ export default function Dashboard({
             />
             <div className="flex flex-col gap-8">
                 {setup && <SetupChecklist setup={setup} />}
+                {bankMissing && <BankMissingAlert />}
                 <Section
                     id="tasks"
                     title={t('home.tasks.title')}

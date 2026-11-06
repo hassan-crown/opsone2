@@ -136,6 +136,21 @@
     </tr>
 </table>
 
+@if (! empty($v['bank']))
+    <table class="cards" style="margin-top: 10pt; page-break-inside: avoid;">
+        <tr>
+            <td style="width: 100%;">
+                <div class="label">{{ $ar('bank.title') }} / <span dir="ltr">{{ $en('bank.title') }}</span></div>
+                <div>{{ $ar('bank.bank') }}: {{ $v['bank']['bank_name'] }}</div>
+                <div>{{ $ar('bank.beneficiary') }}: {{ $v['bank']['beneficiary_name'] }}</div>
+                <div>IBAN: <span dir="ltr">{{ $v['bank']['iban'] }}</span></div>
+                @if ($v['bank']['swift_code'])<div>SWIFT / BIC: <span dir="ltr">{{ $v['bank']['swift_code'] }}</span></div>@endif
+                <div>{{ $ar('bank.reference') }} / <span dir="ltr">{{ $en('bank.reference') }}</span>: <span dir="ltr">{{ $v['order'] }}</span></div>
+            </td>
+        </tr>
+    </table>
+@endif
+
 <p class="small muted" style="margin-top: 14pt;">{{ $ar('footer.'.$v['status']) }} — <span dir="ltr">{{ $en('footer.'.$v['status']) }}</span></p>
 </body>
 </html>

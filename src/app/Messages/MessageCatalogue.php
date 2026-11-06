@@ -22,9 +22,9 @@ final class MessageCatalogue
     public static function events(): array
     {
         $events = [
-            'finance.due_soon' => self::finance('due_soon', ['order', 'amount', 'due']),
-            'finance.due_today' => self::finance('due_today', ['order', 'amount', 'due']),
-            'finance.due_overdue' => self::finance('due_overdue', ['order', 'amount', 'due']),
+            'finance.due_soon' => self::finance('due_soon', ['order', 'amount', 'due', 'bank']),
+            'finance.due_today' => self::finance('due_today', ['order', 'amount', 'due', 'bank']),
+            'finance.due_overdue' => self::finance('due_overdue', ['order', 'amount', 'due', 'bank']),
             'finance.receipt' => self::finance('receipt', ['order', 'amount', 'number']),
             'finance.proof_correction' => self::finance('proof_correction', ['order', 'reason']),
             'finance.proof_amount' => self::finance('proof_amount', ['order', 'claimed', 'received']),

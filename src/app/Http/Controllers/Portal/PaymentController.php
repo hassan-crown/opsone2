@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Portal;
 
 use App\Files\Rules\AllowedAttachment;
+use App\Finance\BankTransfer\BankTransferDetails;
 use App\Finance\CustomerProofs;
 use App\Portal\PortalAccess;
 use App\Portal\PortalPresenter;
@@ -30,6 +31,8 @@ final class PaymentController extends PortalController
             'order' => PortalPresenter::order($record),
             'finance' => PortalPresenter::finance($record),
             'accepts_proofs' => PortalPresenter::acceptsProofs($record),
+            // ADR-0046: where to transfer (the facility's default account only); null hides the section.
+            'bank' => BankTransferDetails::forCustomer(),
             'replaces' => request()->query('replaces'),
         ]);
     }

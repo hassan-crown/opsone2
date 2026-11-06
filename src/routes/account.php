@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Account\BankAccountController;
 use App\Http\Controllers\Account\ClosureController;
 use App\Http\Controllers\Account\FacilityProfileController;
 use App\Http\Controllers\Account\OwnershipTransferController;
@@ -18,6 +19,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('settings/facility', [FacilityProfileController::class, 'edit'])->name('settings.basic');
     Route::put('settings/facility', [FacilityProfileController::class, 'update'])->name('settings.basic.update');
+
+    // Bank accounts for customer transfers (ADR-0046).
+    Route::get('settings/bank-accounts', [BankAccountController::class, 'index'])->name('settings.bank');
+    Route::post('settings/bank-accounts', [BankAccountController::class, 'store'])->name('settings.bank.store');
+    Route::put('settings/bank-accounts/{account}', [BankAccountController::class, 'update'])->name('settings.bank.update');
+    Route::delete('settings/bank-accounts/{account}', [BankAccountController::class, 'destroy'])->name('settings.bank.destroy');
 
     Route::get('settings/plan', PlanController::class)->name('plan.show');
 
