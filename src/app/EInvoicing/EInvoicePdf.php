@@ -25,19 +25,28 @@ final class EInvoicePdf
 
     public function render(EInvoice $invoice): string
     {
-        $invoice->loadMissing(['order', 'original']);
         $images = ['qr' => self::qrPng(self::qr($invoice))];
         $logo = self::logo();
         if ($logo !== null) {
             $images['logo'] = $logo;
         }
+
+        return $this->renderer->render(self::html($invoice, $logo !== null), $images, $invoice->number);
+    }
+
+    /**
+     * The invoice's HTML before mPDF (the QR and logo are the `var:` images `render()` passes along).
+     */
+    public static function html(EInvoice $invoice, bool $hasLogo = false): string
+    {
+        $invoice->loadMissing(['order', 'original']);
         $theme = ThemeSettings::published();
         $brand = (string) ($theme['palette']['light']['brand'] ?? $theme['brand'] ?? '');
         $discount = array_sum(array_map(fn (array $l) => (int) ($l['discount_minor'] ?? 0), $invoice->lines));
 
-        $html = view('pdf.einvoice', ['v' => [
+        return view('pdf.einvoice', ['v' => [
             'brand' => Color::valid($brand) ? $brand : DocumentSheet::DEFAULT_BRAND,
-            'has_logo' => $logo !== null,
+            'has_logo' => $hasLogo,
             'kind' => $invoice->kind,
             'type' => $invoice->type,
             'number' => $invoice->number,
@@ -66,9 +75,9 @@ final class EInvoicePdf
             'total' => DocumentSheet::money($invoice->total_minor),
             'status' => $invoice->submission_status,
             'icv' => $invoice->icv,
+            // ADR-0046: an invoice tells where to transfer; credit and debit notes do not.
+            'bank' => $invoice->kind === EInvoice::KIND_INVOICE ? DocumentSheet::bank() : null,
         ]])->render();
-
-        return $this->renderer->render($html, $images, $invoice->number);
     }
 
     /**

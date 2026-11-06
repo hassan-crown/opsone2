@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Portal;
 
 use App\Access\Exceptions\InvalidTransition;
 use App\Agreements\CustomerDecisions;
+use App\Finance\BankTransfer\BankTransferDetails;
 use App\Models\Agreements\AgreementDocument;
 use App\Models\Agreements\CustomerDecision;
 use App\Models\Finance\Receipt;
@@ -40,6 +41,8 @@ final class DocumentController extends PortalController
 
         return Inertia::render('portal/document', [
             'document' => PortalPresenter::document($customer, PortalAccess::document($customer, $document)),
+            // ADR-0046: a quote or contract carries the transfer details (not a design); null hides the section.
+            'bank' => BankTransferDetails::forCustomer(),
         ]);
     }
 

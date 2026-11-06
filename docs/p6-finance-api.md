@@ -371,3 +371,15 @@ Orders record `config_release_id` at creation.
 A stale `base` or a `draft_hash` that no longer matches the draft → 409 `stale_version` (JSON) or a `lock_version`
 error (Inertia). Bundle refusals are 422 keyed `payment_plans.<key>`, `numbering.<sequence>`, `messages.<event>…`.
 Audit: `config_release.published`, `config_release.rolled_back`, `config_release.draft_discarded` (area `settings`).
+
+## Bank transfer details (ADR-0046)
+
+- `App\Finance\BankTransfer\BankTransferDetails::forCustomer(): ?array` — the active default account as an allow-list
+  (`bank_name`, `beneficiary_name`, `iban`, `iban_grouped`, `account_number`, `swift_code`, `currency`, `transfer_note`);
+  null when the facility has no active account (callers hide the section). `missing(): bool` drives the owner alert.
+- `messageLine($locale, $reference)` — the due reminder's `{bank}` variable (leading space, empty without an account).
+- `SaudiIban` — validation rule plus `normalize()` / `valid()` / `grouped()`.
+- Writes: `SaveBankAccount` / `DeleteBankAccount` (P-02, one active default kept by `settleDefault()`, audited
+  `settings.bank_account_*` with only the last four IBAN digits).
+- HTTP: `GET|POST settings/bank-accounts`, `PUT|DELETE settings/bank-accounts/{account}` (`settings.bank*`). Portal props:
+  `bank` on `portal/pay`, `portal/order`, `portal/document`.

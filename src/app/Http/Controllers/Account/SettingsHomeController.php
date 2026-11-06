@@ -9,6 +9,7 @@ use App\Actions\Rules\RulesAccess;
 use App\EInvoicing\ZatcaAccess;
 use App\Enums\OwnershipTransferStatus;
 use App\Enums\SupportGrantStatus;
+use App\Finance\BankTransfer\BankTransferDetails;
 use App\Http\Controllers\Controller;
 use App\Licensing\CurrentLicense;
 use App\Models\Facility;
@@ -56,6 +57,8 @@ class SettingsHomeController extends Controller
                 'einvoicing' => ZatcaAccess::manages($user),
                 'rules' => RulesAccess::canView($user),
             ],
+            // ADR-0046: remind whoever can add one that customers see no transfer details yet.
+            'bankMissing' => Access::can($user, Permission::P02) && BankTransferDetails::missing(),
             'pendingSupportRequests' => $canSupport ? SupportGrant::query()
                 ->where('status', SupportGrantStatus::Requested->value)
                 ->where('request_expires_at', '>', now())

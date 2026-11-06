@@ -34,6 +34,18 @@ export type PortalFinance = {
     dues: PortalDue[];
 };
 
+/** The facility's default bank account for transfers (ADR-0046); null when it has none. */
+export type PortalBankDetails = {
+    bank_name: string;
+    beneficiary_name: string;
+    iban: string;
+    iban_grouped: string;
+    account_number: string | null;
+    swift_code: string | null;
+    currency: string;
+    transfer_note: string | null;
+};
+
 export type PortalFile = { name: string; size_bytes: number; url: string };
 
 export type PortalProof = {

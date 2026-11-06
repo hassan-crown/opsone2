@@ -34,6 +34,9 @@ enum AuditAction: string
     case FacilityProfileUpdated = 'settings.profile_updated';
     case SetupStepSaved = 'settings.setup_step';
     case SetupCompleted = 'settings.setup_completed';
+    case BankAccountCreated = 'settings.bank_account_created';
+    case BankAccountUpdated = 'settings.bank_account_updated';
+    case BankAccountDeleted = 'settings.bank_account_deleted';
 
     case LicenseInstalled = 'license.installed';
 
@@ -375,7 +378,8 @@ enum AuditAction: string
             self::OwnershipTransferRequested, self::OwnershipTransferAccepted,
             self::OwnershipTransferRejected, self::OwnershipTransferCancelled => 'ownership',
             self::BranchCreated, self::BranchUpdated, self::BranchDisabled, self::BranchReactivated => 'branches',
-            self::FacilityProfileUpdated, self::SetupStepSaved, self::SetupCompleted => 'settings',
+            self::FacilityProfileUpdated, self::SetupStepSaved, self::SetupCompleted,
+            self::BankAccountCreated, self::BankAccountUpdated, self::BankAccountDeleted => 'settings',
             self::LicenseInstalled => 'license',
             self::BackupCreated, self::BackupRestored, self::FacilityExportRequested, self::FacilityExportDownloaded => 'operations',
             self::AttachmentUploaded, self::AttachmentDownloaded => 'files',

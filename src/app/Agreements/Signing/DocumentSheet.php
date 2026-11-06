@@ -5,6 +5,7 @@ namespace App\Agreements\Signing;
 use App\Enums\DocumentKind;
 use App\Enums\DocumentStatus;
 use App\Enums\DueEvent;
+use App\Finance\BankTransfer\BankTransferDetails;
 use App\Finance\OrderSchedule;
 use App\Finance\Plans\DueWording;
 use App\Finance\Plans\PaymentPlans;
@@ -28,7 +29,7 @@ use Illuminate\Support\Facades\Storage;
 final class DocumentSheet
 {
     /** Bump when the PDF layout changes, so unsigned documents get a fresh PDF (signed ones never change). */
-    public const LAYOUT_VERSION = 2;
+    public const LAYOUT_VERSION = 3;
 
     public const DEFAULT_BRAND = '#0E7C72';
 
@@ -129,6 +130,8 @@ final class DocumentSheet
                 'total' => self::money($totals['total_minor'] ?? null),
             ],
             'schedule' => self::schedule($document, $locale, $totals['total_minor'] ?? null),
+            // ADR-0046: where to transfer (the default account); a change regenerates unsigned PDFs via the fingerprint.
+            'bank' => self::bank(),
             'execution_days' => $content['execution_days'] ?? null,
             'terms' => array_values(array_filter([$content['agreement_terms'] ?? null, $content['terms'] ?? null], fn ($t) => is_string($t) && trim($t) !== '')),
             'clauses' => array_values(array_filter($content['clauses'] ?? [], 'is_string')),
@@ -154,6 +157,25 @@ final class DocumentSheet
         $abs = abs($minor);
 
         return ($minor < 0 ? '-' : '').number_format(intdiv($abs, 100)).'.'.str_pad((string) ($abs % 100), 2, '0', STR_PAD_LEFT);
+    }
+
+    /**
+     * The facility's default bank account as printed (IBAN in groups of four), or null to leave the section out.
+     *
+     * @return array{bank_name: string, beneficiary_name: string, iban: string, account_number: string|null, swift_code: string|null, transfer_note: string|null}|null
+     */
+    public static function bank(): ?array
+    {
+        $bank = BankTransferDetails::forCustomer();
+
+        return $bank === null ? null : [
+            'bank_name' => $bank['bank_name'],
+            'beneficiary_name' => $bank['beneficiary_name'],
+            'iban' => $bank['iban_grouped'],
+            'account_number' => $bank['account_number'],
+            'swift_code' => $bank['swift_code'],
+            'transfer_note' => $bank['transfer_note'],
+        ];
     }
 
     private static function percent(int $bp): string

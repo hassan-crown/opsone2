@@ -29,6 +29,8 @@
     .totals .grand td { font-weight: bold; font-size: 11pt; border-top: 1pt solid {{ $v['brand'] }}; color: {{ $v['brand'] }}; padding-top: 5pt; }
     .schedule td, .schedule th { padding: 4pt; border-bottom: 0.6pt solid #e3e7ea; text-align: {{ $start }}; }
     .schedule th { font-size: 8.5pt; color: #6b7280; font-weight: bold; }
+    .bank td { padding: 3pt 6pt; vertical-align: top; }
+    .bank { background-color: #f5f7f8; border: 0.6pt solid #e3e7ea; page-break-inside: avoid; }
     .badge { color: #ffffff; background-color: {{ $v['brand'] }}; padding: 2pt 6pt; font-size: 8pt; }
     .draft { color: #b45309; font-weight: bold; }
     .sign td { width: 50%; padding: 8pt; vertical-align: top; border: 0.6pt solid #e3e7ea; height: 70pt; }
@@ -155,6 +157,19 @@
             <tr><td>{{ $row['name'] }}</td><td>{{ $row['when'] }}</td><td class="num">{{ $row['amount'] ?? '—' }} {{ $currency }}</td></tr>
         @endforeach
     </table>
+@endif
+
+@if ($v['bank'] !== null)
+    <h2>{{ $t('bank.title') }}</h2>
+    <table class="bank">
+        <tr><td class="label" style="width: 30%;">{{ $t('bank.bank') }}</td><td>{{ $v['bank']['bank_name'] }}</td></tr>
+        <tr><td class="label">{{ $t('bank.beneficiary') }}</td><td>{{ $v['bank']['beneficiary_name'] }}</td></tr>
+        <tr><td class="label">IBAN</td><td><span dir="ltr">{{ $v['bank']['iban'] }}</span></td></tr>
+        @if ($v['bank']['account_number'])<tr><td class="label">{{ $t('bank.account_number') }}</td><td><span dir="ltr">{{ $v['bank']['account_number'] }}</span></td></tr>@endif
+        @if ($v['bank']['swift_code'])<tr><td class="label">SWIFT / BIC</td><td><span dir="ltr">{{ $v['bank']['swift_code'] }}</span></td></tr>@endif
+        <tr><td class="label">{{ $t('bank.reference') }}</td><td><span dir="ltr">{{ $v['order']['number'] }}</span></td></tr>
+    </table>
+    @if ($v['bank']['transfer_note'])<p class="small muted" dir="{{ $dirOf($v['bank']['transfer_note']) }}">{{ $v['bank']['transfer_note'] }}</p>@endif
 @endif
 
 @if ($v['designs'] !== [])
