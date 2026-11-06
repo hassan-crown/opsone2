@@ -197,7 +197,7 @@ it('lets the owner arrange the document as a new audited version, with closed pl
     // The email texts follow the published version.
     publishRules($this->f->owner);
     $po = workshopPo($this->f);
-    expect(PurchaseOrderDocuments::texts($po, 'ar'))->toBe(['subject' => 'طلب '.$po->number, 'body' => 'إلى ورشة الدمام']);
+    expect(PurchaseOrderDocuments::texts($po, 'ar'))->toBe(['subject' => 'طلب '.$po->number, 'body' => 'إلى مصنع الدمام']);
 
     $preview = $this->post(route('settings.purchase-document.preview'), ['layout' => layoutWith(['stamp' => false])])->assertOk()->assertHeader('Content-Type', 'application/pdf');
     expect(substr((string) $preview->getContent(), 0, 4))->toBe('%PDF')->and(PurchaseDocumentVersion::query()->count())->toBe(1);
@@ -210,7 +210,7 @@ it('lets the owner arrange the document as a new audited version, with closed pl
 
 it('marks workshops on the supplier profile with their lead time', function () {
     $this->actingAs($this->f->inventory)->post(route('suppliers.store'), [
-        'name' => ['ar' => 'ورشة ألمنيوم'], 'is_workshop' => true, 'lead_days' => 10, 'idempotency_key' => procKey(),
+        'name' => ['ar' => 'مصنع ألمنيوم'], 'is_workshop' => true, 'lead_days' => 10, 'idempotency_key' => procKey(),
     ])->assertRedirect();
     $supplier = Supplier::query()->latest('id')->first();
     expect($supplier->is_workshop)->toBeTrue()->and($supplier->lead_days)->toBe(10);

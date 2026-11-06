@@ -68,8 +68,8 @@ final class FlowTemplates
     public static function label(string $key): array
     {
         return match ($key) {
-            self::RETAIL => ['ar' => 'معرض يُسند التصنيع لورشة خارجية (افتراضي)', 'en' => 'Showroom with an external workshop (default)'],
-            self::RETAIL_KITCHENS => ['ar' => 'معرض مطابخ (ورشة خشب + مورّد أسطح)', 'en' => 'Kitchen showroom (joinery + countertop supplier)'],
+            self::RETAIL => ['ar' => 'معرض يُسند التصنيع لمصنع خارجي (افتراضي)', 'en' => 'Showroom with an external factory (default)'],
+            self::RETAIL_KITCHENS => ['ar' => 'معرض مطابخ (مصنع + مورّد أسطح)', 'en' => 'Kitchen showroom (factory + countertop supplier)'],
             self::RETAIL_ALUMINIUM => ['ar' => 'معرض ألمنيوم (قياس نهائي قبل القص)', 'en' => 'Aluminium showroom (final measurement before cutting)'],
             self::RETAIL_FURNITURE => ['ar' => 'معرض أثاث (طلب من المورّد أو استيراد)', 'en' => 'Furniture showroom (supplier order or import)'],
             self::IN_HOUSE => ['ar' => 'تصنيع داخلي (خمس مراحل)', 'en' => 'In-house manufacturing (five stages)'],
@@ -88,7 +88,6 @@ final class FlowTemplates
             self::RETAIL => ['stages' => self::retail()],
             self::RETAIL_KITCHENS => ['stages' => self::retail(
                 workshopDays: 18,
-                workshopName: ['ar' => 'الإرسال لورشة الخشب', 'en' => 'Send to the joinery'],
                 countertop: true,
             )],
             self::RETAIL_ALUMINIUM => ['stages' => self::retail(
@@ -172,12 +171,12 @@ final class FlowTemplates
         ?array $installName = null,
     ): array {
         $workshop = self::workshopFollowUp();
-        $workshopName ??= ['ar' => 'الإرسال للورشة', 'en' => 'Send to the workshop'];
-        $receiveName ??= ['ar' => 'الاستلام من الورشة وفحص الجودة', 'en' => 'Workshop receipt and quality check'];
+        $workshopName ??= ['ar' => 'الإرسال للمصنع', 'en' => 'Send to the factory'];
+        $receiveName ??= ['ar' => 'الاستلام من المصنع وفحص الجودة', 'en' => 'Factory receipt and quality check'];
         $installName ??= ['ar' => 'التركيب والتسليم', 'en' => 'Installation and delivery'];
 
-        $send = [self::action('workshop_sent', 'workshop_order', inputs: ['reference' => 'workshop', 'milestone' => 'sent'], name: ['ar' => 'إرسال الطلب للورشة', 'en' => 'Send the order to the workshop'], assign: 'stage')];
-        $receive = [self::action('workshop_received', 'workshop_order', inputs: ['reference' => 'workshop', 'milestone' => 'received'], name: ['ar' => 'استلام الطلب من الورشة', 'en' => 'Receive the order from the workshop'], assign: 'stage')];
+        $send = [self::action('workshop_sent', 'workshop_order', inputs: ['reference' => 'workshop', 'milestone' => 'sent'], name: ['ar' => 'إرسال الطلب للمصنع', 'en' => 'Send the order to the factory'], assign: 'stage')];
+        $receive = [self::action('workshop_received', 'workshop_order', inputs: ['reference' => 'workshop', 'milestone' => 'received'], name: ['ar' => 'استلام الطلب من المصنع', 'en' => 'Receive the order from the factory'], assign: 'stage')];
         if ($countertop) {
             $send[] = self::action('countertop_sent', 'workshop_order', requirement: 'optional', inputs: ['reference' => 'countertop', 'milestone' => 'sent'], name: ['ar' => 'إرسال الأسطح لمورّد الرخام', 'en' => 'Send the countertop to the stone supplier'], assign: 'stage');
             $receive[] = self::action('countertop_received', 'workshop_order', requirement: 'optional', inputs: ['reference' => 'countertop', 'milestone' => 'received'], name: ['ar' => 'استلام الأسطح', 'en' => 'Receive the countertop'], assign: 'stage');
@@ -232,7 +231,7 @@ final class FlowTemplates
             self::stage('assembly', 'التجميع والتشطيب', 'Assembly and finishing', 'قيد التصنيع', 'In production', 5, [
                 self::action('assembly_work', 'work_task', inputs: ['label' => ['ar' => 'التجميع والدهان', 'en' => 'Assembly and painting'], 'requires_attachment' => false], name: ['ar' => 'التجميع والتشطيب', 'en' => 'Assembly and finishing'], assign: 'stage'),
             ]),
-            self::stage('inhouse_qc', 'فحص جودة الورشة', 'Workshop quality check', 'فحص الجودة', 'Quality check', 2, [
+            self::stage('inhouse_qc', 'فحص جودة المصنع', 'Factory quality check', 'فحص الجودة', 'Quality check', 2, [
                 self::action('inhouse_quality', 'work_task', inputs: ['label' => ['ar' => 'فحص الجودة قبل التسليم', 'en' => 'Quality check before delivery'], 'requires_attachment' => true], name: ['ar' => 'فحص الجودة', 'en' => 'Quality check'], assign: 'stage'),
             ]),
         ];

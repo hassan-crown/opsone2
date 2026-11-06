@@ -11,7 +11,7 @@ Showcase dataset (`ShowcaseSeeder`, retail flow), owner account, Arabic, desktop
 | `settings-document-preview.png` | The same page with the live PDF preview of the unsaved layout |
 | `purchase-workshop.png` | A workshop purchase order: PDF and email actions, linked order, send log |
 | `purchase-email-dialog.png` | Email dialog: recipient, language, editable subject and body |
-| `workshops-board.png` / `workshops-board-late.png` / `workshops-board-mobile.png` (390 px) | «Orders at workshops»: expected date, days late, filters by workshop and branch |
+| `workshops-board.png` / `workshops-board-late.png` / `workshops-board-mobile.png` (390 px) | «Orders at factories»: expected date, days late, filters by workshop and branch |
 | `supplier-workshop.png` | Supplier profile with the workshop flag and lead time |
-| `order-stage-late.png` | Order stages: receiving stage due on the workshop date, «late at the workshop» badge |
+| `order-stage-late.png` | Order stages: receiving stage due on the workshop date, «late at the factory» badge |
 | `flow-workshop-stage.png` | Flow editor: the workshop stage followed by a role, the add-on button |

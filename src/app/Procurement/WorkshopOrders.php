@@ -88,7 +88,7 @@ final class WorkshopOrders
     }
 
     /**
-     * Open purchase orders placed with a workshop or followed by an order's flow (the «orders at workshops» set).
+     * Open purchase orders placed with a workshop or followed by an order's flow (the «orders at factories» set).
      *
      * @return Builder<PurchaseOrder>
      */

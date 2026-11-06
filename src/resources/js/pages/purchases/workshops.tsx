@@ -36,7 +36,7 @@ type Props = {
 };
 
 /**
- * «Orders at workshops» (ADR-0038): open workshop purchase orders with the expected date and days late, by workshop
+ * «Orders at factories» (ADR-0038): open workshop purchase orders with the expected date and days late, by workshop
  * and branch. Rows link to the purchase order and the customer orders it serves.
  */
 export default function WorkshopsBoard({

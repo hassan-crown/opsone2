@@ -11,7 +11,7 @@ use App\Workflow\Catalogue\ActionType;
 use Illuminate\Support\Facades\DB;
 
 /**
- * «Late at the workshop» (ADR-0038, W12): once a day, every open workshop purchase order past its expected date
+ * «Late at the factory» (ADR-0038, W12): once a day, every open workshop purchase order past its expected date
  * notifies its responsible person and, for each linked order, the responsible of the stage that waits for it and the
  * order's owner. Once per purchase order, person and expected date: moving the date re-arms it.
  */
