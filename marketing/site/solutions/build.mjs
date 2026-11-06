@@ -32,7 +32,7 @@ const root = '../../';
 const form = cut(home, '<form class="coupon"', '</form>')
   .replace('<option>منتجات مخصصة أو حسب الطلب</option>', '<option selected>منتجات مخصصة أو حسب الطلب</option>')
   .replace('<input type="hidden" name="utm_source">', `<input type="hidden" name="sector" value="${esc(d.slug)}"><input type="hidden" name="utm_source">`)
-  .replace('<h2 class="head" id="demo-title">جرّب OpsOne على طلباتك</h2>', `<h2 class="head" id="demo-title">${esc(d.form.title)}</h2>`)
+  .replace('<h2 class="head" id="demo-title">شاهد OpsOne كاملًا مع فريقنا</h2>', `<h2 class="head" id="demo-title">${esc(d.form.title)}</h2>`)
   .replace(/<p>اترك بياناتك[^<]*<\/p>/, `<p>${esc(d.form.lede)}</p><p class="coupon__sector">${icon(d.form.icon)}${esc(d.form.sectorLabel)}</p>`);
 const consent = siteConsent({ root });
 const footer = siteFooter({ root, slug: d.slug });
@@ -96,7 +96,7 @@ const hero = `<section class="hero shero wrap" aria-labelledby="hero-title">
       <h1 class="display" id="hero-title">${d.seo.h1 ? `<span class="shero__kicker">${esc(d.seo.h1)}</span>` : ''}${esc(d.hero.title1)}<br><span>${esc(d.hero.title2)}</span></h1>
       <p class="lead">${esc(d.hero.lede)}</p>
       <div class="acts">
-        <a class="btn btn--go" href="#demo" data-cta="hero">اطلب عرضًا تجريبيًا ${icon('i-arrow', 'ic ic--dir')}</a>
+        <a class="btn btn--go" href="#demo" data-cta="hero">احجز عرضًا توضيحيًا ${icon('i-arrow', 'ic ic--dir')}</a>
         <a class="btn btn--quiet" href="#order">${esc(d.hero.second)}</a>
       </div>
     </div>
@@ -105,7 +105,7 @@ const hero = `<section class="hero shero wrap" aria-labelledby="hero-title">
   <div class="route" id="route">
     <div class="stations stations--${d.stations.length}" role="group" aria-label="${esc(d.hero.lineLabel)}" id="stations" style="--n:${d.stations.length}">
       <span class="track" aria-hidden="true"><span class="track__fill" id="fill"></span></span>
-${d.stations.map((s, i) => `      <button class="station" type="button" data-k="${s.key}" aria-pressed="${i === live}"><span class="dot">${icon(s.icon)}</span><span class="station__name">${esc(s.name)}</span>${i === live ? `<span class="station__tag nums" aria-hidden="true">${esc(d.order.ref)}</span>` : ''}<span class="sr">، ${i < live ? 'مكتملة' : i === live ? 'جارية الآن' : 'لاحقًا'}</span></button>${i === live ? `
+${d.stations.map((s, i) => `      <button class="station" type="button" data-k="${s.key}" aria-pressed="${i === live}"><span class="dot">${icon(s.icon)}</span><span class="station__name">${esc(s.name)}</span>${i === live ? `<span class="station__tag nums" aria-hidden="true">${esc(d.order.ref)}</span>` : ''}<span class="sr">، ${i < live ? 'مكتملة' : i === live ? 'جارية الآن' : 'التالية'}</span></button>${i === live ? `
       <div class="screen is-open" id="screen"><span class="screen__notch" id="notch" aria-hidden="true"></span><div class="screen__card"><div class="screen__body" id="screen-body" aria-live="polite"></div></div></div>` : ''}`).join('\n')}
       <span class="ticket nums" id="ticket" aria-hidden="true">${esc(d.order.ref)}</span>
     </div>

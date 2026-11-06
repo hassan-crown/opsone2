@@ -122,7 +122,7 @@
       done.className = 'coupon__done';
       done.tabIndex = -1;
       done.setAttribute('role', 'status');
-      done.innerHTML = `<h3>شكرًا، وصل طلبك</h3><p>سنتواصل معك على <span dir="ltr">${esc(phone)}</span> لتحديد موعد العرض التجريبي.</p>`;
+      done.innerHTML = `<h3>شكرًا، وصل طلبك</h3><p>سنتواصل معك على <span dir="ltr">${esc(phone)}</span> لتحديد موعد العرض التوضيحي.</p>`;
       form.replaceWith(done);
       done.focus();
     };
@@ -164,9 +164,9 @@
       }
 
       if (cfg.demoEmail) {
-        const body = [`الاسم: ${data.name}`, `المنشأة: ${data.company}`, `الجوال: ${data.phone}`, `يبيع: ${data.trade}`, `النشاط: ${data.sector || '-'}`, `المدينة: ${data.city || '-'}`].join('\n');
+        const body = [`الاسم: ${data.name}`, `المنشأة: ${data.company}`, `الجوال: ${data.phone}`, `يبيع: ${data.trade}`, `النشاط: ${data.sector || '-'}`, `المدينة: ${data.city || '-'}`, `الوقت المفضل: ${data.preferred_time || '-'}`, `طريقة العرض: ${data.demo_mode || '-'}`].join('\n');
         track();
-        location.href = `mailto:${encodeURIComponent(cfg.demoEmail)}?subject=${encodeURIComponent('طلب عرض تجريبي لـ OpsOne')}&body=${encodeURIComponent(body)}`;
+        location.href = `mailto:${encodeURIComponent(cfg.demoEmail)}?subject=${encodeURIComponent('طلب عرض توضيحي لـ OpsOne')}&body=${encodeURIComponent(body)}`;
         say(`فتحنا بريدك برسالة جاهزة إلى <span dir="ltr">${esc(cfg.demoEmail)}</span>. يصلنا طلبك بعد أن ترسلها من هناك.`);
         return;
       }
