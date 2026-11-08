@@ -1,3 +1,5 @@
+import type { ArticleSummary } from '@/components/help/article-card';
+import { StartHere } from '@/components/help/start-here';
 import { Head, Link, usePage } from '@inertiajs/react';
 import { BellRing, LayoutDashboard, ListChecks } from 'lucide-react';
 import ExecutiveDashboardController from '@/actions/App/Http/Controllers/Reports/ExecutiveDashboardController';
@@ -239,6 +241,7 @@ function Section({
 export default function Dashboard({
     setup,
     bankMissing,
+    startHere,
     widgets,
     taskCards,
     ordersAttention,
@@ -249,6 +252,8 @@ export default function Dashboard({
     setup: SetupSummary | null;
     /** Deferred (ADR-0046): undefined until loaded after the first paint. */
     bankMissing?: boolean;
+    /** Deferred (ADR-0048): «Start here» until the user closes it; null once closed or empty. */
+    startHere?: ArticleSummary[] | null;
     widgets: Widgets;
     taskCards: TaskCards;
     ordersAttention: OrdersAttention | null;
@@ -288,6 +293,7 @@ export default function Dashboard({
             <div className="flex flex-col gap-8">
                 {setup && <SetupChecklist setup={setup} />}
                 {bankMissing && <BankMissingAlert />}
+                {startHere && <StartHere articles={startHere} />}
                 <Section
                     id="tasks"
                     title={t('home.tasks.title')}

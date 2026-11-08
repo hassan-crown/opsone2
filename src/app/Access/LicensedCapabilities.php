@@ -14,6 +14,9 @@ use App\Licensing\LicenseStatus;
  */
 final class LicensedCapabilities implements LicenseCapabilities
 {
+    /** Capabilities the app gates on (permissions, reports, the store, help articles). Keep in step with the plans. */
+    public const KNOWN = ['ready_goods', 'branch_comparisons', 'marketing_reports'];
+
     public function __construct(private readonly CurrentLicense $license) {}
 
     public function allows(string $capability): bool

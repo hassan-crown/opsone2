@@ -30,6 +30,7 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
  * @property string|null $remember_token
  * @property int $access_version
  * @property bool $is_support
+ * @property Carbon|null $help_start_dismissed_at
  * @property-read Membership|null $membership
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
@@ -79,6 +80,7 @@ class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
             'password' => 'hashed',
             'two_factor_confirmed_at' => 'datetime',
             'access_version' => 'integer',
+            'help_start_dismissed_at' => 'datetime',
             'is_support' => 'boolean',
         ];
     }

@@ -6,6 +6,7 @@ use App\Http\Controllers\Portal\AppointmentRequestController;
 use App\Http\Controllers\Portal\CancellationController;
 use App\Http\Controllers\Portal\DocumentController;
 use App\Http\Controllers\Portal\FileController;
+use App\Http\Controllers\Portal\HelpController;
 use App\Http\Controllers\Portal\InstallationController;
 use App\Http\Controllers\Portal\PaymentController;
 use App\Http\Controllers\Portal\SettingsController;
@@ -74,6 +75,11 @@ Route::middleware(AuthenticateCustomer::class)->group(function () {
     // ADR-0036: the customer's acceptance of an installation, from the link the technician sent.
     Route::get('installations/{visit}', [InstallationController::class, 'show'])->whereNumber('visit')->name('installations.show');
     Route::post('installations/{visit}/sign', [InstallationController::class, 'sign'])->whereNumber('visit')->middleware(['throttle:portal-write', RefuseCustomerWritesWhenReadOnly::class])->name('installations.sign');
+
+    // Customer help (ADR-0048): customer-audience articles only.
+    Route::get('help', [HelpController::class, 'index'])->name('help.index');
+    Route::get('help/images/{file}', [HelpController::class, 'image'])->where('file', '[a-z0-9-]+\\.(png|jpe?g|webp)')->middleware('throttle:120,1')->name('help.image');
+    Route::get('help/{slug}', [HelpController::class, 'article'])->where('slug', '[a-z0-9-]+')->name('help.article');
 
     Route::get('settings', [SettingsController::class, 'show'])->name('settings');
     Route::post('logout', [SignInController::class, 'logout'])->name('logout');
