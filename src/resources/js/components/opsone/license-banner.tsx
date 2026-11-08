@@ -10,7 +10,7 @@ import {
 } from '@/components/ui/alert';
 import type { TranslationKey } from '@/lib/i18n';
 import { useT } from '@/lib/i18n';
-import type { LicenseStatus } from '@/types';
+import type { LicenseNotice, LicenseStatus } from '@/types';
 
 type Variant = 'info' | 'warning' | 'danger';
 
@@ -61,6 +61,17 @@ const BANNERS: Record<
     },
 };
 
+/** Texts that replace the phase's title/body when the license carries a display notice (ADR-0004, T3). */
+const NOTICES: Record<
+    LicenseNotice,
+    { title: TranslationKey; body: TranslationKey }
+> = {
+    administrative_suspension: {
+        title: 'license.notice.administrative_suspension_title',
+        body: 'license.notice.administrative_suspension_body',
+    },
+};
+
 /** License state notice for the app shell (M-19). Informs only; access is enforced on the server. */
 export function LicenseBanner() {
     const { license } = usePage().props;
@@ -70,7 +81,10 @@ export function LicenseBanner() {
         return null;
     }
 
-    const banner = BANNERS[license.status];
+    const phase = BANNERS[license.status];
+    const banner = license.notice
+        ? { ...phase, ...NOTICES[license.notice] }
+        : phase;
 
     return (
         <Alert variant={banner.variant} className="mb-4 md:mb-6">

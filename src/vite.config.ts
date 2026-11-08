@@ -78,6 +78,8 @@ export default defineConfig({
             'resources/js/components/ui/*',
             'resources/css/opsone/tokens.css',
             'resources/views/mail/*',
+            // Contract vectors are copied byte for byte from the central app; never reformat them.
+            'tests/Fixtures/license-contract/**',
         ],
         sortTailwindcss: {
             functions: ['clsx', 'cn', 'cva'],

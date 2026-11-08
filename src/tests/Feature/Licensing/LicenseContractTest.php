@@ -61,6 +61,9 @@ it('declares the contract and version this suite understands', function () {
 it('derives the documented status at every boundary', function (array $case) {
     $payload = contractVerifier()->verify(contractEnvelope($case['envelope']));
 
+    // T3: the display-only notice; an unknown kind (unknown-field) reads as none.
+    expect($payload->notice?->value)->toBe($case['notice'] ?? null, "{$case['name']} notice");
+
     foreach ($case['status_at'] as $point) {
         expect($payload->statusAt(CarbonImmutable::parse($point['at']))->value)
             ->toBe($point['status'], "{$case['name']} at {$point['at']}");

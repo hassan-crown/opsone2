@@ -24,6 +24,9 @@ php artisan license:contract-vectors --check  # يفشل إن اختلف أي ب
 - `name`، `description`، `envelope` (مسار نسبي).
 - **إما** `status_at`: قائمة `{at, status}` — الظرف يُقبل، و`LicensePayload::statusAt(at)` يساوي `status`
   (`provisioned`، `active`، `grace`، `wind_down`، `expired`).
+- `notice` (اختياري، مع `status_at` فقط): قيمة `notice.kind` المعروفة التي يقرؤها `LicensePayload` (مثل
+  `administrative_suspension` في `freeze-notice`). غيابه يعني أن الحمولة لا تحمل إشعاراً معروفاً، فالقيمة `null`، ومنه
+  `unknown-field` الذي يحمل `kind` غير معروف. الإشعار للعرض فقط ولا يغير `status_at` (ADR-0004، تعديل T3).
 - **أو** `problem`: قيمة `LicenseProblem` المتوقعة.
 - `trusted` (اختياري): اسم حالة أخرى تمثل الترخيص الموثوق المركَّب قبله. `superseded` لا يقرره
   `LicenseVerifier` بل فحص الحالة المخزنة (`LicenseInstaller`/`CurrentLicense`): `issuedAt < trusted.issuedAt`.

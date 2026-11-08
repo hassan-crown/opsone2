@@ -86,6 +86,26 @@
             ]
         },
         {
+            "name": "freeze-notice",
+            "description": "Freeze licence with notice.kind = administrative_suspension: display only, the phases are those of \"freeze\".",
+            "envelope": "envelopes/freeze-notice.json",
+            "status_at": [
+                {
+                    "at": "2026-06-15T11:59:59Z",
+                    "status": "active"
+                },
+                {
+                    "at": "2026-06-15T12:00:00Z",
+                    "status": "expired"
+                },
+                {
+                    "at": "2026-12-31T00:00:00Z",
+                    "status": "expired"
+                }
+            ],
+            "notice": "administrative_suspension"
+        },
+        {
             "name": "unknown-field",
             "description": "An unknown field inside schema 1 is ignored.",
             "envelope": "envelopes/unknown-field.json",

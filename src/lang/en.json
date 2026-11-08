@@ -524,6 +524,8 @@
     "license.provisioned_body": "The license is installed; the subscription term starts at delivery.",
     "license.needs_attention_title": "License needs attention",
     "license.needs_attention_body": "We could not verify the platform license. Work continues on the last verified state, and features that cannot be verified are paused. Contact support.",
+    "license.notice.administrative_suspension_title": "Administratively suspended — contact OpsOne",
+    "license.notice.administrative_suspension_body": "OpsOne has suspended this platform. It is available for reading and export only. Contact OpsOne to restore it.",
     "license.reference": "Reference: :code",
     "license.limit.seats": "All staff seats in the plan are in use (:used of :limit). Cancel a pending invitation, disable a member, or add seats from your OpsOne account.",
     "license.limit.branches": "All active branches in the plan are in use (:used of :limit). Disable a branch or add branches from your OpsOne account.",
