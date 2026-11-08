@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Help\HelpAudience;
 use App\Help\HelpCategory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
@@ -10,12 +11,18 @@ use Illuminate\Support\Carbon;
 
 /**
  * A bilingual help article (SHR-07). Arabic is authoritative; English falls back to Arabic when missing and
- * the other way round, so a reader never meets an empty page.
+ * the other way round, so a reader never meets an empty page. Rows with a source_path are mirrored from the Markdown
+ * knowledge base by `help:sync` (ADR-0048); who may read one is decided by App\Help\HelpReader, never by the UI.
  *
  * @property int $id
  * @property string $slug
+ * @property HelpAudience $audience
  * @property HelpCategory $category
  * @property string|null $page_key
+ * @property list<string>|null $roles
+ * @property list<string>|null $permissions
+ * @property string|null $capability
+ * @property string|null $source_path
  * @property string $title_ar
  * @property string|null $title_en
  * @property string|null $summary_ar
@@ -25,9 +32,13 @@ use Illuminate\Support\Carbon;
  * @property int $sort
  * @property Carbon|null $published_at
  */
-#[Fillable(['slug', 'category', 'page_key', 'title_ar', 'title_en', 'summary_ar', 'summary_en', 'body_ar', 'body_en', 'sort', 'published_at'])]
+#[Fillable(['slug', 'audience', 'category', 'page_key', 'roles', 'permissions', 'capability', 'source_path', 'title_ar', 'title_en', 'summary_ar', 'summary_en', 'body_ar', 'body_en', 'sort', 'published_at'])]
 class HelpArticle extends Model
 {
+    protected $attributes = [
+        'audience' => 'staff',
+    ];
+
     /**
      * @param  Builder<HelpArticle>  $query
      */
@@ -72,7 +83,10 @@ class HelpArticle extends Model
     protected function casts(): array
     {
         return [
+            'audience' => HelpAudience::class,
             'category' => HelpCategory::class,
+            'roles' => 'array',
+            'permissions' => 'array',
             'published_at' => 'datetime',
         ];
     }

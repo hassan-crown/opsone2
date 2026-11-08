@@ -2,85 +2,134 @@
 
 namespace App\Http\Controllers\Help;
 
+use App\Access\PermissionCatalogue;
 use App\Help\HelpCategory;
+use App\Help\HelpImages;
+use App\Help\HelpPresenter;
+use App\Help\HelpReader;
 use App\Http\Controllers\Controller;
 use App\Models\HelpArticle;
+use App\Models\User;
 use App\Models\WhatsNewEntry;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Routing\Exceptions\UrlGenerationException;
-use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Inertia\Response;
-use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 /**
- * HelpCenter, category list, HelpArticle and WhatsNew (SHR-07). Only published articles are served;
- * articles are public to every signed-in user (P-83).
+ * HelpCenter, category list, HelpArticle, «My guide», the contextual drawer and WhatsNew (SHR-07, ADR-0048).
+ * Help is open to every signed-in staff member (P-83), but each article is filtered here by HelpReader: staff
+ * audience, the reader's permissions, and the license capability (locked articles for the owner and managers only).
  */
 class HelpController extends Controller
 {
-    public function index(): Response
+    public function index(Request $request): Response
     {
-        $articles = HelpArticle::query()->published()->orderBy('sort')->orderBy('id')->get();
+        $reader = $this->reader($request);
+        $articles = $reader->query()->where('category', '!=', HelpCategory::RoleGuide->value)->orderBy('sort')->orderBy('id')->get();
 
         return Inertia::render('help/index', [
-            'categories' => collect(HelpCategory::cases())->map(fn (HelpCategory $c) => [
+            'categories' => collect(HelpCategory::cases())->reject(fn (HelpCategory $c) => $c === HelpCategory::RoleGuide)->map(fn (HelpCategory $c) => [
                 'key' => $c->value,
-                'articles' => $articles->where('category', $c)->map(fn (HelpArticle $a) => $this->summary($a))->values()->all(),
+                'articles' => $articles->where('category', $c)->map(fn (HelpArticle $a) => HelpPresenter::summary($a, $reader))->values()->all(),
             ])->filter(fn (array $c) => $c['articles'] !== [])->values()->all(),
             'latest' => $this->latestRelease(),
+            'startHere' => HelpPresenter::startHere($this->user($request)),
+            'hasGuide' => $reader->roles() !== [],
         ]);
     }
 
-    public function category(HelpCategory $category): Response
+    public function category(Request $request, HelpCategory $category): Response
     {
-        $articles = HelpArticle::query()->published()->where('category', $category->value)->orderBy('sort')->orderBy('id')->get();
+        $reader = $this->reader($request);
+        $articles = $reader->query()->where('category', $category->value)->orderBy('sort')->orderBy('id')->get();
 
         return Inertia::render('help/category', [
             'category' => $category->value,
-            'articles' => $articles->map(fn (HelpArticle $a) => $this->summary($a))->values()->all(),
+            'articles' => $articles->map(fn (HelpArticle $a) => HelpPresenter::summary($a, $reader))->values()->all(),
         ]);
     }
 
-    public function article(HelpArticle $article): Response
+    public function article(Request $request, HelpArticle $article): Response
     {
-        abort_unless($article->published_at !== null && $article->published_at->isPast(), 404);
+        $reader = $this->reader($request);
+        // Not readable (draft, other audience, missing permission, unlicensed for this role): same 404 as missing.
+        abort_unless($reader->canRead($article), 404);
 
-        $related = HelpArticle::query()->published()->where('category', $article->category->value)
-            ->whereKeyNot($article->id)->orderBy('sort')->limit(4)->get();
+        $related = $reader->query()->where('category', $article->category->value)
+            ->whereKeyNot($article->id)->orderBy('sort')->orderBy('id')->limit(4)->get();
 
         return Inertia::render('help/article', [
-            'article' => [
-                ...$this->summary($article),
-                'body' => $article->body(),
-                'category' => $article->category->value,
-                'updated_at' => $article->updated_at?->toIso8601String(),
-            ],
-            'related' => $related->map(fn (HelpArticle $a) => $this->summary($a))->values()->all(),
+            'article' => HelpPresenter::full($article, $reader),
+            'related' => $related->map(fn (HelpArticle $a) => HelpPresenter::summary($a, $reader))->values()->all(),
         ]);
     }
 
     /**
-     * The contextual «?» in the shell: opens the article that explains the page the user is on
-     * (matched by route name), else the help center. The path is only matched, never followed.
+     * «My guide»: the role guides of the reader's roles, then every article written for those roles, in order.
+     */
+    public function guide(Request $request): Response
+    {
+        $reader = $this->reader($request);
+        $articles = $reader->query()->orderBy('sort')->orderBy('id')->get()
+            ->filter(fn (HelpArticle $a) => $reader->isForMyRoles($a));
+        [$guides, $others] = $articles->partition(fn (HelpArticle $a) => $a->category === HelpCategory::RoleGuide);
+
+        return Inertia::render('help/guide', [
+            'roles' => array_values(array_map(
+                fn (string $role) => app()->getLocale() === 'en' ? PermissionCatalogue::ROLES[$role]['en'] : PermissionCatalogue::ROLES[$role]['ar'],
+                array_filter($reader->roles(), fn (string $role) => isset(PermissionCatalogue::ROLES[$role])),
+            )),
+            'guides' => $guides->map(fn (HelpArticle $a) => HelpPresenter::full($a, $reader))->values()->all(),
+            'articles' => $others->map(fn (HelpArticle $a) => [...HelpPresenter::summary($a, $reader), 'category' => $a->category->value])->values()->all(),
+        ]);
+    }
+
+    /**
+     * The contextual «?» without JavaScript: opens the article that explains the page the user is on (matched by
+     * route name), else the help center.
      */
     public function context(Request $request): RedirectResponse
     {
-        $path = (string) $request->query('path', '/');
-        $name = null;
-
-        try {
-            $name = Route::getRoutes()->match(Request::create('/'.ltrim(parse_url($path, PHP_URL_PATH) ?: '/', '/')))->getName();
-        } catch (HttpExceptionInterface|UrlGenerationException) {
-            // Unknown path: fall through to the help center.
-        }
-
-        $article = $name === null ? null : HelpArticle::query()->published()->where('page_key', $name)->first();
+        $article = HelpPresenter::forPage($this->reader($request), HelpPresenter::routeNameFor((string) $request->query('path', '/')));
 
         return $article === null
             ? redirect()->route('help.index')
             : redirect()->route('help.article', $article);
+    }
+
+    /**
+     * The contextual «?» drawer: the article for the current page, rendered, or null.
+     */
+    public function panel(Request $request): JsonResponse
+    {
+        $reader = $this->reader($request);
+        $article = HelpPresenter::forPage($reader, HelpPresenter::routeNameFor((string) $request->query('path', '/')));
+
+        return response()->json([
+            'article' => $article === null ? null : [
+                ...HelpPresenter::full($article, $reader),
+                'url' => route('help.article', $article, false),
+            ],
+        ]);
+    }
+
+    public function image(Request $request, string $file): BinaryFileResponse
+    {
+        return HelpImages::response($this->reader($request), $file);
+    }
+
+    /**
+     * Closes the «Start here» checklist for this user, on every device.
+     */
+    public function dismissStartHere(Request $request): RedirectResponse
+    {
+        $user = $this->user($request);
+        $user->forceFill(['help_start_dismissed_at' => now()])->save();
+
+        return back();
     }
 
     public function whatsNew(): Response
@@ -91,12 +140,17 @@ class HelpController extends Controller
         ]);
     }
 
-    /**
-     * @return array{slug: string, title: string, summary: string|null}
-     */
-    private function summary(HelpArticle $article): array
+    private function user(Request $request): User
     {
-        return ['slug' => $article->slug, 'title' => $article->title(), 'summary' => $article->summary()];
+        $user = $request->user();
+        abort_unless($user instanceof User, 401);
+
+        return $user;
+    }
+
+    private function reader(Request $request): HelpReader
+    {
+        return HelpReader::forStaff($this->user($request));
     }
 
     /**

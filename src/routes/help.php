@@ -7,13 +7,18 @@ use Illuminate\Support\Facades\Route;
 
 /*
 | Help center, what's new, support request and global search (P3 part C). Help is readable by every signed-in
-| user (P-83); search results are filtered per record by the central Gate (Access::can).
+| user (P-83), each article filtered by App\Help\HelpReader (audience, permissions, license; ADR-0048); search
+| results are filtered per record by the central Gate (Access::can).
 */
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('help', [HelpController::class, 'index'])->name('help.index');
     Route::get('help/whats-new', [HelpController::class, 'whatsNew'])->name('help.whats-new');
     Route::get('help/context', [HelpController::class, 'context'])->name('help.context');
+    Route::get('help/panel', [HelpController::class, 'panel'])->name('help.panel');
+    Route::get('help/guide', [HelpController::class, 'guide'])->name('help.guide');
+    Route::post('help/start-here/dismiss', [HelpController::class, 'dismissStartHere'])->name('help.start-here.dismiss');
+    Route::get('help/images/{file}', [HelpController::class, 'image'])->where('file', '[a-z0-9-]+\\.(png|jpe?g|webp)')->middleware('throttle:120,1')->name('help.image');
     Route::get('help/support', [SupportRequestController::class, 'create'])->name('help.support');
     Route::post('help/support', [SupportRequestController::class, 'store'])->middleware('throttle:support-request')->name('help.support.store');
     Route::get('help/category/{category}', [HelpController::class, 'category'])->name('help.category');
