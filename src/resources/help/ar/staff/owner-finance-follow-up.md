@@ -3,7 +3,7 @@ slug: owner-finance-follow-up
 title: كيف أتابع المستحقات والمتأخرات وأرسل تذكيرات الدفع
 summary: قائمة المتابعة المالية مرتبة بالأقدم، وإرسال تذكير لعملاء مختارين.
 category: daily_work
-roles: [owner, manager]
+roles: [owner, manager, finance]
 permissions: [P-37]
 page_key: finance.index
 order: 100

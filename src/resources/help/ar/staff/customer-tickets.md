@@ -3,7 +3,7 @@ slug: customer-tickets
 title: كيف أتابع تذاكر العملاء
 summary: قراءة تذاكر العملاء ضمن نطاقك وتوليها وإسنادها والرد عليها ثم وسمها محلولة وإغلاقها.
 category: daily_work
-roles: [owner, manager]
+roles: [owner, manager, supervisor, sales]
 permissions: [P-59]
 page_key: tickets.index
 order: 53

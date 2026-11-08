@@ -3,7 +3,7 @@ slug: owner-execute-refund
 title: كيف أنفّذ استرداد مبلغ لعميل وأؤكد نتيجته
 summary: تسجيل إرسال الرد وتأكيد التنفيذ بإثبات، أو تسجيل فشله أو إعادته.
 category: daily_work
-roles: [owner]
+roles: [owner, finance]
 permissions: [P-43]
 page_key: finance.index
 order: 110

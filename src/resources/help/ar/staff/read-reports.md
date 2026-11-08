@@ -3,7 +3,7 @@ slug: read-reports
 title: كيف أقرأ التقارير
 summary: فتح التقارير التشغيلية وتصفيتها بالفترة والفرع، وفهم ما يُخفى عند غياب الصلاحية المالية.
 category: daily_work
-roles: [owner, manager]
+roles: [owner, manager, supervisor, finance, inventory]
 permissions: [P-60]
 page_key: reports.index
 order: 60

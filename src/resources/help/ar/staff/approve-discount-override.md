@@ -3,7 +3,7 @@ slug: approve-discount-override
 title: كيف أعتمد تجاوز خصم
 summary: اعتماد أو رفض طلب خصم تجاوز حد مُعدّ العرض، بقرار مرتبط بمحتوى العرض نفسه.
 category: daily_work
-roles: [owner, manager]
+roles: [owner, manager, supervisor]
 permissions: [P-31]
 page_key: orders.index
 order: 31

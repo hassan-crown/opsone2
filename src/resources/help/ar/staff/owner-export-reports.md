@@ -3,7 +3,7 @@ slug: owner-export-reports
 title: كيف أصدّر تقريرًا إلى ملف CSV
 summary: طلب تصدير ما تراه في الشاشة وتنزيل الملف عند جاهزيته.
 category: daily_work
-roles: [owner, manager]
+roles: [owner, manager, finance]
 permissions: [P-62]
 page_key: reports.exports.index
 order: 92

@@ -3,7 +3,7 @@ slug: price-quote
 title: كيف أسعّر عرضًا وأضيف خصمًا
 summary: إعداد عرض السعر من بنود الطلب، وتطبيق الخصم ضمن حدك أو طلب قرار الخصم.
 category: daily_work
-roles: [owner, manager]
+roles: [owner, manager, sales, field_sales]
 permissions: [P-29]
 page_key: orders.index
 order: 30

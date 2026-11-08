@@ -3,7 +3,7 @@ slug: owner-commission-policy
 title: كيف أفعّل العمولات وأضبط نسبها
 summary: تفعيل العمولات وتحديد النسبة الافتراضية ونسب الأدوار والموظفين.
 category: settings
-roles: [owner]
+roles: [owner, finance]
 permissions: [P-95]
 page_key: settings.sales
 order: 122

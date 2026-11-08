@@ -3,7 +3,7 @@ slug: follow-overdue-work
 title: كيف أتابع العمل المتأخر
 summary: كشف المهام والطلبات المتأخرة عن موعدها عبر المهام وشريط المرحلة وتقرير سير العمل.
 category: daily_work
-roles: [owner, manager]
+roles: [owner, manager, supervisor]
 permissions: [P-24]
 page_key: tasks.index
 order: 51

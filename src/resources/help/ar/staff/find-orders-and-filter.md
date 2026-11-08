@@ -3,7 +3,7 @@ slug: find-orders-and-filter
 title: كيف أجد طلبًا وأصفّي القائمة
 summary: تصفح الطلبات ضمن نطاقك وتضييقها بالنوع والحالة والفرع والمسؤول.
 category: daily_work
-roles: [owner, manager]
+roles: [owner, manager, supervisor, sales]
 permissions: [P-16]
 page_key: orders.index
 order: 11

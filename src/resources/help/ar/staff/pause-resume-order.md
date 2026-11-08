@@ -3,7 +3,7 @@ slug: pause-resume-order
 title: كيف أوقف طلبًا وأستأنفه
 summary: إيقاف الطلب الجاري مع تحديد المتابع وموعد المراجعة، ثم استئنافه عندما يزول السبب.
 category: daily_work
-roles: [owner, manager]
+roles: [owner, manager, supervisor]
 permissions: [P-26]
 page_key: orders.index
 order: 15

@@ -3,7 +3,7 @@ slug: register-customer
 title: كيف أسجّل عميلًا أو أعدّل بياناته
 summary: إنشاء ملف عميل بجواله وبريده، وتعديل بياناته وأشخاص الاتصال، وتفعيل دخوله إلى مساحة العميل.
 category: daily_work
-roles: [owner, manager]
+roles: [owner, manager, sales]
 permissions: [P-09, P-10]
 page_key: customers.index
 order: 70

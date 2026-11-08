@@ -3,7 +3,7 @@ slug: read-order-page
 title: كيف أقرأ صفحة الطلب
 summary: ماذا في كل تبويب من صفحة الطلب، وأين أجد الاتفاق والمالية والمزيد من الإجراءات.
 category: daily_work
-roles: [owner, manager]
+roles: [owner, manager, supervisor, sales, field_sales]
 permissions: [P-16]
 page_key: orders.index
 order: 12

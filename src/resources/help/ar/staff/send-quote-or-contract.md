@@ -3,7 +3,7 @@ slug: send-quote-or-contract
 title: كيف أرسل عرضًا أو عقدًا للعميل
 summary: إرسال مستند بمحتوى ثابت ليوافق عليه العميل من حسابه، وما يمكنك فعله إن انتهت صلاحيته.
 category: daily_work
-roles: [owner, manager]
+roles: [owner, manager, sales, field_sales]
 permissions: [P-30]
 page_key: orders.index
 order: 32

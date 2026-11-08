@@ -3,7 +3,7 @@ slug: change-appointment-time
 title: كيف أغيّر وقت موعد مؤكد
 summary: اقتراح وقت جديد لموعد مؤكد، واعتماده أو إلغاء الاقتراح، أو إلغاء الموعد.
 category: daily_work
-roles: [owner, manager]
+roles: [owner, manager, supervisor, sales]
 permissions: [P-54]
 page_key: calendar.index
 order: 41

@@ -3,7 +3,7 @@ slug: create-order
 title: كيف أنشئ طلبًا جديدًا
 summary: فتح طلب مخصص أو جاهز لعميل: العميل والفرع والمسؤول وملخص الاحتياج.
 category: daily_work
-roles: [owner, manager]
+roles: [owner, manager, sales]
 permissions: [P-15]
 page_key: orders.create
 order: 10

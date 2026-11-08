@@ -3,7 +3,7 @@ slug: owner-resolve-dispute
 title: كيف أسجّل نزاعًا ماليًا وأحسمه
 summary: ربط النزاع بمعاملة، وانتظار جهة خارجية إن لزم، ثم الحسم بإثبات المعالجة.
 category: daily_work
-roles: [owner]
+roles: [owner, finance]
 permissions: [P-85]
 page_key: finance.index
 order: 112
