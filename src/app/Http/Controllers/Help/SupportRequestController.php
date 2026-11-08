@@ -6,6 +6,7 @@ use App\Access\Access;
 use App\Access\Permission;
 use App\Audit\Audit;
 use App\Audit\AuditAction;
+use App\Help\SupportContact;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Help\StoreSupportRequestRequest;
 use App\Models\Facility;
@@ -33,6 +34,8 @@ class SupportRequestController extends Controller
             'categories' => SupportRequest::CATEGORIES,
             'pagePath' => $this->safePath($request->query('from')),
             'canGrantAccess' => Access::can($request->user(), Permission::P79),
+            'supportContact' => SupportContact::channels(),
+            'emailConfigured' => SupportContact::emailConfigured(),
         ]);
     }
 
@@ -40,7 +43,7 @@ class SupportRequestController extends Controller
     {
         $user = $request->user();
 
-        DB::transaction(function () use ($request, $user, $outbox) {
+        $supportRequest = DB::transaction(function () use ($request, $user, $outbox) {
             $supportRequest = SupportRequest::query()->create([
                 ...$request->validated(),
                 'page_path' => $this->safePath($request->validated('page_path')),
@@ -61,9 +64,13 @@ class SupportRequestController extends Controller
                 'category' => $supportRequest->category,
                 'status' => $supportRequest->status,
             ], label: $supportRequest->reference());
+
+            return $supportRequest;
         });
 
-        Inertia::flash('toast', ['type' => 'success', 'message' => __('help.support.sent')]);
+        // Never promise a reply for a request that was not sent: without a support address it is only stored.
+        $sent = $supportRequest->status === SupportRequest::STATUS_QUEUED;
+        Inertia::flash('toast', ['type' => $sent ? 'success' : 'warning', 'message' => __($sent ? 'help.support.sent' : 'help.support.saved_only')]);
 
         return redirect()->route('help.support');
     }

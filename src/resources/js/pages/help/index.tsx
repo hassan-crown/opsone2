@@ -4,6 +4,8 @@ import HelpController from '@/actions/App/Http/Controllers/Help/HelpController';
 import { EmptyState } from '@/components/opsone/empty-state';
 import { Icon } from '@/components/opsone/icon';
 import { PageHeader } from '@/components/opsone/page-header';
+import { ContactCard } from '@/components/help/contact-card';
+import type { SupportContact } from '@/components/help/contact-card';
 import { ArticleCard } from '@/components/help/article-card';
 import type { ArticleSummary } from '@/components/help/article-card';
 import { StartHere } from '@/components/help/start-here';
@@ -18,6 +20,7 @@ type Props = {
     latest: { version: string; released_on: string; title: string } | null;
     startHere: ArticleSummary[] | null;
     hasGuide: boolean;
+    supportContact: SupportContact | null;
 };
 
 export default function HelpIndex({
@@ -25,6 +28,7 @@ export default function HelpIndex({
     latest,
     startHere,
     hasGuide,
+    supportContact,
 }: Props) {
     const t = useT();
 
@@ -78,6 +82,8 @@ export default function HelpIndex({
                     <Icon icon={ChevronRight} />
                 </Link>
             )}
+
+            <ContactCard contact={supportContact} />
 
             {categories.length === 0 ? (
                 <Card>

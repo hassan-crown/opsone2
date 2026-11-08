@@ -29,6 +29,9 @@
 2. **`src/.env`** من `src/.env.example`، ثم اضبط:
    - `APP_URL` = النطاق العام `https://…`، `APP_ENV=production`، `APP_DEBUG=false`، `APP_VERSION` = وسم الإصدار.
    - `DB_HOST=mariadb`، `DB_DATABASE`/`DB_USERNAME`/`DB_PASSWORD` كما في `.env` الجذر، `REDIS_HOST=redis`.
+   - قنوات دعم OpsOne (يضبطها OpsOne عند التسليم، لا المنشأة): `OPSONE_SUPPORT_EMAIL` (بدونه يُحفظ طلب الدعم ولا يُرسل)،
+     `OPSONE_SUPPORT_WHATSAPP` و`OPSONE_SUPPORT_PHONE` بصيغة دولية (مثل `+966500000000`). تظهر في مركز المساعدة بطاقة
+     «تواصل مع OpsOne» بالقنوات المضبوطة فقط، وتختفي إن لم تُضبط أي قناة.
    - `CACHE_STORE=redis`، `QUEUE_CONNECTION=redis`، `SESSION_DRIVER=redis` (أو database).
 3. **المفاتيح (مرة واحدة لكل نشر جديد فقط):**
    ```bash

@@ -8,6 +8,7 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Queue;
+use Inertia\Support\SessionKey;
 use Inertia\Testing\AssertableInertia as Assert;
 use Tests\Support\Org;
 
@@ -100,4 +101,39 @@ it('denies a disabled member', function () {
 
 it('requires sign-in', function () {
     $this->post(route('help.support.store'), $this->valid)->assertRedirect(route('login'));
+});
+
+it('shows only the configured contact channels with correct links', function () {
+    config(['opsone.support.email' => 'support@opsone.test', 'opsone.support.whatsapp' => '+966 50-123 4567', 'opsone.support.phone' => '+966 11 222 3333']);
+    $sales = $this->org->member('sales', [$this->org->a]);
+
+    $this->actingAs($sales)->get(route('help.support'))->assertInertia(fn (Assert $page) => $page
+        ->where('supportContact.email', 'support@opsone.test')
+        ->where('supportContact.whatsapp.url', 'https://wa.me/966501234567')
+        ->where('supportContact.phone.url', 'tel:+966112223333'));
+
+    config(['opsone.support.email' => null, 'opsone.support.phone' => '']);
+    $this->actingAs($sales)->get(route('help.index'))->assertInertia(fn (Assert $page) => $page
+        ->where('supportContact.email', null)
+        ->where('supportContact.phone', null)
+        ->where('supportContact.whatsapp.url', 'https://wa.me/966501234567'));
+});
+
+it('hides the contact card when no channel is configured', function () {
+    config(['opsone.support.email' => null, 'opsone.support.whatsapp' => null, 'opsone.support.phone' => null]);
+    $sales = $this->org->member('sales', [$this->org->a]);
+
+    $this->actingAs($sales)->get(route('help.index'))->assertInertia(fn (Assert $page) => $page->where('supportContact', null));
+    $this->actingAs($sales)->get(route('help.support'))->assertInertia(fn (Assert $page) => $page->where('supportContact', null)->where('emailConfigured', false));
+});
+
+it('tells the truth about delivery in both cases', function () {
+    Queue::fake();
+    $sales = $this->org->member('sales', [$this->org->a]);
+
+    $this->actingAs($sales)->post(route('help.support.store'), $this->valid)->assertSessionHas(SessionKey::FLASH_DATA, fn ($f) => $f['toast']['type'] === 'warning' && $f['toast']['message'] === __('help.support.saved_only'));
+
+    config(['opsone.support.email' => 'support@opsone.test']);
+    $this->actingAs($sales)->get(route('help.support'))->assertInertia(fn (Assert $page) => $page->where('emailConfigured', true));
+    $this->actingAs($sales)->post(route('help.support.store'), $this->valid)->assertSessionHas(SessionKey::FLASH_DATA, fn ($f) => $f['toast']['type'] === 'success' && $f['toast']['message'] === __('help.support.sent'));
 });
