@@ -38,6 +38,7 @@ final readonly class LicensePayload
         public int $windDownDays,
         public int $retentionDays,
         public CarbonImmutable $issuedAt,
+        public ?LicenseNotice $notice = null,
     ) {}
 
     /**
@@ -87,6 +88,7 @@ final readonly class LicensePayload
             windDownDays: self::count($data, 'wind_down_days'),
             retentionDays: self::count($data, 'retention_days'),
             issuedAt: self::nullableTime($data, 'issued_at') ?? throw new InvalidArgumentException('issued_at is required.'),
+            notice: self::notice($data),
         );
     }
 
@@ -139,6 +141,21 @@ final readonly class LicensePayload
     public function retentionEndsAt(): ?CarbonImmutable
     {
         return $this->windDownEndsAt()?->addDays($this->retentionDays);
+    }
+
+    /**
+     * Optional display-only `notice` ({"kind": "..."}). Never fails the payload: a missing, malformed or unknown
+     * notice is ignored, exactly as an unknown field of schema 1 (ADR-0004 §1), so a newer central app cannot turn a
+     * display hint into a verification failure.
+     *
+     * @param  array<mixed>  $data
+     */
+    private static function notice(array $data): ?LicenseNotice
+    {
+        $notice = $data['notice'] ?? null;
+        $kind = is_array($notice) ? ($notice['kind'] ?? null) : null;
+
+        return is_string($kind) ? LicenseNotice::tryFrom($kind) : null;
     }
 
     /**
