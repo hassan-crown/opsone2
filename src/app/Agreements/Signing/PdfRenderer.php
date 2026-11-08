@@ -44,15 +44,16 @@ final class PdfRenderer
 
     /**
      * @param  array<string, string>  $images
+     * @param  array<string, mixed>  $config  mPDF settings overriding the document defaults (margins…)
      */
-    private function engine(array $images, string $title): Mpdf
+    public function engine(array $images, string $title, array $config = []): Mpdf
     {
         $tmp = storage_path('framework/cache/mpdf');
         if (! is_dir($tmp)) {
             mkdir($tmp, 0775, true);
         }
 
-        $pdf = new Mpdf([
+        $pdf = new Mpdf($config + [
             'mode' => 'utf-8',
             'format' => 'A4',
             'margin_left' => 14,
