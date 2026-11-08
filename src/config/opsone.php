@@ -32,6 +32,9 @@ return [
     */
     'support' => [
         'email' => env('OPSONE_SUPPORT_EMAIL'),
+        // Direct contact channels shown in the help centre; set by OpsOne at hand-over, never by the facility.
+        'whatsapp' => env('OPSONE_SUPPORT_WHATSAPP'),
+        'phone' => env('OPSONE_SUPPORT_PHONE'),
         // Longest window an owner may grant, and how long an undecided request waits, in hours.
         'max_access_hours' => (int) env('OPSONE_SUPPORT_MAX_ACCESS_HOURS', 72),
         'request_ttl_hours' => (int) env('OPSONE_SUPPORT_REQUEST_TTL_HOURS', 72),

@@ -1,5 +1,7 @@
 import { Form, Head, Link } from '@inertiajs/react';
 import SupportRequestController from '@/actions/App/Http/Controllers/Help/SupportRequestController';
+import { ContactCard } from '@/components/help/contact-card';
+import type { SupportContact } from '@/components/help/contact-card';
 import {
     SelectField,
     TextField,
@@ -18,12 +20,16 @@ type Props = {
     categories: string[];
     pagePath: string | null;
     canGrantAccess: boolean;
+    supportContact: SupportContact | null;
+    emailConfigured: boolean;
 };
 
 export default function SupportRequest({
     categories,
     pagePath,
     canGrantAccess,
+    supportContact,
+    emailConfigured,
 }: Props) {
     const t = useT();
 
@@ -34,6 +40,26 @@ export default function SupportRequest({
                 title={t('help.support.title')}
                 description={t('help.support.description')}
             />
+
+            <ContactCard contact={supportContact} />
+
+            <Alert
+                variant={emailConfigured ? 'info' : 'warning'}
+                className="mb-6 max-w-2xl"
+                data-test="support-delivery-note"
+            >
+                <AlertBody>
+                    <AlertDescription>
+                        {emailConfigured
+                            ? t('help.support.delivery_sent')
+                            : t(
+                                  supportContact
+                                      ? 'help.support.delivery_saved_direct'
+                                      : 'help.support.delivery_saved',
+                              )}
+                    </AlertDescription>
+                </AlertBody>
+            </Alert>
 
             <Form
                 {...SupportRequestController.store.form()}

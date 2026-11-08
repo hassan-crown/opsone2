@@ -1103,7 +1103,7 @@
     "help.support.message_hint": "ماذا كنت تفعل، وماذا حدث؟",
     "help.support.page": "من صفحة: :path",
     "help.support.submit": "إرسال الطلب",
-    "help.support.sent": "حُفظ طلبك وسنرد عليك.",
+    "help.support.sent": "أُرسل طلبك وسنرد على بريدك.",
     "help.support.access_note": "تحتاج أن يطلع الفريق على بياناتك؟ يمكن للمالك منح إذن مؤقت.",
     "help.support.view_only": "إرسال طلبات الدعم متاح لموظفي المنشأة فقط.",
     "search.placeholder": "ابحث في الأعضاء والفروع والمساعدة",
@@ -6800,5 +6800,14 @@
     "portal.bank.copy_amount": "نسخ المبلغ",
     "portal.bank.copy_beneficiary": "نسخ اسم المستفيد",
     "portal.bank.copy_iban": "نسخ رقم الآيبان",
-    "portal.bank.copy_reference": "نسخ المرجع"
+    "portal.bank.copy_reference": "نسخ المرجع",
+    "help.support.saved_only": "حُفظ طلبك لكنه لم يُرسل إلى OpsOne بعد. إن كان عاجلاً فاستخدم إحدى وسائل التواصل المباشر.",
+    "help.support.delivery_sent": "سيُرسل طلبك إلى OpsOne وسنرد على بريدك.",
+    "help.support.delivery_saved": "بريد الدعم غير مُعدّ في هذا النظام بعد: سيُحفظ طلبك ولن يُرسل إلى OpsOne الآن، فلا تنتظر رداً.",
+    "help.support.delivery_saved_direct": "بريد الدعم غير مُعدّ في هذا النظام بعد: سيُحفظ طلبك ولن يُرسل إلى OpsOne الآن. للتواصل معنا الآن استخدم وسائل التواصل المباشر أعلاه.",
+    "help.contact.title": "تواصل مع OpsOne",
+    "help.contact.description": "تواصل مع فريق OpsOne مباشرة.",
+    "help.contact.email": "البريد",
+    "help.contact.whatsapp": "واتساب",
+    "help.contact.phone": "الهاتف"
 }

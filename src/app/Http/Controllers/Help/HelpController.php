@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Help;
 
 use App\Help\HelpCategory;
+use App\Help\SupportContact;
 use App\Http\Controllers\Controller;
 use App\Models\HelpArticle;
 use App\Models\WhatsNewEntry;
@@ -30,6 +31,7 @@ class HelpController extends Controller
                 'articles' => $articles->where('category', $c)->map(fn (HelpArticle $a) => $this->summary($a))->values()->all(),
             ])->filter(fn (array $c) => $c['articles'] !== [])->values()->all(),
             'latest' => $this->latestRelease(),
+            'supportContact' => SupportContact::channels(),
         ]);
     }
 

@@ -1103,7 +1103,7 @@
     "help.support.message_hint": "What were you doing, and what happened?",
     "help.support.page": "From page: :path",
     "help.support.submit": "Send request",
-    "help.support.sent": "Your request was saved. We will get back to you.",
+    "help.support.sent": "Your request was sent and we will reply to your email.",
     "help.support.access_note": "Need the team to look at your data? The owner can grant temporary access.",
     "help.support.view_only": "Only staff members can send support requests.",
     "search.placeholder": "Search members, branches, help",
@@ -6800,5 +6800,14 @@
     "portal.bank.copy_amount": "Copy amount",
     "portal.bank.copy_beneficiary": "Copy beneficiary name",
     "portal.bank.copy_iban": "Copy IBAN",
-    "portal.bank.copy_reference": "Copy reference"
+    "portal.bank.copy_reference": "Copy reference",
+    "help.support.saved_only": "Your request was saved but has not been sent to OpsOne yet. Please use a direct channel if it is urgent.",
+    "help.support.delivery_sent": "Your request will be sent to OpsOne and we will reply to your email.",
+    "help.support.delivery_saved": "Support email is not set up for this system yet: your request will be saved but not sent to OpsOne yet, and no reply should be expected.",
+    "help.support.delivery_saved_direct": "Support email is not set up for this system yet: your request will be saved but not sent to OpsOne yet. To reach us now, use the direct channels above.",
+    "help.contact.title": "Contact OpsOne",
+    "help.contact.description": "Reach the OpsOne team directly.",
+    "help.contact.email": "Email",
+    "help.contact.whatsapp": "WhatsApp",
+    "help.contact.phone": "Phone"
 }
