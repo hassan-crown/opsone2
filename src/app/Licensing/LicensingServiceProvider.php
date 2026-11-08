@@ -15,7 +15,10 @@ class LicensingServiceProvider extends ServiceProvider
             publicKey: $this->config('license.public_key'),
             // The published development key is trusted only on a local/testing install with no production key,
             // so a production deployment left on APP_ENV=local still refuses self-signed licenses.
-            trustDevelopmentKey: $app->environment(['local', 'testing']) && (string) $this->config('license.public_key') === '',
+            trustDevelopmentKey: $app->environment(['local', 'testing'])
+                && (string) $this->config('license.public_key') === ''
+                && (string) $this->config('license.public_keys') === '',
+            publicKeys: $this->config('license.public_keys'),
         ));
 
         $this->app->bind(LicenseVerifier::class, fn ($app) => new LicenseVerifier(

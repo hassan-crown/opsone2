@@ -19,6 +19,10 @@ return [
 
     'key_id' => env('LICENSE_KEY_ID', 'opsone-production'),
 
+    // Extra trusted keys for rotation overlap: "kid=base64,kid=base64" (central-app plan §4.3).
+    // Trusted alongside the pair above; malformed entries are ignored. Remove a key once retired.
+    'public_keys' => env('LICENSE_PUBLIC_KEYS'),
+
     // When set, the license's deployment_id must match it.
     'deployment_id' => env('LICENSE_DEPLOYMENT_ID'),
 
