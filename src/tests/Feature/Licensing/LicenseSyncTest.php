@@ -185,6 +185,39 @@ it('keeps the state on a network failure, 5xx or 401', function (Closure $fake, 
     'no envelope key' => [fn () => fn () => Http::response(['license_id' => 'x'], 200), 'invalid_response'],
 ]);
 
+const SYNC_CONTRACT_RESPONSES = [
+    // name in responses.json => [HTTP status, expected error; null = up to date, false = rejected without install]
+    '200_new_licence' => [200, false], // placeholder envelope: never installs
+    '200_up_to_date' => [200, null],
+    '200_nothing_issued' => [200, null],
+    '401' => [401, 'http_401'],
+    '413' => [413, 'http_413'],
+    '422' => [422, 'http_422'],
+    '429' => [429, 'http_429'],
+];
+
+it('covers every response shape in the central contract', function () {
+    expect(array_keys(syncContract('responses.json')))->toEqual(array_keys(SYNC_CONTRACT_RESPONSES));
+});
+
+it('handles each contract response without touching the state unless it installs', function (string $name) {
+    [$status, $error] = SYNC_CONTRACT_RESPONSES[$name];
+    $before = licenseStateFingerprint();
+    Http::fake(['*' => Http::response(syncContract('responses.json')[$name], $status)]);
+
+    $result = app(LicenseSync::class)->run();
+
+    expect(licenseStateFingerprint())->toBe($before)
+        ->and($result->installed)->toBeFalse();
+    if ($error === null) {
+        expect($result->ok)->toBeTrue();
+    } elseif ($error === false) {
+        expect($result->ok)->toBeFalse();
+    } else {
+        expect($result->ok)->toBeFalse()->and($result->error)->toBe($error);
+    }
+})->with(array_map('strval', array_keys(SYNC_CONTRACT_RESPONSES)));
+
 it('sends only the reviewed heartbeat keys', function () {
     Http::fake(['*' => Http::response(syncContract('responses.json')['200_up_to_date'])]);
 
