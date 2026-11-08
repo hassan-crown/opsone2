@@ -78,6 +78,8 @@ export default defineConfig({
             'resources/js/components/ui/*',
             'resources/css/opsone/tokens.css',
             'resources/views/mail/*',
+            // Contract files copied byte for byte from the central app (ADR-0047).
+            'tests/Fixtures/sync-contract/**',
         ],
         sortTailwindcss: {
             functions: ['clsx', 'cn', 'cva'],

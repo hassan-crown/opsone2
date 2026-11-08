@@ -20,6 +20,16 @@ final class Heartbeats
         Cache::forever($key, CarbonImmutable::now('UTC')->getTimestamp());
     }
 
+    /**
+     * When the beat was last stamped, or null when never.
+     */
+    public static function at(string $key): ?CarbonImmutable
+    {
+        $at = Cache::get($key);
+
+        return is_numeric($at) ? CarbonImmutable::createFromTimestampUTC((int) $at) : null;
+    }
+
     public static function age(string $key): ?int
     {
         // The Redis store keeps numbers unserialized and returns them as strings.

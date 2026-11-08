@@ -27,6 +27,7 @@
 - `app/Notifications`, `app/Integrations` — in-app notifications + outbound outbox (`Outbox`, `Notifier`; send mail only through them) and facility SMTP/SMS settings — `docs/decisions/0007-notifications-outbox.md`.
 - `app/Actions/StateMachines/M{nn}*/T{nn}*` — one Action per transition; log via `TransitionRecorder` (`state_transitions`).
 - `app/Licensing` — signed-license verification (ADR-0004); use `CurrentLicense` (`allows()`, `limit()`, `status()`), never read the file.
+  `app/Licensing/Sync` — hourly pull from the central app (ADR-0047): `license:sync` (signed `OPSONE-SYNC-v1`, installs via `LicenseInstaller`, failures never change state), `license:sync-keygen`, closed-field `HeartbeatCollector::FIELDS` (contract fixtures `tests/Fixtures/sync-contract/v1`).
   The Gate's license step and seat/branch limits (`Access\LicenseLimits`, inside the adding transaction) are in ADR-0005.
 - `app/Audit` — append-only audit trail: `Audit::record(AuditAction::X, $subject, $actor, before:, after:)` INSIDE the
   change's transaction; `AuditLog` screen (P-63). `app/Files` — private attachments (`AttachmentService`, `AllowedAttachment`

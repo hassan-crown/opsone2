@@ -1,0 +1,214 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://opsone/contract/sync/v1/heartbeat.schema.json",
+    "title": "OpsOne deployment heartbeat, schema_version 1",
+    "type": "object",
+    "properties": {
+        "schema_version": {
+            "type": "integer",
+            "const": 1
+        },
+        "deployment_id": {
+            "type": "string",
+            "pattern": "^[0-9A-HJKMNP-TV-Z]{26}$",
+            "description": "Must equal the X-OpsOne-Deployment header."
+        },
+        "app": {
+            "type": "object",
+            "properties": {
+                "code_version": {
+                    "type": [
+                        "string",
+                        "null"
+                    ],
+                    "maxLength": 50,
+                    "pattern": "^[A-Za-z0-9._+-]+$"
+                },
+                "last_migration": {
+                    "type": [
+                        "string",
+                        "null"
+                    ],
+                    "maxLength": 191,
+                    "pattern": "^[A-Za-z0-9._-]+$"
+                }
+            },
+            "required": [
+                "code_version",
+                "last_migration"
+            ],
+            "additionalProperties": false
+        },
+        "license": {
+            "type": "object",
+            "properties": {
+                "license_id": {
+                    "type": [
+                        "string",
+                        "null"
+                    ],
+                    "maxLength": 64,
+                    "pattern": "^[A-Za-z0-9._:-]+$",
+                    "description": "The installed licence, or null when none is installed."
+                },
+                "status": {
+                    "type": [
+                        "string",
+                        "null"
+                    ],
+                    "enum": [
+                        "provisioned",
+                        "active",
+                        "grace",
+                        "wind_down",
+                        "expired",
+                        "needs_attention",
+                        null
+                    ]
+                },
+                "problem": {
+                    "type": [
+                        "string",
+                        "null"
+                    ],
+                    "enum": [
+                        "missing",
+                        "unreadable",
+                        "corrupt",
+                        "unknown_key",
+                        "bad_signature",
+                        "unsupported_schema",
+                        "invalid_payload",
+                        "domain_mismatch",
+                        "deployment_mismatch",
+                        "superseded",
+                        "clock_untrusted",
+                        null
+                    ]
+                }
+            },
+            "required": [
+                "license_id",
+                "status",
+                "problem"
+            ],
+            "additionalProperties": false
+        },
+        "usage": {
+            "type": "object",
+            "properties": {
+                "active_seats": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                },
+                "active_branches": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                },
+                "storage_mb": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 1099511627776
+                },
+                "capabilities": {
+                    "type": "array",
+                    "maxItems": 100,
+                    "items": {
+                        "type": "string",
+                        "maxLength": 64,
+                        "pattern": "^[a-z0-9][a-z0-9_.-]*$"
+                    },
+                    "description": "Enabled capability keys."
+                }
+            },
+            "required": [
+                "active_seats",
+                "active_branches",
+                "storage_mb",
+                "capabilities"
+            ],
+            "additionalProperties": false
+        },
+        "health": {
+            "type": "object",
+            "properties": {
+                "database_ok": {
+                    "type": "boolean"
+                },
+                "redis_ok": {
+                    "type": "boolean"
+                },
+                "failed_jobs": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                },
+                "oldest_pending_job_seconds": {
+                    "type": [
+                        "integer",
+                        "null"
+                    ],
+                    "minimum": 0,
+                    "maximum": 4294967295
+                },
+                "scheduler_last_run_at": {
+                    "type": [
+                        "string",
+                        "null"
+                    ],
+                    "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]{1,6})?(Z|[+-][0-9]{2}:[0-9]{2})$"
+                },
+                "backup_last_at": {
+                    "type": [
+                        "string",
+                        "null"
+                    ],
+                    "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]{1,6})?(Z|[+-][0-9]{2}:[0-9]{2})$"
+                },
+                "backup_verified": {
+                    "type": [
+                        "boolean",
+                        "null"
+                    ]
+                },
+                "disk_free_percent": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 100
+                },
+                "clock_skew_seconds": {
+                    "type": [
+                        "integer",
+                        "null"
+                    ],
+                    "minimum": -2147483648,
+                    "maximum": 2147483647,
+                    "description": "Facility clock minus the Date header of the last sync response."
+                }
+            },
+            "required": [
+                "database_ok",
+                "redis_ok",
+                "failed_jobs",
+                "oldest_pending_job_seconds",
+                "scheduler_last_run_at",
+                "backup_last_at",
+                "backup_verified",
+                "disk_free_percent",
+                "clock_skew_seconds"
+            ],
+            "additionalProperties": false
+        }
+    },
+    "required": [
+        "schema_version",
+        "deployment_id",
+        "app",
+        "license",
+        "usage",
+        "health"
+    ],
+    "additionalProperties": false
+}

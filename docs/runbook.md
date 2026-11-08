@@ -38,7 +38,7 @@
    - `key:generate` فقط لنشر جديد بلا بيانات؛ **لا تعِد توليد APP_KEY لنشر قائم أبدًا**.
    - انسخ سطر `OPS_BACKUP_KEY=…` إلى `src/.env` وإلى خزنة الأسرار خارج الخادم **[موافقة]**. بدونه لا تُستعاد أي نسخة.
 4. **الترخيص:** `LICENSE_PUBLIC_KEY` و`LICENSE_KEY_ID` من التطبيق المركزي، و`LICENSE_DEPLOYMENT_ID` = معرف هذا النشر.
-   `LICENSE_PUBLIC_KEYS` يبقى فارغًا إلا أثناء تدوير المفتاح (القسم 8).
+   `LICENSE_PUBLIC_KEYS` يبقى فارغًا إلا أثناء تدوير المفتاح (القسم 8). `LICENSE_DEPLOYMENT_ID` إلزامي للمزامنة (القسم 9).
 5. **التشغيل والترحيل:**
    ```bash
    ./manage.sh build
@@ -47,7 +47,15 @@
    ./manage.sh node-build
    ./manage.sh jobs
    ```
-6. **تثبيت الترخيص** (الملف من التطبيق المركزي):
+6. **مزامنة الترخيص** (الطريق الأساسي، القسم 9): ولّد مفتاح المزامنة داخل المنشأة، وسجّل مفتاحه العام على النشر في
+   المركز، واضبط `LICENSE_SYNC_URL`، ثم:
+   ```bash
+   ./manage.sh artisan license:sync-keygen   # يطبع المفتاح العام فقط
+   ./manage.sh artisan optimize:clear
+   ./manage.sh artisan license:sync
+   ./manage.sh artisan license:status
+   ```
+   **احتياطي** (المركز معطّل أو مفتاح المزامنة ملغى): تثبيت يدوي لملف من التطبيق المركزي:
    ```bash
    ./manage.sh artisan license:install storage/app/private/incoming-license.json
    ./manage.sh artisan license:status
@@ -148,6 +156,7 @@
 | `queue: stale` | `./manage.sh logs-worker`؛ `./manage.sh artisan queue:restart` |
 | `redis: fail` | `./manage.sh ps`؛ الذاكرة `REDIS_MAX_MEMORY` |
 | لافتة الترخيص «يحتاج معالجة» | `./manage.sh artisan license:status`؛ الساعة؛ ملف الترخيص من المركزي |
+| `Last sync error` في `license:status` | القسم 9 (جدول الأخطاء)؛ الترخيص الحالي يبقى ساريًا بتواريخه |
 | بيانات تالفة/محذوفة خطأً | القسم 3 (down → backup → restore) وتوثيق ما فُقد ضمن RPO |
 | اشتباه تسرب أسرار | تدوير الأسرار المعنية (لا APP_KEY دون خطة لإعادة تشفير الحقول)، مراجعة سجل التدقيق |
 
@@ -191,3 +200,36 @@
    `LICENSE_PUBLIC_KEY`/`LICENSE_KEY_ID` وأفرغ القائمة)، ثم `optimize:clear` و`license:status`. يصير القديم `retired`
    في المركز. منشأة لم تُركّب الترخيص الجديد ستفشل بـ `unknown_key` بعد الحذف، فلا تحذف قبل تأكيدها.
 5. **عند تسرّب المفتاح الخاص:** الخطوات نفسها بسرعة، وحذف القديم فور تركيب الترخيص الجديد.
+
+## 9. مزامنة الترخيص مع المركز (ADR-0047)
+
+المنشأة تطلب ترخيصها كل ساعة: `POST {LICENSE_SYNC_URL}/v1/sync` موقّعًا بمفتاح Ed25519 خاص بالمزامنة (منفصل تمامًا
+عن مفتاح توقيع التراخيص). الجسم heartbeat بحقول مغلقة (إصدار، ترخيص مركّب، عدادات مقابل الحدود، صحة)، ولا يحمل أي
+بيانات أشخاص أو عملاء أو مبيعات أو أسرار. الجواب ظرف موقّع أو `null`، ويُركَّب عبر `LicenseInstaller` بكل فحوص ADR-0004.
+
+- **الإعداد** في `src/.env`: `LICENSE_SYNC_URL` (العنوان الأساسي فقط، HTTPS خارج local/testing)،
+  و`LICENSE_SYNC_SECRET_KEY` (يكتبه `license:sync-keygen`، **سر لا يُطبع ولا يُنسخ خارج الخادم**)، و`LICENSE_DEPLOYMENT_ID`.
+  ناقص أي منها = المزامنة متوقفة، والتثبيت اليدوي يعمل.
+- **الجدولة:** `license:sync --jitter` كل ساعة مع تأخير عشوائي 0–10 دقائق، `withoutOverlapping`، في الخلفية.
+  المهلات 5 ثوانٍ للاتصال و15 للطلب، بلا إعادة محاولة داخل التشغيل. فورًا عند الحاجة: `./manage.sh artisan license:sync`.
+- **الفشل لا يغيّر حالة الترخيص أبدًا**؛ يُسجَّل فقط `Last sync at` و`Last sync error` في `license:status`
+  (حالة تشخيصية في الكاش؛ بعد مسح الكاش تظهر `never` حتى التشغيل التالي). لا حد أقصى للعمل دون اتصال.
+
+| `Last sync error` | المعنى والخطوة |
+|---|---|
+| `not_configured` | أكمل المتغيرات الثلاثة ثم `optimize:clear` |
+| `insecure_url` | `LICENSE_SYNC_URL` يجب أن يبدأ بـ `https://` |
+| `network` | DNS/جدار ناري/المركز معطّل؛ تحقق من الوصول الصادر إلى `sync.<domain>` |
+| `http_401` | المفتاح العام غير مسجّل أو ملغى، أو `LICENSE_DEPLOYMENT_ID` خطأ، أو انحراف الساعة > 300 ثانية |
+| `http_422` | المركز رفض الـ heartbeat (حقل غير معروف): إصدار الكود لا يطابق عقد المركز؛ صعّد للتطوير |
+| `http_429` / `http_5xx` | المركز مشغول أو معطّل؛ التشغيل التالي يعيد المحاولة |
+| `invalid_response` | الجواب ليس العقد المتوقع (وكيل أو صفحة خطأ في الطريق) |
+| `rejected_superseded` | ظرف أقدم من المركّب (إعادة جواب قديم): لا شيء يُركَّب؛ راجع إصدار الترخيص في المركز |
+| `rejected_deployment_mismatch` / `rejected_domain_mismatch` | الظرف لنشر أو نطاق آخر: راجع سجل النشر في المركز |
+| `rejected_unknown_key` / `rejected_bad_signature` | مفتاح توقيع غير موثوق هنا (القسم 8) أو ظرف مزوّر |
+| `install_failed` | تعذّرت كتابة ملف الترخيص: الأذونات والمساحة على `storage/app/private` |
+
+- **تدوير مفتاح المزامنة:** `license:sync-keygen --force` يكتب مفتاحًا جديدًا ويطبع العام. سجّله في المركز بجانب القديم
+  (مفتاحان نشطان كحد أقصى)، ثم `optimize:clear` و`license:sync`، ثم ألغِ القديم في المركز. حتى تسجيل العام الجديد تفشل
+  المزامنة بـ `http_401` دون أي أثر على الترخيص.
+  عند تسرّب المفتاح: ألغِه فورًا من المركز (يعيد `401`) وولّد جديدًا.
