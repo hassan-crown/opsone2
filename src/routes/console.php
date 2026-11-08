@@ -168,6 +168,14 @@ Schedule::command('ops:backup --prune')
     ->when(fn () => (bool) config('ops.backup.enabled'))
     ->withoutOverlapping(120);
 Schedule::command('ops:heartbeat')->everyMinute();
+
+// License sync with the central app (ADR-0047): hourly, a random 0–10 minute delay inside the command (in the
+// background so it never holds up other tasks), never overlapping, no retry within the run. Off until configured.
+Schedule::command('license:sync --jitter')
+    ->hourly()
+    ->when(fn () => filled(config('license.sync.url')) && filled(config('license.sync.secret_key')))
+    ->withoutOverlapping(30)
+    ->runInBackground();
 Schedule::command('ops:exports-prune')->hourly()->withoutOverlapping();
 
 Artisan::command('reports:purge-exports', function (ReportExports $exports) {

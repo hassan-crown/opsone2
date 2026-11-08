@@ -2,8 +2,12 @@
 
 namespace App\Licensing;
 
+use App\Licensing\Sync\HeartbeatCollector;
+use App\Licensing\Sync\LicenseSync;
+use App\Licensing\Sync\SyncKey;
 use Illuminate\Contracts\Cache\Repository as Cache;
 use Illuminate\Database\ConnectionInterface;
+use Illuminate\Http\Client\Factory as Http;
 use Illuminate\Support\ServiceProvider;
 
 class LicensingServiceProvider extends ServiceProvider
@@ -39,6 +43,27 @@ class LicensingServiceProvider extends ServiceProvider
             path: (string) $this->config('license.path', storage_path('app/private/license.json')),
             clockToleranceSeconds: (int) $this->config('license.clock_tolerance_seconds', 300),
             heartbeatSeconds: (int) $this->config('license.heartbeat_seconds', 60),
+        ));
+
+        $this->registerSync();
+    }
+
+    private function registerSync(): void
+    {
+        $this->app->bind(LicenseSync::class, fn ($app) => new LicenseSync(
+            http: $app->make(Http::class),
+            heartbeat: $app->make(HeartbeatCollector::class),
+            installer: $app->make(LicenseInstaller::class),
+            license: $app->make(CurrentLicense::class),
+            cache: $app->make(Cache::class),
+            url: $this->config('license.sync.url'),
+            key: SyncKey::fromBase64($this->config('license.sync.secret_key')),
+            deploymentId: $this->config('license.deployment_id'),
+            // TLS with certificate checks everywhere else (ADR-0047 §4).
+            allowInsecure: $app->environment(['local', 'testing']),
+            connectTimeoutSeconds: (int) $this->config('license.sync.connect_timeout_seconds', 5),
+            timeoutSeconds: (int) $this->config('license.sync.timeout_seconds', 15),
+            statusKey: (string) $this->config('license.sync.status_key', 'license.sync'),
         ));
     }
 

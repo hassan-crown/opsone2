@@ -1,0 +1,9 @@
+{
+    "warning": "PUBLIC TEST KEYS. Never register or use them outside local/testing.",
+    "algorithm": "Ed25519",
+    "deployment_id": "01JD5YNC00000000000000TEST",
+    "seed_sha256_of": "opsone-sync-contract-test-v1",
+    "public_key_base64": "cT+E9r98CMJ6irlGzXYkZjD37i2gJu3wxLBjls9Y0P8=",
+    "secret_key_base64": "0ac0y96dVQvua4lVON+0jYkuC9UfHG/sbOzQnL7bj+ZxP4T2v3wIwnqKuUbNdiRmMPfuLaAm7fDEsGOWz1jQ/w==",
+    "other_public_key_base64": "7S4hex4i35lHqG+7xDC+kXKk7iB6qMQUy2Cq2hbIAew="
+}

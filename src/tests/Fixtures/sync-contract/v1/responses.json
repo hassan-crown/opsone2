@@ -1,0 +1,31 @@
+{
+    "200_new_licence": {
+        "license_id": "01JD5L1CENSE0000000000000B",
+        "envelope": "{\n    \"format\": \"opsone-license\",\n    ...\n}\n"
+    },
+    "200_up_to_date": {
+        "license_id": "01JD5L1CENSE0000000000000A",
+        "envelope": null
+    },
+    "200_nothing_issued": {
+        "license_id": null,
+        "envelope": null
+    },
+    "401": {
+        "error": "unauthorized"
+    },
+    "413": {
+        "error": "payload_too_large"
+    },
+    "422": {
+        "error": "invalid_heartbeat",
+        "errors": {
+            "usage.orders_today": [
+                "is not a known field."
+            ]
+        }
+    },
+    "429": {
+        "error": "too_many_requests"
+    }
+}

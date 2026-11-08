@@ -36,4 +36,33 @@ return [
     // Renewal notices start this many days before the term ends (domain 08: 14 / 7 / 0).
     'renewal_notice_days' => 14,
 
+    /*
+    |--------------------------------------------------------------------------
+    | License sync with the central app (ADR-0047)
+    |--------------------------------------------------------------------------
+    |
+    | `license:sync` pulls the latest signed license every hour. Needs all three
+    | of: the sync base URL, this deployment's sync secret key (generated here
+    | with `license:sync-keygen`, never the license key) and LICENSE_DEPLOYMENT_ID.
+    | Unset = sync off; manual `license:install` keeps working either way.
+    |
+    */
+
+    'sync' => [
+        // Base URL, e.g. https://sync.example.com — the client posts to {url}/v1/sync. HTTPS outside local/testing.
+        'url' => env('LICENSE_SYNC_URL'),
+
+        // Base64 Ed25519 secret key (64 bytes) of this deployment's sync keypair. Secret: never print or commit it.
+        'secret_key' => env('LICENSE_SYNC_SECRET_KEY'),
+
+        'connect_timeout_seconds' => 5,
+
+        'timeout_seconds' => 15,
+
+        // The scheduled run waits a random 0..N seconds so deployments do not all call at the top of the hour.
+        'jitter_seconds' => 600,
+
+        'status_key' => 'license.sync',
+    ],
+
 ];
