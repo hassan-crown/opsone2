@@ -1,6 +1,7 @@
 import { Link, router, usePage } from '@inertiajs/react';
 import {
     Bell,
+    CircleHelp,
     FileText,
     House,
     LifeBuoy,
@@ -23,6 +24,7 @@ import {
     settings,
 } from '@/routes/customer';
 import { index as documentsIndex } from '@/routes/customer/documents';
+import { index as helpIndex } from '@/routes/customer/help';
 import { index as ordersIndex } from '@/routes/customer/orders';
 import { index as ticketsIndex } from '@/routes/customer/tickets';
 import type { PortalShared } from '@/types/portal';
@@ -69,6 +71,7 @@ export default function PortalLayout({ children }: { children: ReactNode }) {
     ];
     const tools: NavItem[] = [
         { label: 'portal.nav.updates', href: notifications().url, icon: Bell },
+        { label: 'portal.nav.help', href: helpIndex().url, icon: CircleHelp },
         { label: 'portal.nav.settings', href: settings().url, icon: Settings },
     ];
     const path = url.split('?')[0];
