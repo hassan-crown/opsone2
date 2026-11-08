@@ -11,4 +11,7 @@ enum HelpCategory: string
     case DailyWork = 'daily_work';
     case Settings = 'settings';
     case Faq = 'faq';
+
+    /** «My guide»: the walkthrough of one role (ADR-0048); listed on its own page, not in the help center sections. */
+    case RoleGuide = 'role_guide';
 }

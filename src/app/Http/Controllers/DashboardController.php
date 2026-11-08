@@ -7,6 +7,7 @@ use App\Access\Permission;
 use App\Actions\StateMachines\M02Setup\SetupSteps;
 use App\Enums\SetupStatus;
 use App\Finance\BankTransfer\BankTransferDetails;
+use App\Help\HelpPresenter;
 use App\Home\HomeWidgets;
 use App\Models\Facility;
 use App\Orders\OrderStageSummary;
@@ -43,6 +44,8 @@ class DashboardController extends Controller
             // ADR-0046: the facility has no active bank account, so customers are not told where to transfer.
             // Deferred: the alert follows the first paint and stays out of the home page's query budget.
             'bankMissing' => Inertia::defer(fn () => $facility !== null && Access::can($request->user(), Permission::P02, $facility) && BankTransferDetails::missing()),
+            // «Start here» (ADR-0048): getting-started articles this user may read, until they close it. Deferred.
+            'startHere' => Inertia::defer(fn () => HelpPresenter::startHere($request->user())),
             // Work-center frame (SHR-01): widgets this user may see, by section; domains fill them later.
             'widgets' => $widgets->visibleFor($request->user()),
             // Counts and next rows of the task cards, scoped by the same Gate checks as the lists (P5).
