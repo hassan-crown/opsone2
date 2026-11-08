@@ -25,9 +25,25 @@ final class HelpMarkdown
     public static function toHtml(string $markdown, HelpAudience $audience): string
     {
         $imageRoute = $audience === HelpAudience::Customer ? 'customer.help.image' : 'help.image';
-        $articleUrl = fn (string $slug) => $audience === HelpAudience::Customer
-            ? route('customer.help.article', ['slug' => $slug], false)
-            : route('help.article', ['article' => $slug], false);
+
+        return self::render(
+            $markdown,
+            fn (string $slug) => $audience === HelpAudience::Customer
+                ? route('customer.help.article', ['slug' => $slug], false)
+                : route('help.article', ['article' => $slug], false),
+            fn (string $file) => route($imageRoute, ['file' => $file], false),
+        );
+    }
+
+    /**
+     * Same safe rendering with caller-supplied targets (the PDF books): `$articleUrl(slug)` gives the href of a linked
+     * article, or null to drop the link and keep its text; `$imageUrl(file)` gives the src of one of our image files.
+     *
+     * @param  \Closure(string): ?string  $articleUrl
+     * @param  \Closure(string): string  $imageUrl
+     */
+    public static function render(string $markdown, \Closure $articleUrl, \Closure $imageUrl): string
+    {
 
         $environment = new Environment([
             'html_input' => 'strip',
@@ -36,21 +52,33 @@ final class HelpMarkdown
         ]);
         $environment->addExtension(new CommonMarkCoreExtension);
         $environment->addExtension(new TableExtension);
-        $environment->addEventListener(DocumentParsedEvent::class, function (DocumentParsedEvent $event) use ($imageRoute, $articleUrl) {
+        $environment->addEventListener(DocumentParsedEvent::class, function (DocumentParsedEvent $event) use ($imageUrl, $articleUrl) {
             $images = [];
+            $unlink = [];
             foreach ($event->getDocument()->iterator() as $node) {
                 if ($node instanceof Image) {
                     $images[] = $node;
                 } elseif ($node instanceof Link && preg_match(self::ARTICLE_LINK, $node->getUrl(), $m)) {
                     // The target page re-checks access; an article the reader may not read answers 404 there.
-                    $node->setUrl($articleUrl($m[1]));
+                    $url = $articleUrl($m[1]);
+                    if ($url === null) {
+                        $unlink[] = $node;
+                    } else {
+                        $node->setUrl($url);
+                    }
                 }
+            }
+            foreach ($unlink as $link) {
+                foreach (iterator_to_array($link->children(), false) as $child) {
+                    $link->insertBefore($child);
+                }
+                $link->detach();
             }
             foreach ($images as $node) {
                 $url = $node->getUrl();
                 $file = str_starts_with($url, 'images/') ? substr($url, 7) : '';
                 if (preg_match(ArticleLibrary::IMAGE, $file)) {
-                    $node->setUrl(route($imageRoute, ['file' => $file], false));
+                    $node->setUrl($imageUrl($file));
 
                     continue;
                 }
