@@ -1,8 +1,10 @@
 import { Head, Link } from '@inertiajs/react';
 import { ArrowLeft } from 'lucide-react';
 import HelpController from '@/actions/App/Http/Controllers/Help/HelpController';
+import { ArticleBody } from '@/components/help/article-body';
 import { ArticleCard } from '@/components/help/article-card';
 import type { ArticleSummary } from '@/components/help/article-card';
+import { LockedBadge } from '@/components/help/locked-badge';
 import { Icon } from '@/components/opsone/icon';
 import { PageHeader } from '@/components/opsone/page-header';
 import { Card } from '@/components/ui/card';
@@ -11,6 +13,7 @@ import { useLocale, useT } from '@/lib/i18n';
 type Props = {
     article: ArticleSummary & {
         body: string;
+        body_html: string;
         category: string;
         updated_at: string | null;
     };
@@ -43,19 +46,13 @@ export default function HelpArticle({ article, related }: Props) {
                 }
             />
             <Card className="max-w-reading p-6">
-                {/* Plain text only: paragraphs follow the article's line breaks; no HTML is ever rendered. */}
-                <div
-                    className="flex flex-col gap-3 text-body text-strong"
-                    data-test="help-article-body"
-                >
-                    {article.body
-                        .split('\n')
-                        .map((line, index) =>
-                            line.trim() === '' ? null : (
-                                <p key={index}>{line}</p>
-                            ),
-                        )}
-                </div>
+                {article.locked && (
+                    <div className="mb-4 flex flex-col items-start gap-2 rounded-lg bg-info-bg p-3 text-info-text">
+                        <LockedBadge />
+                        <p className="text-body">{t('help.locked_note')}</p>
+                    </div>
+                )}
+                <ArticleBody html={article.body_html} />
                 {updated && (
                     <p className="mt-6 text-caption text-weak">
                         {t('help.updated', { date: updated })}

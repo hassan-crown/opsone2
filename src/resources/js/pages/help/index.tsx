@@ -1,11 +1,12 @@
 import { Head, Link } from '@inertiajs/react';
-import { ChevronRight, LifeBuoy, Sparkles } from 'lucide-react';
+import { BookUser, ChevronRight, LifeBuoy, Sparkles } from 'lucide-react';
 import HelpController from '@/actions/App/Http/Controllers/Help/HelpController';
 import { EmptyState } from '@/components/opsone/empty-state';
 import { Icon } from '@/components/opsone/icon';
 import { PageHeader } from '@/components/opsone/page-header';
 import { ArticleCard } from '@/components/help/article-card';
 import type { ArticleSummary } from '@/components/help/article-card';
+import { StartHere } from '@/components/help/start-here';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { useT } from '@/lib/i18n';
@@ -15,9 +16,16 @@ import { support } from '@/routes/help';
 type Props = {
     categories: { key: string; articles: ArticleSummary[] }[];
     latest: { version: string; released_on: string; title: string } | null;
+    startHere: ArticleSummary[] | null;
+    hasGuide: boolean;
 };
 
-export default function HelpIndex({ categories, latest }: Props) {
+export default function HelpIndex({
+    categories,
+    latest,
+    startHere,
+    hasGuide,
+}: Props) {
     const t = useT();
 
     return (
@@ -27,14 +35,30 @@ export default function HelpIndex({ categories, latest }: Props) {
                 title={t('help.title')}
                 description={t('help.description')}
                 actions={
-                    <Button variant="secondary" asChild>
-                        <Link href={support()}>
-                            <Icon icon={LifeBuoy} />
-                            {t('help.support.title')}
-                        </Link>
-                    </Button>
+                    <>
+                        {hasGuide && (
+                            <Button variant="secondary" asChild>
+                                <Link href={HelpController.guide()}>
+                                    <Icon icon={BookUser} />
+                                    {t('help.guide.open')}
+                                </Link>
+                            </Button>
+                        )}
+                        <Button variant="secondary" asChild>
+                            <Link href={support()}>
+                                <Icon icon={LifeBuoy} />
+                                {t('help.support.title')}
+                            </Link>
+                        </Button>
+                    </>
                 }
             />
+
+            {startHere && (
+                <div className="mb-6">
+                    <StartHere articles={startHere} />
+                </div>
+            )}
 
             {latest && (
                 <Link
