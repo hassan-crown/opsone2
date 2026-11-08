@@ -1,0 +1,173 @@
+{
+    "contract": "opsone-license",
+    "version": 1,
+    "verifier": {
+        "kid": "opsone-contract-test",
+        "public_key": "/tZsZDI6F8YJkSbtbdqOZvjE4ah+sDoY1CfGliHwy0M=",
+        "host": "clinic.opsone.test",
+        "deployment_id": "01JCONTRACTDEPLOYMENT00001"
+    },
+    "cases": [
+        {
+            "name": "provisioning",
+            "description": "Provisioning licence: activation_id, starts_at and ends_at are null.",
+            "envelope": "envelopes/provisioning.json",
+            "status_at": [
+                {
+                    "at": "2026-01-01T08:00:00Z",
+                    "status": "provisioned"
+                },
+                {
+                    "at": "2030-01-01T00:00:00Z",
+                    "status": "provisioned"
+                }
+            ]
+        },
+        {
+            "name": "active",
+            "description": "Activated 12-month licence (grace 7, wind-down 30, retention 90): every phase boundary.",
+            "envelope": "envelopes/active.json",
+            "status_at": [
+                {
+                    "at": "2026-01-01T08:59:59Z",
+                    "status": "provisioned"
+                },
+                {
+                    "at": "2026-01-01T09:00:00Z",
+                    "status": "active"
+                },
+                {
+                    "at": "2027-01-01T08:59:59Z",
+                    "status": "active"
+                },
+                {
+                    "at": "2027-01-01T09:00:00Z",
+                    "status": "grace"
+                },
+                {
+                    "at": "2027-01-08T08:59:59Z",
+                    "status": "grace"
+                },
+                {
+                    "at": "2027-01-08T09:00:00Z",
+                    "status": "wind_down"
+                },
+                {
+                    "at": "2027-02-07T08:59:59Z",
+                    "status": "wind_down"
+                },
+                {
+                    "at": "2027-02-07T09:00:00Z",
+                    "status": "expired"
+                },
+                {
+                    "at": "2027-05-08T09:00:00Z",
+                    "status": "expired"
+                }
+            ]
+        },
+        {
+            "name": "freeze",
+            "description": "Freeze licence: ends_at = freeze moment, grace_days = 0, wind_down_days = 0; read-and-export at once.",
+            "envelope": "envelopes/freeze.json",
+            "status_at": [
+                {
+                    "at": "2026-06-15T11:59:59Z",
+                    "status": "active"
+                },
+                {
+                    "at": "2026-06-15T12:00:00Z",
+                    "status": "expired"
+                },
+                {
+                    "at": "2026-12-31T00:00:00Z",
+                    "status": "expired"
+                }
+            ]
+        },
+        {
+            "name": "unknown-field",
+            "description": "An unknown field inside schema 1 is ignored.",
+            "envelope": "envelopes/unknown-field.json",
+            "status_at": [
+                {
+                    "at": "2026-06-01T00:00:00Z",
+                    "status": "active"
+                }
+            ]
+        },
+        {
+            "name": "reissue-newer",
+            "description": "Reissue one second after the trusted \"active\" licence: accepted.",
+            "envelope": "envelopes/reissue-newer.json",
+            "trusted": "active",
+            "status_at": [
+                {
+                    "at": "2026-06-01T00:00:00Z",
+                    "status": "active"
+                }
+            ]
+        },
+        {
+            "name": "superseded",
+            "description": "Issued before the trusted \"active\" licence: rejected by the facility's stored-state check (LicenseInstaller / CurrentLicense), not by LicenseVerifier.",
+            "envelope": "envelopes/superseded.json",
+            "trusted": "active",
+            "problem": "superseded"
+        },
+        {
+            "name": "domain-mismatch",
+            "description": "The verifier host is not in domains.",
+            "envelope": "envelopes/domain-mismatch.json",
+            "problem": "domain_mismatch"
+        },
+        {
+            "name": "deployment-mismatch",
+            "description": "deployment_id differs from the configured one.",
+            "envelope": "envelopes/deployment-mismatch.json",
+            "problem": "deployment_mismatch"
+        },
+        {
+            "name": "unsupported-schema",
+            "description": "schema_version 2, validly signed.",
+            "envelope": "envelopes/unsupported-schema.json",
+            "problem": "unsupported_schema"
+        },
+        {
+            "name": "missing-field",
+            "description": "retention_days is missing.",
+            "envelope": "envelopes/missing-field.json",
+            "problem": "invalid_payload"
+        },
+        {
+            "name": "negative-limit",
+            "description": "A negative limit.",
+            "envelope": "envelopes/negative-limit.json",
+            "problem": "invalid_payload"
+        },
+        {
+            "name": "bad-signature",
+            "description": "The \"active\" envelope with one signature bit flipped.",
+            "envelope": "envelopes/bad-signature.json",
+            "problem": "bad_signature"
+        },
+        {
+            "name": "unknown-key",
+            "description": "Signed with a key id the keyring does not hold.",
+            "envelope": "envelopes/unknown-key.json",
+            "problem": "unknown_key"
+        },
+        {
+            "name": "corrupt",
+            "description": "Not JSON.",
+            "envelope": "envelopes/corrupt.json",
+            "problem": "corrupt"
+        },
+        {
+            "name": "oversize",
+            "description": "A validly signed envelope larger than 65536 bytes.",
+            "envelope": "envelopes/oversize.json",
+            "problem": "corrupt"
+        }
+    ]
+}

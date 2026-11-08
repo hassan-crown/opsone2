@@ -1,0 +1,8 @@
+{
+    "warning": "NON-SECRET test keypair for the licence contract vectors. Never trust this key outside tests.",
+    "kid": "opsone-contract-test",
+    "algorithm": "Ed25519",
+    "public_key": "/tZsZDI6F8YJkSbtbdqOZvjE4ah+sDoY1CfGliHwy0M=",
+    "secret_key": "2+eeHc/SWgbFJfXZpvIqvKA8qIsdmMM+ad4mRT+cTwH+1mxkMjoXxgmRJu1t2o5m+MThqH6wOhjUJ8aWIfDLQw==",
+    "seed": "sha256(\"opsone-contract-test/v1\")"
+}
