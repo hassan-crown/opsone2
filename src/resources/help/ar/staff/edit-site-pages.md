@@ -3,7 +3,7 @@ slug: edit-site-pages
 title: كيف أحرّر صفحة في الموقع وأنشرها
 summary: إنشاء صفحة في موقع المنشأة وتحريرها بأقسام جاهزة بالعربية والإنجليزية ثم نشرها أو إلغاء نشرها.
 category: daily_work
-roles: [owner, manager]
+roles: [owner, manager, content]
 permissions: [P-55, P-56]
 page_key: site.admin.pages.index
 order: 76

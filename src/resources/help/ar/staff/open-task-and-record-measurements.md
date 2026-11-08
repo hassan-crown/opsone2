@@ -3,7 +3,7 @@ slug: open-task-and-record-measurements
 title: كيف أفتح مهمة وأسجّل القياسات
 summary: قراءة تفاصيل المهمة ومرفقاتها، وتسجيل القياسات التقديرية والنهائية قبل إتمام مهمة القياس.
 category: daily_work
-roles: [owner, manager]
+roles: [owner, manager, supervisor, sales, executor]
 permissions: [P-24]
 page_key: tasks.index
 order: 44

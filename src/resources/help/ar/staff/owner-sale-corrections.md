@@ -3,7 +3,7 @@ slug: owner-sale-corrections
 title: كيف أصحح صاحب المبيعة أو نسبة العمولة على طلب
 summary: طلب تصحيح بسبب موثق يعتمده شخص آخر مخول، فينتقل الاستحقاق دون إعادة كتابة التاريخ.
 category: daily_work
-roles: [owner]
+roles: [owner, finance]
 permissions: [P-97, P-98]
 page_key: finance.commissions
 order: 126

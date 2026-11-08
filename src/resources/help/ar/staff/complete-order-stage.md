@@ -3,7 +3,7 @@ slug: complete-order-stage
 title: كيف أكمل مرحلة من الطلب
 summary: متابعة مراحل الطلب المخصص وإكمال المرحلة الحالية لينتقل إلى التالية.
 category: daily_work
-roles: [owner, manager]
+roles: [owner, manager, supervisor]
 permissions: [P-25]
 page_key: orders.index
 order: 13

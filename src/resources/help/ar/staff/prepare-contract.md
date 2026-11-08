@@ -3,7 +3,7 @@ slug: prepare-contract
 title: كيف أعدّ عقدًا
 summary: إنشاء عقد من الاتفاق المعتمد أو رفع عقد خارجي ليُرسل للعميل.
 category: daily_work
-roles: [owner, manager]
+roles: [owner, manager, sales]
 permissions: [P-32]
 page_key: orders.index
 order: 36

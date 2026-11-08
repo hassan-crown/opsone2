@@ -3,7 +3,7 @@ slug: assign-tasks
 title: كيف أسند مهمة أو أعيد إسنادها
 summary: إسناد مهمة غير مسندة لعضو مؤهل أو توجيهها لصندوق قسم، وإعادة إسناد مهمة قائمة.
 category: daily_work
-roles: [owner, manager]
+roles: [owner, manager, supervisor]
 permissions: [P-22, P-23]
 page_key: tasks.index
 order: 50

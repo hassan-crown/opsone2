@@ -3,7 +3,7 @@ slug: follow-interest
 title: كيف أتابع اهتمامًا وأحوّله إلى عميل
 summary: تسجيل اهتمام قبل الطلب، وتولي متابعته، ثم تحويله إلى عميل أو إغلاقه بسبب.
 category: daily_work
-roles: [owner, manager]
+roles: [owner, manager, sales]
 permissions: [P-09]
 page_key: interests.index
 order: 71

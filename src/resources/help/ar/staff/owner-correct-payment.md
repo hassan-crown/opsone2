@@ -3,7 +3,7 @@ slug: owner-correct-payment
 title: كيف أصحح أو ألغي قبضًا مؤكدًا
 summary: تصحيح مبلغ سند أو بياناته أو إلغاء قبض سُجل خطأً بحركة عكسية موثقة.
 category: daily_work
-roles: [owner]
+roles: [owner, finance]
 permissions: [P-41]
 page_key: finance.index
 order: 108

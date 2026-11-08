@@ -3,7 +3,7 @@ slug: send-signing-link
 title: كيف أرسل رابط التوقيع الإلكتروني
 summary: إرسال رابط يوقّع منه العميل العرض أو العقد إلكترونيًا بتحقق برمز، وإلغاؤه عند الحاجة.
 category: daily_work
-roles: [owner, manager]
+roles: [owner, manager, sales, field_sales]
 permissions: [P-30]
 page_key: orders.index
 order: 33

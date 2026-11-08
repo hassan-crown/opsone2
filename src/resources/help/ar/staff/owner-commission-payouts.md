@@ -3,7 +3,7 @@ slug: owner-commission-payouts
 title: كيف أصرف عمولة موظف وأسجّل إثبات الصرف
 summary: اعتماد صرف المتاح من العمولة وتسجيله بطريقة ومرجع وإثبات، أو العدول عنه أو تصحيحه.
 category: daily_work
-roles: [owner]
+roles: [owner, finance]
 permissions: [P-96, P-97]
 page_key: finance.commissions
 order: 124

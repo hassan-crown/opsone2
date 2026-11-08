@@ -3,7 +3,7 @@ slug: schedule-appointment
 title: كيف أجدول موعدًا
 summary: حجز موعد قياس أو تركيب أو تسليم أو زيارة لطلب مع أعضاء الفريق، ومعالجة تعارض الأوقات.
 category: daily_work
-roles: [owner, manager]
+roles: [owner, manager, supervisor, sales]
 permissions: [P-54]
 page_key: calendar.index
 order: 40

@@ -3,7 +3,7 @@ slug: change-agreement
 title: كيف أعدّل الاتفاق بعد اعتماده
 summary: تغيير السعر أو المواصفات أو النطاق أو الموعد بعد الاتفاق عبر تعديل يوافق عليه العميل.
 category: daily_work
-roles: [owner, manager]
+roles: [owner, manager, sales]
 permissions: [P-36]
 page_key: orders.index
 order: 35

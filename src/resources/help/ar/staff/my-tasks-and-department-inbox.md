@@ -3,7 +3,7 @@ slug: my-tasks-and-department-inbox
 title: كيف أتابع مهامي وصندوق قسمي
 summary: قراءة قائمة المهام بعروضها (مهامي، صندوق القسم، بانتظار حاجة) وتولي المهمة وبدؤها.
 category: daily_work
-roles: [owner, manager]
+roles: [owner, manager, supervisor, sales, executor]
 permissions: [P-24]
 page_key: tasks.index
 order: 43

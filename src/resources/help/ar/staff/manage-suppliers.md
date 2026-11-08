@@ -3,7 +3,7 @@ slug: manage-suppliers
 title: كيف أدير الموردين
 summary: إضافة مورد أو مصنع خارجي وتعديل بياناته وتعطيله.
 category: daily_work
-roles: [owner, manager]
+roles: [owner, manager, inventory]
 permissions: [P-45]
 page_key: suppliers.index
 order: 73

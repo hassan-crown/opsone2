@@ -3,7 +3,7 @@ slug: handle-appointment-requests
 title: كيف أتعامل مع طلبات المواعيد من العملاء
 summary: متابعة طلبات المواعيد الواردة من الموقع ومساحة العميل: إسنادها، الاتصال بالعميل، وتثبيت الموعد أو إغلاق الطلب.
 category: daily_work
-roles: [owner, manager]
+roles: [owner, manager, supervisor, sales]
 permissions: [P-54]
 page_key: appointment-requests.index
 order: 42

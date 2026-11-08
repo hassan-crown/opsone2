@@ -3,7 +3,7 @@ slug: rework-action
 title: كيف أعيد عمل إجراء مكتمل
 summary: إعادة فتح إجراء اكتمل خطأً أو تغيّر ما بُني عليه، مع تعليق الإجراءات المرتبطة.
 category: daily_work
-roles: [owner, manager]
+roles: [owner, manager, supervisor]
 permissions: [P-27]
 page_key: orders.index
 order: 16

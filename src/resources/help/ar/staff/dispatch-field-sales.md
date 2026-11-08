@@ -3,7 +3,7 @@ slug: dispatch-field-sales
 title: كيف أوزّع البيع الميداني
 summary: إسناد الاهتمامات وطلبات المواعيد المفتوحة إلى البائعين الميدانيين، ومتابعة فريقك الميداني.
 category: daily_work
-roles: [owner, manager]
+roles: [owner, manager, supervisor]
 permissions: [P-105]
 page_key: field-sales.index
 order: 52

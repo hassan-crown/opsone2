@@ -3,7 +3,7 @@ slug: owner-payment-schedule
 title: كيف أعدّل جدول دفعات الطلب أو أختار له خطة دفع
 summary: اختيار خطة جاهزة أو تحرير الدفعات يدويًا وتخصيص المقبوض على الدفعات.
 category: daily_work
-roles: [owner]
+roles: [owner, finance]
 permissions: [P-38]
 page_key: finance.index
 order: 106

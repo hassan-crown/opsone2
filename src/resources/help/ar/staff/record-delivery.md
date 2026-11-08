@@ -3,7 +3,7 @@ slug: record-delivery
 title: كيف أسجّل تسليم طلب
 summary: تسجيل ما سُلّم فعليًا للعميل مع المستلم وإثبات الاستلام، كليًا أو جزئيًا.
 category: daily_work
-roles: [owner, manager]
+roles: [owner, manager, supervisor, inventory]
 permissions: [P-52]
 page_key: deliveries.index
 order: 20
