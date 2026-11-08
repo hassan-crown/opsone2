@@ -102,7 +102,7 @@ export const consent = ({ root = '' } = {}) => `<div class="consent" data-consen
 const plans = [
   { key: 'basic', name: 'أساس', seats: 5, branches: 1, storage: '5 GB', store: false, compare: false },
   { key: 'growth', name: 'نمو', seats: 15, branches: 3, storage: '25 GB', store: true, compare: true },
-  { key: 'scale', name: 'توسع', seats: 40, branches: 10, storage: '100 GB', store: true, compare: true },
+  { key: 'scale', name: 'ريادة', seats: 40, branches: 10, storage: '100 GB', store: true, compare: true },
 ];
 export const pricing = () => `<section class="band pricing" id="pricing" aria-labelledby="pricing-title" data-pricing hidden>
   <div class="wrap">
