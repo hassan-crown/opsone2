@@ -67,6 +67,15 @@ final readonly class LicenseSnapshot
         return max(0, (int) ceil($this->at->diffInSeconds($end, false) / 86400));
     }
 
+    /**
+     * The license's display notice, only while the license itself is expired (a freeze, Q-83). It explains the
+     * banner and never changes the phase; a needs-attention problem keeps its own banner.
+     */
+    public function notice(): ?LicenseNotice
+    {
+        return $this->status === LicenseStatus::Expired ? $this->payload?->notice : null;
+    }
+
     public function phaseEndsAt(): ?CarbonImmutable
     {
         return $this->payload?->phaseEndsAt($this->at);

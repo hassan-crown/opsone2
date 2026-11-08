@@ -34,7 +34,9 @@ class ShareLicenseState
      * `mode` is what the phase leaves open (full / no_new_work / read_only); `blocked` maps the main add actions the
      * user holds to the reason they are unavailable (LicenseBlocks), so screens disable them with that reason.
      *
-     * @return array{status: string, effective_status: ?string, problem: ?string, days_remaining: ?int, phase_ends_at: ?string, show: bool, mode: string, blocked: array<string, string>}
+     * `notice` is the license's display notice (LicenseNotice, e.g. administrative_suspension) while it is expired.
+     *
+     * @return array{status: string, effective_status: ?string, problem: ?string, notice: ?string, days_remaining: ?int, phase_ends_at: ?string, show: bool, mode: string, blocked: array<string, string>}
      */
     private function banner(User $user): array
     {
@@ -45,6 +47,7 @@ class ShareLicenseState
             'status' => $snapshot->status->value,
             'effective_status' => $snapshot->effectiveStatus()?->value,
             'problem' => $snapshot->problem?->value,
+            'notice' => $snapshot->notice()?->value,
             'days_remaining' => $days,
             'phase_ends_at' => $snapshot->phaseEndsAt()?->toIso8601ZuluString(),
             'show' => $snapshot->status !== LicenseStatus::Active

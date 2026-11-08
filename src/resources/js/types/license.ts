@@ -24,11 +24,15 @@ export type LicenseBlockReason =
     | 'seats_limit'
     | 'branches_limit';
 
+/** Display-only license notice (`Licensing\LicenseNotice`); set only while the license is expired. */
+export type LicenseNotice = 'administrative_suspension';
+
 /** Shared by `ShareLicenseState` for signed-in pages (ADR-0004, ADR-0028). */
 export type LicenseBanner = {
     status: LicenseStatus;
     effective_status: LicenseStatus | null;
     problem: string | null;
+    notice: LicenseNotice | null;
     days_remaining: number | null;
     phase_ends_at: string | null;
     show: boolean;
