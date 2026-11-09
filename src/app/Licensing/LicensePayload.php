@@ -18,6 +18,14 @@ final readonly class LicensePayload
     public const array LIMIT_KEYS = ['seats', 'branches', 'storage_mb'];
 
     /**
+     * Limits added after schema 1 was issued: absent means 0, so every license already issued stays valid (ADR-0004).
+     * `ai_credits` = monthly AI credits (ADR-0050).
+     *
+     * @var list<string>
+     */
+    public const array OPTIONAL_LIMIT_KEYS = ['ai_credits'];
+
+    /**
      * @param  list<string>  $domains
      * @param  list<string>  $capabilities
      * @param  array<string, int>  $limits
@@ -70,6 +78,10 @@ final readonly class LicensePayload
 
         foreach (self::LIMIT_KEYS as $key) {
             $parsedLimits[$key] = self::count($limits, $key);
+        }
+
+        foreach (self::OPTIONAL_LIMIT_KEYS as $key) {
+            $parsedLimits[$key] = array_key_exists($key, $limits) ? self::count($limits, $key) : 0;
         }
 
         return new self(

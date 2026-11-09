@@ -2,6 +2,7 @@
 
 use App\Licensing\LicensingServiceProvider;
 use App\Providers\AccessServiceProvider;
+use App\Providers\AiServiceProvider;
 use App\Providers\AppServiceProvider;
 use App\Providers\AutomationServiceProvider;
 use App\Providers\CancellationServiceProvider;
@@ -42,4 +43,5 @@ return [
     SiteServiceProvider::class,
     OperationsServiceProvider::class,
     AutomationServiceProvider::class,
+    AiServiceProvider::class,
 ];

@@ -22,7 +22,7 @@ use Inertia\Response;
 class PlanController extends Controller
 {
     /** Capabilities the app gates on; a plan without one shows it as not included. */
-    private const CAPABILITIES = LicensedCapabilities::KNOWN;
+    private const CAPABILITIES = [...LicensedCapabilities::KNOWN, ...LicensedCapabilities::AI];
 
     public function __invoke(Request $request, CurrentLicense $license, LicenseLimits $limits): Response
     {

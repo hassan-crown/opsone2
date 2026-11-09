@@ -24,6 +24,7 @@ import {
     MapPinned,
     Hash,
     Landmark,
+    Sparkles,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import type { ComponentProps } from 'react';
@@ -32,6 +33,7 @@ import { PageHeader } from '@/components/opsone/page-header';
 import { Badge } from '@/components/ui/badge';
 import { useT } from '@/lib/i18n';
 import type { TranslationKey } from '@/lib/i18n';
+import { edit as aiSettings } from '@/routes/ai-settings';
 import { edit as integrations } from '@/routes/integrations';
 import { preferences as notificationPrefs } from '@/routes/notifications';
 import { show as ownership } from '@/routes/ownership';
@@ -209,6 +211,13 @@ export default function SettingsHome({
             icon: Mail,
             title: t('account.home.integrations.title'),
             description: t('account.home.integrations.description'),
+        });
+        facilityCards.push({
+            key: 'ai',
+            href: aiSettings(),
+            icon: Sparkles,
+            title: t('ai.settings.title'),
+            description: t('ai.settings.card'),
         });
     }
     if (can.einvoicing) {
