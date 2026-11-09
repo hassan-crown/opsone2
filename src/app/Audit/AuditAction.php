@@ -154,6 +154,11 @@ enum AuditAction: string
     case MessageTemplateSaved = 'message_template.saved';
     case MessageTemplateReset = 'message_template.reset';
     case WhatsappTemplateNamesSaved = 'integrations.whatsapp_templates_saved';
+
+    // ADR-0050: AI feature switches and decisions on AI drafts.
+    case AiSettingsChanged = 'ai.settings_changed';
+    case AiSuggestionAccepted = 'ai.suggestion_accepted';
+    case AiSuggestionRejected = 'ai.suggestion_rejected';
     case TaskSlaSettingsUpdated = 'task_sla.updated';
     case NumberFormatSaved = 'number_format.saved';
     case ConfigReleasePublished = 'config_release.published';
@@ -381,6 +386,7 @@ enum AuditAction: string
             self::FacilityProfileUpdated, self::SetupStepSaved, self::SetupCompleted,
             self::BankAccountCreated, self::BankAccountUpdated, self::BankAccountDeleted => 'settings',
             self::LicenseInstalled => 'license',
+            self::AiSettingsChanged, self::AiSuggestionAccepted, self::AiSuggestionRejected => 'ai',
             self::BackupCreated, self::BackupRestored, self::FacilityExportRequested, self::FacilityExportDownloaded => 'operations',
             self::AttachmentUploaded, self::AttachmentDownloaded => 'files',
             self::SmtpSettingsSaved, self::SmtpSettingsTested, self::SmtpEnabled, self::SmtpDisabled, self::WhatsappSettingsSaved => 'integrations',

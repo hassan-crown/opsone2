@@ -27,6 +27,9 @@ class IntegrationSetting extends Model
 
     public const WHATSAPP = 'whatsapp';
 
+    /** AI feature switches (ADR-0050 §5). Never a key: the provider key is environment-only (Q-95). */
+    public const AI = 'ai';
+
     protected $guarded = [];
 
     protected function casts(): array

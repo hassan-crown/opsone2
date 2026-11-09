@@ -23,6 +23,7 @@ use Throwable;
     {--seats= : Override the seats limit}
     {--branches= : Override the branches limit}
     {--storage-mb= : Override the storage limit}
+    {--ai-credits= : Override the monthly AI credits (ADR-0050)}
     {--retention-days=90 : Read-and-export period after wind-down}
     {--output= : Write the file here instead of installing it}')]
 #[Description('Sign and install a license with the NON-SECRET development key (local/testing only)')]
@@ -31,12 +32,14 @@ class LicenseDevIssueCommand extends Command
     /**
      * Starting point from "الباقات وحدود الاستخدام" (not commercially final).
      *
-     * @var array<string, array{capabilities: list<string>, seats: int, branches: int, storage_mb: int}>
+     * AI credits per ADR-0050 / plan §4.4 (essentials included; the `ai_plus` add-on is not in any preset).
+     *
+     * @var array<string, array{capabilities: list<string>, seats: int, branches: int, storage_mb: int, ai_credits: int}>
      */
     private const array PLANS = [
-        'basic' => ['capabilities' => [], 'seats' => 5, 'branches' => 1, 'storage_mb' => 5 * 1024],
-        'growth' => ['capabilities' => ['ready_goods', 'branch_comparisons', 'marketing_reports'], 'seats' => 15, 'branches' => 3, 'storage_mb' => 25 * 1024],
-        'scale' => ['capabilities' => ['ready_goods', 'branch_comparisons', 'marketing_reports'], 'seats' => 40, 'branches' => 10, 'storage_mb' => 100 * 1024],
+        'basic' => ['capabilities' => ['ai_core'], 'seats' => 5, 'branches' => 1, 'storage_mb' => 5 * 1024, 'ai_credits' => 300],
+        'growth' => ['capabilities' => ['ready_goods', 'branch_comparisons', 'marketing_reports', 'ai_core'], 'seats' => 15, 'branches' => 3, 'storage_mb' => 25 * 1024, 'ai_credits' => 300],
+        'scale' => ['capabilities' => ['ready_goods', 'branch_comparisons', 'marketing_reports', 'ai_core'], 'seats' => 40, 'branches' => 10, 'storage_mb' => 100 * 1024, 'ai_credits' => 600],
     ];
 
     public function handle(LicenseInstaller $installer): int
@@ -116,6 +119,7 @@ class LicenseDevIssueCommand extends Command
                 'seats' => $this->intOption('seats') ?? $preset['seats'],
                 'branches' => $this->intOption('branches') ?? $preset['branches'],
                 'storage_mb' => $this->intOption('storage-mb') ?? $preset['storage_mb'],
+                'ai_credits' => $this->intOption('ai-credits') ?? $preset['ai_credits'],
             ],
             'activation_id' => $activated ? 'dev-activation' : null,
             'starts_at' => $activated ? $starts->toIso8601ZuluString() : null,

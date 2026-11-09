@@ -190,3 +190,6 @@ Artisan::command('whatsapp:remind', function () {
 })->purpose('Remind customers before a measurement or installation');
 
 Schedule::command('whatsapp:remind')->hourly()->withoutOverlapping();
+
+// ADR-0050: AI drafts nobody acted on expire (status only; payloads stay encrypted until retention rules exist).
+Schedule::command('ai:expire-suggestions')->dailyAt('02:20')->withoutOverlapping();
