@@ -17,7 +17,9 @@ use App\Models\Inbox\ConversationMessage;
  * - The message is untrusted data: it goes in the gateway's marked block, the output is a closed enum, and nothing the
  *   model says can do more than pick a label. The model has no tools.
  * - Suspicion = the local InjectionSignals check OR the model's own flag; either one is enough, so a message that also
- *   tricks the classifier is still flagged. The flag is sticky on the conversation.
+ *   tricks the classifier is still flagged. The flag is sticky on the conversation. The local check also runs at
+ *   receipt (InboundRecorder) for every message, even with this feature off or unlicensed; here it is repeated so a
+ *   message stored by another path is covered too.
  * - Idempotent: a message is classified once. A failed or switched-off call leaves the intent empty (staff see none),
  *   the local flag still applies, and nothing is charged.
  */

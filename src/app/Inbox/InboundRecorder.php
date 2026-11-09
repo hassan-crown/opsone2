@@ -2,6 +2,7 @@
 
 namespace App\Inbox;
 
+use App\Ai\Inbox\InjectionSignals;
 use App\Ai\Inbox\IntentClassifier;
 use App\Ai\Inbox\Jobs\ClassifyInboundMessage;
 use App\Customers\Phone;
@@ -18,8 +19,9 @@ use Illuminate\Support\Facades\DB;
  *
  * Idempotent: Meta re-delivers webhooks, so the message id (`wamid…`) is unique in `conversation_messages`; a replay is
  * recognised and changes nothing (no second row, no second unread count, no second media download). The window is
- * opened from Meta's own timestamp of the message, never from a time in the future. With the AI inbox feature on, the
- * message is classified on the queue after commit (AI-4); nothing here waits for a model.
+ * opened from Meta's own timestamp of the message, never from a time in the future. Every message gets the local,
+ * model-free suspicion check (AI-4 InjectionSignals, sticky on the conversation) whatever the AI switches say; with the
+ * AI inbox feature on, it is also classified on the queue after commit. Nothing here waits for a model.
  */
 final class InboundRecorder
 {
@@ -61,8 +63,11 @@ final class InboundRecorder
             $mediaStatus = $this->acceptableType($mime) ? ConversationMessage::MEDIA_PENDING : ConversationMessage::MEDIA_REJECTED;
         }
 
+        // The local, model-free suspicion check (AI-4) runs on every message, whatever the AI switches say.
+        $suspicious = InjectionSignals::suspicious($body);
+
         try {
-            $message = DB::transaction(function () use ($id, $from, $kind, $body, $mediaId, $mime, $mediaStatus, $occurredAt, $profile) {
+            $message = DB::transaction(function () use ($id, $from, $kind, $body, $mediaId, $mime, $mediaStatus, $occurredAt, $profile, $suspicious) {
                 $conversation = $this->conversationFor($from, $profile);
 
                 $message = $conversation->messages()->create([
@@ -76,6 +81,7 @@ final class InboundRecorder
                     'media_status' => $mediaStatus,
                     'error' => $mediaStatus === ConversationMessage::MEDIA_REJECTED ? 'type' : null,
                     'occurred_at' => $occurredAt,
+                    'ai_suspicious' => $suspicious,
                 ]);
 
                 $conversation->forceFill([
@@ -83,6 +89,7 @@ final class InboundRecorder
                     'last_message_at' => $conversation->last_message_at === null || $occurredAt->isAfter($conversation->last_message_at) ? $occurredAt : $conversation->last_message_at,
                     'unread_count' => $conversation->unread_count + 1,
                     'contact_name' => $profile ?? $conversation->contact_name,
+                    'ai_flagged_at' => $conversation->ai_flagged_at ?? ($suspicious ? now() : null),
                 ])->save();
 
                 return $message;

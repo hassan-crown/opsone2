@@ -24,8 +24,10 @@ use App\Portal\PortalPresenter;
  * - The money of an order (agreed, remaining, due now, next due) only with P-37 over that order.
  * - Catalog reference prices only with P-11.
  *
- * Facts are a flat map of named fields (`order.1.remaining_halalas`) so the validators can tie every number in the
- * draft to one of them, and the screen can show which ones the draft used. The customer's own messages are NOT facts.
+ * Facts are a flat map of named fields (`order.a.remaining_halalas`) so the validators can tie every number in the
+ * draft to one of them, and the screen can show which ones the draft used. Records are labelled by letters, never by
+ * their database id, so an internal id can never pass as the source of a number. The customer's own messages are NOT
+ * facts.
  */
 final class ReplyContext
 {
@@ -66,8 +68,8 @@ final class ReplyContext
                 ->whereNotIn('orders.status', $closed)
                 ->orderByDesc('orders.id')->limit(self::MAX_ORDERS)->get();
 
-            foreach (PortalPresenter::orders($orders) as $row) {
-                $prefix = 'order.'.$row['id'];
+            foreach (PortalPresenter::orders($orders) as $i => $row) {
+                $prefix = 'order.'.self::label($i);
                 $facts[$prefix.'.number'] = (string) $row['number'];
                 $facts[$prefix.'.stage_public'] = $row['stage'];
                 $facts[$prefix.'.created_on'] = (string) $row['created_on'];
@@ -93,12 +95,23 @@ final class ReplyContext
         if (Access::canRead($user, Permission::P11)) {
             $products = CatalogProduct::query()->where('status', 'active')->whereNull('disabled_at')
                 ->whereNotNull('reference_price_minor')->orderBy('id')->limit(self::MAX_PRODUCTS)->get();
-            foreach ($products as $product) {
-                $facts['product.'.$product->id.'.name'] = (string) $product->name->get('ar');
-                $facts['product.'.$product->id.'.reference_price_halalas'] = $product->reference_price_minor;
+            foreach ($products->values() as $i => $product) {
+                $facts['product.'.self::label($i).'.name'] = (string) $product->name->get('ar');
+                $facts['product.'.self::label($i).'.reference_price_halalas'] = $product->reference_price_minor;
             }
         }
 
         return new self(array_filter($facts, fn ($v) => $v !== null && $v !== ''), $known);
+    }
+
+    /** 0 → a, 25 → z, 26 → aa: a record label without digits. */
+    public static function label(int $index): string
+    {
+        $label = '';
+        for ($n = $index; $n >= 0; $n = intdiv($n, 26) - 1) {
+            $label = chr(97 + $n % 26).$label;
+        }
+
+        return $label;
     }
 }

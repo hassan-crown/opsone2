@@ -9,7 +9,9 @@ use App\Ai\Redaction\Redactor;
  * «No number without a source» for money and dates (plan §2 axis 2, §3.3 point 4), stricter than the general
  * OutputValidator: there a number only has to appear somewhere in the facts (an order number would do); here
  *
- * - an amount (a number next to ريال / ر.س / SAR / ﷼ / هللة) must equal a money fact (`*_halalas`, in riyals);
+ * - an amount (a number next to ريال / ر.س / SAR / ﷼ / هللة, or after a money word: «المتبقي 1500», «السعر 900») must
+ *   equal a money fact (`*_halalas`, in riyals);
+ * - a number after a discount word («خصم 45», «تخفيض 10») must equal a percentage or a money fact;
  * - a percentage (%, ٪, «بالمئة») must equal a percentage fact (`*_percent`) — there is none today, so no discount
  *   or percentage the facility did not state can reach a draft;
  * - a date (2026-11-20, 20/11, 20/11/2026) must equal a date fact (`*_on`, `*_date`, `*_at`).
@@ -19,6 +21,12 @@ use App\Ai\Redaction\Redactor;
 final class FinancialCheck implements OutputCheck
 {
     private const CURRENCY = '(?:ريال|ريالات|ر\s?\.\s?س|رس\b|SAR|SR\b|﷼|هللة|هلله|halalas?)';
+
+    /** Words after which a bare number is an amount. */
+    private const MONEY_WORDS = '(?:المتبقي|متبقي|الباقي|المبلغ|مبلغ|السعر|سعر|بسعر|الإجمالي|إجمالي|اجمالي|المستحق|مستحق|الدفعة|دفعة|القسط|قسط|التكلفة|تكلفة|بتكلفة|الرسوم|رسوم|العربون|عربون|قيمة|بقيمة|يكلف|تكلف|ادفع|دفع|price|amount|total|balance|due|deposit|cost|pay)';
+
+    /** Words after which a bare number is a discount (a percentage or an amount). */
+    private const DISCOUNT_WORDS = '(?:خصم|الخصم|تخفيض|التخفيض|تنزيل|discount)';
 
     private const NUMBER = '\d{1,3}(?:[,٬]\d{3})+(?:\.\d+)?|\d+(?:\.\d+)?';
 
@@ -56,6 +64,11 @@ final class FinancialCheck implements OutputCheck
                     $problems[] = "{$path}: amount without a money fact";
                 }
             }
+            foreach (self::discounts($text) as $discount) {
+                if (! isset($percent[$discount]) && ! isset($money[$discount])) {
+                    $problems[] = "{$path}: discount without a source";
+                }
+            }
             foreach (self::percentages($text) as $p) {
                 if (! isset($percent[$p])) {
                     $problems[] = "{$path}: percentage without a source";
@@ -86,7 +99,29 @@ final class FinancialCheck implements OutputCheck
             $out[] = self::normalize($raw);
         }
 
-        return $out;
+        return [...$out, ...self::after(self::MONEY_WORDS, $text)];
+    }
+
+    /**
+     * @return list<string>
+     */
+    private static function discounts(string $text): array
+    {
+        return self::after(self::DISCOUNT_WORDS, $text);
+    }
+
+    /**
+     * Bare numbers that follow one of the words within a few characters, not part of a date («المستحق في 2026-11-20»
+     * is a date, checked as such).
+     *
+     * @return list<string>
+     */
+    private static function after(string $words, string $text): array
+    {
+        $n = self::NUMBER;
+        preg_match_all("/{$words}[^\\d\\n.؟?!،,]{0,20}?({$n})(?![\\d\\/\\-])/iu", $text, $m);
+
+        return array_map(self::normalize(...), $m[1]);
     }
 
     /**

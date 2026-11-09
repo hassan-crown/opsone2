@@ -2,8 +2,10 @@
 
 namespace App\Ai\Inbox\Jobs;
 
+use App\Ai\AiTask;
 use App\Ai\Inbox\IntentClassifier;
 use App\Ai\Inbox\ReplySuggester;
+use App\Models\Ai\AiUsage;
 use App\Models\Inbox\Conversation;
 use App\Models\Inbox\ConversationMessage;
 use App\Models\User;
@@ -13,8 +15,9 @@ use Illuminate\Foundation\Queue\Queueable;
 /**
  * AI-4 on the queue, dispatched after the inbound message is committed (InboundRecorder): classify it, then — when the
  * conversation has an assignee who may reply, the window is open and nothing is suspicious — draft a reply for that
- * assignee with their own grants. The draft waits in their composer; nothing is sent. One attempt: the gateway already
- * retries the provider, and a failure only means «no suggestion».
+ * assignee with their own grants. The draft waits in their composer; nothing is sent. Automatic drafts are capped per
+ * conversation (config ai.inbox: one per N minutes, a daily maximum). One attempt: the gateway already retries the
+ * provider, and a failure only means «no suggestion».
  */
 final class ClassifyInboundMessage implements ShouldQueue
 {
@@ -49,6 +52,26 @@ final class ClassifyInboundMessage implements ShouldQueue
             return;
         }
 
+        if (self::capped($conversation)) {
+            return;
+        }
+
         $suggester->suggest($assignee, $conversation);
+    }
+
+    /**
+     * Whether this conversation already had a reply draft attempt too recently, or too many today (any outcome).
+     */
+    public static function capped(Conversation $conversation): bool
+    {
+        $attempts = AiUsage::query()->where('task', AiTask::ReplySuggest->value)
+            ->where('subject_type', $conversation->getMorphClass())->where('subject_id', $conversation->id);
+
+        $minutes = max(0, (int) config('ai.inbox.auto_draft_minutes', 10));
+        if ($minutes > 0 && (clone $attempts)->where('created_at', '>=', now()->subMinutes($minutes))->exists()) {
+            return true;
+        }
+
+        return (clone $attempts)->where('created_at', '>=', now()->subDay())->count() >= max(0, (int) config('ai.inbox.auto_draft_daily', 10));
     }
 }

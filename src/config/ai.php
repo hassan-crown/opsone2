@@ -87,6 +87,14 @@ return [
     // wrap each case in a transaction (RefreshDatabase) set the baseline to 1 in phpunit.xml. Never raise it elsewhere.
     'transaction_baseline' => (int) env('AI_TRANSACTION_BASELINE', 0),
 
+    // AI-4: automatic reply drafts for the assignee, per conversation — at most one every `auto_draft_minutes` and
+    // `auto_draft_daily` a day (counted from ai_usage, failed attempts included), so a customer sending many messages
+    // cannot spend the facility's credits. A staff member's own «suggest a reply» is not capped here.
+    'inbox' => [
+        'auto_draft_minutes' => (int) env('AI_INBOX_AUTO_DRAFT_MINUTES', 10),
+        'auto_draft_daily' => (int) env('AI_INBOX_AUTO_DRAFT_DAILY', 10),
+    ],
+
     // A suggestion nobody acted on expires (ai_suggestions.status = expired).
     'suggestion_ttl_days' => (int) env('AI_SUGGESTION_TTL_DAYS', 14),
 
