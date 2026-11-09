@@ -32,6 +32,11 @@ final class ReportTools
 
     public const MAX_POINTS = 31;
 
+    /** Longest chart label / text cell passed on; shorter than this is not worth hiding (and would hide figures). */
+    public const MAX_LABEL = 80;
+
+    public const MIN_NAME = 4;
+
     private const CALL_KEYS = ['tool', 'period', 'from', 'to', 'branch_id', 'detail'];
 
     /**
@@ -150,11 +155,18 @@ final class ReportTools
         ];
 
         if ($call['detail']) {
+            // A point label can be free text from outside (a public UTM source, a staff name): it is hidden from the
+            // provider like any name, and bounded.
+            foreach ($built['charts'] as $chart) {
+                foreach (array_slice($chart['points'], 0, self::MAX_POINTS) as $p) {
+                    $names[] = mb_substr((string) $p['label'], 0, self::MAX_LABEL);
+                }
+            }
             $result['charts'] = array_map(fn (array $chart) => [
                 'key' => $chart['key'],
                 'unit' => $chart['unit'],
                 'points' => array_map(fn (array $p) => [
-                    'label' => $p['label'],
+                    'label' => mb_substr((string) $p['label'], 0, self::MAX_LABEL),
                     ($chart['unit'] === 'money' ? 'value_halalas' : 'value') => self::scale($chart['unit'], $p['value']),
                 ], array_slice($chart['points'], 0, self::MAX_POINTS)),
             ], $built['charts']);
@@ -165,8 +177,9 @@ final class ReportTools
                 $out = [];
                 foreach ($columns as $column) {
                     $value = $row[$column['key']] ?? null;
-                    if ($column['type'] === 'text' && is_string($value) && $value !== '' && $column['key'] !== 'branch') {
-                        $names[] = $value;
+                    if ($column['type'] === 'text' && is_string($value) && $column['key'] !== 'branch') {
+                        $names[] = mb_substr($value, 0, self::MAX_LABEL);
+                        $value = mb_substr($value, 0, self::MAX_LABEL);
                     }
                     $out[$column['type'] === 'money' ? $column['key'].'_halalas' : $column['key']] = is_numeric($value) ? self::scale($column['type'], $value) : $value;
                 }
@@ -176,7 +189,9 @@ final class ReportTools
             $result['rows_truncated'] = $built['table']['truncated'] || count($built['table']['rows']) > self::MAX_ROWS;
         }
 
-        return ['result' => $result, 'names' => array_values(array_unique($names))];
+        $names = array_values(array_unique(array_filter($names, fn (string $n) => mb_strlen($n) >= self::MIN_NAME && preg_match('/^[\d\-\/\s:.,]+$/', $n) !== 1)));
+
+        return ['result' => $result, 'names' => $names];
     }
 
     /**

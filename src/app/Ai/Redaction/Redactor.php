@@ -49,7 +49,9 @@ final class Redactor
             usort($values, fn (string $a, string $b) => mb_strlen($b) <=> mb_strlen($a));
             foreach ($values as $value) {
                 $value = trim(self::foldDigits($value));
-                if (mb_strlen($value) < 3) {
+                // Too short, or a short run of digits and separators («50», «1,200»): hiding it would hide figures
+                // (a long number such as an account number is still hidden).
+                if (mb_strlen($value) < 3 || (mb_strlen($value) < 7 && preg_match('/^[\d\s.,٫٬+\-%]+$/u', $value) === 1)) {
                     continue;
                 }
                 // Each ASCII digit of the value also matches its Eastern Arabic forms.

@@ -196,7 +196,7 @@ Schedule::command('whatsapp:remind')->hourly()->withoutOverlapping();
 Schedule::command('ai:expire-suggestions')->dailyAt('02:20')->withoutOverlapping();
 
 // AI-8: the morning digest, one queued job per owner / manager (no-op unless the facility turned it on).
-Schedule::command('ai:digest')->dailyAt('05:00')->withoutOverlapping();
+Schedule::command('ai:digest')->dailyAt('05:00')->withoutOverlapping()->onOneServer();
 
 // WhatsApp inbox (AI-3): replies whose worker died mid-send are shown as failed, never re-sent.
 Artisan::command('inbox:fail-stale', function () {

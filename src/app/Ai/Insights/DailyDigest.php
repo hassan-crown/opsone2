@@ -7,6 +7,7 @@ use App\Access\Permission;
 use App\Ai\AiCall;
 use App\Ai\AiFeature;
 use App\Ai\AiGateway;
+use App\Ai\AiOutcome;
 use App\Ai\AiTask;
 use App\Enums\MembershipStatus;
 use App\Models\Membership;
@@ -15,6 +16,7 @@ use App\Models\UserNotification;
 use App\Notifications\Notifier;
 use App\Reports\ReportScope;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
 
 /**
  * The morning digest (ADR-0050, plan axis 6): one short summary per owner / manager, built ONLY from the reports that
@@ -25,7 +27,8 @@ use Illuminate\Support\Collection;
  * Delivered as an in-app notification (and its e-mail copy, per the recipient's preference). AI-0 has no provider
  * batch path yet (AiProvider::complete only), so the nightly run queues one job per recipient (SendDailyDigest);
  * each job is one gateway call (task digest.daily, charged per recipient). A recipient gets at most one digest per
- * facility day: the notification's dedupe key is checked before the model is called.
+ * facility day: a cache lock per recipient and day is taken before the model is called and held until the notification
+ * exists, so two overlapping jobs never both call (and charge) the model; the notification's dedupe key stays the record.
  */
 final class DailyDigest
 {
@@ -41,11 +44,16 @@ final class DailyDigest
 
     public const NOTICE = 'ai.digest';
 
+    /** A digest call is bounded by the provider timeout (2 minutes); the lock outlives it and expires on its own if a worker dies. */
+    private const LOCK_SECONDS = 600;
+
     private const SYSTEM = 'You write a short morning digest in Arabic for a business owner or manager from the report figures in <facts>. '
         .'Use ONLY those figures. Every number and date you write must appear in <facts>; never compute, estimate, round or '
         .'combine figures, and never mention a metric that is absent. Amounts named *_halalas are in halalas: write them in '
         .'riyals only if that exact value is in <facts>, otherwise leave the amount out. Start with what changed yesterday, '
-        .'then the month so far, then what needs attention (overdue, late, open items). No greetings, no advice that is not '
+        .'then the month so far, then what needs attention (overdue, late, open items). Write every date exactly as YYYY-MM-DD as in '
+        .'<facts>, never a day or month alone. Give a percentage only if <facts> holds that percent value; never state a ratio or a multiple '
+        .'(ضعف, أضعاف). No greetings, no advice that is not '
         .'directly about a figure.';
 
     private const SCHEMA = [
@@ -130,6 +138,26 @@ final class DailyDigest
             return self::DUPLICATE;
         }
 
+        // Claim this recipient-day before the (slow, charged) model call; a job that finds it claimed is a duplicate.
+        $lock = Cache::lock($key.':'.$user->id, self::LOCK_SECONDS);
+        if (! $lock->get()) {
+            return self::DUPLICATE;
+        }
+
+        try {
+            // Re-check under the lock: a job that finished between the check above and the claim.
+            if (UserNotification::query()->where('user_id', $user->id)->where('dedupe_key', $key)->exists()) {
+                return self::DUPLICATE;
+            }
+
+            return $this->generate($user, $today, $key);
+        } finally {
+            $lock->release();
+        }
+    }
+
+    private function generate(User $user, string $today, string $key): string
+    {
         $facts = $this->facts($user);
         if ($facts === null) {
             return self::NOTHING_TO_REPORT;
@@ -142,10 +170,11 @@ final class DailyDigest
             schema: self::SCHEMA,
             facts: $facts,
             user: $user,
+            strictFacts: true,
         ));
 
         if (! $result->ok() || $result->output === null) {
-            return $result->outcome->value === 'feature_off' ? self::OFF : self::FAILED;
+            return $result->outcome === AiOutcome::FeatureOff ? self::OFF : self::FAILED;
         }
 
         $text = trim((string) $result->output['headline'])."\n".implode("\n", array_map(fn ($b) => '• '.trim((string) $b), (array) $result->output['bullets']));
