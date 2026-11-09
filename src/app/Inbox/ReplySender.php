@@ -14,12 +14,17 @@ use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
+use LogicException;
 
 /**
  * Queues a staff reply in a conversation (AI-3). Server-side rules, whatever the composer showed:
  * P-108 over the conversation; the inbox switched on and the provider configured; the customer not opted out
  * (STOP, ADR-0030); inside Meta's 24-hour window free text, outside it only a template the owner listed as approved,
  * with exactly its number of parameters. A repeated submit with the same key returns the first message.
+ *
+ * automatic(): the same path for the AI-6 automatic reply, which has no staff actor (sent_by stays empty) and so no
+ * P-108 check, but the same inbox/provider/opt-out guard, the window rule (free text inside it, an approved template
+ * outside it) and the same delivery job. It leaves the unread count alone: staff still see the customer's message.
  */
 final class ReplySender
 {
@@ -76,6 +81,64 @@ final class ReplySender
     }
 
     /**
+     * A fixed, already-filled automatic reply (AI-6). Inside the window `$body` goes as free text; outside it only the
+     * given approved one-parameter template is sent, carrying `$param` flattened to one line (Meta refuses template
+     * parameters with new lines, tabs or more than three spaces in a row: errors 132000/132018), or nothing (null).
+     *
+     * @param  array{name: string, language: string, params: int, label: string}|null  $template
+     */
+    public function automatic(Conversation $conversation, string $body, string $param, ?array $template, string $key): ?ConversationMessage
+    {
+        if (! $this->settings->enabled() || ! $this->transport->isConfigured() || $conversation->customer?->whatsapp_opt_out_at !== null) {
+            return null;
+        }
+        $body = trim($body);
+        $param = self::templateParam($param);
+        if ($body === '' || $param === '') {
+            return null;
+        }
+        $existing = $this->byKey($key, $conversation);
+        if ($existing !== null) {
+            return $existing;
+        }
+
+        $closed = false;
+        $message = $this->insert(null, $conversation, $key, function (Conversation $locked) use ($body, $param, $template, &$closed) {
+            if ($locked->windowOpen()) {
+                return ['type' => 'text', 'body' => $body];
+            }
+            $approved = $template === null ? null : $this->settings->template($template['name'], $template['language']);
+            if ($approved === null || $approved['params'] !== 1) {
+                $closed = true;
+
+                return null;
+            }
+
+            return [
+                'type' => 'template',
+                'template' => $approved['name'],
+                'template_language' => $approved['language'],
+                'body' => json_encode(['params' => [$param]], JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR),
+            ];
+        }, keepUnread: true);
+        if ($closed || $message === null) {
+            return null;
+        }
+
+        SendConversationMessage::dispatch($message->id);
+
+        return $message->refresh();
+    }
+
+    /**
+     * A template parameter Meta accepts: one line, no tabs, never more than one space in a row.
+     */
+    public static function templateParam(string $text): string
+    {
+        return trim((string) preg_replace('/\s+/u', ' ', $text));
+    }
+
+    /**
      * @throws AuthorizationException|ValidationException
      */
     private function guard(User $actor, Conversation $conversation): void
@@ -103,7 +166,7 @@ final class ReplySender
         }
 
         try {
-            $message = $this->insert($actor, $conversation, $key, $content);
+            $message = $this->insert($actor, $conversation, $key, $content) ?? throw new LogicException('A staff reply always has content.');
         } catch (UniqueConstraintViolationException) {
             // A concurrent submit with the same key won the insert: answer with its message, send nothing more.
             return $this->byKey($key, $conversation) ?? throw ValidationException::withMessages(['key' => __('inbox.errors.duplicate_key')]);
@@ -125,23 +188,27 @@ final class ReplySender
     }
 
     /**
-     * @param  callable(Conversation): array<string, string>  $content
+     * @param  callable(Conversation): (array<string, string>|null)  $content  null = nothing to send
      */
-    private function insert(User $actor, Conversation $conversation, string $key, callable $content): ConversationMessage
+    private function insert(?User $actor, Conversation $conversation, string $key, callable $content, bool $keepUnread = false): ?ConversationMessage
     {
-        return DB::transaction(function () use ($actor, $conversation, $key, $content) {
+        return DB::transaction(function () use ($actor, $conversation, $key, $content, $keepUnread) {
             /** @var Conversation $locked */
             $locked = Conversation::query()->lockForUpdate()->findOrFail($conversation->id);
+            $values = $content($locked);
+            if ($values === null) {
+                return null;
+            }
             $now = now();
             $message = $locked->messages()->create([
-                ...$content($locked),
+                ...$values,
                 'direction' => ConversationMessage::OUT,
                 'idempotency_key' => $key,
                 'status' => MessageStatus::Queued->value,
-                'sent_by' => $actor->id,
+                'sent_by' => $actor?->id,
                 'occurred_at' => $now,
             ]);
-            $locked->forceFill(['last_message_at' => $now, 'unread_count' => 0])->save();
+            $locked->forceFill(['last_message_at' => $now, ...($keepUnread ? [] : ['unread_count' => 0])])->save();
 
             return $message;
         });

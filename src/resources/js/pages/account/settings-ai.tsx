@@ -1,4 +1,4 @@
-import { Head, router } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
 import { useState } from 'react';
 import AiSettingsController from '@/actions/App/Http/Controllers/Ai/AiSettingsController';
 import { PageHeader } from '@/components/opsone/page-header';
@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useT } from '@/lib/i18n';
 import type { TranslationKey } from '@/lib/i18n';
+import { edit as autoReplyEdit } from '@/routes/ai-auto-reply';
 import { edit } from '@/routes/ai-settings';
 import { home } from '@/routes/settings';
 
@@ -31,6 +32,8 @@ type Props = {
     driver: string;
     /** Whether calls can actually leave the server (off until the legal review, Q-94). */
     sendsExternally: boolean;
+    /** AI-6: only the facility owner opens the automatic-reply settings (Q-92). */
+    canManageAutoReply: boolean;
 };
 
 const PRIVACY_POINTS = [
@@ -47,6 +50,7 @@ export default function SettingsAi({
     credits,
     driver,
     sendsExternally,
+    canManageAutoReply,
 }: Props) {
     const t = useT();
     const [busy, setBusy] = useState(false);
@@ -160,6 +164,18 @@ export default function SettingsAi({
                                                 `ai.feature.${feature.key}.description` as TranslationKey,
                                             )}
                                         </span>
+                                        {feature.key === 'auto_reply' &&
+                                            canManageAutoReply && (
+                                                <Link
+                                                    href={autoReplyEdit()}
+                                                    className="block text-caption text-link underline"
+                                                    data-test="auto-reply-settings-link"
+                                                >
+                                                    {t(
+                                                        'ai.autoreply.settings.card',
+                                                    )}
+                                                </Link>
+                                            )}
                                     </span>
                                 </label>
                                 {!feature.licensed && (

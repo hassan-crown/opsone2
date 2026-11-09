@@ -8,6 +8,7 @@ use App\Ai\Inbox\InboxSuggestions;
 use App\Ai\Sales\LeadAssistant;
 use App\Customers\CustomerAccess;
 use App\Files\AttachmentService;
+use App\Models\Ai\AiAutoReply;
 use App\Models\Branch;
 use App\Models\Customer;
 use App\Models\Inbox\Conversation;
@@ -64,6 +65,13 @@ final class InboxPresenter
         $customer = $c->customer;
         $canWrite = Access::can($viewer, Permission::P108, $c);
         $optedOut = $customer?->whatsapp_opt_out_at !== null;
+        // AI-6: which replies were automatic, and why a customer message was handed to staff instead (the staff note).
+        $ids = $messages->pluck('id')->all();
+        $auto = AiAutoReply::query()->where('conversation_id', $c->id)
+            ->where(fn ($q) => $q->whereIn('reply_message_id', $ids)->orWhereIn('inbound_message_id', $ids))
+            ->get(['inbound_message_id', 'reply_message_id', 'outcome', 'reason']);
+        $automatic = array_flip(array_filter($auto->pluck('reply_message_id')->all()));
+        $handoffs = $auto->where('outcome', AiAutoReply::HANDOFF)->pluck('reason', 'inbound_message_id')->all();
 
         return [
             ...self::row($c),
@@ -74,7 +82,11 @@ final class InboxPresenter
                 'url' => CustomerAccess::canViewCustomer($viewer, $customer) ? route('customers.show', $customer->id) : null,
                 'opted_out' => $optedOut,
             ],
-            'messages' => $messages->map(fn (ConversationMessage $m) => $this->message($m, $viewer))->all(),
+            'messages' => $messages->map(fn (ConversationMessage $m) => [
+                ...$this->message($m, $viewer),
+                'auto_reply' => isset($automatic[$m->id]),
+                'auto_handoff' => $handoffs[$m->id] ?? null,
+            ])->all(),
             'templates' => $this->settings->templates(),
             'configured' => $this->transport->isConfigured(),
             'can' => [

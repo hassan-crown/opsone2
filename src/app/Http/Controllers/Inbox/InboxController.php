@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Inbox;
 use App\Ai\Inbox\InboxSuggestions;
 use App\Ai\Inbox\ReplySuggester;
 use App\Ai\Inbox\SuggestOutcome;
+use App\Ai\Orders\ConversationToOrderProposer;
 use App\Customers\CustomerAccess;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Inbox\AssignConversationRequest;
@@ -86,6 +87,7 @@ final class InboxController extends Controller
         return Inertia::render('inbox/show', [
             'conversation' => $presenter->detail($conversation, $actor, $results),
             'customerQuery' => $search,
+            'orderDraft' => $this->orderDraft($actor, $conversation),
         ]);
     }
 
@@ -150,6 +152,18 @@ final class InboxController extends Controller
         $customers->link($this->actor($request), $conversation, Customer::query()->findOrFail((int) $request->validated('customer_id')));
 
         return $this->done($conversation, 'inbox.flash.linked');
+    }
+
+    /**
+     * AI-5: whether this staff member may ask for an order draft here, and their open one.
+     *
+     * @return array{available: bool, open_id: int|null}
+     */
+    private function orderDraft(User $actor, Conversation $conversation): array
+    {
+        $available = app(ConversationToOrderProposer::class)->available() && ConversationToOrderProposer::mayDraft($actor, $conversation);
+
+        return ['available' => $available, 'open_id' => $available ? ConversationToOrderProposer::open($actor, $conversation)?->id : null];
     }
 
     private function ensureEnabled(): void
