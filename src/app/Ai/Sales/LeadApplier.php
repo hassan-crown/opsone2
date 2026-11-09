@@ -31,10 +31,12 @@ final class LeadApplier
 
     /**
      * @param  array<string, mixed>  $edited  the fields as staff left them in the form
+     * @param  bool  $replaceName  on an existing lead the name is kept unless staff choose to replace it; the email only
+     *                             fills an empty one, and the qualification lines are appended to `need`, never replacing it
      *
      * @throws AuthorizationException
      */
-    public function accept(User $actor, Conversation $conversation, int $suggestionId, array $edited): Interest
+    public function accept(User $actor, Conversation $conversation, int $suggestionId, array $edited, bool $replaceName = false): Interest
     {
         if (! InboxAccess::canOpen($actor, $conversation)) {
             throw new AuthorizationException;
@@ -50,10 +52,9 @@ final class LeadApplier
         $fields = LeadFields::clean($edited);
         $mobile = Phone::normalize((string) $conversation->wa_id) ?? (string) $conversation->wa_id;
 
-        return DB::transaction(function () use ($actor, $conversation, $suggestion, $fields, $mobile) {
-            $interest = Interest::query()->where('mobile', $mobile)
-                ->whereIn('status', [InterestStatus::New->value, InterestStatus::Following->value])
-                ->where('branch_id', $conversation->branch_id)->orderByDesc('id')->lockForUpdate()->first();
+        return DB::transaction(function () use ($actor, $conversation, $suggestion, $fields, $mobile, $replaceName) {
+            $found = self::existing($conversation);
+            $interest = $found === null ? null : Interest::query()->lockForUpdate()->find($found->id);
 
             $values = array_filter([
                 'name' => $fields['name'],
@@ -71,14 +72,53 @@ final class LeadApplier
                     'branch_id' => $conversation->branch_id,
                     'customer_id' => $conversation->customer_id,
                 ]);
-            } elseif ($values !== []) {
-                $interest = $this->update->handle($actor, $interest, $values);
+            } else {
+                $changes = [];
+                if ($replaceName && isset($values['name'])) {
+                    $changes['name'] = $values['name'];
+                }
+                if (($interest->email === null || $interest->email === '') && isset($values['email'])) {
+                    $changes['email'] = $values['email'];
+                }
+                $need = self::mergeNeed((string) $interest->need, $values['need'] ?? null);
+                if ($need !== (string) $interest->need) {
+                    $changes['need'] = $need;
+                }
+                if ($changes !== []) {
+                    $interest = $this->update->handle($actor, $interest, $changes);
+                }
             }
 
             $this->suggestions->accept($suggestion, $actor, ['fields' => $fields] + array_diff_key($suggestion->payload, ['fields' => true]));
 
             return $interest;
         });
+    }
+
+    /**
+     * The conversation's open lead (same mobile and branch), if staff already have one.
+     */
+    public static function existing(Conversation $conversation): ?Interest
+    {
+        $mobile = Phone::normalize((string) $conversation->wa_id) ?? (string) $conversation->wa_id;
+
+        return Interest::query()->where('mobile', $mobile)
+            ->whereIn('status', [InterestStatus::New->value, InterestStatus::Following->value])
+            ->where('branch_id', $conversation->branch_id)->orderByDesc('id')->first();
+    }
+
+    /**
+     * Appends the qualification lines the lead does not already have.
+     */
+    private static function mergeNeed(string $current, ?string $new): string
+    {
+        if ($new === null) {
+            return $current;
+        }
+        $have = array_map('trim', explode("\n", $current));
+        $add = array_values(array_filter(explode("\n", $new), fn (string $line) => ! in_array(trim($line), $have, true)));
+
+        return $add === [] ? $current : mb_substr(rtrim($current)."\n".implode("\n", $add), 0, 4000);
     }
 
     public function reject(User $actor, Conversation $conversation, int $suggestionId): bool

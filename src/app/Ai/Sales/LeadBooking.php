@@ -44,7 +44,8 @@ final class LeadBooking
             throw ValidationException::withMessages(['slot' => __('inbox.ai.lead.errors.needs_order')]);
         }
         // Only an order of this conversation's customer, visible to the staff member.
-        $order = OrderAccess::visible($actor)->where('orders.customer_id', $conversation->customer_id)->find($orderId);
+        $order = OrderAccess::visible($actor)->where('orders.customer_id', $conversation->customer_id)
+            ->where('orders.branch_id', $conversation->branch_id)->find($orderId);
         if ($order === null) {
             throw ValidationException::withMessages(['order_id' => __('inbox.ai.lead.errors.order')]);
         }

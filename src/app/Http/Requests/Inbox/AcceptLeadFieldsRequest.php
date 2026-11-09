@@ -18,7 +18,8 @@ class AcceptLeadFieldsRequest extends FormRequest
     {
         return [
             'name' => ['nullable', 'string', 'max:120'],
-            'email' => ['nullable', 'string', 'max:190'],
+            'email' => ['nullable', 'email', 'max:190'],
+            'replace_name' => ['nullable', 'boolean'],
             'product' => ['nullable', 'string', 'max:300'],
             'district' => ['nullable', 'string', 'max:120'],
             'budget' => ['nullable', 'string', 'max:120'],

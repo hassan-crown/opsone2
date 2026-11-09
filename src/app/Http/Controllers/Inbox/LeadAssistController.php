@@ -6,6 +6,7 @@ use App\Access\Access;
 use App\Access\Permission;
 use App\Ai\Sales\LeadApplier;
 use App\Ai\Sales\LeadBooking;
+use App\Ai\Sales\LeadConversations;
 use App\Ai\Sales\LeadOutcome;
 use App\Ai\Sales\LeadQualifier;
 use App\Http\Controllers\Controller;
@@ -27,7 +28,7 @@ use Inertia\Inertia;
  */
 final class LeadAssistController extends Controller
 {
-    public function __construct(private readonly InboxSettings $settings) {}
+    public function __construct(private readonly InboxSettings $settings, private readonly LeadQualifier $qualifier) {}
 
     public function suggest(Request $request, Conversation $conversation, LeadQualifier $qualifier): RedirectResponse
     {
@@ -44,9 +45,10 @@ final class LeadAssistController extends Controller
     {
         $actor = $this->actor($request);
         $this->guard($actor, $conversation);
+        $this->leadGate($conversation);
         abort_unless(Access::can($actor, Permission::P09), 403);
 
-        $applier->accept($actor, $conversation, $suggestion, $request->validated());
+        $applier->accept($actor, $conversation, $suggestion, $request->validated(), $request->boolean('replace_name'));
 
         return $this->back($conversation, 'success', __('inbox.ai.lead.flash.accepted'));
     }
@@ -64,6 +66,7 @@ final class LeadAssistController extends Controller
     {
         $actor = $this->actor($request);
         $this->guard($actor, $conversation);
+        $this->leadGate($conversation);
         abort_unless(Access::can($actor, Permission::P54), 403);
         $data = $request->validated();
 
@@ -74,6 +77,14 @@ final class LeadAssistController extends Controller
         }
 
         return $this->back($conversation, 'success', __('inbox.ai.lead.flash.booked'));
+    }
+
+    /**
+     * Accepting and booking exist only while the sales feature is on and licensed and the conversation is a new lead.
+     */
+    private function leadGate(Conversation $conversation): void
+    {
+        abort_unless($this->qualifier->available() && LeadConversations::isNewLead($conversation), 403);
     }
 
     private function guard(User $actor, Conversation $conversation): void

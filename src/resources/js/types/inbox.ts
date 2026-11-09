@@ -79,6 +79,7 @@ export type InboxLeadPanel =
               reply: string;
               fields: Partial<Record<LeadFieldKey, string | null>>;
           } | null;
+          interest: { name: string; need: string } | null;
           slots: {
               starts_at: string;
               ends_at: string;

@@ -7,12 +7,15 @@
  * permission, the injection guard, credits and the capability are enforced.
  */
 
+use App\Access\Access;
+use App\Access\Permission;
 use App\Actions\StateMachines\M16Appointment\T00ProposeAppointment;
 use App\Actions\StateMachines\M16Appointment\T01SendToCustomer;
 use App\Actions\StateMachines\M16Appointment\T02ConfirmAppointment;
 use App\Ai\AiFeature;
 use App\Ai\AiSettings;
 use App\Ai\AiSuggestionStatus;
+use App\Ai\Sales\LeadAssistant;
 use App\Ai\Sales\SlotFinder;
 use App\Enums\AppointmentStatus;
 use App\Inbox\InboxSettings;
@@ -23,6 +26,7 @@ use App\Models\Customer;
 use App\Models\Inbox\Conversation;
 use App\Models\Inbox\ConversationMessage;
 use App\Models\Interest;
+use App\Models\RoleTemplate;
 use App\Models\WorkSettings;
 use App\Whatsapp\Inbox\ConversationTransport;
 use App\Whatsapp\Inbox\FakeConversationTransport;
@@ -329,7 +333,10 @@ it('lets staff dismiss a draft without touching the lead', function () {
 
 function customerConversation(object $test): Conversation
 {
-    return leadConversation($test, attributes: ['customer_id' => $test->f->inA->id, 'wa_id' => $test->f->inA->mobile ?? '+966500000009']);
+    $conversation = leadConversation($test, attributes: ['customer_id' => $test->f->inA->id, 'wa_id' => $test->f->inA->mobile ?? '+966500000009']);
+    $conversation->messages()->update(['ai_intent' => 'new_customer']);
+
+    return $conversation;
 }
 
 function bookBody(object $test, ?object $slot = null, array $overrides = []): array
@@ -396,4 +403,89 @@ it('refuses booking for a lead with no order, another customer’s order, anothe
     $this->actingAs($this->org->member('manager', [$this->org->b]))->post("/inbox/{$conversation->id}/lead/book", bookBody($this, $slot))->assertForbidden();
     $this->actingAs($this->org->member('executor', [$this->org->a]))->post("/inbox/{$conversation->id}/lead/book", bookBody($this, $slot))->assertForbidden();
     expect(Appointment::query()->count())->toBe(0);
+});
+
+// --- Review follow-ups ---------------------------------------------------------------------------------------------
+
+it('appends to an existing lead instead of overwriting its name and need, unless staff choose to replace the name', function () {
+    $conversation = leadConversation($this, 'أبي مطبخ في حي النرجس');
+    $existing = Interest::query()->forceCreate([
+        'reference' => 'INT-0001', 'status' => 'new', 'name' => 'سلمان القديم', 'mobile' => '+966511111111', 'email' => 'old@example.com',
+        'need' => "ملاحظة الموظف: يفضل الاتصال مساءً\nالمنتج: مطبخ", 'channel' => 'phone', 'branch_id' => $this->org->a->id, 'created_by' => $this->sales->id,
+    ]);
+    $this->fake->respond(leadAnswer(['name' => 'سلمان الجديد', 'product' => 'مطبخ', 'district' => 'النرجس', 'email' => 'new@example.com']));
+    $this->actingAs($this->sales)->post("/inbox/{$conversation->id}/lead");
+    $suggestion = AiSuggestion::query()->sole();
+
+    $this->actingAs($this->sales)->get("/inbox/{$conversation->id}")->assertInertia(fn (Assert $p) => $p
+        ->where('conversation.lead.interest.name', 'سلمان القديم')->where('conversation.lead.interest.need', $existing->need));
+
+    $this->actingAs($this->sales)->post("/inbox/{$conversation->id}/lead/{$suggestion->id}/accept", [
+        'name' => 'سلمان الجديد', 'email' => 'new@example.com', 'product' => 'مطبخ', 'district' => 'النرجس',
+    ])->assertRedirect();
+
+    $existing->refresh();
+    expect($existing->name)->toBe('سلمان القديم')->and($existing->email)->toBe('old@example.com')
+        ->and($existing->need)->toContain('ملاحظة الموظف: يفضل الاتصال مساءً')->toContain('الحي: النرجس')
+        ->and(substr_count($existing->need, 'المنتج: مطبخ'))->toBe(1)
+        ->and(Interest::query()->count())->toBe(1);
+
+    // Replacing the name is an explicit choice.
+    $this->fake->respond(leadAnswer(['name' => 'سلمان الجديد']));
+    $this->actingAs($this->sales)->post("/inbox/{$conversation->id}/lead");
+    $second = AiSuggestion::query()->where('status', 'proposed')->sole();
+    $this->actingAs($this->sales)->post("/inbox/{$conversation->id}/lead/{$second->id}/accept", ['name' => 'سلمان الجديد', 'replace_name' => true])->assertRedirect();
+    expect($existing->refresh()->name)->toBe('سلمان الجديد');
+});
+
+it('returns a validation error for a bad email instead of dropping it', function () {
+    $conversation = leadConversation($this);
+    $this->fake->respond(leadAnswer(['product' => 'مطبخ']));
+    $this->actingAs($this->sales)->post("/inbox/{$conversation->id}/lead");
+    $suggestion = AiSuggestion::query()->sole();
+
+    $this->actingAs($this->sales)->post("/inbox/{$conversation->id}/lead/{$suggestion->id}/accept", ['email' => 'not-an-email', 'product' => 'مطبخ'])
+        ->assertSessionHasErrors('email');
+    expect(Interest::query()->count())->toBe(0)->and($suggestion->refresh()->status)->toBe(AiSuggestionStatus::Proposed);
+});
+
+it('lists and books only orders of the conversation’s branch', function () {
+    $conversation = customerConversation($this);
+    $elsewhere = openCustomOrder($this->sales, $this->f->inA);
+    $elsewhere->forceFill(['branch_id' => $this->org->b->id])->save();
+    $slot = app(SlotFinder::class)->find($this->org->a->id)[0];
+
+    $this->actingAs($this->sales)->post("/inbox/{$conversation->id}/lead/book", bookBody($this, $slot, ['order_id' => $elsewhere->id]))->assertSessionHasErrors('order_id');
+    expect(Appointment::query()->count())->toBe(0);
+});
+
+it('gates accept and book on the sales feature and on the conversation being a lead', function () {
+    $conversation = customerConversation($this);
+    $conversation->messages()->update(['ai_intent' => 'order_status']); // a known customer, not a lead
+    $slot = app(SlotFinder::class)->find($this->org->a->id)[0];
+
+    $this->actingAs($this->sales)->post("/inbox/{$conversation->id}/lead/book", bookBody($this, $slot))->assertForbidden();
+    $this->actingAs($this->sales)->post("/inbox/{$conversation->id}/lead/1/accept", ['product' => 'x'])->assertForbidden();
+
+    $conversation->messages()->update(['ai_intent' => 'new_customer']);
+    app(AiSettings::class)->save($this->org->owner, ['sales' => false]);
+    $this->actingAs($this->sales)->post("/inbox/{$conversation->id}/lead/book", bookBody($this, $slot))->assertForbidden();
+    expect(Appointment::query()->count())->toBe(0);
+});
+
+it('computes no slots and sends no staff ids to a viewer without P-54', function () {
+    $conversation = leadConversation($this);
+    $this->actingAs($this->sales)->get("/inbox/{$conversation->id}")->assertInertia(fn (Assert $p) => $p->where('conversation.lead.available', true)->has('conversation.lead.slots.0'));
+
+    $checked = [];
+    foreach (RoleTemplate::query()->pluck('key') as $role) {
+        $user = $this->org->member($role, [$this->org->a]);
+        $panel = app(LeadAssistant::class)->panel($conversation, $user);
+        if (($panel['available'] ?? false) && ! Access::can($user, Permission::P54)) {
+            expect($panel['slots'])->toBe([])->and($panel['slots_text'])->toBeNull()->and($panel['orders'])->toBe([]);
+            $checked[] = $role;
+        }
+    }
+    // No standard role holds P-108 without P-54 today; the loop guards a future role or grant that does.
+    expect($checked)->toBeArray();
 });

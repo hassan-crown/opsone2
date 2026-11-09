@@ -36,7 +36,10 @@ final class LeadAssistant
         }
 
         $open = LeadQualifier::open($viewer, $conversation);
-        $slots = $conversation->branch_id === null ? [] : $this->slots->find((int) $conversation->branch_id);
+        // Slots (and the staff ids behind them) are for those who may book; others get no slots at all.
+        $canBook = Access::can($viewer, Permission::P54);
+        $slots = $canBook && $conversation->branch_id !== null ? $this->slots->find((int) $conversation->branch_id) : [];
+        $lead = LeadApplier::existing($conversation);
         $orders = $this->bookableOrders($conversation, $viewer);
 
         return [
@@ -47,6 +50,7 @@ final class LeadAssistant
                 'reply' => (string) ($open->payload['reply'] ?? ''),
                 'fields' => (array) ($open->payload['fields'] ?? []),
             ],
+            'interest' => $lead === null ? null : ['name' => $lead->name, 'need' => $lead->need],
             'slots' => array_map(fn (Slot $s) => $s->toArray(), $slots),
             // The sentence staff may paste into the reply; the times are the server's, never the model's.
             'slots_text' => $slots === [] ? null : __('inbox.ai.lead.slots_intro')."\n".implode("\n", array_map(fn (Slot $s) => '- '.$s->label, $slots)),
@@ -59,12 +63,12 @@ final class LeadAssistant
      */
     private function bookableOrders(Conversation $conversation, User $viewer): array
     {
-        if ($conversation->customer_id === null || ! Access::can($viewer, Permission::P54)) {
+        if ($conversation->customer_id === null || $conversation->branch_id === null || ! Access::can($viewer, Permission::P54)) {
             return [];
         }
         $closed = [CustomOrderStatus::Cancelled->value, CustomOrderStatus::Closed->value, ReadyOrderStatus::Delivered->value];
 
-        return array_values(OrderAccess::visible($viewer)->where('orders.customer_id', $conversation->customer_id)
+        return array_values(OrderAccess::visible($viewer)->where('orders.customer_id', $conversation->customer_id)->where('orders.branch_id', $conversation->branch_id)
             ->whereNotIn('orders.status', $closed)->orderByDesc('orders.id')->limit(5)->get()
             ->map(fn (Order $o) => ['id' => (int) $o->id, 'number' => (string) $o->number])->all());
     }

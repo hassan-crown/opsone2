@@ -19,6 +19,15 @@ const FIELD_KEYS: LeadFieldKey[] = [
     'preferred_time',
 ];
 
+const FIELD_LABELS = {
+    name: 'inbox.ai.lead.field.name',
+    email: 'inbox.ai.lead.field.email',
+    product: 'inbox.ai.lead.field.product',
+    district: 'inbox.ai.lead.field.district',
+    budget: 'inbox.ai.lead.field.budget',
+    preferred_time: 'inbox.ai.lead.field.preferred_time',
+} as const satisfies Record<LeadFieldKey, TranslationKey>;
+
 type Props = {
     conversationId: number;
     panel: InboxLeadPanel;
@@ -94,6 +103,7 @@ export function LeadAssistant({ conversationId, panel, onUse }: Props) {
                         suggestionId={s.id}
                         fields={s.fields}
                         canAccept={panel.can_accept}
+                        interest={panel.interest}
                     />
                 </div>
             )}
@@ -148,19 +158,24 @@ function LeadFieldsForm({
     suggestionId,
     fields,
     canAccept,
+    interest,
 }: {
     conversationId: number;
     suggestionId: number;
     fields: Partial<Record<LeadFieldKey, string | null>>;
     canAccept: boolean;
+    interest: { name: string; need: string } | null;
 }) {
     const t = useT();
-    const [values, setValues] = useState<Record<LeadFieldKey, string>>(
-        () =>
-            Object.fromEntries(
-                FIELD_KEYS.map((k) => [k, fields[k] ?? '']),
-            ) as Record<LeadFieldKey, string>,
-    );
+    const [values, setValues] = useState<Record<LeadFieldKey, string>>(() => ({
+        name: fields.name ?? '',
+        email: fields.email ?? '',
+        product: fields.product ?? '',
+        district: fields.district ?? '',
+        budget: fields.budget ?? '',
+        preferred_time: fields.preferred_time ?? '',
+    }));
+    const [replaceName, setReplaceName] = useState(false);
     const [busy, setBusy] = useState(false);
 
     return (
@@ -168,10 +183,31 @@ function LeadFieldsForm({
             <h3 className="text-label text-strong">
                 {t('inbox.ai.lead.fields')}
             </h3>
+            {interest && (
+                <div
+                    className="rounded-md bg-surface-weak p-2 text-caption text-weak"
+                    data-test="lead-current"
+                >
+                    <p>{t('inbox.ai.lead.current')}</p>
+                    <p className="text-strong">
+                        <bdi>{interest.name}</bdi>
+                    </p>
+                    <p className="whitespace-pre-wrap">{interest.need}</p>
+                    <p>{t('inbox.ai.lead.append_hint')}</p>
+                    <label className="mt-1 flex items-center gap-2">
+                        <input
+                            type="checkbox"
+                            checked={replaceName}
+                            onChange={(e) => setReplaceName(e.target.checked)}
+                        />
+                        {t('inbox.ai.lead.replace_name')}
+                    </label>
+                </div>
+            )}
             {FIELD_KEYS.map((k) => (
                 <TextField
                     key={k}
-                    label={t(`inbox.ai.lead.field.${k}` as TranslationKey)}
+                    label={t(FIELD_LABELS[k])}
                     name={k}
                     value={values[k]}
                     onChange={(e) =>
@@ -194,7 +230,7 @@ function LeadFieldsForm({
                                     conversation: conversationId,
                                     suggestion: suggestionId,
                                 }),
-                                values,
+                                { ...values, replace_name: replaceName },
                                 {
                                     preserveScroll: true,
                                     onFinish: () => setBusy(false),
