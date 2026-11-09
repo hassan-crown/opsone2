@@ -10,6 +10,8 @@ use App\Inbox\ReplySender;
 use App\Models\Ai\AiAutoReply;
 use App\Models\Inbox\Conversation;
 use App\Models\Inbox\ConversationMessage;
+use App\Whatsapp\MessageStatus;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Facades\DB;
 
@@ -48,9 +50,6 @@ final class AutoReplier
     public const WORKING_HOURS = 'working_hours';
 
     public const NOT_SENT = 'not_sent';
-
-    /** A follow-up naming the order is read for this long after the reply that asked which order. */
-    private const ASKED_ORDER_MINUTES = 60;
 
     public function __construct(
         private readonly AutoReplyClassifier $classifier,
@@ -96,25 +95,24 @@ final class AutoReplier
             return $this->record($conversation, $message, AiAutoReply::HANDOFF, self::CAPPED);
         }
 
-        [$intent, $confidence] = $this->followUp($conversation, $body) ?? [null, null];
-        if ($intent === null) {
-            $result = $this->classifier->classify($message);
-            if ($result === null) {
-                return $this->handoff($conversation, $message, self::CLASSIFIER);
-            }
-            if ($result['suspicious']) {
-                $this->flag($conversation, $message);
+        // Every message is classified on its own, a follow-up naming an order included: an earlier intent is never
+        // carried over to a new message.
+        $result = $this->classifier->classify($message);
+        if ($result === null) {
+            return $this->handoff($conversation, $message, self::CLASSIFIER);
+        }
+        if ($result['suspicious']) {
+            $this->flag($conversation, $message);
 
-                return $this->record($conversation, $message, AiAutoReply::SKIPPED, self::FLAGGED);
-            }
-            $intent = $result['intent'];
-            $confidence = $result['confidence'];
-            if ($intent === null) {
-                return $this->handoff($conversation, $message, self::OUT_OF_SCOPE, confidence: $confidence);
-            }
-            if ($confidence < (float) config('ai.auto_reply.min_confidence', 0.8)) {
-                return $this->handoff($conversation, $message, self::LOW_CONFIDENCE, $intent, $confidence);
-            }
+            return $this->record($conversation, $message, AiAutoReply::SKIPPED, self::FLAGGED);
+        }
+        $intent = $result['intent'];
+        $confidence = $result['confidence'];
+        if ($intent === null) {
+            return $this->handoff($conversation, $message, self::OUT_OF_SCOPE, confidence: $confidence);
+        }
+        if ($confidence < (float) config('ai.auto_reply.min_confidence', 0.8)) {
+            return $this->handoff($conversation, $message, self::LOW_CONFIDENCE, $intent, $confidence);
         }
 
         $choice = $this->settings->intent($intent);
@@ -134,41 +132,31 @@ final class AutoReplier
     }
 
     /**
-     * Messages that reached the cap today (rolling 24 hours): every automatic message counts, hand-off notes too.
+     * Whether the conversation reached the cap (rolling 24 hours): every automatic message counts, hand-off notes too,
+     * except one the provider refused (a failed send never used the customer's patience).
      */
     public function capped(Conversation $conversation): bool
     {
-        return AiAutoReply::query()->where('conversation_id', $conversation->id)->whereNotNull('reply_message_id')
-            ->where('created_at', '>=', now()->subDay())->count() >= max(0, (int) config('ai.auto_reply.daily_cap', 3));
+        return self::sentToday($conversation)->count() >= max(0, (int) config('ai.auto_reply.daily_cap', 3));
     }
 
     /**
-     * The answer to «which order?»: the previous automatic reply asked it, recently, and this message names exactly one
-     * of the customer's own open orders. Same intent, no new classification.
-     *
-     * @return array{0: AutoReplyIntent, 1: float}|null
+     * @return Builder<AiAutoReply>
      */
-    private function followUp(Conversation $conversation, string $body): ?array
+    private static function sentToday(Conversation $conversation): Builder
     {
-        $last = AiAutoReply::query()->where('conversation_id', $conversation->id)->latest('id')->first();
-        if ($last === null || $last->outcome !== AiAutoReply::SENT || $last->reason !== AutoReplyAnswers::ASKED_ORDER
-            || $last->created_at->lt(now()->subMinutes(self::ASKED_ORDER_MINUTES))) {
-            return null;
-        }
-        $intent = AutoReplyIntent::tryFrom((string) $last->intent);
-        $customer = AutoReplyAnswers::matchedCustomer($conversation);
-        if ($intent === null || $customer === null || AutoReplyAnswers::named(AutoReplyAnswers::openOrders($customer), $body) === null) {
-            return null;
-        }
+        return AiAutoReply::query()->where('conversation_id', $conversation->id)->where('created_at', '>=', now()->subDay())
+            ->whereHas('reply', fn (Builder $q) => $q->where('status', '!=', MessageStatus::Failed->value));
+    }
 
-        return [$intent, 1.0];
+    private static function noteToday(Conversation $conversation): bool
+    {
+        return self::sentToday($conversation)->where('outcome', AiAutoReply::HANDOFF)->exists();
     }
 
     private function handoff(Conversation $conversation, ConversationMessage $message, string $reason, ?AutoReplyIntent $intent = null, ?float $confidence = null): AiAutoReply
     {
-        $noteToday = AiAutoReply::query()->where('conversation_id', $conversation->id)->where('outcome', AiAutoReply::HANDOFF)
-            ->whereNotNull('reply_message_id')->where('created_at', '>=', now()->subDay())->exists();
-        if (! $this->settings->all()['handoff_note'] || $noteToday || WorkingHours::isOpen(now())) {
+        if (! $this->settings->all()['handoff_note'] || self::noteToday($conversation) || WorkingHours::isOpen(now())) {
             return $this->record($conversation, $message, AiAutoReply::HANDOFF, $reason, $intent, $confidence);
         }
 
@@ -192,10 +180,16 @@ final class AutoReplier
                 if ($this->capped($locked)) {
                     return $this->create($locked, $message, AiAutoReply::HANDOFF, self::CAPPED, $intent, $confidence);
                 }
+                // The hand-off note is once a day: re-checked here, under the lock, so two messages at once send one.
+                if ($outcome === AiAutoReply::HANDOFF && self::noteToday($locked)) {
+                    return $this->create($locked, $message, AiAutoReply::HANDOFF, $reason, $intent, $confidence);
+                }
 
                 // Every automatic message says it is automatic (fixed footer), so the customer never mistakes it for staff.
                 $body = $text."\n\n".__('ai.autoreply.reply.footer', [], AutoReplyAnswers::locale());
-                $reply = $this->sender->automatic($locked, $body, $this->settings->windowTemplate(), 'autoreply:'.$message->id);
+                // Outside the window the approved template carries the answer alone, on one line (its own text holds
+                // any footer).
+                $reply = $this->sender->automatic($locked, $body, $text, $this->settings->windowTemplate(), 'autoreply:'.$message->id);
                 if ($reply === null) {
                     return $this->create($locked, $message, AiAutoReply::HANDOFF, self::NOT_SENT, $intent, $confidence, $orderId);
                 }

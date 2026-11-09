@@ -2,15 +2,18 @@
 
 namespace App\Ai\AutoReply;
 
+use App\Access\Access;
+use App\Access\Permission;
 use App\Audit\Audit;
 use App\Audit\AuditAction;
 use App\Inbox\InboxSettings;
 use App\Models\IntegrationSetting;
+use App\Models\Membership;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 
 /**
- * The owner's automatic-reply choices (P-02, Q-92), kept in the AI settings row (`integration_settings` key `ai`,
+ * The owner's automatic-reply choices (Q-92: the facility OWNER only, holding P-02 — not a manager), kept in the AI settings row (`integration_settings` key `ai`,
  * `config.auto_reply`) next to the feature switches. Everything is off by default: each intent is switched on on its
  * own, to answer always or only outside working hours. Optional: a fixed «a colleague will answer you» note on
  * hand-off, and the approved one-parameter template used when Meta's 24-hour window has closed.
@@ -26,6 +29,20 @@ final class AutoReplySettings
     public const MODES = [self::ALWAYS, self::OUTSIDE_HOURS];
 
     public function __construct(private readonly InboxSettings $inbox) {}
+
+    /**
+     * Q-92: only the facility's owner decides whether messages are answered without staff — a manager with P-02 does
+     * not. Support identities never.
+     */
+    public static function canManage(?User $user): bool
+    {
+        if ($user === null || $user->is_support) {
+            return false;
+        }
+        $membership = Membership::query()->where('user_id', $user->id)->first();
+
+        return $membership !== null && $membership->isOwner() && Access::can($user, Permission::P02);
+    }
 
     /**
      * @return array{intents: array<string, array{enabled: bool, mode: string}>, handoff_note: bool, template: array{name: string, language: string}|null}

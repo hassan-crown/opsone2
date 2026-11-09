@@ -2,9 +2,7 @@
 
 namespace App\Http\Controllers\Ai;
 
-use App\Access\Access;
 use App\Access\Contracts\LicenseCapabilities;
-use App\Access\Permission;
 use App\Ai\AiFeature;
 use App\Ai\AiSettings;
 use App\Ai\AutoReply\AutoReplyIntent;
@@ -19,14 +17,14 @@ use Inertia\Inertia;
 use Inertia\Response;
 
 /**
- * Settings → AI → automatic reply (AI-6, P-02, Q-92): per intent on/off and «always» or «outside working hours
+ * Settings → AI → automatic reply (AI-6, Q-92: the facility owner only): per intent on/off and «always» or «outside working hours
  * only», the optional hand-off note, and the approved template for a closed window. Everything is off by default.
  */
 class AutoReplySettingsController extends Controller
 {
     public function edit(Request $request, AutoReplySettings $settings, AiSettings $ai, LicenseCapabilities $license, InboxSettings $inbox): Response
     {
-        abort_unless(Access::can($request->user(), Permission::P02), 403);
+        abort_unless(AutoReplySettings::canManage($request->user()), 403);
         $values = $settings->all();
         $work = WorkSettings::current();
 

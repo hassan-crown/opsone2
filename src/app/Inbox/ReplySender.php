@@ -81,18 +81,20 @@ final class ReplySender
     }
 
     /**
-     * A fixed, already-filled automatic reply (AI-6). Inside the window it goes as free text; outside it only as the
-     * given approved one-parameter template carrying the same text, or not at all (null).
+     * A fixed, already-filled automatic reply (AI-6). Inside the window `$body` goes as free text; outside it only the
+     * given approved one-parameter template is sent, carrying `$param` flattened to one line (Meta refuses template
+     * parameters with new lines, tabs or more than three spaces in a row: errors 132000/132018), or nothing (null).
      *
      * @param  array{name: string, language: string, params: int, label: string}|null  $template
      */
-    public function automatic(Conversation $conversation, string $body, ?array $template, string $key): ?ConversationMessage
+    public function automatic(Conversation $conversation, string $body, string $param, ?array $template, string $key): ?ConversationMessage
     {
         if (! $this->settings->enabled() || ! $this->transport->isConfigured() || $conversation->customer?->whatsapp_opt_out_at !== null) {
             return null;
         }
         $body = trim($body);
-        if ($body === '') {
+        $param = self::templateParam($param);
+        if ($body === '' || $param === '') {
             return null;
         }
         $existing = $this->byKey($key, $conversation);
@@ -101,7 +103,7 @@ final class ReplySender
         }
 
         $closed = false;
-        $message = $this->insert(null, $conversation, $key, function (Conversation $locked) use ($body, $template, &$closed) {
+        $message = $this->insert(null, $conversation, $key, function (Conversation $locked) use ($body, $param, $template, &$closed) {
             if ($locked->windowOpen()) {
                 return ['type' => 'text', 'body' => $body];
             }
@@ -116,7 +118,7 @@ final class ReplySender
                 'type' => 'template',
                 'template' => $approved['name'],
                 'template_language' => $approved['language'],
-                'body' => json_encode(['params' => [$body]], JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR),
+                'body' => json_encode(['params' => [$param]], JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR),
             ];
         }, keepUnread: true);
         if ($closed || $message === null) {
@@ -126,6 +128,14 @@ final class ReplySender
         SendConversationMessage::dispatch($message->id);
 
         return $message->refresh();
+    }
+
+    /**
+     * A template parameter Meta accepts: one line, no tabs, never more than one space in a row.
+     */
+    public static function templateParam(string $text): string
+    {
+        return trim((string) preg_replace('/\s+/u', ' ', $text));
     }
 
     /**

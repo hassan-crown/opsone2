@@ -8,14 +8,19 @@
  * settings (P-02) audited; every automatic message audited.
  */
 
+use App\Access\Access;
+use App\Access\Permission;
 use App\Actions\StateMachines\M16Appointment\T01SendToCustomer;
 use App\Ai\AiFeature;
+use App\Ai\AiRequest;
+use App\Ai\AiResponse;
 use App\Ai\AutoReply\AutoReplier;
 use App\Ai\AutoReply\AutoReplyIntent;
 use App\Ai\AutoReply\AutoReplySettings;
 use App\Ai\AutoReply\Jobs\AutoReplyToMessage;
 use App\Ai\Drivers\FakeAiProvider;
 use App\Inbox\InboxSettings;
+use App\Inbox\ReplySender;
 use App\Models\Ai\AiAutoReply;
 use App\Models\AuditEvent;
 use App\Models\Customer;
@@ -253,10 +258,14 @@ it('asks which order among the customer\'s own, then answers the one they name',
         ->and($asked->reply->body)->toContain($second->number)
         ->and($asked->reply->body)->not->toContain($this->f->orderB->number);
 
-    // The follow-up is not classified again: it names one of their orders.
-    $answer = arReply(arMessage($c, $second->number));
+    // The follow-up is classified on its own: an earlier intent is never carried over.
+    arIntent($this->fake, 'handoff');
+    expect(arReply(arMessage($c, $second->number))->reason)->toBe(AutoReplier::OUT_OF_SCOPE);
+
+    arIntent($this->fake, 'order_status');
+    $answer = arReply(arMessage($c, 'وين طلب '.$second->number.'؟'));
     expect($answer->outcome)->toBe(AiAutoReply::SENT)->and($answer->order_id)->toBe($second->id);
-    $this->fake->assertSentCount(1);
+    $this->fake->assertSentCount(3);
 });
 
 // --- Cap, groups, flags, confidence --------------------------------------------------------------------------------
@@ -275,6 +284,51 @@ it('sends at most 3 automatic messages per conversation a day, then hands off', 
     $this->fake->assertSentCount(3);
 
     $this->travel(25)->hours();
+    arIntent($this->fake, 'location');
+    expect(arReply(arMessage($c, 'وين موقعكم؟'))->outcome)->toBe(AiAutoReply::SENT);
+});
+
+it('re-counts the cap under the conversation lock, so two messages processed at once cannot pass it together', function () {
+    arEnable($this, intents: ['location']);
+    $c = arConversation($this->f->a);
+    foreach (range(1, 2) as $i) {
+        arIntent($this->fake, 'location');
+        arReply(arMessage($c, 'وين موقعكم؟ '.$i));
+    }
+
+    // Two jobs pass the first cap check (2 of 3 sent) at the same time. While B waits for its classification (outside
+    // any lock), A's job commits the third automatic message; B must then find the cap reached under the lock.
+    $a = arMessage($c, 'وين موقعكم؟ أ');
+    $b = arMessage($c, 'وين موقعكم؟ ب');
+    $this->fake->respondWith(function (AiRequest $request) use ($c, $a) {
+        $reply = $c->messages()->create([
+            'direction' => ConversationMessage::OUT, 'type' => 'text', 'idempotency_key' => 'autoreply:'.$a->id,
+            'body' => 'A', 'status' => 'queued', 'occurred_at' => now(),
+        ]);
+        AiAutoReply::query()->create([
+            'conversation_id' => $c->id, 'inbound_message_id' => $a->id, 'outcome' => AiAutoReply::SENT,
+            'intent' => 'location', 'reply_message_id' => $reply->id,
+        ]);
+
+        return new AiResponse((string) json_encode(['intent' => 'location', 'confidence' => 0.95, 'suspicious' => false]), AiResponse::STOP_END, $request->model);
+    });
+    $decisionB = arReply($b);
+
+    expect($decisionB->outcome)->toBe(AiAutoReply::HANDOFF)
+        ->and($decisionB->reason)->toBe(AutoReplier::CAPPED)
+        ->and($decisionB->reply_message_id)->toBeNull()
+        ->and(arOutbound())->toHaveCount(3);
+});
+
+it('does not count a message the provider refused toward the cap', function () {
+    arEnable($this, intents: ['location']);
+    $c = arConversation($this->f->a);
+    foreach (range(1, 3) as $i) {
+        arIntent($this->fake, 'location');
+        arReply(arMessage($c, 'وين موقعكم؟ '.$i));
+    }
+    ConversationMessage::query()->where('direction', ConversationMessage::OUT)->orderBy('id')->first()?->forceFill(['status' => 'failed'])->save();
+
     arIntent($this->fake, 'location');
     expect(arReply(arMessage($c, 'وين موقعكم؟'))->outcome)->toBe(AiAutoReply::SENT);
 });
@@ -356,8 +410,24 @@ it('outside the 24-hour window sends only the approved template, or nothing', fu
         ->and($decision->reply->type)->toBe('template')
         ->and($decision->reply->template)->toBe('auto_answer')
         ->and(json_decode((string) $decision->reply->body, true)['params'])->toBe([
-            arExpected('ai.autoreply.reply.location', ['facility' => 'منشأة الاختبار', 'address' => 'الرياض، طريق الملك فهد']),
+            // The answer alone, without the footer (the approved template holds its own wording).
+            __('ai.autoreply.reply.location', ['facility' => 'منشأة الاختبار', 'address' => 'الرياض، طريق الملك فهد'], 'ar'),
         ]);
+});
+
+it('flattens a closed-window template parameter to one line Meta accepts', function () {
+    arEnable($this, intents: ['order_status'], template: ['name' => 'auto_answer', 'language' => 'ar']);
+    // Several open orders: the «which order» answer; and a stage name typed with a line break and spaces.
+    openCustomOrder($this->f->sales, $this->f->a);
+    $c = arConversation($this->f->a);
+    $message = arMessage($c, "وين\nطلبي؟");
+    $c->forceFill(['last_inbound_at' => now()->subHours(25)])->save();
+    arIntent($this->fake, 'order_status');
+
+    $param = json_decode((string) arReply($message)->reply->body, true)['params'][0];
+
+    expect($param)->not->toMatch('/[\r\n\t]/')->and($param)->not->toMatch('/ {2,}/')->and($param)->not->toBe('')
+        ->and(ReplySender::templateParam("أ\n\n\tب    ج "))->toBe('أ ب ج');
 });
 
 // --- Hand-off note, audit, idempotency -----------------------------------------------------------------------------
@@ -397,10 +467,18 @@ it('decides once per inbound message', function () {
 
 // --- Settings ------------------------------------------------------------------------------------------------------
 
-it('lets only P-02 holders see and change the settings, off by default, audited', function () {
+it('lets only the facility owner see and change the settings (not a P-02 manager), off by default, audited', function () {
     $this->get('/settings/ai/auto-reply')->assertRedirect();
     $this->actingAs($this->f->sales)->get('/settings/ai/auto-reply')->assertForbidden();
     $this->actingAs($this->f->sales)->put('/settings/ai/auto-reply', ['intents' => [], 'handoff_note' => true])->assertForbidden();
+    // Q-92: a manager holds P-02 but is not the owner.
+    expect(Access::can($this->f->manager, Permission::P02))->toBeTrue();
+    $this->actingAs($this->f->manager)->get('/settings/ai/auto-reply')->assertForbidden();
+    $this->actingAs($this->f->manager)->put('/settings/ai/auto-reply', ['intents' => [], 'handoff_note' => true])->assertForbidden();
+    $this->actingAs($this->f->manager)->get('/settings/ai')->assertOk()
+        ->assertInertia(fn ($p) => $p->where('canManageAutoReply', false));
+    $this->actingAs($this->owner)->get('/settings/ai')->assertOk()
+        ->assertInertia(fn ($p) => $p->where('canManageAutoReply', true));
     expect(app(AutoReplySettings::class)->all()['handoff_note'])->toBeFalse();
 
     $this->actingAs($this->owner)->get('/settings/ai/auto-reply')->assertOk()

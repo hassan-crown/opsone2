@@ -2,8 +2,6 @@
 
 namespace App\Http\Requests\Ai;
 
-use App\Access\Access;
-use App\Access\Permission;
 use App\Ai\AutoReply\AutoReplyIntent;
 use App\Ai\AutoReply\AutoReplySettings;
 use App\Inbox\InboxSettings;
@@ -16,7 +14,7 @@ class UpdateAutoReplySettingsRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return Access::can($this->user(), Permission::P02);
+        return AutoReplySettings::canManage($this->user());
     }
 
     /**
