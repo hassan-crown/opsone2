@@ -1,4 +1,4 @@
-import { Head, router } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
 import { useState } from 'react';
 import AiSettingsController from '@/actions/App/Http/Controllers/Ai/AiSettingsController';
 import { PageHeader } from '@/components/opsone/page-header';
@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useT } from '@/lib/i18n';
 import type { TranslationKey } from '@/lib/i18n';
+import { edit as autoReplyEdit } from '@/routes/ai-auto-reply';
 import { edit } from '@/routes/ai-settings';
 import { home } from '@/routes/settings';
 
@@ -160,6 +161,17 @@ export default function SettingsAi({
                                                 `ai.feature.${feature.key}.description` as TranslationKey,
                                             )}
                                         </span>
+                                        {feature.key === 'auto_reply' && (
+                                            <Link
+                                                href={autoReplyEdit()}
+                                                className="block text-caption text-link underline"
+                                                data-test="auto-reply-settings-link"
+                                            >
+                                                {t(
+                                                    'ai.autoreply.settings.card',
+                                                )}
+                                            </Link>
+                                        )}
                                     </span>
                                 </label>
                                 {!feature.licensed && (

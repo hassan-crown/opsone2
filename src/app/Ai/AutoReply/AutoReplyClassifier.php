@@ -41,8 +41,9 @@ final class AutoReplyClassifier
     }
 
     /**
-     * @return array{intent: AutoReplyIntent|null, confidence: float, suspicious: bool}|null null = no answer (off,
-     *                                                                                        failed, invalid): hand off
+     * Null = no usable answer (feature off, provider failure, invalid output): the message goes to staff.
+     *
+     * @return array{intent: AutoReplyIntent|null, confidence: float, suspicious: bool}|null
      */
     public function classify(ConversationMessage $message): ?array
     {

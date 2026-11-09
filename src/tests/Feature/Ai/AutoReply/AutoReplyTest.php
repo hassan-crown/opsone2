@@ -11,6 +11,7 @@
 use App\Actions\StateMachines\M16Appointment\T01SendToCustomer;
 use App\Ai\AiFeature;
 use App\Ai\AutoReply\AutoReplier;
+use App\Ai\AutoReply\AutoReplyIntent;
 use App\Ai\AutoReply\AutoReplySettings;
 use App\Ai\AutoReply\Jobs\AutoReplyToMessage;
 use App\Ai\Drivers\FakeAiProvider;
@@ -195,11 +196,10 @@ it('answers every intent only with its template', function () {
             'status' => __('ai.autoreply.appointment_status.awaiting_confirmation', [], 'ar'),
         ]),
     ];
-    if ($due > 0) {
-        $cases['payment_due'] = fn () => arExpected('ai.autoreply.reply.payment_due', [
-            'number' => $order->number, 'amount' => Money::of($due)->toInput(), 'link' => route('customer.orders.pay', ['order' => $order->id]),
-        ]);
-    }
+    expect($due)->toBeGreaterThan(0);
+    $cases['payment_due'] = fn () => arExpected('ai.autoreply.reply.payment_due', [
+        'number' => $order->number, 'amount' => Money::of($due)->toInput(), 'link' => route('customer.orders.pay', ['order' => $order->id]),
+    ]);
 
     foreach ($cases as $intent => $expected) {
         $c = arConversation($this->f->a, ['wa_id' => $this->f->a->mobile]);
@@ -223,11 +223,10 @@ it('gives personal facts only when the number is the customer\'s own, and never 
     arIntent($this->fake, 'order_status');
     expect(arReply(arMessage($c, 'وين طلبي؟'))->reason)->toBe('unknown_customer');
 
-    // A number two customers share proves nothing.
-    Customer::factory()->create(['branch_id' => $this->f->a->branch_id, 'mobile' => $this->f->b->mobile]);
-    $cb = arConversation($this->f->b);
+    // An unknown number (no customer linked) gets nothing personal either.
+    $unknown = Conversation::query()->create(['wa_id' => '+966599999997', 'last_inbound_at' => now(), 'last_message_at' => now()]);
     arIntent($this->fake, 'payment_due');
-    expect(arReply(arMessage($cb, 'كم علي؟'))->reason)->toBe('unknown_customer');
+    expect(arReply(arMessage($unknown, 'كم علي؟'))->reason)->toBe('unknown_customer');
 
     // Customer A naming B's order gets only their own order.
     $ca = arConversation($this->f->a);
@@ -421,7 +420,7 @@ it('lets only P-02 holders see and change the settings, off by default, audited'
         'template' => null,
     ])->assertSessionHasNoErrors();
 
-    expect(app(AutoReplySettings::class)->intent(\App\Ai\AutoReply\AutoReplyIntent::OrderStatus))->toBe(['enabled' => true, 'mode' => 'always'])
+    expect(app(AutoReplySettings::class)->intent(AutoReplyIntent::OrderStatus))->toBe(['enabled' => true, 'mode' => 'always'])
         ->and(AuditEvent::query()->where('action', 'ai.settings_changed')->where('subject_label', 'AI auto reply')->count())->toBe(1);
     // Saving the feature switches keeps the auto-reply choices.
     Ai::enable($this->owner, AiFeature::AutoReply);

@@ -161,9 +161,7 @@ export default function SettingsAiAutoReply({
                                     </span>
                                 </label>
                                 <select
-                                    aria-label={t(
-                                        'ai.autoreply.settings.mode',
-                                    )}
+                                    aria-label={t('ai.autoreply.settings.mode')}
                                     className="field-control w-56 text-control"
                                     value={intent.mode}
                                     disabled={!intent.enabled}

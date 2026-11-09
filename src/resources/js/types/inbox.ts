@@ -44,6 +44,10 @@ export type ConversationMessageView = {
     ai_intent: string | null;
     ai_suspicious: boolean;
     from_suggestion: boolean;
+    /** AI-6: sent by the automatic reply (a fixed template). */
+    auto_reply: boolean;
+    /** AI-6: why the automatic reply handed this customer message to staff. */
+    auto_handoff: string | null;
     occurred_at: string;
 };
 

@@ -81,15 +81,16 @@ final class AutoReplyAnswers
 
     /**
      * The customer this conversation's number belongs to, or null when it cannot be proven: not linked, linked to a
-     * customer with another number (a manual link), or a number shared by several customers.
+     * customer with another number (a manual link), or (defensively) a number several customers share.
      */
     public static function matchedCustomer(Conversation $conversation): ?Customer
     {
         $customer = $conversation->customer;
-        if ($customer === null || $customer->mobile === null || $customer->mobile !== $conversation->wa_id) {
+        if ($customer === null || $customer->mobile !== $conversation->wa_id) {
             return null;
         }
 
+        // customers.mobile is unique today; the count stays as a guard should that ever change.
         return Customer::query()->where('mobile', $conversation->wa_id)->count() === 1 ? $customer : null;
     }
 
@@ -111,7 +112,7 @@ final class AutoReplyAnswers
     public static function named(Collection $orders, string $body): ?Order
     {
         $text = mb_strtoupper(strtr($body, ['٠' => '0', '١' => '1', '٢' => '2', '٣' => '3', '٤' => '4', '٥' => '5', '٦' => '6', '٧' => '7', '٨' => '8', '٩' => '9']));
-        $found = $orders->filter(fn (Order $o) => $o->number !== null && $o->number !== '' && str_contains($text, mb_strtoupper($o->number)));
+        $found = $orders->filter(fn (Order $o) => $o->number !== '' && str_contains($text, mb_strtoupper($o->number)));
 
         return $found->count() === 1 ? $found->first() : null;
     }
