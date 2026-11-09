@@ -56,6 +56,8 @@ class SettingsHomeController extends Controller
                 'closure' => ClosureAccess::allows($user),
                 'einvoicing' => ZatcaAccess::manages($user),
                 'rules' => RulesAccess::canView($user),
+                // AI-1: the setup proposal is the onboarding specialist's (P-104).
+                'aiSetup' => RulesAccess::canEdit($user),
             ],
             // ADR-0046: remind whoever can add one that customers see no transfer details yet.
             'bankMissing' => Access::can($user, Permission::P02) && BankTransferDetails::missing(),

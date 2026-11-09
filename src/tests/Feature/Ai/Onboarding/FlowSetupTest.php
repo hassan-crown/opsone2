@@ -9,6 +9,7 @@
 
 use App\Ai\AiFeature;
 use App\Ai\AiOutcome;
+use App\Ai\AiSettings;
 use App\Ai\AiSuggestionStatus;
 use App\Ai\Onboarding\ApplyFlowSetup;
 use App\Ai\Onboarding\FlowDraftProposer;
@@ -26,6 +27,7 @@ use App\Workflow\FlowProvisioner;
 use App\Workflow\FlowTemplates;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Validation\ValidationException;
 use Tests\Support\Ai;
 use Tests\Support\Org;
 
@@ -34,6 +36,7 @@ require_once __DIR__.'/FlowSetupHelpers.php';
 uses(RefreshDatabase::class);
 
 beforeEach(function () {
+    $this->withoutVite();
     $this->org = Org::make();
     Ai::license(credits: 100);
     Ai::enable($this->org->owner, AiFeature::FlowSetup);
@@ -42,7 +45,7 @@ beforeEach(function () {
 });
 
 it('proposes a draft with the fake driver that passes FlowCheck and ConfigCheck, charged as an included task', function () {
-    $this->fake->respond(flowSetupOutput());
+    $this->fake->respond(flowSetupOutput(rules: [['recipe' => 'payment_reminder_3d', 'param' => 3, 'why' => 'تذكير']]));
 
     $this->actingAs($this->org->owner)
         ->post('/settings/ai-setup', ['description' => flowSetupDescription(), 'base_template' => FlowTemplates::IN_HOUSE])
@@ -155,7 +158,7 @@ it('runs ConfigCheck against the proposed flow: a plan missing a due the flow wa
         ->and(array_keys($checks['config_errors']))->toContain('payment_plans.ai_setup.lines');
 
     expect(fn () => app(ApplyFlowSetup::class)->handle($this->org->owner, $setup, true, [], Flow::current()->lock_version))
-        ->toThrow(Illuminate\Validation\ValidationException::class);
+        ->toThrow(ValidationException::class);
     expect(Flow::current()->status)->toBe(FlowStatus::Published);
 
     // Without the plan the flow alone is valid and may be applied.
@@ -196,7 +199,7 @@ it('enforces P-104 on the server for every route and in the action', function ()
 });
 
 it('sends nothing when the feature is off, and falls back to the manual path on a failure', function () {
-    app(App\Ai\AiSettings::class)->save($this->org->owner, ['flow_setup' => false]);
+    app(AiSettings::class)->save($this->org->owner, ['flow_setup' => false]);
 
     $this->actingAs($this->org->owner)->post('/settings/ai-setup', ['description' => flowSetupDescription()])
         ->assertSessionHasErrors('description');
@@ -235,7 +238,7 @@ it('passes the specialist’s answers to the next proposal and never applies a r
     $this->actingAs($this->org->owner)->post("/settings/ai-setup/{$setup->id}/reject")->assertRedirect();
     expect($setup->fresh()->status)->toBe(AiFlowSetup::REJECTED);
     expect(fn () => app(ApplyFlowSetup::class)->handle($this->org->owner, $setup->fresh(), true, [], Flow::current()->lock_version))
-        ->toThrow(Illuminate\Validation\ValidationException::class);
+        ->toThrow(ValidationException::class);
 
     $this->fake->respond(flowSetupOutput());
     $this->actingAs($this->org->owner)->post('/settings/ai-setup', [

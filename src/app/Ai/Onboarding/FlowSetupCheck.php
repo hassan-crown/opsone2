@@ -83,7 +83,8 @@ final class FlowSetupCheck
      */
     public function diff(array $payload): array
     {
-        $stages = (array) ($payload['flow']['stages'] ?? []);
+        /** @var list<array<string, mixed>> $stages */
+        $stages = array_values((array) ($payload['flow']['stages'] ?? []));
         try {
             $config = PaymentPlans::assumingFlow($stages, fn () => ConfigDiff::between(ConfigSnapshot::capture(), self::candidate($payload)));
         } catch (ValidationException) {

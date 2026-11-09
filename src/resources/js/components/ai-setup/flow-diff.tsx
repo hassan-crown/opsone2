@@ -43,16 +43,22 @@ export function FlowDiff({ stages }: { stages: FlowStageChange[] }) {
                             {stage.name}
                         </span>
                         <Badge variant={VARIANT[stage.change]}>
-                            {t(`ai_setup.change.${stage.change}` as TranslationKey)}
+                            {t(
+                                `ai_setup.change.${stage.change}` as TranslationKey,
+                            )}
                         </Badge>
                         {stage.origin && (
                             <Badge variant="info">
-                                {t(`ai_setup.origin.${stage.origin}` as TranslationKey)}
+                                {t(
+                                    `ai_setup.origin.${stage.origin}` as TranslationKey,
+                                )}
                             </Badge>
                         )}
                         {stage.target_days !== null && (
                             <span className="text-caption text-weak">
-                                {t('ai_setup.days', { days: stage.target_days })}
+                                {t('ai_setup.days', {
+                                    days: stage.target_days,
+                                })}
                                 {stage.before_days !== null &&
                                     stage.before_days !== stage.target_days &&
                                     ` (${t('ai_setup.days_before', { days: stage.before_days })})`}
@@ -77,7 +83,9 @@ export function FlowDiff({ stages }: { stages: FlowStageChange[] }) {
                                     </span>
                                     {action.change !== 'same' && (
                                         <Badge variant={VARIANT[action.change]}>
-                                            {t(`ai_setup.change.${action.change}` as TranslationKey)}
+                                            {t(
+                                                `ai_setup.change.${action.change}` as TranslationKey,
+                                            )}
                                         </Badge>
                                     )}
                                 </li>

@@ -302,7 +302,10 @@ export default function AiSetup({
                         )}
 
                         {setup.status === 'applied' && (
-                            <Alert variant="success" data-test="ai-setup-applied">
+                            <Alert
+                                variant="success"
+                                data-test="ai-setup-applied"
+                            >
                                 <AlertBody>
                                     <AlertDescription>
                                         {t('ai_setup.applied_note')}{' '}
@@ -389,7 +392,10 @@ export default function AiSetup({
                                 )}
 
                                 {/* 3. Checks and differences */}
-                                <div className="space-y-3" data-test="ai-setup-checks">
+                                <div
+                                    className="space-y-3"
+                                    data-test="ai-setup-checks"
+                                >
                                     <h3 className="text-body-strong text-strong">
                                         {t('ai_setup.step.checks')}
                                     </h3>
@@ -405,13 +411,20 @@ export default function AiSetup({
                                                     <ul className="mt-2 list-disc ps-5">
                                                         {checks?.flow_issues.map(
                                                             (issue, i) => (
-                                                                <li key={`f${i}`}>
-                                                                    {issue.message}
+                                                                <li
+                                                                    key={`f${i}`}
+                                                                >
+                                                                    {
+                                                                        issue.message
+                                                                    }
                                                                 </li>
                                                             ),
                                                         )}
                                                         {configErrors.map(
-                                                            ([path, message]) => (
+                                                            ([
+                                                                path,
+                                                                message,
+                                                            ]) => (
                                                                 <li key={path}>
                                                                     {message}
                                                                 </li>
@@ -436,7 +449,9 @@ export default function AiSetup({
                                         <h3 className="text-body-strong text-strong">
                                             {t('ai_setup.plan')}
                                         </h3>
-                                        <PlanLines plan={proposal.payment_plan} />
+                                        <PlanLines
+                                            plan={proposal.payment_plan}
+                                        />
                                         <CheckboxField
                                             label={t('ai_setup.include_plan')}
                                             checked={includePlan}
@@ -460,11 +475,16 @@ export default function AiSetup({
                                                 key={rule.key}
                                                 label={rule.name}
                                                 hint={rule.why || undefined}
-                                                checked={rules.includes(rule.key)}
+                                                checked={rules.includes(
+                                                    rule.key,
+                                                )}
                                                 onChange={(e) =>
                                                     setRules(
                                                         e.target.checked
-                                                            ? [...rules, rule.key]
+                                                            ? [
+                                                                  ...rules,
+                                                                  rule.key,
+                                                              ]
                                                             : rules.filter(
                                                                   (k) =>
                                                                       k !==
@@ -496,7 +516,9 @@ export default function AiSetup({
                                         <Alert variant="warning">
                                             <AlertBody>
                                                 <AlertDescription>
-                                                    {t('ai_setup.replaces_draft')}
+                                                    {t(
+                                                        'ai_setup.replaces_draft',
+                                                    )}
                                                 </AlertDescription>
                                             </AlertBody>
                                         </Alert>
@@ -508,7 +530,9 @@ export default function AiSetup({
                                                     <ul className="list-disc ps-5">
                                                         {applyErrors.map(
                                                             ([k, m]) => (
-                                                                <li key={k}>{m}</li>
+                                                                <li key={k}>
+                                                                    {m}
+                                                                </li>
                                                             ),
                                                         )}
                                                     </ul>

@@ -6,6 +6,7 @@ use App\Ai\AiCall;
 use App\Ai\AiGateway;
 use App\Ai\AiOutcome;
 use App\Ai\AiTask;
+use App\Ai\Contracts\AiEvalBuilder;
 use Illuminate\Console\Attributes\Description;
 use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
@@ -22,6 +23,8 @@ use JsonException;
  *
  * Line format: {"id", "task", "system", "instruction", "schema", "facts"?, "untrusted"?, "known"?,
  *               "expect": {"outcome"?: "ok", "equals"?: {"dot.path": value}, "not_contains"?: [text]}}
+ * or, for a feature that builds its own call: {"id", "builder": "<name in ai.eval_builders>", ...feature fields,
+ *               "expect": {...}} — the builder makes the real call and may add its own checks (AiEvalBuilder).
  */
 #[Signature('ai:eval {axis? : Fixture file name without .jsonl (all when omitted)} {--limit=0 : At most N examples per axis} {--confirm-cost : Required when the driver sends requests}')]
 #[Description('Run the AI evaluation examples (manual; costs money with a real driver)')]
@@ -72,6 +75,10 @@ class AiEvalCommand extends Command
                 }
 
                 $problems = $this->check($result->outcome, $result->output, $expect);
+                $builder = is_array($example) ? self::builder($example) : null;
+                if ($builder !== null && $result->ok()) {
+                    $problems = [...$problems, ...$builder->problems($example, $result->output)];
+                }
                 $failures += $problems === [] ? 0 : 1;
                 $rows[] = [$label, $result->outcome->value, $problems === [] ? 'pass' : implode('; ', $problems)];
             }
@@ -89,6 +96,15 @@ class AiEvalCommand extends Command
      */
     private function parse(array $e): array
     {
+        $builder = self::builder($e);
+        if ($builder !== null) {
+            if (! is_array($e['expect'] ?? null)) {
+                throw new \InvalidArgumentException('expect is required');
+            }
+
+            return [$builder->build($e), $e['expect']];
+        }
+
         $task = AiTask::tryFrom((string) ($e['task'] ?? '')) ?? throw new \InvalidArgumentException('unknown task');
         foreach (['system', 'instruction'] as $key) {
             if (! is_string($e[$key] ?? null) || $e[$key] === '') {
@@ -108,6 +124,22 @@ class AiEvalCommand extends Command
             untrusted: array_values(array_filter((array) ($e['untrusted'] ?? []), 'is_string')),
             known: is_array($e['known'] ?? null) ? $e['known'] : [],
         ), $e['expect']];
+    }
+
+    /**
+     * @param  array<mixed>  $e
+     */
+    private static function builder(array $e): ?AiEvalBuilder
+    {
+        if (! isset($e['builder'])) {
+            return null;
+        }
+        $class = config('ai.eval_builders.'.(string) $e['builder']);
+        if (! is_string($class) || ! is_a($class, AiEvalBuilder::class, true)) {
+            throw new \InvalidArgumentException('unknown builder');
+        }
+
+        return app($class);
     }
 
     /**

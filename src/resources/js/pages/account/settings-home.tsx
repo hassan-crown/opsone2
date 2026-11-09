@@ -33,6 +33,7 @@ import { PageHeader } from '@/components/opsone/page-header';
 import { Badge } from '@/components/ui/badge';
 import { useT } from '@/lib/i18n';
 import type { TranslationKey } from '@/lib/i18n';
+import { show as aiSetup } from '@/routes/ai-setup';
 import { edit as aiSettings } from '@/routes/ai-settings';
 import { edit as integrations } from '@/routes/integrations';
 import { preferences as notificationPrefs } from '@/routes/notifications';
@@ -86,6 +87,7 @@ type Props = {
         closure: boolean;
         einvoicing: boolean;
         rules: boolean;
+        aiSetup: boolean;
     };
     pendingTransferForMe: boolean;
     pendingSupportRequests: number;
@@ -218,6 +220,15 @@ export default function SettingsHome({
             icon: Sparkles,
             title: t('ai.settings.title'),
             description: t('ai.settings.card'),
+        });
+    }
+    if (can.aiSetup) {
+        facilityCards.push({
+            key: 'ai-setup',
+            href: aiSetup(),
+            icon: Sparkles,
+            title: t('ai_setup.title'),
+            description: t('ai_setup.card'),
         });
     }
     if (can.einvoicing) {

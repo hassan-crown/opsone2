@@ -1,5 +1,7 @@
 <?php
 
+use App\Ai\Onboarding\FlowEvalBuilder;
+
 /*
 | AI assistant (ADR-0050, plan docs/analysis/ai-v1-plan.md §3). Everything here comes from the environment: the
 | provider key lives in src/.env of this deployment only (Q-95) — never in the database, the license or the UI.
@@ -90,4 +92,9 @@ return [
 
     // Manual evaluation set (plan §3.6). Runs cost money with a real driver; see `php artisan ai:eval --help`.
     'eval_path' => base_path('tests/AiEval/fixtures'),
+
+    // Fixture lines with `"builder": "<name>"` get their call from the feature itself (App\Ai\Contracts\AiEvalBuilder).
+    'eval_builders' => [
+        'flow' => FlowEvalBuilder::class,
+    ],
 ];

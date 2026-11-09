@@ -35,7 +35,9 @@ export function PlanLines({ plan }: { plan: ProposedPlan }) {
                                   })}
                         </span>
                         <span className="text-weak">
-                            {t(`ai_setup.event.${line.event}` as TranslationKey)}
+                            {t(
+                                `ai_setup.event.${line.event}` as TranslationKey,
+                            )}
                             {line.stage_key && ` · ${line.stage_key}`}
                         </span>
                     </li>

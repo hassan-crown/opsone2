@@ -12,6 +12,18 @@
  "expect": {"outcome": "ok", "equals": {"intent": "order_status"}, "not_contains": ["50%"]}}
 ```
 
+### أمثلة تبني استدعاءها بنفسها (`builder`)
+
+سطر فيه `"builder": "<name>"` (مسجّل في `ai.eval_builders`) لا يحمل التعليمات والمخطط، بل يبنيها الكود الإنتاجي نفسه، فلا
+ينحرف المثال عن التعليمات الحالية. مثال المحور 1 (`flow.jsonl`، المنشئ `App\Ai\Onboarding\FlowEvalBuilder`):
+
+```json
+{"id": "kitchens-najdi", "builder": "flow", "task": "flow.propose", "sector": "kitchens", "description": "احنا معرض مطابخ…",
+ "expect": {"outcome": "ok", "flow_check": true, "equals": {"base_template": "retail_kitchens"}}}
+```
+
+`flow_check: true` يحوّل الإجابة إلى مسودة ويمرّرها على FlowCheck وConfigCheck مقابل المسار المنشور في قاعدة التشغيل.
+
 ## التشغيل
 
 ```bash
@@ -27,7 +39,7 @@
 
 | الملف             | المحور                  | الحد الأدنى              | الموجود الآن  |
 | ----------------- | ----------------------- | ----------------------- | ------------ |
-| `flow.jsonl`      | 1 بناء المسار           | 30 وصفاً عبر 9 قطاعات    | يُضاف مع AI-1 |
+| `flow.jsonl`      | 1 بناء المسار           | 30 وصفاً عبر 9 قطاعات    | 30 (9 قطاعات) |
 | `reply.jsonl`     | 2 الرد المقترح          | 100 محادثة              | 1 (هيكل)     |
 | `order.jsonl`     | 3 من المحادثة إلى الطلب | 60 محادثة بصور          | يُضاف مع AI-5 |
 | `intent.jsonl`    | 4 تصنيف النية           | 200 رسالة               | 4 (هيكل)     |
