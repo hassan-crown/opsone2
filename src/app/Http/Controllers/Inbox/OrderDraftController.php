@@ -25,6 +25,11 @@ use LogicException;
  * «مسودة طلب من المحادثة» (AI-5): ask for a draft, review it, see the server's prices, then create the order through
  * the normal Action or reject the draft. A draft belongs to the staff member it was made for; anyone else gets 404.
  * Every request needs the inbox on and the conversation open to the actor (P-108 in scope).
+ *
+ * Only `propose` needs the AI to be available (feature switch, `ai_plus`, credits — checked by the gateway). Showing,
+ * pricing, confirming and rejecting an existing draft make no AI call, so they keep working after the facility switches
+ * the feature off or the license loses `ai_plus`: a draft already reviewed by a staff member can still become an order
+ * through the normal Action, or be rejected. The button to ask for a new draft disappears.
  */
 final class OrderDraftController extends Controller
 {
@@ -70,7 +75,8 @@ final class OrderDraftController extends Controller
     public function confirm(OrderDraftRequest $request, Conversation $conversation, int $draft, ConfirmOrderDraft $confirm): JsonResponse|RedirectResponse
     {
         $actor = $this->open($request, $conversation);
-        $suggestion = $this->draft($actor, $conversation, $draft);
+        // Not only open drafts: a retry after a lost response replays the created orders (ConfirmOrderDraft).
+        $suggestion = ConversationToOrderProposer::own($actor, $conversation, $draft) ?? abort(404);
         abort_unless(ConversationToOrderProposer::mayDraft($actor, $conversation), 403);
 
         $ids = $confirm->handle($actor, $conversation->load('customer'), $suggestion, $request->draftData());

@@ -6,6 +6,7 @@ use App\Actions\Orders\CreateOrders;
 use App\Ai\AiSuggestions;
 use App\Ai\AiSuggestionStatus;
 use App\Models\Ai\AiSuggestion;
+use App\Models\IdempotencyKey;
 use App\Models\Inbox\Conversation;
 use App\Models\User;
 use App\Support\LockingTransaction;
@@ -72,9 +73,21 @@ final class ConfirmOrderDraft
         return LockingTransaction::run(function () use ($actor, $conversation, $draft, $data, $orderData) {
             /** @var AiSuggestion|null $locked */
             $locked = AiSuggestion::query()->lockForUpdate()->find($draft->id);
-            if ($locked === null || $locked->status !== AiSuggestionStatus::Proposed || $locked->requested_by !== $actor->id
-                || $locked->subject_id !== $conversation->id || ($locked->expires_at !== null && $locked->expires_at->isPast())) {
+            if ($locked === null || $locked->requested_by !== $actor->id || $locked->subject_id !== $conversation->id) {
                 throw ValidationException::withMessages(['draft' => __('inbox.order_draft.closed')]);
+            }
+            if ($locked->status !== AiSuggestionStatus::Proposed || ($locked->expires_at !== null && $locked->expires_at->isPast())) {
+                // A retry of a confirmation whose response was lost: same key and payload → the same orders, nothing
+                // new (CreateOrders replays from its idempotency row). Any other attempt on a closed draft is refused.
+                $done = in_array($locked->status, [AiSuggestionStatus::Accepted, AiSuggestionStatus::Edited], true)
+                    && IdempotencyKey::query()->where('scope', CreateOrders::IDEMPOTENCY_SCOPE)->where('user_id', $actor->id)
+                        ->where('key', (string) $data['idempotency_key'])->whereNotNull('result')->exists();
+                if (! $done) {
+                    throw ValidationException::withMessages(['draft' => __('inbox.order_draft.closed')]);
+                }
+                ['result' => $result] = $this->create->handle($actor, (string) $data['idempotency_key'], $orderData, self::SOURCE);
+
+                return array_map('intval', $result['order_ids']);
             }
 
             ['result' => $result] = $this->create->handle($actor, (string) $data['idempotency_key'], $orderData, self::SOURCE);

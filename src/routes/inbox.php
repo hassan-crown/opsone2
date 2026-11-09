@@ -14,7 +14,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('inbox/{conversation}', [InboxController::class, 'show'])->whereNumber('conversation')->name('inbox.show');
     // AI-5: the staff member's own order draft from the conversation (review screen).
     Route::get('inbox/{conversation}/order-draft/{draft}', [OrderDraftController::class, 'show'])->whereNumber(['conversation', 'draft'])->name('inbox.order-draft.show');
-    Route::post('inbox/{conversation}/order-draft/{draft}/price', [OrderDraftController::class, 'price'])->whereNumber(['conversation', 'draft'])->name('inbox.order-draft.price');
+    // The price preview runs on every edit (debounced): its own per-user limit, apart from the create limit.
+    Route::post('inbox/{conversation}/order-draft/{draft}/price', [OrderDraftController::class, 'price'])->whereNumber(['conversation', 'draft'])->middleware('throttle:search')->name('inbox.order-draft.price');
 
     Route::middleware('throttle:records-create')->group(function () {
         Route::post('inbox/{conversation}/replies', [InboxController::class, 'reply'])->whereNumber('conversation')->name('inbox.reply');

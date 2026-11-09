@@ -21,6 +21,7 @@ use App\Models\Inbox\Conversation;
 use App\Models\Inbox\ConversationMessage;
 use App\Models\User;
 use App\Orders\OrderAccess;
+use Illuminate\Support\Facades\DB;
 
 /**
  * «من المحادثة إلى الطلب» (AI-5, `order.draft`, standard tier, weight 4): reads a WhatsApp conversation and proposes a
@@ -167,13 +168,20 @@ final class ConversationToOrderProposer
             return new SuggestOutcome(SuggestOutcome::NO_SUGGESTION);
         }
 
-        $this->supersede($user, $conversation);
-        $suggestion = $this->suggestions->propose(AiTask::OrderDraft, $result, [
+        $payload = [
             'need_summary' => mb_substr(trim((string) $result->output['need_summary']), 0, 500),
             'needs_measurement' => (bool) $result->output['needs_measurement'],
             'lines' => $lines,
             'last_message_id' => $messages->last()?->id,
-        ], $user, $conversation);
+        ];
+        // One open draft per staff member and conversation: two proposals racing each other queue on the
+        // conversation row, so the second expires the first instead of both staying open.
+        $suggestion = DB::transaction(function () use ($user, $conversation, $result, $payload) {
+            Conversation::query()->whereKey($conversation->id)->lockForUpdate()->first();
+            $this->supersede($user, $conversation);
+
+            return $this->suggestions->propose(AiTask::OrderDraft, $result, $payload, $user, $conversation);
+        });
 
         return new SuggestOutcome(SuggestOutcome::READY, $suggestion);
     }
@@ -191,6 +199,18 @@ final class ConversationToOrderProposer
             ->where(fn ($q) => $q->whereNull('expires_at')->orWhere('expires_at', '>', now()))
             ->when($id !== null, fn ($q) => $q->whereKey($id))
             ->latest('id')->first();
+    }
+
+    /**
+     * The staff member's own order draft for this conversation in any state (for replaying a confirmation).
+     */
+    public static function own(User $user, Conversation $conversation, int $id): ?AiSuggestion
+    {
+        return AiSuggestion::query()
+            ->where('task', AiTask::OrderDraft->value)
+            ->where('subject_type', $conversation->getMorphClass())->where('subject_id', $conversation->id)
+            ->where('requested_by', $user->id)
+            ->whereKey($id)->first();
     }
 
     private function supersede(User $user, Conversation $conversation): void

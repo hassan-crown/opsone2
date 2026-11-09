@@ -390,10 +390,54 @@ it('creates the orders through CreateOrders only when the staff member confirms,
     expect($draft->refresh()->status)->toBeIn([AiSuggestionStatus::Accepted, AiSuggestionStatus::Edited])
         ->and($draft->decided_by)->toBe($this->managerA->id);
 
-    // The draft is closed: a second confirm creates nothing.
+    // The draft is closed: a second confirm (a new submission, another key) creates nothing.
     $this->actingAs($this->managerA)->postJson("/inbox/{$draft->subject_id}/order-draft/{$draft->id}/confirm", c2oConfirmPayload($this))
-        ->assertNotFound();
+        ->assertUnprocessable()->assertJsonValidationErrors('draft');
     expect(Order::query()->count())->toBe(2);
+});
+
+it('replays the same orders when a confirmation is retried with the same key after a lost response', function () {
+    $draft = c2oDraft($this);
+    $payload = c2oConfirmPayload($this);
+    $url = "/inbox/{$draft->subject_id}/order-draft/{$draft->id}/confirm";
+
+    $first = $this->actingAs($this->managerA)->postJson($url, $payload)->assertCreated()->json('order_ids');
+    $again = $this->actingAs($this->managerA)->postJson($url, $payload)->assertCreated()->json('order_ids');
+
+    expect($again)->toBe($first)
+        ->and(Order::query()->count())->toBe(2)
+        ->and(Order::query()->orderBy('id')->pluck('id')->all())->toBe($first);
+
+    // The same key with another payload is refused, and nobody else may replay it.
+    $changed = $payload;
+    $changed['lines'][1]['quantity'] = '9';
+    $this->actingAs($this->managerA)->postJson($url, $changed)->assertUnprocessable();
+    $this->actingAs($this->managerA2)->postJson($url, $payload)->assertNotFound();
+    expect(Order::query()->count())->toBe(2);
+});
+
+it('keeps an existing draft usable after the feature is switched off, without any AI call', function () {
+    $draft = c2oDraft($this);
+    app(AiSettings::class)->save($this->org->owner, [AiFeature::ConversationToOrder->value => false]);
+    $sent = count($this->fake->sent());
+    $base = "/inbox/{$draft->subject_id}/order-draft/{$draft->id}";
+
+    $this->actingAs($this->managerA)->get($base)->assertOk();
+    $this->actingAs($this->managerA)->postJson($base.'/price', c2oConfirmPayload($this))->assertOk();
+    $this->actingAs($this->managerA)->postJson($base.'/confirm', c2oConfirmPayload($this))->assertCreated();
+    // Asking for a new draft is what is off.
+    $this->actingAs($this->managerA)->post("/inbox/{$draft->subject_id}/order-draft")->assertRedirect("/inbox/{$draft->subject_id}");
+
+    expect(Order::query()->count())->toBe(2)
+        ->and(count($this->fake->sent()))->toBe($sent);
+});
+
+it('keeps one open draft per staff member and conversation', function () {
+    $first = c2oDraft($this);
+    $second = c2oDraft($this, Conversation::query()->sole());
+
+    expect($first->refresh()->status)->toBe(AiSuggestionStatus::Expired)
+        ->and(AiSuggestion::query()->where('status', AiSuggestionStatus::Proposed->value)->pluck('id')->all())->toBe([$second->id]);
 });
 
 it('records the staff member’s edits on the draft', function () {
