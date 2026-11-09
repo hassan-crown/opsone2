@@ -2,6 +2,7 @@ import { Form, Head, Link, router, usePage } from '@inertiajs/react';
 import { Paperclip, ShieldAlert, Sparkles } from 'lucide-react';
 import { useState } from 'react';
 import InboxController from '@/actions/App/Http/Controllers/Inbox/InboxController';
+import OrderDraftController from '@/actions/App/Http/Controllers/Inbox/OrderDraftController';
 import {
     SelectField,
     TextareaField,
@@ -23,12 +24,21 @@ import type {
     ConversationMessageView,
 } from '@/types/inbox';
 
-type Props = { conversation: ConversationDetail; customerQuery: string };
+type Props = {
+    conversation: ConversationDetail;
+    customerQuery: string;
+    /** AI-5: drafting an order from the chat, for this staff member. */
+    orderDraft?: { available: boolean; open_id: number | null };
+};
 
 const newKey = () => crypto.randomUUID();
 
 /** One WhatsApp conversation (AI-3, P-108): the thread, the composer bound to the 24-hour window, assignment and customer link. */
-export default function InboxShow({ conversation, customerQuery }: Props) {
+export default function InboxShow({
+    conversation,
+    customerQuery,
+    orderDraft,
+}: Props) {
     const t = useT();
     const { locale } = useLocale();
     const c = conversation;
@@ -94,6 +104,12 @@ export default function InboxShow({ conversation, customerQuery }: Props) {
                         conversation={c}
                         customerQuery={customerQuery}
                     />
+                    {orderDraft?.available && (
+                        <OrderDraftCard
+                            conversationId={c.id}
+                            openId={orderDraft.open_id}
+                        />
+                    )}
                     {c.can.assign && (
                         <Card>
                             <Form
@@ -493,6 +509,60 @@ function SuggestionPanel({
             )}
             <p className="text-caption text-weak">{t('inbox.ai.hint')}</p>
         </div>
+    );
+}
+
+/**
+ * AI-5: ask the assistant for an order draft from this chat, or reopen the open one. Nothing is created here: the
+ * draft opens in its own review screen, and the order is created only from there.
+ */
+function OrderDraftCard({
+    conversationId,
+    openId,
+}: {
+    conversationId: number;
+    openId: number | null;
+}) {
+    const t = useT();
+
+    return (
+        <Card className="flex flex-col gap-2" data-test="order-draft-card">
+            <h2 className="inline-flex items-center gap-1 text-label text-strong">
+                <Icon icon={Sparkles} size="sm" />
+                {t('inbox.order_draft.title')}
+            </h2>
+            <p className="text-caption text-weak">
+                {t('inbox.order_draft.button_hint')}
+            </p>
+            <div className="flex flex-wrap gap-2">
+                {openId !== null && (
+                    <Button asChild size="sm" variant="secondary">
+                        <Link
+                            href={OrderDraftController.show.url([
+                                conversationId,
+                                openId,
+                            ])}
+                        >
+                            {t('inbox.order_draft.open')}
+                        </Link>
+                    </Button>
+                )}
+                <Form {...OrderDraftController.propose.form(conversationId)}>
+                    {({ processing }) => (
+                        <Button
+                            type="submit"
+                            size="sm"
+                            variant="outline"
+                            disabled={processing}
+                            data-test="order-draft-propose"
+                        >
+                            {processing && <Spinner />}
+                            {t('inbox.order_draft.button')}
+                        </Button>
+                    )}
+                </Form>
+            </div>
+        </Card>
     );
 }
 
