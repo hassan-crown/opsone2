@@ -17,6 +17,7 @@ use App\Models\Task;
 use App\Models\UserNotification;
 use App\Models\WorkSettings;
 use App\Workflow\StageEngine;
+use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Storage;
 
@@ -205,7 +206,9 @@ it('runs an order on the rules of the release it pinned; new orders follow the n
 });
 
 it('raises timer events once per subject and anchor: an overdue due creates one follow-up per due date', function () {
-    WorkSettings::query()->update(['reminder_from' => '00:00', 'reminder_until' => '23:59']);
+    // No settings row exists yet, so an update would touch nothing and leave the 09:00–20:00 default window in force.
+    $this->travelTo(CarbonImmutable::parse('2026-11-08T09:00:00Z')); // Sunday noon in Riyadh, a working day
+    WorkSettings::query()->create([...WorkSettings::DEFAULTS, 'reminder_from' => '00:00', 'reminder_until' => '23:59']);
     autoRule($this->f->owner, 'late', 'payment.overdue', [noteAction('دفعة متأخرة')], [['field' => 'due.amount', 'op' => 'gt', 'value' => 0]], ['days' => 3]);
     publishRules($this->f->owner);
     finAgree($this->f, '10000');
@@ -221,7 +224,9 @@ it('raises timer events once per subject and anchor: an overdue due creates one 
 });
 
 it('alerts about a lead nobody touched for the configured hours', function () {
-    WorkSettings::query()->update(['reminder_from' => '00:00', 'reminder_until' => '23:59']);
+    // No settings row exists yet, so an update would touch nothing and leave the 09:00–20:00 default window in force.
+    $this->travelTo(CarbonImmutable::parse('2026-11-08T09:00:00Z')); // Sunday noon in Riyadh, a working day
+    WorkSettings::query()->create([...WorkSettings::DEFAULTS, 'reminder_from' => '00:00', 'reminder_until' => '23:59']);
     autoRule($this->f->owner, 'idle_lead', 'lead.stale', [['type' => 'notify', 'to' => ['type' => 'role', 'role' => 'manager'], 'message' => ['ar' => 'العميل {subject} بلا متابعة', 'en' => null]]],
         [['field' => 'lead.open', 'op' => 'is_true', 'value' => null]], ['hours' => 48]);
     publishRules($this->f->owner);
