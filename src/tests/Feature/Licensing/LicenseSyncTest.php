@@ -1,11 +1,14 @@
 <?php
 
+use App\Access\LicenseLimits;
+use App\Ai\AiHeartbeat;
 use App\Licensing\CurrentLicense;
 use App\Licensing\LicenseEnvelope;
 use App\Licensing\Sync\HeartbeatCollector;
 use App\Licensing\Sync\LicenseSync;
 use App\Licensing\Sync\SyncKey;
 use App\Licensing\Sync\SyncRequestSigner;
+use App\Models\Facility;
 use Carbon\CarbonImmutable;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -401,6 +404,7 @@ it('sends the current month AI totals in the shape of the central contract', fun
     aiCall('claude-sonnet-5-5', 'ok', ['input_tokens' => 7, 'output_tokens' => 3, 'cache_read_tokens' => 0, 'cost_micro_usd' => 40]);
     // Last month and the next month never count.
     aiCall('claude-haiku-5-5', 'ok', ['created_at' => '2026-10-31 20:00:00', 'updated_at' => '2026-10-31 20:00:00']);
+    aiCall('claude-haiku-5-5', 'ok', ['created_at' => '2026-11-30 21:00:00', 'updated_at' => '2026-11-30 21:00:00']);
 
     $sent = sentHeartbeat();
     $example = syncContract('heartbeat.ai.example.json');
@@ -460,4 +464,37 @@ it('still sends a heartbeat the old central accepts when ai is omitted', functio
 
     expect($sent)->not->toHaveKey('ai')
         ->and(array_keys($sent))->toBe(array_keys(syncContract('heartbeat.example.json')));
+});
+
+it('omits the ai block when AI is not licensed or used at all', function () {
+    // The default test licence has no ai_core/ai_plus capability and no credits, and nothing was ever called.
+    expect(app(LicenseLimits::class)->aiCredits())->toBe(0)
+        ->and(sentHeartbeat())->not->toHaveKey('ai');
+});
+
+it('judges the future-month guard on the central clock, with a margin', function () {
+    // A facility in UTC+14: its month is already 2026-12 at 2026-11-30T10:00Z, which central (UTC+14 rule) accepts…
+    Facility::query()->create(['name_ar' => 'منشأة', 'name_en' => 'F', 'timezone' => 'Pacific/Kiritimati']);
+    $now = CarbonImmutable::parse('2026-11-30T10:30:00Z');
+    aiCall('claude-haiku-5-5', 'ok', ['created_at' => $now, 'updated_at' => $now]);
+    $ai = app(AiHeartbeat::class);
+
+    expect($ai->block($now, 0)['period'])->toBe('2026-12')
+        // …but a facility clock 20 minutes ahead of central's means central still sits in November: omitted.
+        ->and($ai->block(CarbonImmutable::parse('2026-11-30T10:10:00Z'), 1200))->toBeNull()
+        // With an unknown skew the margin holds the block back right at the boundary…
+        ->and($ai->block(CarbonImmutable::parse('2026-11-30T10:05:00Z'), null))->toBeNull()
+        // …and releases it once the boundary is safely behind.
+        ->and($ai->block(CarbonImmutable::parse('2026-11-30T10:20:00Z'), null)['period'])->toBe('2026-12');
+});
+
+it('aggregates the month of the injected clock, not the real one', function () {
+    aiCall('claude-haiku-5-5', 'ok', ['created_at' => '2026-10-15 10:00:00', 'updated_at' => '2026-10-15 10:00:00']);
+    aiCall('claude-haiku-5-5', 'ok', ['created_at' => '2026-11-15 10:00:00', 'updated_at' => '2026-11-15 10:00:00']);
+
+    $ai = app(AiHeartbeat::class);
+
+    expect($ai->block(CarbonImmutable::parse('2026-10-20T00:00:00Z'))['period'])->toBe('2026-10')
+        ->and($ai->block(CarbonImmutable::parse('2026-10-20T00:00:00Z'))['credits_used'])->toBe(2)
+        ->and($ai->block(CarbonImmutable::parse('2026-11-20T00:00:00Z'))['period'])->toBe('2026-11');
 });

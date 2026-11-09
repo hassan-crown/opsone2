@@ -63,7 +63,7 @@ final readonly class HeartbeatCollector
         $payload = $snapshot->payload;
         $checks = self::attempt(fn () => $this->health->run(), []);
 
-        $ai = self::attempt(fn () => $this->ai->block(), null);
+        $ai = self::attempt(fn () => $this->ai->block(null, $clockSkewSeconds), null);
 
         return [
             'schema_version' => self::SCHEMA_VERSION,

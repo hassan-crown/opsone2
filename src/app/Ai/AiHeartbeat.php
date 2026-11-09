@@ -23,20 +23,27 @@ final readonly class AiHeartbeat
 
     private const int MAX_MODELS = 20;
 
-    public function __construct(private AiCredits $credits) {}
+    /** Safety margin for the future-month guard: central judges with its own clock, which we only know approximately. */
+    private const int CLOCK_MARGIN_SECONDS = 900;
 
     /**
+     * @param  int|null  $clockSkewSeconds  facility clock minus central clock, from the last sync answer (null = unknown)
      * @return array<string, mixed>|null
      */
-    public function block(?CarbonImmutable $now = null): ?array
+    public function block(?CarbonImmutable $now = null, ?int $clockSkewSeconds = null): ?array
     {
         $now ??= CarbonImmutable::now();
-        $start = $this->credits->monthStart();
-        $end = $start->setTimezone(AiCredits::timezone())->addMonth()->startOfMonth()->utc();
-        $period = $start->setTimezone(AiCredits::timezone())->format('Y-m');
+        $local = $now->setTimezone(AiCredits::timezone());
+        $start = $local->startOfMonth()->utc();
+        $end = $local->addMonth()->startOfMonth()->utc();
+        $period = $local->format('Y-m');
 
-        // A month that has not begun anywhere is refused by central (UTC+14 is the most advanced zone).
-        if ($period > $now->utc()->addHours(14)->format('Y-m')) {
+        // Central refuses a period later than the month at UTC+14 on ITS clock and would reject the whole heartbeat,
+        // so judge with our best estimate of that clock (ours minus the known skew) minus a margin, and omit the
+        // block when in doubt: a missing block costs a few minutes of reporting, a refused heartbeat breaks sync.
+        $central = $now->utc()->subSeconds(($clockSkewSeconds ?? 0) + self::CLOCK_MARGIN_SECONDS);
+
+        if ($period > $central->addHours(14)->format('Y-m')) {
             return null;
         }
 
