@@ -24,7 +24,8 @@ return [
         'retries' => (int) env('AI_RETRIES', 2),
     ],
 
-    // Seconds per attempt (plan §3.4): interactive tasks answer while someone waits, background tasks do not.
+    // Seconds (plan §3.4). Interactive: TOTAL ceiling — at most one retry, each attempt gets half. Background: per
+    // attempt, with AI_RETRIES retries.
     'timeouts' => [
         'interactive' => (int) env('AI_TIMEOUT_INTERACTIVE', 20),
         'background' => (int) env('AI_TIMEOUT_BACKGROUND', 120),
@@ -79,6 +80,10 @@ return [
         'claude-sonnet-5-5' => ['input' => 2.00, 'cache_write' => 2.50, 'cache_read' => 0.10, 'output' => 10.00],
         'claude-opus-5-5' => ['input' => 4.00, 'cache_write' => 5.00, 'cache_read' => 0.20, 'output' => 20.00],
     ],
+
+    // AiGateway refuses to run inside a database transaction (the provider call must not hold row locks). Tests that
+    // wrap each case in a transaction (RefreshDatabase) set the baseline to 1 in phpunit.xml. Never raise it elsewhere.
+    'transaction_baseline' => (int) env('AI_TRANSACTION_BASELINE', 0),
 
     // A suggestion nobody acted on expires (ai_suggestions.status = expired).
     'suggestion_ttl_days' => (int) env('AI_SUGGESTION_TTL_DAYS', 14),

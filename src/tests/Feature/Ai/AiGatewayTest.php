@@ -10,10 +10,12 @@ use App\Ai\CircuitBreaker;
 use App\Ai\Contracts\AiProvider;
 use App\Ai\Drivers\AnthropicAiProvider;
 use App\Ai\Drivers\LogAiProvider;
+use App\Ai\Exceptions\AiProviderRejected;
 use App\Ai\Exceptions\AiProviderTimeout;
 use App\Ai\Exceptions\AiProviderUnavailable;
 use App\Models\Ai\AiUsage;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Queue;
@@ -52,6 +54,25 @@ describe('outages', function () {
         expect(AiUsage::query()->pluck('outcome')->map->value->countBy()->all())
             ->toMatchArray(['unavailable' => 5, 'timeout' => 1, 'ok' => 1])
             ->and(AiUsage::query()->where('outcome', '!=', 'ok')->sum('credits'))->toBe(0);
+    });
+
+    it('does not count rejected requests (key, permission, bad request) as outages', function () {
+        $this->fake->fail(new AiProviderRejected('401'), times: 6);
+
+        foreach (range(1, 6) as $_) {
+            expect(app(AiGateway::class)->run(Ai::replyCall())->outcome)->toBe(AiOutcome::Rejected);
+        }
+
+        expect(app(CircuitBreaker::class)->isOpen())->toBeFalse()
+            ->and(AiUsage::query()->sum('credits'))->toBe(0);
+    });
+
+    it('refuses to run inside a database transaction, so no lock is held across the provider call', function () {
+        $this->fake->respond(['reply' => 'x']);
+
+        expect(fn () => DB::transaction(fn () => app(AiGateway::class)->run(Ai::replyCall())))
+            ->toThrow(LogicException::class, 'transaction');
+        $this->fake->assertNothingSent();
     });
 
     it('resets the failure count when the provider answers', function () {

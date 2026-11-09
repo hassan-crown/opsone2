@@ -23,14 +23,30 @@ it('hides phones, e-mails, IDs and IBANs and restores them', function () {
         ->and($r->restore($hidden))->toBe($text);
 });
 
-it('reads Eastern Arabic digits and gives the same value the same token', function () {
+it('reads Eastern Arabic digits, gives the same value one token and restores the original form', function () {
     $r = new Redactor;
 
-    $hidden = $r->redact('رقمي ٠٥٥١٢٣٤٥٦٧ — كرر: 0551234567');
+    $hidden = $r->redact('رقمي ٠٥٥١٢٣٤٥٦٧ — كرر: 0551234567، هويتي ١٠١٢٣٤٥٦٧٨');
 
-    expect($hidden)->toBe('رقمي [PHONE_1] — كرر: [PHONE_1]')
-        ->and($r->restore('سنتصل على [PHONE_1]'))->toBe('سنتصل على 0551234567');
+    expect($hidden)->toBe('رقمي [PHONE_1] — كرر: [PHONE_1]، هويتي [NATIONAL_ID_1]')
+        ->and($r->restore('سنتصل على [PHONE_1]'))->toBe('سنتصل على ٠٥٥١٢٣٤٥٦٧')
+        ->and($r->restore('[NATIONAL_ID_1]'))->toBe('١٠١٢٣٤٥٦٧٨');
 });
+
+it('hides bare 966 numbers, parentheses and phones next to other numbers', function (string $text, string $expected) {
+    $r = new Redactor;
+
+    expect($r->redact($text))->toBe($expected)
+        ->and($r->restore($r->redact($text)))->toBe($text);
+})->with([
+    'E.164 without + (WhatsApp)' => ['واتساب 966551234567', 'واتساب [PHONE_1]'],
+    'landline 966 + 11 digits' => ['الهاتف 96611234567', 'الهاتف [PHONE_1]'],
+    'parentheses' => ['اتصل (055) 123 4567 مساءً', 'اتصل [PHONE_1] مساءً'],
+    'eastern 966' => ['رقمي ٩٦٦٥٥١٢٣٤٥٦٧', 'رقمي [PHONE_1]'],
+    'eastern with spaces' => ['جوال ٠٥٥ ١٢٣ ٤٥٦٧', 'جوال [PHONE_1]'],
+    'after a date' => ['الموعد 2026-11-20 0551234567', 'الموعد 2026-11-20 [PHONE_1]'],
+    'amounts stay' => ['المبلغ 150000 و 200000 هللة', 'المبلغ 150000 و 200000 هللة'],
+]);
 
 it('hides known values such as a detailed address and keeps prices, dates and first names', function () {
     $r = new Redactor(['ADDRESS' => ['حي النرجس، شارع 12، مبنى 4']]);

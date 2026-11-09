@@ -5,14 +5,17 @@ namespace App\Ai;
 use App\Access\Contracts\LicenseCapabilities;
 use App\Ai\Contracts\AiProvider;
 use App\Ai\Exceptions\AiDriverDisabled;
+use App\Ai\Exceptions\AiProviderRejected;
 use App\Ai\Exceptions\AiProviderTimeout;
 use App\Ai\Exceptions\AiProviderUnavailable;
 use App\Ai\Redaction\Redactor;
 use App\Ai\Validation\OutputValidator;
 use App\Models\Ai\AiUsage;
 use App\Models\Site\SiteDomain;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use JsonException;
+use LogicException;
 use Throwable;
 
 /**
@@ -21,7 +24,9 @@ use Throwable;
  *   facility switch (P-02) → license capability → circuit breaker → credits (reserve) → redact → provider
  *   → stop reason → JSON + schema + facts check → restore identifiers → ai_usage (outcome, tokens, cost).
  *
- * Every non-ok outcome returns the feature to its manual path and charges nothing. ai_usage never holds the prompt
+ * Every non-ok outcome returns the feature to its manual path and charges nothing. Only timeouts, transport errors,
+ * 408/409/429 and 5xx count toward the circuit breaker; a rejected request (key, permission, 400/422) does not.
+ * Never call it inside a database transaction (see run()). ai_usage never holds the prompt
  * or the answer, and nothing here logs either. The model has no tools at all: what comes back is a draft.
  */
 final class AiGateway
@@ -57,6 +62,12 @@ final class AiGateway
      */
     public function run(AiCall $call, bool $evaluation = false): AiResult
     {
+        // Never inside a transaction: the credit reservation locks the facility row, and an outer transaction would hold
+        // that lock (and any other) for the whole provider call (up to 2 minutes). Build the context, commit, then call.
+        if (DB::transactionLevel() > (int) config('ai.transaction_baseline', 0)) {
+            throw new LogicException('AiGateway::run() must not be called inside a database transaction.');
+        }
+
         if (! $evaluation && ! $this->available($call->task->feature())) {
             return new AiResult(AiOutcome::FeatureOff);
         }
@@ -97,6 +108,9 @@ final class AiGateway
             $response = $this->provider->complete($request);
         } catch (AiDriverDisabled) {
             return $this->finish($usage, AiOutcome::DriverDisabled, $started);
+        } catch (AiProviderRejected) {
+            // Key, permission or request problem: fix the configuration; the provider itself is up.
+            return $this->finish($usage, AiOutcome::Rejected, $started);
         } catch (AiProviderTimeout) {
             $this->circuit->recordFailure();
 

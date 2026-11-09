@@ -19,6 +19,8 @@ enum AiOutcome: string
     case NoCredit = 'no_credit';
     /** Provider error, or the circuit breaker is open. */
     case Unavailable = 'unavailable';
+    /** The provider rejected the request (key, permission, bad request): a configuration problem, not an outage. */
+    case Rejected = 'rejected';
     /** The `log` driver: recorded, nothing left the server. */
     case NotSent = 'not_sent';
     /** The driver refuses to run (anthropic without its explicit switch or key). */

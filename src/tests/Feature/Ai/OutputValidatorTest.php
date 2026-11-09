@@ -46,6 +46,14 @@ it('rejects links outside the facility or not in the context', function () {
         ->and($unknown)->toBe(['$.reply: link without a source']);
 });
 
+it('checks numeric values too, leaving small scores free', function () {
+    $schema = ['type' => 'object', 'properties' => ['amount' => ['type' => 'number'], 'confidence' => ['type' => 'number'], 'items' => ['type' => 'integer']]];
+
+    expect($this->v->validate(['amount' => 1500, 'confidence' => 0.93, 'items' => 3], $schema, $this->corpus, $this->hosts))->toBe([])
+        ->and($this->v->validate(['amount' => 1200, 'confidence' => 0.5, 'items' => 3], $schema, $this->corpus, $this->hosts))
+        ->toBe(['$.amount: number without a source']);
+});
+
 it('allows one-digit numbers and placeholders', function () {
     expect($this->v->validate(['reply' => 'خلال 3 أيام نتصل على [PHONE_12]', 'intent' => 'other'], $this->schema, $this->corpus, $this->hosts))->toBe([]);
 });

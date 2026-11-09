@@ -10,8 +10,8 @@ use App\Ai\Redaction\Redactor;
  * 1. Schema: a strict subset of JSON Schema (type, properties, required, additionalProperties, enum, items,
  *    minItems/maxItems, minLength/maxLength, minimum/maximum). The API enforces the schema too; this is the
  *    second, local line.
- * 2. Facts: every number (two digits or more), date and link inside an answer string must come from the trusted
- *    context. Amounts given as `*_halalas` also count in riyals. A link must also be on one of the facility's
+ * 2. Facts: every number (two digits or more), date and link inside an answer string, and every numeric value of 10
+ *    or more, must come from the trusted context. Amounts given as `*_halalas` also count in riyals. A link must also be on one of the facility's
  *    own hosts. Placeholders such as [PHONE_1] are ignored. One-digit numbers are free («خطوتان», «3 أيام»).
  *
  * Returns the problems found (empty = valid). Messages name paths and kinds, never the offending text.
@@ -161,6 +161,16 @@ final class OutputValidator
         if (is_array($value)) {
             foreach ($value as $key => $item) {
                 $this->checkFacts($item, is_int($key) ? "{$path}[{$key}]" : "{$path}.{$key}", $sources, $corpus, $hosts, $problems);
+            }
+
+            return;
+        }
+
+        if (is_int($value) || is_float($value)) {
+            // A numeric field («amount»: 1500) needs a source like a number in text. Small values (scores, counts
+            // below 10, confidences) are free.
+            if (abs($value) >= 10 && ! isset($sources[array_key_first(self::numbersIn((string) abs($value)))])) {
+                $problems[] = "{$path}: number without a source";
             }
 
             return;

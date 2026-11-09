@@ -5,6 +5,7 @@ namespace App\Ai\Contracts;
 use App\Ai\AiRequest;
 use App\Ai\AiResponse;
 use App\Ai\Exceptions\AiDriverDisabled;
+use App\Ai\Exceptions\AiProviderRejected;
 use App\Ai\Exceptions\AiProviderTimeout;
 use App\Ai\Exceptions\AiProviderUnavailable;
 
@@ -20,7 +21,8 @@ interface AiProvider
     /**
      * @throws AiDriverDisabled when the driver may not send (missing explicit switch or key)
      * @throws AiProviderTimeout
-     * @throws AiProviderUnavailable on any other provider or transport failure
+     * @throws AiProviderRejected on a request or configuration error (4xx other than 408/409/429)
+     * @throws AiProviderUnavailable on a transport failure, 408/409/429 or 5xx
      */
     public function complete(AiRequest $request): AiResponse;
 }

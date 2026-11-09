@@ -32,8 +32,9 @@ final class CircuitBreaker
     public function recordFailure(): void
     {
         $cooldown = max(1, (int) config('ai.circuit_breaker.cooldown_seconds', 300));
-        $failures = (int) $this->store()->get(self::FAILURES, 0) + 1;
-        $this->store()->put(self::FAILURES, $failures, $cooldown * 4);
+        // Atomic across workers: add() creates the counter once (with its expiry), increment() never loses a failure.
+        $this->store()->add(self::FAILURES, 0, $cooldown * 4);
+        $failures = (int) $this->store()->increment(self::FAILURES);
 
         if ($failures >= max(1, (int) config('ai.circuit_breaker.failures', 5))) {
             $this->store()->put(self::OPEN_UNTIL, now()->getTimestamp() + $cooldown, $cooldown);
