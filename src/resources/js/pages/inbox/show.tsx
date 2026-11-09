@@ -194,7 +194,24 @@ function MessageBubble({ message: m }: { message: ConversationMessageView }) {
                         {t('inbox.ai.from_suggestion')}
                     </Badge>
                 )}
+                {!inbound && m.auto_reply && (
+                    <Badge variant="info" data-test="message-auto-reply">
+                        {t('ai.autoreply.note.sent')}
+                    </Badge>
+                )}
             </p>
+            {inbound && m.auto_handoff && (
+                <p
+                    className="text-caption text-weak"
+                    data-test="message-auto-handoff"
+                >
+                    {t('ai.autoreply.note.handoff', {
+                        reason: t(
+                            `ai.autoreply.reason.${m.auto_handoff}` as TranslationKey,
+                        ),
+                    })}
+                </p>
+            )}
             {m.type === 'template' ? (
                 <p className="text-body text-strong">
                     <bdi dir="ltr" className="font-mono">

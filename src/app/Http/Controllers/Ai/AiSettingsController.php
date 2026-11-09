@@ -8,6 +8,7 @@ use App\Access\Permission;
 use App\Ai\AiCredits;
 use App\Ai\AiFeature;
 use App\Ai\AiSettings;
+use App\Ai\AutoReply\AutoReplySettings;
 use App\Ai\Contracts\AiProvider;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Ai\UpdateAiSettingsRequest;
@@ -35,6 +36,8 @@ class AiSettingsController extends Controller
             ], AiFeature::cases()),
             'credits' => $credits->status(),
             'driver' => $provider->name(),
+            // AI-6: the automatic-reply page is the owner's alone (Q-92).
+            'canManageAutoReply' => AutoReplySettings::canManage($request->user()),
             // True only when calls can actually leave the server (Q-94 keeps this off until the legal review).
             'sendsExternally' => $provider->name() === 'anthropic' && config('ai.anthropic.enabled') === true && (string) config('ai.anthropic.api_key') !== '',
         ]);

@@ -2,6 +2,8 @@
 
 namespace App\Inbox;
 
+use App\Ai\AutoReply\AutoReplier;
+use App\Ai\AutoReply\Jobs\AutoReplyToMessage;
 use App\Ai\Inbox\InjectionSignals;
 use App\Ai\Inbox\IntentClassifier;
 use App\Ai\Inbox\Jobs\ClassifyInboundMessage;
@@ -32,6 +34,7 @@ final class InboundRecorder
         private readonly InboxSettings $settings,
         private readonly ConversationCustomers $customers,
         private readonly IntentClassifier $classifier,
+        private readonly AutoReplier $autoReplier,
     ) {}
 
     /**
@@ -65,9 +68,11 @@ final class InboundRecorder
 
         // The local, model-free suspicion check (AI-4) runs on every message, whatever the AI switches say.
         $suspicious = InjectionSignals::suspicious($body);
+        // A message from a WhatsApp group (Meta's `group_id`): the conversation is never answered automatically (AI-6).
+        $group = is_string($inbound['group_id'] ?? null) && $inbound['group_id'] !== '';
 
         try {
-            $message = DB::transaction(function () use ($id, $from, $kind, $body, $mediaId, $mime, $mediaStatus, $occurredAt, $profile, $suspicious) {
+            $message = DB::transaction(function () use ($id, $from, $kind, $body, $mediaId, $mime, $mediaStatus, $occurredAt, $profile, $suspicious, $group) {
                 $conversation = $this->conversationFor($from, $profile);
 
                 $message = $conversation->messages()->create([
@@ -90,6 +95,7 @@ final class InboundRecorder
                     'unread_count' => $conversation->unread_count + 1,
                     'contact_name' => $profile ?? $conversation->contact_name,
                     'ai_flagged_at' => $conversation->ai_flagged_at ?? ($suspicious ? now() : null),
+                    'is_group' => $conversation->is_group || $group,
                 ])->save();
 
                 return $message;
@@ -105,6 +111,10 @@ final class InboundRecorder
         // AI-4: classified (and maybe drafted for the assignee) on the queue after commit, never here.
         if ($this->classifier->available()) {
             ClassifyInboundMessage::dispatch($message->id);
+        }
+        // AI-6: the optional automatic reply, on the queue after commit (off unless the owner switched an intent on).
+        if ($this->autoReplier->available()) {
+            AutoReplyToMessage::dispatch($message->id);
         }
 
         return true;
