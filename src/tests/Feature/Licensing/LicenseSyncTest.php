@@ -1,11 +1,14 @@
 <?php
 
+use App\Access\LicenseLimits;
+use App\Ai\AiHeartbeat;
 use App\Licensing\CurrentLicense;
 use App\Licensing\LicenseEnvelope;
 use App\Licensing\Sync\HeartbeatCollector;
 use App\Licensing\Sync\LicenseSync;
 use App\Licensing\Sync\SyncKey;
 use App\Licensing\Sync\SyncRequestSigner;
+use App\Models\Facility;
 use Carbon\CarbonImmutable;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -248,8 +251,9 @@ it('sends only the reviewed heartbeat keys', function () {
         ->and($shape($sent))->toBe($shape(syncContract('heartbeat.example.json')));
 
     $schema = syncContract('heartbeat.schema.json');
-    expect(array_keys($sent))->toBe(array_keys($schema['properties']));
-    foreach ($schema['properties'] as $section => $definition) {
+    // `ai` is optional and absent here (no AI call this month); its shape has its own tests below.
+    expect(array_keys($sent))->toBe(array_keys(array_diff_key($schema['properties'], ['ai' => 1])));
+    foreach (array_diff_key($schema['properties'], ['ai' => 1]) as $section => $definition) {
         if (($definition['type'] ?? null) === 'object') {
             expect(array_keys($sent[$section]))->toBe(array_keys($definition['properties']), $section);
         }
@@ -356,4 +360,141 @@ it('generates a sync key into .env and prints only the public key', function () 
         @unlink($dir.'/.env');
         @rmdir($dir);
     }
+});
+
+/**
+ * @return array<string, mixed>
+ */
+function sentHeartbeat(): array
+{
+    Http::fake(['*' => Http::response(syncContract('responses.json')['200_up_to_date'])]);
+
+    app(LicenseSync::class)->run();
+
+    $sent = null;
+    Http::assertSent(function (Request $request) use (&$sent) {
+        $sent = json_decode($request->body(), true);
+
+        return true;
+    });
+
+    return $sent;
+}
+
+function aiCall(string $model, string $outcome, array $overrides = []): void
+{
+    DB::table('ai_usage')->insert(array_merge([
+        'task' => 'help', 'model' => $model, 'driver' => 'fake', 'outcome' => $outcome,
+        'input_tokens' => 100, 'output_tokens' => 20, 'cache_read_tokens' => 10, 'cache_write_tokens' => 5,
+        'cost_micro_usd' => 1500, 'credits' => $outcome === 'ok' ? 2 : 0, 'duration_ms' => 300,
+        'created_at' => now(), 'updated_at' => now(),
+    ], $overrides));
+}
+
+it('omits the ai block when the facility made no AI call this month', function () {
+    aiCall('claude-haiku-5-5', 'ok', ['created_at' => now()->subMonth(), 'updated_at' => now()->subMonth()]);
+
+    expect(sentHeartbeat())->not->toHaveKey('ai');
+});
+
+it('sends the current month AI totals in the shape of the central contract', function () {
+    aiCall('claude-haiku-5-5', 'ok');
+    aiCall('claude-haiku-5-5', 'ok');
+    aiCall('claude-haiku-5-5', 'failed', ['credits' => 0]);
+    aiCall('claude-sonnet-5-5', 'ok', ['input_tokens' => 7, 'output_tokens' => 3, 'cache_read_tokens' => 0, 'cost_micro_usd' => 40]);
+    // Last month and the next month never count.
+    aiCall('claude-haiku-5-5', 'ok', ['created_at' => '2026-10-31 20:00:00', 'updated_at' => '2026-10-31 20:00:00']);
+    aiCall('claude-haiku-5-5', 'ok', ['created_at' => '2026-11-30 21:00:00', 'updated_at' => '2026-11-30 21:00:00']);
+
+    $sent = sentHeartbeat();
+    $example = syncContract('heartbeat.ai.example.json');
+
+    expect($sent['ai']['period'])->toBe('2026-11')
+        ->and($sent['ai']['credits_used'])->toBe(6)
+        ->and($sent['ai']['cost_usd_micro'])->toBe(4540)
+        ->and($sent['ai']['suggestions_accepted'])->toBe(0)
+        ->and($sent['ai']['models'])->toBe([
+            ['model' => 'claude-haiku-5-5', 'input_tokens' => 300, 'output_tokens' => 60, 'cached_tokens' => 30],
+            ['model' => 'claude-sonnet-5-5', 'input_tokens' => 7, 'output_tokens' => 3, 'cached_tokens' => 0],
+        ])
+        ->and(array_keys($sent['ai']))->toBe(HeartbeatCollector::AI_FIELDS)
+        ->and(array_keys($sent['ai']))->toBe(array_keys($example['ai']))
+        ->and(array_keys($sent['ai']['models'][0]))->toBe(HeartbeatCollector::AI_MODEL_FIELDS)
+        ->and(array_keys($sent['ai']['models'][0]))->toBe(array_keys($example['ai']['models'][0]))
+        ->and(array_keys($sent))->toBe(array_keys($example));
+
+    // Every value fits the contract's closed schema.
+    $schema = syncContract('heartbeat.schema.json')['properties']['ai'];
+    expect(array_keys($sent['ai']))->toBe(array_keys($schema['properties']))
+        ->and($sent['ai']['period'])->toMatch('/'.$schema['properties']['period']['pattern'].'/')
+        ->and(count($sent['ai']['models']))->toBeLessThanOrEqual($schema['properties']['models']['maxItems']);
+    foreach ($schema['properties']['models']['items']['properties'] as $key => $rule) {
+        foreach ($sent['ai']['models'] as $model) {
+            is_string($model[$key]) ? expect($model[$key])->toMatch('/'.$rule['pattern'].'/') : expect($model[$key])->toBeInt()->toBeLessThanOrEqual($rule['maximum']);
+        }
+    }
+});
+
+it('counts accepted and edited suggestions decided this month', function () {
+    aiCall('claude-haiku-5-5', 'ok');
+    foreach (['accepted' => now(), 'edited' => now(), 'rejected' => now(), 'accepted ' => now()->subMonth()] as $status => $at) {
+        DB::table('ai_suggestions')->insert([
+            'task' => 'help', 'status' => trim($status), 'payload' => 'x', 'decided_at' => $at, 'created_at' => $at, 'updated_at' => $at,
+        ]);
+    }
+
+    expect(sentHeartbeat()['ai']['suggestions_accepted'])->toBe(2);
+});
+
+it('never sends prompts, answers, users or subjects in the ai block', function () {
+    aiCall('claude-haiku-5-5', 'ok', ['subject_type' => 'order', 'subject_id' => 99, 'driver' => 'secret-driver-name']);
+    DB::table('ai_suggestions')->insert([
+        'task' => 'help', 'status' => 'accepted', 'payload' => 'SECRET-PROMPT-TEXT', 'final_payload' => 'SECRET-ANSWER-TEXT',
+        'decided_at' => now(), 'created_at' => now(), 'updated_at' => now(),
+    ]);
+
+    $body = json_encode(sentHeartbeat());
+
+    expect($body)->not->toContain('SECRET')->not->toContain('secret-driver-name')->not->toContain('subject')
+        ->and(strlen($body))->toBeLessThanOrEqual(HeartbeatCollector::MAX_BYTES);
+});
+
+it('still sends a heartbeat the old central accepts when ai is omitted', function () {
+    $sent = sentHeartbeat();
+
+    expect($sent)->not->toHaveKey('ai')
+        ->and(array_keys($sent))->toBe(array_keys(syncContract('heartbeat.example.json')));
+});
+
+it('omits the ai block when AI is not licensed or used at all', function () {
+    // The default test licence has no ai_core/ai_plus capability and no credits, and nothing was ever called.
+    expect(app(LicenseLimits::class)->aiCredits())->toBe(0)
+        ->and(sentHeartbeat())->not->toHaveKey('ai');
+});
+
+it('judges the future-month guard on the central clock, with a margin', function () {
+    // A facility in UTC+14: its month is already 2026-12 at 2026-11-30T10:00Z, which central (UTC+14 rule) accepts…
+    Facility::query()->create(['name_ar' => 'منشأة', 'name_en' => 'F', 'timezone' => 'Pacific/Kiritimati']);
+    $now = CarbonImmutable::parse('2026-11-30T10:30:00Z');
+    aiCall('claude-haiku-5-5', 'ok', ['created_at' => $now, 'updated_at' => $now]);
+    $ai = app(AiHeartbeat::class);
+
+    expect($ai->block($now, 0)['period'])->toBe('2026-12')
+        // …but a facility clock 20 minutes ahead of central's means central still sits in November: omitted.
+        ->and($ai->block(CarbonImmutable::parse('2026-11-30T10:10:00Z'), 1200))->toBeNull()
+        // With an unknown skew the margin holds the block back right at the boundary…
+        ->and($ai->block(CarbonImmutable::parse('2026-11-30T10:05:00Z'), null))->toBeNull()
+        // …and releases it once the boundary is safely behind.
+        ->and($ai->block(CarbonImmutable::parse('2026-11-30T10:20:00Z'), null)['period'])->toBe('2026-12');
+});
+
+it('aggregates the month of the injected clock, not the real one', function () {
+    aiCall('claude-haiku-5-5', 'ok', ['created_at' => '2026-10-15 10:00:00', 'updated_at' => '2026-10-15 10:00:00']);
+    aiCall('claude-haiku-5-5', 'ok', ['created_at' => '2026-11-15 10:00:00', 'updated_at' => '2026-11-15 10:00:00']);
+
+    $ai = app(AiHeartbeat::class);
+
+    expect($ai->block(CarbonImmutable::parse('2026-10-20T00:00:00Z'))['period'])->toBe('2026-10')
+        ->and($ai->block(CarbonImmutable::parse('2026-10-20T00:00:00Z'))['credits_used'])->toBe(2)
+        ->and($ai->block(CarbonImmutable::parse('2026-11-20T00:00:00Z'))['period'])->toBe('2026-11');
 });
