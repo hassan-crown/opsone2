@@ -148,6 +148,11 @@ final class AiGateway
 
         $corpus = OutputValidator::corpus($facts, $instruction, ...($call->untrustedIsSource ? $untrusted : []));
         $problems = $this->validator->validate($output, $call->schema, $corpus, self::allowedHosts(), $call->strictFacts, $call->strictFacts ? OutputValidator::ratios($facts) : []);
+        if ($problems === [] && is_array($output)) {
+            foreach ($call->checks as $check) {
+                $problems = [...$problems, ...$check->check($output, $facts)];
+            }
+        }
         if ($problems !== [] || ! is_array($output)) {
             return $this->finish($usage, AiOutcome::Invalid, $started, $response, $problems ?: ['not an object']);
         }

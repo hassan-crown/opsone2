@@ -35,6 +35,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property CarbonInterface|null $delivered_at
  * @property CarbonInterface|null $read_at
  * @property CarbonInterface|null $failed_at
+ * @property string|null $ai_intent AI-4 classification of an inbound message (InboxIntent), set once
+ * @property bool $ai_suspicious AI-4: the message tried to steer the model, or is abusive
+ * @property int|null $ai_suggestion_id the AI reply suggestion an outbound message came from
  * @property-read Conversation $conversation
  * @property-read Attachment|null $attachment
  * @property-read User|null $sender
@@ -70,6 +73,7 @@ class ConversationMessage extends Model
             'delivered_at' => 'datetime',
             'read_at' => 'datetime',
             'failed_at' => 'datetime',
+            'ai_suspicious' => 'boolean',
         ];
     }
 

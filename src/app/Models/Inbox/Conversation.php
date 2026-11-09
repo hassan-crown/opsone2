@@ -27,6 +27,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property CarbonInterface|null $last_inbound_at
  * @property CarbonInterface|null $last_message_at
  * @property int $unread_count
+ * @property CarbonInterface|null $ai_flagged_at AI-4 suspicion flag: staff see a warning, no automatic reply (AI-6)
  * @property CarbonInterface $created_at
  * @property-read Customer|null $customer
  * @property-read User|null $assignee
@@ -41,6 +42,7 @@ class Conversation extends Model implements AttachmentOwner
         return [
             'last_inbound_at' => 'datetime',
             'last_message_at' => 'datetime',
+            'ai_flagged_at' => 'datetime',
             'unread_count' => 'integer',
         ];
     }

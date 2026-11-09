@@ -28,6 +28,8 @@ class SendReplyRequest extends FormRequest
             'language' => ['required_if:kind,template', 'nullable', 'string', 'max:8'],
             'params' => ['nullable', 'array', 'max:'.InboxSettings::MAX_PARAMS],
             'params.*' => ['nullable', 'string', 'max:1024'],
+            // AI-4: the reply suggestion this text came from (accepted or edited after the reply is queued).
+            'suggestion_id' => ['nullable', 'integer'],
         ];
     }
 }
