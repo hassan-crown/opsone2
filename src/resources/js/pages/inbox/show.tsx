@@ -1,5 +1,5 @@
 import { Form, Head, Link, router, usePage } from '@inertiajs/react';
-import { Paperclip } from 'lucide-react';
+import { Paperclip, ShieldAlert, Sparkles } from 'lucide-react';
 import { useState } from 'react';
 import InboxController from '@/actions/App/Http/Controllers/Inbox/InboxController';
 import {
@@ -10,6 +10,7 @@ import {
 import { Icon } from '@/components/opsone/icon';
 import { PageHeader } from '@/components/opsone/page-header';
 import { BackLink } from '@/components/procurement/shared';
+import { Alert, AlertBody } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -62,6 +63,16 @@ export default function InboxShow({ conversation, customerQuery }: Props) {
 
             <div className="grid gap-4 lg:grid-cols-[1fr_20rem]">
                 <div className="flex flex-col gap-4">
+                    {c.ai.flagged && (
+                        <Alert
+                            variant="warning"
+                            role="alert"
+                            data-test="ai-flagged"
+                        >
+                            <ShieldAlert />
+                            <AlertBody>{t('inbox.ai.flagged')}</AlertBody>
+                        </Alert>
+                    )}
                     <ol
                         className="flex flex-col gap-3"
                         data-test="conversation-thread"
@@ -154,6 +165,19 @@ function MessageBubble({ message: m }: { message: ConversationMessageView }) {
                 {m.type === 'template' && (
                     <Badge variant="info">{t('inbox.template_badge')}</Badge>
                 )}
+                {inbound && m.ai_intent && (
+                    <Badge variant="neutral" data-test="message-intent">
+                        {t(`inbox.ai.intent.${m.ai_intent}` as TranslationKey)}
+                    </Badge>
+                )}
+                {inbound && m.ai_suspicious && (
+                    <Badge variant="danger">{t('inbox.ai.suspicious')}</Badge>
+                )}
+                {!inbound && m.from_suggestion && (
+                    <Badge variant="info">
+                        {t('inbox.ai.from_suggestion')}
+                    </Badge>
+                )}
             </p>
             {m.type === 'template' ? (
                 <p className="text-body text-strong">
@@ -207,6 +231,7 @@ function Composer({ conversation: c }: { conversation: ConversationDetail }) {
         c.window_open ? 'text' : 'template',
     );
     const [body, setBody] = useState('');
+    const [suggestionId, setSuggestionId] = useState<number | null>(null);
     const [template, setTemplate] = useState(0);
     const [params, setParams] = useState<string[]>([]);
     const [key, setKey] = useState(newKey);
@@ -240,7 +265,7 @@ function Composer({ conversation: c }: { conversation: ConversationDetail }) {
         router.post(
             InboxController.reply.url(c.id),
             effective === 'text'
-                ? { kind: 'text', key, body }
+                ? { kind: 'text', key, body, suggestion_id: suggestionId }
                 : {
                       kind: 'template',
                       key,
@@ -252,6 +277,7 @@ function Composer({ conversation: c }: { conversation: ConversationDetail }) {
                 preserveScroll: true,
                 onSuccess: () => {
                     setBody('');
+                    setSuggestionId(null);
                     setParams([]);
                     setKey(newKey());
                 },
@@ -289,6 +315,16 @@ function Composer({ conversation: c }: { conversation: ConversationDetail }) {
                 <p className="text-body text-weak" data-test="window-closed">
                     {t('inbox.window.closed_hint')}
                 </p>
+            )}
+
+            {effective === 'text' && c.ai.available && (
+                <SuggestionPanel
+                    conversation={c}
+                    onUse={(id, reply) => {
+                        setBody(reply);
+                        setSuggestionId(id);
+                    }}
+                />
             )}
 
             {effective === 'text' ? (
@@ -360,6 +396,103 @@ function Composer({ conversation: c }: { conversation: ConversationDetail }) {
                 {t('inbox.send')}
             </Button>
         </Card>
+    );
+}
+
+/**
+ * AI-4: the staff member's own suggested reply. «Use» only copies it into the composer; it is sent, like any reply,
+ * by the send button through the normal reply path. Nothing is sent from here.
+ */
+function SuggestionPanel({
+    conversation: c,
+    onUse,
+}: {
+    conversation: ConversationDetail;
+    onUse: (id: number, reply: string) => void;
+}) {
+    const t = useT();
+    const [busy, setBusy] = useState(false);
+    const s = c.ai.suggestion;
+
+    const suggest = () => {
+        setBusy(true);
+        router.post(
+            InboxController.suggest.url(c.id),
+            {},
+            { preserveScroll: true, onFinish: () => setBusy(false) },
+        );
+    };
+
+    return (
+        <div
+            className="flex flex-col gap-2 rounded-lg border border-stroke-weak p-3"
+            data-test="ai-suggestion"
+        >
+            <div className="flex flex-wrap items-center justify-between gap-2">
+                <h2 className="inline-flex items-center gap-1 text-label text-strong">
+                    <Icon icon={Sparkles} size="sm" />
+                    {t('inbox.ai.title')}
+                </h2>
+                <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    disabled={busy}
+                    onClick={suggest}
+                    data-test="ai-suggest"
+                >
+                    {busy && <Spinner />}
+                    {s ? t('inbox.ai.regenerate') : t('inbox.ai.suggest')}
+                </Button>
+            </div>
+            {s && (
+                <>
+                    <p className="text-body whitespace-pre-wrap text-strong">
+                        {s.reply}
+                    </p>
+                    {s.facts.length > 0 && (
+                        <p className="text-caption text-weak">
+                            {t('inbox.ai.facts')}:{' '}
+                            {s.facts.map((f) => (
+                                <bdi key={f.key} className="me-2">
+                                    {String(f.value)}
+                                </bdi>
+                            ))}
+                        </p>
+                    )}
+                    <div className="flex flex-wrap gap-2">
+                        <Button
+                            type="button"
+                            size="sm"
+                            variant="secondary"
+                            onClick={() => onUse(s.id, s.reply)}
+                            data-test="ai-use"
+                        >
+                            {t('inbox.ai.use')}
+                        </Button>
+                        <Form
+                            {...InboxController.rejectSuggestion.form({
+                                conversation: c.id,
+                                suggestion: s.id,
+                            })}
+                            options={{ preserveScroll: true }}
+                        >
+                            {({ processing }) => (
+                                <Button
+                                    type="submit"
+                                    size="sm"
+                                    variant="ghost"
+                                    disabled={processing}
+                                >
+                                    {t('inbox.ai.reject')}
+                                </Button>
+                            )}
+                        </Form>
+                    </div>
+                </>
+            )}
+            <p className="text-caption text-weak">{t('inbox.ai.hint')}</p>
+        </div>
     );
 }
 

@@ -4,6 +4,7 @@ namespace App\Inbox;
 
 use App\Access\Access;
 use App\Access\Permission;
+use App\Ai\Inbox\InboxSuggestions;
 use App\Customers\CustomerAccess;
 use App\Files\AttachmentService;
 use App\Models\Branch;
@@ -25,6 +26,7 @@ final class InboxPresenter
         private readonly AttachmentService $files,
         private readonly InboxSettings $settings,
         private readonly ConversationTransport $transport,
+        private readonly InboxSuggestions $suggestions,
     ) {}
 
     /**
@@ -81,6 +83,7 @@ final class InboxPresenter
             ],
             'assignable' => $canWrite ? array_map(fn (User $u) => ['id' => $u->id, 'name' => $u->name], ConversationAssignment::candidates($c)) : [],
             'customer_results' => array_map(fn (Customer $r) => ['id' => $r->id, 'name' => $r->name, 'mobile' => $r->mobile], $customerResults),
+            'ai' => $this->suggestions->panel($c, $viewer),
         ];
     }
 
@@ -114,6 +117,9 @@ final class InboxPresenter
                 'url' => $this->files->downloadUrl($m->attachment, $viewer),
             ],
             'sender' => $m->sender?->name,
+            'ai_intent' => $m->ai_intent,
+            'ai_suspicious' => $m->ai_suspicious,
+            'from_suggestion' => $m->ai_suggestion_id !== null,
             'occurred_at' => $m->occurred_at->toIso8601String(),
         ];
     }

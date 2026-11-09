@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers\Inbox;
 
+use App\Ai\Inbox\InboxSuggestions;
+use App\Ai\Inbox\ReplySuggester;
+use App\Ai\Inbox\SuggestOutcome;
 use App\Customers\CustomerAccess;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Inbox\AssignConversationRequest;
@@ -23,8 +26,8 @@ use Inertia\Response;
 
 /**
  * WhatsApp inbox (AI-3, ADR-0030 amendment): the scoped conversation list and the conversation page (thread,
- * composer, assignment, customer link). Every page answers 404 while the owner has the inbox switched off; every write
- * authorizes P-108 on the conversation in its service.
+ * composer, assignment, customer link), and the AI-4 reply suggestion of the current staff member. Every page answers
+ * 404 while the owner has the inbox switched off; every write authorizes P-108 on the conversation in its service.
  */
 final class InboxController extends Controller
 {
@@ -86,16 +89,50 @@ final class InboxController extends Controller
         ]);
     }
 
-    public function reply(SendReplyRequest $request, Conversation $conversation, ReplySender $sender): RedirectResponse
+    public function reply(SendReplyRequest $request, Conversation $conversation, ReplySender $sender, InboxSuggestions $suggestions): RedirectResponse
     {
         $actor = $this->actor($request);
         $key = (string) $request->validated('key');
 
-        $request->validated('kind') === 'template'
-            ? $sender->template($actor, $conversation, (string) $request->validated('template'), (string) $request->validated('language'), array_values(array_map(fn ($p) => (string) $p, (array) $request->validated('params', []))), $key)
-            : $sender->text($actor, $conversation, (string) $request->validated('body'), $key);
+        if ($request->validated('kind') === 'template') {
+            $sender->template($actor, $conversation, (string) $request->validated('template'), (string) $request->validated('language'), array_values(array_map(fn ($p) => (string) $p, (array) $request->validated('params', []))), $key);
+        } else {
+            // The reply goes through the normal path (P-108, opt-out, window); a suggestion is only marked afterwards.
+            $message = $sender->text($actor, $conversation, (string) $request->validated('body'), $key);
+            $suggestionId = $request->validated('suggestion_id');
+            if ($suggestionId !== null) {
+                $suggestions->sent($actor, $conversation, (int) $suggestionId, $message);
+            }
+        }
 
         return $this->done($conversation, 'inbox.flash.queued');
+    }
+
+    public function suggest(Request $request, Conversation $conversation, ReplySuggester $suggester): RedirectResponse
+    {
+        $actor = $this->actor($request);
+        $this->ensureEnabled();
+        abort_unless(InboxAccess::canOpen($actor, $conversation), 403);
+
+        $outcome = $suggester->suggest($actor, $conversation->load('customer'));
+        abort_if($outcome->status === SuggestOutcome::DENIED, 403);
+
+        Inertia::flash('toast', [
+            'type' => $outcome->ready() ? 'success' : 'info',
+            'message' => __('inbox.ai.outcome.'.$outcome->status),
+        ]);
+
+        return redirect()->route('inbox.show', $conversation->id);
+    }
+
+    public function rejectSuggestion(Request $request, Conversation $conversation, int $suggestion, InboxSuggestions $suggestions): RedirectResponse
+    {
+        $actor = $this->actor($request);
+        $this->ensureEnabled();
+        abort_unless(InboxAccess::canOpen($actor, $conversation), 403);
+        abort_unless($suggestions->reject($actor, $conversation, $suggestion), 404);
+
+        return $this->done($conversation, 'inbox.flash.suggestion_rejected');
     }
 
     public function assign(AssignConversationRequest $request, Conversation $conversation, ConversationAssignment $assignment): RedirectResponse
