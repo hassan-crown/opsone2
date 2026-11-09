@@ -38,3 +38,9 @@ php artisan license:contract-vectors --check  # يفشل إن اختلف أي ب
    المباشر، لا عبر البيئة.
 3. لكل حالة: `verify(file_get_contents(envelope))`، ثم قارن المشكلة أو الحالات، وطبّق `trusted` كما سبق.
 4. اختياري وقوي: `LicenseEnvelope::sign(json_decode(payload), kid, secret_key)` يساوي ملف الظرف بايتاً ببايت.
+
+## `limits.ai_credits` (C-AI، ADR-0013)
+
+حقل اختياري داخل `limits`: عدد صحيح ≥ 0 هو الرصيد الشهري للذكاء الاصطناعي. **غيابه يعني 0**، ولا يُكتب إلا حين يزيد عن صفر، فكل المتجهات
+القديمة بلا الحقل وبلا تغيير. المتجه `ai-credits` يحمله (4300) مع القدرتين `ai_core` و`ai_plus`، والمتجه `negative-ai-credits` يُرفض
+`invalid_payload`. حقل `expect.ai_credits` في `expectations.json` هو القيمة التي يجب أن يقرأها القارئ (وغيابه = 0).

@@ -64,6 +64,9 @@ it('derives the documented status at every boundary', function (array $case) {
     // T3: the display-only notice; an unknown kind (unknown-field) reads as none.
     expect($payload->notice?->value)->toBe($case['notice'] ?? null, "{$case['name']} notice");
 
+    // ADR-0050 / central C-AI: optional limits.ai_credits, absent = 0.
+    expect($payload->limits['ai_credits'])->toBe($case['ai_credits'] ?? 0, "{$case['name']} ai_credits");
+
     foreach ($case['status_at'] as $point) {
         expect($payload->statusAt(CarbonImmutable::parse($point['at']))->value)
             ->toBe($point['status'], "{$case['name']} at {$point['at']}");

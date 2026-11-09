@@ -49,6 +49,15 @@ final class LicenseLimits
     }
 
     /**
+     * Monthly AI credits (`limits.ai_credits`, ADR-0050). 0 when the license predates the field or nothing is proven
+     * (read-only phase): AI features then stop, core work does not. Usage is counted by App\Ai\AiCredits.
+     */
+    public function aiCredits(): int
+    {
+        return max(0, $this->license->limit('ai_credits') ?? 0);
+    }
+
+    /**
      * @throws LicenseLimitReached
      */
     public function reserveSeat(): void

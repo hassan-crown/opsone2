@@ -51,6 +51,7 @@
 | setasign/fpdi | v2.6.9 (with mPDF: certificate page appended to the signed PDF) |
 | bacon/bacon-qr-code | installed with Fortify (2FA); also renders the ZATCA invoice QR (ADR-0033) — no new package |
 | OASIS UBL 2.1 XSD | bundled schemas in `src/resources/zatca/xsd` (ZATCA invoice validation in tests, ADR-0033) |
+| anthropic-ai/sdk | v1.6.0 (official Anthropic PHP SDK, Apache-2.0, `php ^8.1`; AI driver `anthropic` only — ADR-0050. Pulls open-telemetry/api 1.11.0, php-http/discovery 1.20.0, standard-webhooks 1.0.2; transport = the existing Guzzle, timeouts set per call. Telemetry disabled in the driver. Default driver is `log`: nothing is sent) |
 | laravel/chisel | v0.1.1 (kit installer; `install:features` already run and removed from composer scripts) |
 | pestphp/pest (dev) | v5.3.0 |
 | pestphp/pest-plugin-laravel (dev) | v5.0.1 |
@@ -79,5 +80,9 @@
 
 - Kit `phpunit/phpunit ^12.5` requirement removed; PHPUnit 13 now comes through Pest 5. Kit tests stay
   class-based PHPUnit tests and run under Pest; new tests should be Pest.
+- AI (ADR-0050, AI-0): the official SDK was chosen over a hand-written HTTP client (Q-89: Claude API direct behind
+  `App\Ai\Contracts\AiProvider`). Verified 2026-11-09: v1.6.0 released 2026-11-05, requires PHP ^8.1, installs on
+  PHP 8.5.12 with no conflicts; `composer audit` reports no advisory for it or its new dependencies. The driver
+  sends nothing unless `AI_DRIVER=anthropic` **and** `AI_ANTHROPIC_ENABLED=true` **and** a key are set (Q-94).
 - No optional modules (Spatie, Reverb, Horizon, Media Library, tenancy package) — tenancy is handled by
   deployment isolation (ADR-0002).

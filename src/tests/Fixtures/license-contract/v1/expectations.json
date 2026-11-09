@@ -166,6 +166,24 @@
             "problem": "invalid_payload"
         },
         {
+            "name": "ai-credits",
+            "description": "Activated licence with limits.ai_credits = 4300 and the ai_core and ai_plus capabilities: a facility that reads the key gets a 4300-credit monthly balance, one that does not ignores it.",
+            "envelope": "envelopes/ai-credits.json",
+            "status_at": [
+                {
+                    "at": "2026-06-01T00:00:00Z",
+                    "status": "active"
+                }
+            ],
+            "ai_credits": 4300
+        },
+        {
+            "name": "negative-ai-credits",
+            "description": "A negative limits.ai_credits.",
+            "envelope": "envelopes/negative-ai-credits.json",
+            "problem": "invalid_payload"
+        },
+        {
             "name": "bad-signature",
             "description": "The \"active\" envelope with one signature bit flipped.",
             "envelope": "envelopes/bad-signature.json",
