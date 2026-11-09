@@ -60,6 +60,35 @@ export type InboxAiPanel = {
     } | null;
 };
 
+/** AI-7a: the new-lead assistant (draft, extracted qualification fields, server-computed measurement slots). */
+export type LeadFieldKey =
+    | 'name'
+    | 'email'
+    | 'product'
+    | 'district'
+    | 'budget'
+    | 'preferred_time';
+
+export type InboxLeadPanel =
+    | { available: false }
+    | {
+          available: true;
+          can_accept: boolean;
+          suggestion: {
+              id: number;
+              reply: string;
+              fields: Partial<Record<LeadFieldKey, string | null>>;
+          } | null;
+          slots: {
+              starts_at: string;
+              ends_at: string;
+              member_id: number;
+              label: string;
+          }[];
+          slots_text: string | null;
+          orders: { id: number; number: string }[];
+      };
+
 export type ConversationDetail = ConversationRow & {
     window_closes_at: string | null;
     customer: {
@@ -75,4 +104,5 @@ export type ConversationDetail = ConversationRow & {
     assignable: { id: number; name: string }[];
     customer_results: { id: number; name: string; mobile: string | null }[];
     ai: InboxAiPanel;
+    lead: InboxLeadPanel;
 };

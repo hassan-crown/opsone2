@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Inbox\InboxController;
+use App\Http\Controllers\Inbox\LeadAssistController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -19,5 +20,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         // AI-4: draft a reply for the current staff member, or reject their draft. Nothing is sent from here.
         Route::post('inbox/{conversation}/suggestions', [InboxController::class, 'suggest'])->whereNumber('conversation')->name('inbox.suggest');
         Route::post('inbox/{conversation}/suggestions/{suggestion}/reject', [InboxController::class, 'rejectSuggestion'])->whereNumber(['conversation', 'suggestion'])->name('inbox.suggestion.reject');
+        // AI-7a: new-lead draft + qualification fields, accepting them, booking a server-computed slot (all staff-initiated).
+        Route::post('inbox/{conversation}/lead', [LeadAssistController::class, 'suggest'])->whereNumber('conversation')->name('inbox.lead.suggest');
+        Route::post('inbox/{conversation}/lead/{suggestion}/accept', [LeadAssistController::class, 'accept'])->whereNumber(['conversation', 'suggestion'])->name('inbox.lead.accept');
+        Route::post('inbox/{conversation}/lead/{suggestion}/reject', [LeadAssistController::class, 'reject'])->whereNumber(['conversation', 'suggestion'])->name('inbox.lead.reject');
+        Route::post('inbox/{conversation}/lead/book', [LeadAssistController::class, 'book'])->whereNumber('conversation')->name('inbox.lead.book');
     });
 });

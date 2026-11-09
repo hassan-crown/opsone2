@@ -7,6 +7,7 @@ import {
     TextareaField,
     TextField,
 } from '@/components/opsone/field';
+import { LeadAssistant } from '@/components/inbox/lead-assistant';
 import { Icon } from '@/components/opsone/icon';
 import { PageHeader } from '@/components/opsone/page-header';
 import { BackLink } from '@/components/procurement/shared';
@@ -324,6 +325,16 @@ function Composer({ conversation: c }: { conversation: ConversationDetail }) {
                         setBody(reply);
                         setSuggestionId(id);
                     }}
+                />
+            )}
+
+            {effective === 'text' && c.lead.available && (
+                <LeadAssistant
+                    conversationId={c.id}
+                    panel={c.lead}
+                    onUse={(text, append) =>
+                        setBody((b) => (append && b ? `${b}\n\n${text}` : text))
+                    }
                 />
             )}
 
