@@ -18,8 +18,10 @@ use Illuminate\Validation\ValidationException;
  * the flow, then the configuration draft it would make (current draft tables + the proposed plan as default + the
  * proposed rules, disabled) through the plan and rule validation and ConfigCheck — all against the PROPOSED flow,
  * since the plan's stages and gates belong to it. Publishing still runs the real FlowCheck and ConfigCheck.
+ *
+ * Not final: tests replace it to prove a broken check fails the request visibly.
  */
-final class FlowSetupCheck
+class FlowSetupCheck
 {
     public function __construct(private readonly FlowCheck $flowCheck) {}
 

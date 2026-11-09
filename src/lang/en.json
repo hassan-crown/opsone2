@@ -7030,5 +7030,7 @@
     "ai_setup.errors.not_open": "This proposal is no longer open.",
     "ai_setup.errors.checks_failed": "The proposal does not pass the checks.",
     "ai_setup.errors.unavailable": "Proposals are unavailable now (the feature is off or not licensed).",
-    "ai_setup.card": "Describe how the facility works and get a draft flow and rules to review."
+    "ai_setup.card": "Describe how the facility works and get a draft flow and rules to review.",
+    "ai_setup.errors.draft_exists": "The flow has an unpublished draft. Confirm replacing it before applying.",
+    "ai_setup.replace_draft_confirm": "I confirm replacing the current flow draft with this proposal"
 }

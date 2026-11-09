@@ -93,6 +93,7 @@ class AiSetupController extends Controller
             (bool) $request->validated('include_plan'),
             array_values(array_map('strval', (array) $request->validated('rules'))),
             (int) $request->validated('lock_version'),
+            (bool) $request->validated('replace_draft', false),
         );
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('ai_setup.applied', ['rules' => count($result['rules'])])]);

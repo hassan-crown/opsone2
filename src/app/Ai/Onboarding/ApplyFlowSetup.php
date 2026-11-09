@@ -8,12 +8,15 @@ use App\Actions\Rules\SavePaymentPlan;
 use App\Actions\StateMachines\M23Flow\T02SaveDraft;
 use App\Ai\AiSuggestions;
 use App\Ai\AiSuggestionStatus;
+use App\Enums\FlowStatus;
 use App\Finance\Plans\PaymentPlans;
 use App\Models\Ai\AiFlowSetup;
 use App\Models\Ai\AiSuggestion;
 use App\Models\Automation\AutomationRule;
 use App\Models\Finance\PaymentPlan;
+use App\Models\Flow;
 use App\Models\User;
+use App\Support\StaleRecord;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
@@ -23,8 +26,10 @@ use Illuminate\Validation\ValidationException;
  * switched off (SaveAutomationRule). Nothing is published: the specialist reviews the flow in the editor, runs
  * FlowCheck, publishes it, then tries the rules and publishes the configuration release (ConfigCheck).
  *
- * P-104 only (the Actions re-authorize their own permission). The proposal is checked again here — FlowCheck and the
- * configuration checks against the proposed flow — and refused while anything fails. A rule whose key already exists
+ * An existing flow draft (possibly edited by hand) is replaced only with `$replaceDraft`. P-104 only (the Actions
+ * re-authorize their own permission). The proposal is checked again here, inside the transaction with the flow and
+ * the draft rule tables locked — FlowCheck and the configuration checks against the proposed flow — and refused while
+ * anything fails. A rule whose key already exists
  * is never replaced; it is reported as skipped.
  */
 final class ApplyFlowSetup
@@ -43,37 +48,46 @@ final class ApplyFlowSetup
      * @param  list<string>  $ruleKeys  the proposed rules to create (keys from the payload)
      * @return array{plan: string|null, rules: list<string>, skipped: list<string>}
      */
-    public function handle(User $actor, AiFlowSetup $setup, bool $includePlan, array $ruleKeys, int $flowLockVersion): array
+    public function handle(User $actor, AiFlowSetup $setup, bool $includePlan, array $ruleKeys, int $flowLockVersion, bool $replaceDraft = false): array
     {
         RulesAccess::authorize($actor);
 
-        $suggestion = FlowDraftProposer::suggestionOf($setup);
-        if ($setup->status !== AiFlowSetup::READY || $suggestion === null || $suggestion->status !== AiSuggestionStatus::Proposed
-            || ($suggestion->expires_at !== null && $suggestion->expires_at->isPast())) {
-            throw ValidationException::withMessages(['setup' => __('ai_setup.errors.not_open')]);
-        }
-
-        $payload = $suggestion->payload;
-        $final = self::choose($payload, $includePlan, $ruleKeys);
-        $checks = $this->check->run($final);
-        if (! $checks['passes'] || $checks['flow'] === null) {
-            $messages = [];
-            foreach ($checks['flow_issues'] as $issue) {
-                $messages['flow.'.$issue['path']][] = $issue['message'];
-            }
-            foreach ($checks['config_errors'] as $path => $message) {
-                $messages['config.'.$path][] = $message;
-            }
-
-            throw ValidationException::withMessages($messages ?: ['setup' => __('ai_setup.errors.checks_failed')]);
-        }
-        $flow = $checks['flow'];
-
-        return DB::transaction(function () use ($actor, $setup, $suggestion, $payload, $final, $flow, $flowLockVersion) {
+        return DB::transaction(function () use ($actor, $setup, $includePlan, $ruleKeys, $flowLockVersion, $replaceDraft) {
+            // Lock what the check reads and the write changes — the request, the flow and the draft rule tables — so
+            // nothing moves between the check and the write.
             $locked = AiFlowSetup::query()->lockForUpdate()->findOrFail($setup->id);
-            if ($locked->status !== AiFlowSetup::READY) {
+            $suggestion = $locked->ai_suggestion_id === null ? null : AiSuggestion::query()->lockForUpdate()->find($locked->ai_suggestion_id);
+            if ($locked->status !== AiFlowSetup::READY || $suggestion === null || $suggestion->status !== AiSuggestionStatus::Proposed
+                || ($suggestion->expires_at !== null && $suggestion->expires_at->isPast())) {
                 throw ValidationException::withMessages(['setup' => __('ai_setup.errors.not_open')]);
             }
+
+            $current = Flow::query()->lockForUpdate()->orderBy('id')->first();
+            if ($current !== null && $current->lock_version !== $flowLockVersion) {
+                throw new StaleRecord($current->lock_version);
+            }
+            // A hand-made draft is never replaced silently: the specialist confirms it on the screen.
+            if ($current !== null && $current->status === FlowStatus::PublishedWithDraft && ! $replaceDraft) {
+                throw ValidationException::withMessages(['replace_draft' => __('ai_setup.errors.draft_exists')]);
+            }
+            PaymentPlan::query()->lockForUpdate()->get(['id']);
+            AutomationRule::query()->lockForUpdate()->get(['id']);
+
+            $payload = $suggestion->payload;
+            $final = self::choose($payload, $includePlan, $ruleKeys);
+            $checks = $this->check->run($final);
+            if (! $checks['passes'] || $checks['flow'] === null) {
+                $messages = [];
+                foreach ($checks['flow_issues'] as $issue) {
+                    $messages['flow.'.$issue['path']][] = $issue['message'];
+                }
+                foreach ($checks['config_errors'] as $path => $message) {
+                    $messages['config.'.$path][] = $message;
+                }
+
+                throw ValidationException::withMessages($messages ?: ['setup' => __('ai_setup.errors.checks_failed')]);
+            }
+            $flow = $checks['flow'];
 
             $this->saveDraft->handle($actor, $flow, $flowLockVersion, self::SOURCE);
 

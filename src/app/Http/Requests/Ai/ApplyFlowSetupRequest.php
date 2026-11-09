@@ -26,6 +26,8 @@ class ApplyFlowSetupRequest extends FormRequest
             'rules' => ['present', 'array', 'max:10'],
             'rules.*' => ['string', 'max:60'],
             'lock_version' => ['required', 'integer', 'min:1'],
+            // Required as true when the flow already has an unpublished draft (checked in ApplyFlowSetup).
+            'replace_draft' => ['sometimes', 'boolean'],
         ];
     }
 }

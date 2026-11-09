@@ -18,6 +18,7 @@ use App\Workflow\Catalogue\ActionType;
 use App\Workflow\FlowTemplates;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
+use Throwable;
 
 /**
  * «صف آليتك ونقترح الإعداد» (AI-1, plan §2 axis 1): turns the owner's description of how they work into a DRAFT on
@@ -33,6 +34,9 @@ final class FlowDraftProposer
 {
     /** Percent and day values the model may use without the description naming them. */
     public const PERCENT_STEPS = [10, 15, 20, 25, 30, 35, 40, 45, 50, 60, 65, 70, 75, 80, 85, 90];
+
+    /** Outcome of a request whose successful answer could not be mapped or checked. */
+    public const MAPPING_FAILED = 'mapping_failed';
 
     public const DAY_STEPS = [10, 12, 14, 15, 18, 20, 21, 25, 28, 30, 35, 40, 45, 60, 90];
 
@@ -88,7 +92,17 @@ TXT;
             return $setup;
         }
 
-        $payload = $this->payload($result);
+        // The model answered (the call is recorded as ok and charged its weight — 0 for this included task, counted by the
+        // daily fair-use cap — because the provider did the work). If mapping or checking that answer breaks, the
+        // request fails visibly («تعذّر», outcome `mapping_failed`) and no draft is stored; the specialist may ask again.
+        try {
+            $payload = $this->payload($result);
+        } catch (Throwable $e) {
+            report($e);
+            $setup->forceFill(['status' => AiFlowSetup::FAILED, 'outcome' => self::MAPPING_FAILED])->save();
+
+            return $setup;
+        }
 
         DB::transaction(function () use ($setup, $result, $payload, $user) {
             $suggestion = $this->suggestions->propose(AiTask::FlowPropose, $result, $payload, $user, $setup);

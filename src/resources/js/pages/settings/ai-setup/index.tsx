@@ -106,6 +106,7 @@ export default function AiSetup({
     const [busy, setBusy] = useState(false);
     const [includePlan, setIncludePlan] = useState(true);
     const [rules, setRules] = useState<string[]>([]);
+    const [replaceDraft, setReplaceDraft] = useState(false);
 
     // Poll while the model works (the request runs on the queue).
     useEffect(() => {
@@ -123,6 +124,7 @@ export default function AiSetup({
     useEffect(() => {
         setRules(proposal?.automation.map((r) => r.key) ?? []);
         setIncludePlan(true);
+        setReplaceDraft(false);
         setAnswers({});
     }, [setup?.id, proposal?.automation]);
 
@@ -166,6 +168,7 @@ export default function AiSetup({
                 include_plan: includePlan,
                 rules,
                 lock_version: flow.lock_version,
+                replace_draft: replaceDraft,
             },
             {
                 preserveScroll: true,
@@ -523,6 +526,19 @@ export default function AiSetup({
                                             </AlertBody>
                                         </Alert>
                                     )}
+                                    {flow.has_draft && (
+                                        <CheckboxField
+                                            label={t(
+                                                'ai_setup.replace_draft_confirm',
+                                            )}
+                                            checked={replaceDraft}
+                                            onChange={(e) =>
+                                                setReplaceDraft(
+                                                    e.target.checked,
+                                                )
+                                            }
+                                        />
+                                    )}
                                     {applyErrors.length > 0 && (
                                         <Alert variant="danger">
                                             <AlertBody>
@@ -543,7 +559,12 @@ export default function AiSetup({
                                     <div className="flex flex-wrap gap-2">
                                         <Button
                                             onClick={apply}
-                                            disabled={busy || !checks?.passes}
+                                            disabled={
+                                                busy ||
+                                                !checks?.passes ||
+                                                (flow.has_draft &&
+                                                    !replaceDraft)
+                                            }
                                         >
                                             {t('ai_setup.apply')}
                                         </Button>
