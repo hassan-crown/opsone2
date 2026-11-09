@@ -79,11 +79,21 @@ final class HelpAssistant
                 'text' => mb_substr($a->body(), 0, self::ARTICLE_CHARS),
             ])->all()],
             untrusted: [$question],
+            known: KnownNames::in($question),
             user: $user,
+            // The user's own question is a legitimate source for a number or date they typed and the answer echoes.
+            untrustedIsSource: true,
         ));
 
         if ($result->outcome === AiOutcome::FeatureOff) {
             return new HelpAnswer(HelpAnswer::OFF);
+        }
+        if ($result->outcome === AiOutcome::Invalid) {
+            // The model produced something the checks reject (an unsourced number, a bad shape): no answer, and the
+            // content team sees the question.
+            $this->unanswered->record($question, 'unsupported');
+
+            return new HelpAnswer(HelpAnswer::NO_ANSWER);
         }
         if (! $result->ok() || $result->output === null) {
             return new HelpAnswer(HelpAnswer::UNAVAILABLE);
