@@ -8,6 +8,7 @@ use App\Ai\Contracts\AiProvider;
 use App\Ai\Drivers\AnthropicAiProvider;
 use App\Ai\Drivers\FakeAiProvider;
 use App\Ai\Drivers\LogAiProvider;
+use App\Ai\Insights\DailyDigest;
 use App\Notifications\NotificationCatalogue;
 use Illuminate\Support\ServiceProvider;
 
@@ -34,6 +35,15 @@ class AiServiceProvider extends ServiceProvider
             'title' => 'ai.notify.credits_low.title',
             'body' => 'ai.notify.credits_low.body',
             'route' => 'ai-settings.edit',
+        ]);
+
+        // AI-8: the morning digest. Opening it re-checks P-60; the page is the executive dashboard.
+        NotificationCatalogue::define(DailyDigest::NOTICE, [
+            'mandatory' => false,
+            'permission' => Permission::P60,
+            'title' => 'ai.notify.digest.title',
+            'body' => 'ai.notify.digest.body',
+            'route' => 'executive',
         ]);
     }
 }

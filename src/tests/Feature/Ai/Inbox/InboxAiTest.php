@@ -293,6 +293,14 @@ it('drafts a reply whose price comes from the catalog fact, shows its sources, a
     expect(aiOutbound())->toBe(0);
 });
 
+it('checks reply drafts in strict mode: even a one-digit promise needs a fact', function () {
+    $conversation = aiInboxConversation($this, 'متى يجهز؟ قالوا لي خلال 3 أيام');
+    $this->fake->respond(['reply' => 'يجهز خلال 3 أيام إن شاء الله.', 'used_facts' => [], 'needs_human' => false]);
+
+    expect(app(ReplySuggester::class)->suggest($this->managerA, $conversation)->status)->toBe(SuggestOutcome::NO_SUGGESTION)
+        ->and(AiUsage::query()->sole()->credits)->toBe(0);
+});
+
 // --- Context within the staff member's grants ---------------------------------------------------------------------
 
 it('builds the context only from what the staff member may open (permission and branch)', function () {

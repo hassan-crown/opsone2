@@ -14,6 +14,8 @@ use Illuminate\Database\Eloquent\Model;
  * - `facts`: named, trusted values from the database (`order.stage_public`, `due.amount_halalas`). Every number,
  *   date and link in the output must come from here (plan §3.2, §3.3).
  * - `untrusted`: customer text, file names, notes — wrapped as data the model must not obey (plan §3.3).
+ * - `strictFacts`: stricter facts check for answers that state figures (see OutputValidator; date parts are not sources,
+ *   single digits and percentages are checked, multiples are refused).
  * - `known`: values to hide that no pattern finds (detailed address, a customer's full name), by kind.
  * - `checks`: the feature's own output checks (e.g. the inbox's financial check), run before the call is charged.
  */
@@ -37,6 +39,7 @@ final readonly class AiCall
         public ?User $user = null,
         public ?Model $subject = null,
         public bool $untrustedIsSource = false,
+        public bool $strictFacts = false,
         public array $checks = [],
     ) {}
 }

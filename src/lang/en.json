@@ -6998,6 +6998,8 @@
     "ai.privacy.facility_duty": "The facility should update its customer privacy policy to mention this processing before turning on features that read customer data.",
     "ai.notify.credits_low.title": "AI credits are running low",
     "ai.notify.credits_low.body": ":used of :limit operations used this month.",
+    "ai.notify.digest.title": "Your daily digest",
+    "ai.notify.digest.body": ":text",
     "audit.area.ai": "AI assistant",
     "audit.action.ai.settings_changed": "AI settings changed",
     "audit.action.ai.suggestion_accepted": "An AI suggestion was accepted",

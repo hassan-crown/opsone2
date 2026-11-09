@@ -58,6 +58,9 @@ return [
         'reply.suggest' => ['tier' => 'standard', 'effort' => 'low', 'max_tokens' => 4096, 'interactive' => true, 'weight' => 1, 'batch' => false],
         'order.draft' => ['tier' => 'standard', 'effort' => 'medium', 'max_tokens' => 8192, 'interactive' => true, 'weight' => 4, 'batch' => false],
         'lead.qualify' => ['tier' => 'standard', 'effort' => 'low', 'max_tokens' => 4096, 'interactive' => true, 'weight' => 1, 'batch' => false],
+        // First step of «اسأل بياناتك»: the model only chooses which report tools to run. Included (weight 0, fair-use cap);
+        // the answer step (data.ask) carries the credit weight.
+        'data.plan' => ['tier' => 'fast', 'effort' => 'low', 'max_tokens' => 1024, 'interactive' => true, 'weight' => 0, 'batch' => false],
         'data.ask' => ['tier' => 'standard', 'effort' => 'medium', 'max_tokens' => 8192, 'interactive' => true, 'weight' => 3, 'batch' => false],
         'quote.followup' => ['tier' => 'standard', 'effort' => 'medium', 'max_tokens' => 4096, 'interactive' => false, 'weight' => 1, 'batch' => true],
         'digest.daily' => ['tier' => 'standard', 'effort' => 'medium', 'max_tokens' => 8192, 'interactive' => false, 'weight' => 1, 'batch' => true],

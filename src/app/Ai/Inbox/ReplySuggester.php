@@ -26,8 +26,8 @@ use App\Whatsapp\Inbox\ConversationTransport;
  *   P-108, opt-out, 24-hour window), or rejects it.
  * - Context = ReplyContext::for($user): only what that person may open (permission + branch); the last 20 messages
  *   are untrusted data, never instructions and never a source for a number.
- * - Checks before anything is charged: the general validator (every number/date/link from the facts) and the
- *   FinancialCheck (amounts, percentages and dates only from money/date facts). A failing draft is dropped.
+ * - Checks before anything is charged: the general validator in strict mode (every number — even one digit —, date
+ *   and link from the facts) and the FinancialCheck (amounts, percentages and dates only from money/date facts). A failing draft is dropped.
  */
 final class ReplySuggester
 {
@@ -104,6 +104,8 @@ final class ReplySuggester
             known: $context->known,
             user: $user,
             subject: $conversation,
+            // Strict: even one-digit counts («3 أيام») and percentages need a fact; date parts are not sources.
+            strictFacts: true,
             checks: [new FinancialCheck],
         ));
 
