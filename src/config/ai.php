@@ -87,6 +87,13 @@ return [
     // wrap each case in a transaction (RefreshDatabase) set the baseline to 1 in phpunit.xml. Never raise it elsewhere.
     'transaction_baseline' => (int) env('AI_TRANSACTION_BASELINE', 0),
 
+    // AI-6 automatic reply (Q-92): at most `daily_cap` automatic messages per conversation in 24 hours (hand-off notes
+    // included), and below `min_confidence` (0–1) the classifier's label is ignored and the message goes to staff.
+    'auto_reply' => [
+        'daily_cap' => (int) env('AI_AUTO_REPLY_DAILY_CAP', 3),
+        'min_confidence' => (float) env('AI_AUTO_REPLY_MIN_CONFIDENCE', 0.8),
+    ],
+
     // A suggestion nobody acted on expires (ai_suggestions.status = expired).
     'suggestion_ttl_days' => (int) env('AI_SUGGESTION_TTL_DAYS', 14),
 
