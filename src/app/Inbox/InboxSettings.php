@@ -7,6 +7,7 @@ use App\Audit\AuditAction;
 use App\Models\Branch;
 use App\Models\IntegrationSetting;
 use App\Models\User;
+use App\Support\RequestCache;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -23,9 +24,12 @@ final class InboxSettings
 
     public const MAX_PARAMS = 10;
 
+    private const CACHE_KEY = 'integrations.whatsapp_inbox';
+
+    /** One read per request: the shared navigation, the page and the webhook all ask (ADR-0027). */
     public function row(): ?IntegrationSetting
     {
-        return IntegrationSetting::query()->where('key', IntegrationSetting::WHATSAPP_INBOX)->first();
+        return app(RequestCache::class)->remember(self::CACHE_KEY, fn () => IntegrationSetting::query()->where('key', IntegrationSetting::WHATSAPP_INBOX)->first());
     }
 
     public function enabled(): bool
@@ -101,6 +105,7 @@ final class InboxSettings
                 'config' => ['default_branch_id' => $defaultBranchId, 'templates' => $templates],
                 'updated_by' => $actor->id,
             ])->save();
+            app(RequestCache::class)->flush();
             Audit::record(AuditAction::WhatsappInboxSettingsSaved, $row, $actor, before: $before, after: ['enabled' => $enabled, 'default_branch_id' => $defaultBranchId, 'templates' => count($templates)], label: 'WhatsApp inbox');
 
             return $row;

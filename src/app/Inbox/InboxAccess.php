@@ -19,7 +19,8 @@ final class InboxAccess
 {
     public static function any(User $user): bool
     {
-        return app(InboxSettings::class)->enabled() && Access::canRead($user, Permission::P108);
+        // The grant first: staff without P-108 never pay for reading the switch.
+        return Access::canRead($user, Permission::P108) && app(InboxSettings::class)->enabled();
     }
 
     public static function canOpen(User $user, Conversation $conversation): bool
