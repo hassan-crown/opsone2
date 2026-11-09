@@ -16,5 +16,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('inbox/{conversation}/replies', [InboxController::class, 'reply'])->whereNumber('conversation')->name('inbox.reply');
         Route::post('inbox/{conversation}/assign', [InboxController::class, 'assign'])->whereNumber('conversation')->name('inbox.assign');
         Route::post('inbox/{conversation}/link', [InboxController::class, 'link'])->whereNumber('conversation')->name('inbox.link');
+        // AI-4: draft a reply for the current staff member, or reject their draft. Nothing is sent from here.
+        Route::post('inbox/{conversation}/suggestions', [InboxController::class, 'suggest'])->whereNumber('conversation')->name('inbox.suggest');
+        Route::post('inbox/{conversation}/suggestions/{suggestion}/reject', [InboxController::class, 'rejectSuggestion'])->whereNumber(['conversation', 'suggestion'])->name('inbox.suggestion.reject');
     });
 });

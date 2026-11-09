@@ -58,6 +58,9 @@ return [
         'reply.suggest' => ['tier' => 'standard', 'effort' => 'low', 'max_tokens' => 4096, 'interactive' => true, 'weight' => 1, 'batch' => false],
         'order.draft' => ['tier' => 'standard', 'effort' => 'medium', 'max_tokens' => 8192, 'interactive' => true, 'weight' => 4, 'batch' => false],
         'lead.qualify' => ['tier' => 'standard', 'effort' => 'low', 'max_tokens' => 4096, 'interactive' => true, 'weight' => 1, 'batch' => false],
+        // First step of «اسأل بياناتك»: the model only chooses which report tools to run. Included (weight 0, fair-use cap);
+        // the answer step (data.ask) carries the credit weight.
+        'data.plan' => ['tier' => 'fast', 'effort' => 'low', 'max_tokens' => 1024, 'interactive' => true, 'weight' => 0, 'batch' => false],
         'data.ask' => ['tier' => 'standard', 'effort' => 'medium', 'max_tokens' => 8192, 'interactive' => true, 'weight' => 3, 'batch' => false],
         'quote.followup' => ['tier' => 'standard', 'effort' => 'medium', 'max_tokens' => 4096, 'interactive' => false, 'weight' => 1, 'batch' => true],
         'digest.daily' => ['tier' => 'standard', 'effort' => 'medium', 'max_tokens' => 8192, 'interactive' => false, 'weight' => 1, 'batch' => true],
@@ -86,6 +89,14 @@ return [
     // AiGateway refuses to run inside a database transaction (the provider call must not hold row locks). Tests that
     // wrap each case in a transaction (RefreshDatabase) set the baseline to 1 in phpunit.xml. Never raise it elsewhere.
     'transaction_baseline' => (int) env('AI_TRANSACTION_BASELINE', 0),
+
+    // AI-4: automatic reply drafts for the assignee, per conversation — at most one every `auto_draft_minutes` and
+    // `auto_draft_daily` a day (counted from ai_usage, failed attempts included), so a customer sending many messages
+    // cannot spend the facility's credits. A staff member's own «suggest a reply» is not capped here.
+    'inbox' => [
+        'auto_draft_minutes' => (int) env('AI_INBOX_AUTO_DRAFT_MINUTES', 10),
+        'auto_draft_daily' => (int) env('AI_INBOX_AUTO_DRAFT_DAILY', 10),
+    ],
 
     // AI-6 automatic reply (Q-92): at most `daily_cap` automatic messages per conversation in 24 hours (hand-off notes
     // included), and below `min_confidence` (0–1) the classifier's label is ignored and the message goes to staff.

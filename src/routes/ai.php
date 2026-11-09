@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Ai\AiSettingsController;
 use App\Http\Controllers\Ai\AutoReplySettingsController;
+use App\Http\Controllers\Ai\DataQuestionController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -12,6 +13,7 @@ use Illuminate\Support\Facades\Route;
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('settings/ai', [AiSettingsController::class, 'edit'])->name('ai-settings.edit');
     Route::put('settings/ai', [AiSettingsController::class, 'update'])->name('ai-settings.update');
+    Route::post('ai/data-questions', [DataQuestionController::class, 'ask'])->middleware('throttle:20,1')->name('ai.data-questions.ask');
     // AI-6 automatic reply (P-02, Q-92).
     Route::get('settings/ai/auto-reply', [AutoReplySettingsController::class, 'edit'])->name('ai-auto-reply.edit');
     Route::put('settings/ai/auto-reply', [AutoReplySettingsController::class, 'update'])->name('ai-auto-reply.update');
