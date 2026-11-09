@@ -24,6 +24,9 @@ class SendConversationMessage implements ShouldQueue
 
     public const SENDING = 'sending';
 
+    /** A claim older than this is a worker that died mid-call (the job timeout is 60 s). */
+    public const STALE_AFTER_MINUTES = 15;
+
     public int $tries = 4;
 
     public int $timeout = 60;
@@ -92,6 +95,33 @@ class SendConversationMessage implements ShouldQueue
         }
 
         $message->forceFill(['provider_message_id' => $id, 'status' => MessageStatus::Sent->value, 'sent_at' => now(), 'error' => null])->save();
+    }
+
+    /**
+     * The queue gave up (timeout, worker killed, exception outside handle): the reply must not stay «queued» or
+     * «sending» forever — staff see it failed and may write again. Never re-sent: the provider may have accepted it.
+     */
+    public function failed(?Throwable $exception): void
+    {
+        ConversationMessage::query()
+            ->whereKey($this->messageId)
+            ->whereIn('status', [MessageStatus::Queued->value, self::SENDING])
+            ->whereNull('provider_message_id')
+            ->update(['status' => MessageStatus::Failed->value, 'failed_at' => now(), 'error' => 'job_failed', 'updated_at' => now()]);
+    }
+
+    /**
+     * Safety net for claims whose worker died without the queue calling failed() (e.g. the process was killed): a
+     * reply still `sending` after STALE_AFTER_MINUTES is marked failed, never re-sent (at most once). Scheduled.
+     */
+    public static function failStale(): int
+    {
+        return ConversationMessage::query()
+            ->where('direction', ConversationMessage::OUT)
+            ->where('status', self::SENDING)
+            ->whereNull('provider_message_id')
+            ->where('updated_at', '<', now()->subMinutes(self::STALE_AFTER_MINUTES))
+            ->update(['status' => MessageStatus::Failed->value, 'failed_at' => now(), 'error' => 'stale_sending', 'updated_at' => now()]);
     }
 
     /**

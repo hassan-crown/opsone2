@@ -12,10 +12,11 @@ use App\Models\Inbox\Conversation;
 use App\Models\User;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 /**
  * Ties a conversation to a customer (AI-3): automatically by the WhatsApp number on the first message, or by staff for
- * an «unknown contact». The conversation then takes the customer's branch (its scope) and, when it has none yet, the
+ * an «unknown contact» (only while none is linked, checked under the row lock). The conversation then takes the customer's branch (its scope) and, when it has none yet, the
  * customer's responsible person as assignee.
  */
 final class ConversationCustomers
@@ -50,6 +51,11 @@ final class ConversationCustomers
         return DB::transaction(function () use ($actor, $conversation, $customer) {
             /** @var Conversation $locked */
             $locked = Conversation::query()->lockForUpdate()->findOrFail($conversation->id);
+            // Only an unknown contact is linked here: re-linking would move the conversation to another branch's
+            // staff (its scope), so changing a linked customer is not an inbox action.
+            if ($locked->customer_id !== null) {
+                throw ValidationException::withMessages(['customer_id' => __('inbox.errors.already_linked')]);
+            }
             $before = ['customer_id' => $locked->customer_id, 'branch_id' => $locked->branch_id];
             $locked->forceFill([
                 'customer_id' => $customer->id,

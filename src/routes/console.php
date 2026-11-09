@@ -10,6 +10,7 @@ use App\Automation\AutomationTimers;
 use App\EInvoicing\MissingInvoices;
 use App\FieldSales\FieldAssignmentSla;
 use App\Finance\CollectionReminders;
+use App\Inbox\Jobs\SendConversationMessage;
 use App\Models\Membership;
 use App\Models\OutboxMessage;
 use App\Models\SupportRequest;
@@ -190,3 +191,10 @@ Artisan::command('whatsapp:remind', function () {
 })->purpose('Remind customers before a measurement or installation');
 
 Schedule::command('whatsapp:remind')->hourly()->withoutOverlapping();
+
+// WhatsApp inbox (AI-3): replies whose worker died mid-send are shown as failed, never re-sent.
+Artisan::command('inbox:fail-stale', function () {
+    $this->info(sprintf('Marked %d stale inbox reply(ies) failed.', SendConversationMessage::failStale()));
+})->purpose('Mark WhatsApp inbox replies stuck in «sending» as failed');
+
+Schedule::command('inbox:fail-stale')->everyFifteenMinutes()->withoutOverlapping();

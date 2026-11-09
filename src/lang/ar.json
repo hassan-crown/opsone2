@@ -6910,5 +6910,6 @@
     "integrations.whatsapp_inbox.save": "حفظ إعدادات الصندوق",
     "audit.action.integrations.whatsapp_inbox_saved": "حُفظت إعدادات صندوق WhatsApp",
     "audit.action.conversation.assigned": "أُسندت محادثة WhatsApp",
-    "audit.action.conversation.linked": "رُبطت محادثة WhatsApp بعميل"
+    "audit.action.conversation.linked": "رُبطت محادثة WhatsApp بعميل",
+    "inbox.errors.already_linked": "هذه المحادثة مرتبطة بعميل بالفعل."
 }

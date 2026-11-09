@@ -11,6 +11,7 @@ use App\Models\User;
 use App\Whatsapp\Inbox\ConversationTransport;
 use App\Whatsapp\MessageStatus;
 use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
@@ -96,16 +97,39 @@ final class ReplySender
      */
     private function queue(User $actor, Conversation $conversation, string $key, callable $content): ConversationMessage
     {
-        $existing = ConversationMessage::query()->where('idempotency_key', $key)->first();
+        $existing = $this->byKey($key, $conversation);
         if ($existing !== null) {
-            if ($existing->conversation_id !== $conversation->id) {
-                throw ValidationException::withMessages(['key' => __('inbox.errors.duplicate_key')]);
-            }
-
             return $existing;
         }
 
-        $message = DB::transaction(function () use ($actor, $conversation, $key, $content) {
+        try {
+            $message = $this->insert($actor, $conversation, $key, $content);
+        } catch (UniqueConstraintViolationException) {
+            // A concurrent submit with the same key won the insert: answer with its message, send nothing more.
+            return $this->byKey($key, $conversation) ?? throw ValidationException::withMessages(['key' => __('inbox.errors.duplicate_key')]);
+        }
+
+        SendConversationMessage::dispatch($message->id);
+
+        return $message->refresh();
+    }
+
+    private function byKey(string $key, Conversation $conversation): ?ConversationMessage
+    {
+        $existing = ConversationMessage::query()->where('idempotency_key', $key)->first();
+        if ($existing !== null && $existing->conversation_id !== $conversation->id) {
+            throw ValidationException::withMessages(['key' => __('inbox.errors.duplicate_key')]);
+        }
+
+        return $existing;
+    }
+
+    /**
+     * @param  callable(Conversation): array<string, string>  $content
+     */
+    private function insert(User $actor, Conversation $conversation, string $key, callable $content): ConversationMessage
+    {
+        return DB::transaction(function () use ($actor, $conversation, $key, $content) {
             /** @var Conversation $locked */
             $locked = Conversation::query()->lockForUpdate()->findOrFail($conversation->id);
             $now = now();
@@ -121,9 +145,5 @@ final class ReplySender
 
             return $message;
         });
-
-        SendConversationMessage::dispatch($message->id);
-
-        return $message->refresh();
     }
 }

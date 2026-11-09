@@ -3,6 +3,7 @@
 namespace App\Inbox\Jobs;
 
 use App\Files\AttachmentService;
+use App\Models\Attachment;
 use App\Models\Inbox\ConversationMessage;
 use App\Notifications\Channels\WhatsApp\WhatsAppException;
 use App\Whatsapp\Inbox\ConversationTransport;
@@ -10,6 +11,7 @@ use App\Whatsapp\Inbox\MediaRejected;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Throwable;
 
 /**
@@ -60,20 +62,26 @@ class FetchInboundMedia implements ShouldQueue
             return;
         }
 
+        /** @var Attachment|null $stored */
+        $stored = null;
         try {
-            DB::transaction(function () use ($message, $file, $types, $attachments) {
+            DB::transaction(function () use ($message, $file, $types, $attachments, &$stored) {
                 $locked = ConversationMessage::query()->lockForUpdate()->find($message->id);
                 if ($locked === null || $locked->media_status !== ConversationMessage::MEDIA_PENDING) {
                     return;
                 }
                 $extension = $types[$file->mime] ?? 'bin';
-                $attachment = $attachments->storeGenerated(
+                $attachment = $stored = $attachments->storeGenerated(
                     $message->conversation, $file->bytes, 'whatsapp-'.$message->id, $extension, $file->mime, 'whatsapp_media',
                 );
                 $locked->forceFill(['attachment_id' => $attachment->id, 'media_status' => ConversationMessage::MEDIA_STORED, 'media_mime' => $file->mime, 'error' => null])->save();
             });
         } catch (Throwable $e) {
-            // Storage quota reached or the disk refused: the message stays, without its file.
+            // Storage quota reached or the disk refused: the message stays, without its file. A file written before
+            // the outer transaction rolled back has no row any more, so it is removed too.
+            if ($stored !== null) {
+                Storage::disk($stored->disk)->delete($stored->path);
+            }
             report($e);
             $this->finish($message, ConversationMessage::MEDIA_FAILED, 'storage');
         }

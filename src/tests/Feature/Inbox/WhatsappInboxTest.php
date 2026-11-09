@@ -14,9 +14,15 @@ use App\Models\AuditEvent;
 use App\Models\Customer;
 use App\Models\Inbox\Conversation;
 use App\Models\Inbox\ConversationMessage;
+use App\Notifications\Channels\WhatsApp\CloudApiWhatsAppChannel;
+use App\Notifications\Channels\WhatsApp\WhatsAppException;
+use App\Whatsapp\Inbox\CloudConversationTransport;
 use App\Whatsapp\Inbox\ConversationTransport;
 use App\Whatsapp\Inbox\FakeConversationTransport;
+use App\Whatsapp\Inbox\MediaRejected;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -343,4 +349,88 @@ it('lets only P-02 holders change the inbox settings, audited', function () {
     expect($settings->defaultBranchId())->toBe($this->org->b->id)
         ->and($settings->templates())->toBe([['name' => 'payment_link', 'language' => 'en', 'params' => 2, 'label' => 'Payment']])
         ->and(AuditEvent::query()->where('action', 'integrations.whatsapp_inbox_saved')->count())->toBe(2);
+});
+
+// --- Review fixes: stuck sends, concurrent keys, re-linking, streamed media -------------------------------------------
+
+it('marks a reply failed when its job gives up, and fails stale «sending» claims without re-sending', function () {
+    Queue::fake();
+    inboxPost($this, inboxPayload([inboxText()]));
+    $conversation = inboxConversation();
+    $send = fn () => $this->actingAs($this->managerA)->post("/inbox/{$conversation->id}/replies", ['kind' => 'text', 'key' => (string) Str::uuid(), 'body' => 'رد']);
+    $send();
+    $send();
+    [$first, $second] = $conversation->messages()->where('direction', 'out')->orderBy('id')->get()->all();
+
+    // The queue gave up on the first job (timeout / killed worker).
+    (new SendConversationMessage($first->id))->failed(new RuntimeException('timeout'));
+    expect($first->refresh()->status)->toBe('failed')->and($first->error)->toBe('job_failed');
+
+    // The second was claimed by a worker that died; a fresh claim is left alone.
+    $second->forceFill(['status' => SendConversationMessage::SENDING])->save();
+    $this->artisan('inbox:fail-stale')->assertSuccessful();
+    expect($second->refresh()->status)->toBe('sending');
+
+    $this->travel(SendConversationMessage::STALE_AFTER_MINUTES + 1)->minutes();
+    $this->artisan('inbox:fail-stale')->assertSuccessful();
+    expect($second->refresh()->status)->toBe('failed')
+        ->and($second->error)->toBe('stale_sending')
+        ->and($this->transport->texts)->toBe([]);
+});
+
+it('answers a concurrent submit with the same key with the winner message instead of an error', function () {
+    inboxPost($this, inboxPayload([inboxText()]));
+    $conversation = inboxConversation();
+    $key = (string) Str::uuid();
+
+    // Simulates the other request: right after this one found no message for the key, the other one commits it.
+    $raced = false;
+    DB::listen(function ($query) use (&$raced, $conversation, $key) {
+        if (! $raced && str_contains($query->sql, 'idempotency_key') && str_starts_with(strtolower($query->sql), 'select')) {
+            $raced = true;
+            DB::table('conversation_messages')->insert([
+                'conversation_id' => $conversation->id, 'direction' => 'out', 'type' => 'text', 'idempotency_key' => $key,
+                'status' => 'sent', 'occurred_at' => now(), 'created_at' => now(), 'updated_at' => now(),
+            ]);
+        }
+    });
+
+    $this->actingAs($this->managerA)->post("/inbox/{$conversation->id}/replies", ['kind' => 'text', 'key' => $key, 'body' => 'مرة واحدة'])
+        ->assertRedirect("/inbox/{$conversation->id}")->assertSessionHasNoErrors();
+
+    expect($raced)->toBeTrue()
+        ->and(ConversationMessage::query()->where('idempotency_key', $key)->count())->toBe(1)
+        ->and($this->transport->texts)->toBe([]);
+});
+
+it('refuses to re-link a conversation that already has a customer (server-side)', function () {
+    inboxPost($this, inboxPayload([inboxText()]));
+    $conversation = inboxConversation();
+    $other = Customer::factory()->create(['branch_id' => $this->org->b->id]);
+
+    $this->actingAs($this->org->owner)->post("/inbox/{$conversation->id}/link", ['customer_id' => $other->id])->assertSessionHasErrors('customer_id');
+
+    expect($conversation->refresh()->customer_id)->toBe($this->customerA->id)
+        ->and($conversation->branch_id)->toBe($this->org->a->id);
+});
+
+it('streams media from Meta into a capped buffer and refuses redirects', function () {
+    config(['whatsapp.cloud.access_token' => 'token', 'whatsapp.cloud.base_url' => 'https://graph.test', 'whatsapp.cloud.retries' => 0]);
+    $transport = new CloudConversationTransport(new CloudApiWhatsAppChannel);
+    $types = ['image/png' => 'png'];
+    Http::fake([
+        'graph.test/*/m-ok' => Http::response(['url' => 'https://lookaside.fbsbx.com/ok', 'mime_type' => 'image/png', 'file_size' => strlen(PNG_BYTES)]),
+        'graph.test/*/m-lie' => Http::response(['url' => 'https://lookaside.fbsbx.com/lie', 'mime_type' => 'image/png', 'file_size' => 10]),
+        'graph.test/*/m-redirect' => Http::response(['url' => 'https://lookaside.fbsbx.com/redirect', 'mime_type' => 'image/png', 'file_size' => 10]),
+        'graph.test/*/m-host' => Http::response(['url' => 'https://evil.example/x', 'mime_type' => 'image/png', 'file_size' => 10]),
+        'lookaside.fbsbx.com/ok' => Http::response(PNG_BYTES),
+        'lookaside.fbsbx.com/lie' => Http::response(str_repeat('A', 5000)),
+        'lookaside.fbsbx.com/redirect' => Http::response('', 302, ['Location' => 'https://evil.example/x']),
+    ]);
+
+    expect($transport->fetchMedia('m-ok', $types, 4096)->mime)->toBe('image/png');
+    expect(fn () => $transport->fetchMedia('m-lie', $types, 4096))->toThrow(MediaRejected::class);
+    expect(fn () => $transport->fetchMedia('m-redirect', $types, 4096))->toThrow(WhatsAppException::class);
+    expect(fn () => $transport->fetchMedia('m-host', $types, 4096))->toThrow(WhatsAppException::class);
+    Http::assertNotSent(fn ($request) => str_contains($request->url(), 'evil.example'));
 });

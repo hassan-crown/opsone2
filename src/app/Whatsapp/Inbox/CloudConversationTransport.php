@@ -70,13 +70,29 @@ final class CloudConversationTransport implements ConversationTransport
             throw new WhatsAppException('WhatsApp media URL is not a Meta host.', false, 'media_host');
         }
 
-        $file = $this->call(fn (PendingRequest $http) => $http->withHeaders(['Accept' => '*/*'])->get($url));
+        // Streamed into a capped buffer, no redirects followed: never more than the limit is read into memory.
+        $file = $this->call(fn (PendingRequest $http) => $http->withHeaders(['Accept' => '*/*'])
+            ->withOptions(['stream' => true, 'allow_redirects' => false])->get($url));
+        if ($file->redirect()) {
+            throw new WhatsAppException('WhatsApp media download was redirected.', false, 'media_redirect');
+        }
         $length = $file->header('Content-Length');
         if ($length !== '' && (int) $length > $maxBytes) {
             throw new MediaRejected('size');
         }
 
-        return MediaCheck::content($file->body(), $mime, $allowedTypes, $maxBytes);
+        $stream = $file->toPsrResponse()->getBody();
+        $bytes = '';
+        while (! $stream->eof()) {
+            $bytes .= $stream->read(65536);
+            if (strlen($bytes) > $maxBytes) {
+                $stream->close();
+
+                throw new MediaRejected('size');
+            }
+        }
+
+        return MediaCheck::content($bytes, $mime, $allowedTypes, $maxBytes);
     }
 
     /**

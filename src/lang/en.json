@@ -6910,5 +6910,6 @@
     "integrations.whatsapp_inbox.save": "Save inbox settings",
     "audit.action.integrations.whatsapp_inbox_saved": "WhatsApp inbox settings were saved",
     "audit.action.conversation.assigned": "A WhatsApp conversation was assigned",
-    "audit.action.conversation.linked": "A WhatsApp conversation was linked to a customer"
+    "audit.action.conversation.linked": "A WhatsApp conversation was linked to a customer",
+    "inbox.errors.already_linked": "This conversation is already linked to a customer."
 }

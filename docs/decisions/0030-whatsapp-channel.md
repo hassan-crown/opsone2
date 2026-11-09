@@ -103,12 +103,16 @@ facility's cost (Q-72).
 the first message) and queues `SendConversationMessage`: atomic claim queued → sending, provider id saved as soon as
 returned, retryable refusals back to queued (30 s / 2 min / 5 min, 4 attempts), permanent refusals `failed` with Meta's
 code only. Delivery statuses from the webhook move replies forward only. No SMS fallback for inbox replies (staff see the
-failure in the thread). Same at-most-once caveat as notifications.
+failure in the thread). Same at-most-once caveat as notifications. A job the queue gives up on (timeout, killed
+worker) marks its reply `failed` (`job_failed`), and `inbox:fail-stale` (every 15 min) fails a reply still `sending` after
+15 minutes (`stale_sending`) — never re-sent. A concurrent submit with the same key answers with the winner's message.
+A conversation is linked to a customer only while none is linked (checked under the row lock): re-linking would move it
+to another branch's staff.
 
 **Media.** Images (jpeg/png/webp), PDF, audio (ogg/mpeg/mp4/aac/amr) and mp4 video, up to `WHATSAPP_INBOX_MAX_MEDIA_KB`
 (default 16 MB). The declared type is checked on arrival (anything else is `rejected` and never downloaded); the job
 `FetchInboundMedia` re-checks the declared size, downloads only from Meta hosts with the bearer token, and checks the
-actual size and the detected type of the bytes before storing them as a **private attachment of the conversation**
+actual size (streamed into a capped buffer, redirects not followed) and the detected type of the bytes before storing them as a **private attachment of the conversation**
 (ADR-0006: random name, storage quota, download link re-checks P-108). Media URLs expire, so retries are short; then
 `failed`.
 
