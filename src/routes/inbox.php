@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Inbox\InboxController;
+use App\Http\Controllers\Inbox\LeadAssistController;
 use App\Http\Controllers\Inbox\OrderDraftController;
 use Illuminate\Support\Facades\Route;
 
@@ -28,5 +29,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('inbox/{conversation}/order-draft/{draft}/confirm', [OrderDraftController::class, 'confirm'])->whereNumber(['conversation', 'draft'])->name('inbox.order-draft.confirm');
         Route::post('inbox/{conversation}/order-draft/{draft}/reject', [OrderDraftController::class, 'reject'])->whereNumber(['conversation', 'draft'])->name('inbox.order-draft.reject');
         Route::post('inbox/{conversation}/suggestions/{suggestion}/reject', [InboxController::class, 'rejectSuggestion'])->whereNumber(['conversation', 'suggestion'])->name('inbox.suggestion.reject');
+        // AI-7a: new-lead draft + qualification fields, accepting them, booking a server-computed slot (all staff-initiated).
+        Route::post('inbox/{conversation}/lead', [LeadAssistController::class, 'suggest'])->whereNumber('conversation')->name('inbox.lead.suggest');
+        Route::post('inbox/{conversation}/lead/{suggestion}/accept', [LeadAssistController::class, 'accept'])->whereNumber(['conversation', 'suggestion'])->name('inbox.lead.accept');
+        Route::post('inbox/{conversation}/lead/{suggestion}/reject', [LeadAssistController::class, 'reject'])->whereNumber(['conversation', 'suggestion'])->name('inbox.lead.reject');
+        Route::post('inbox/{conversation}/lead/book', [LeadAssistController::class, 'book'])->whereNumber('conversation')->name('inbox.lead.book');
     });
 });

@@ -5,6 +5,7 @@ namespace App\Inbox;
 use App\Access\Access;
 use App\Access\Permission;
 use App\Ai\Inbox\InboxSuggestions;
+use App\Ai\Sales\LeadAssistant;
 use App\Customers\CustomerAccess;
 use App\Files\AttachmentService;
 use App\Models\Ai\AiAutoReply;
@@ -96,6 +97,7 @@ final class InboxPresenter
             'assignable' => $canWrite ? array_map(fn (User $u) => ['id' => $u->id, 'name' => $u->name], ConversationAssignment::candidates($c)) : [],
             'customer_results' => array_map(fn (Customer $r) => ['id' => $r->id, 'name' => $r->name, 'mobile' => $r->mobile], $customerResults),
             'ai' => $this->suggestions->panel($c, $viewer),
+            'lead' => app(LeadAssistant::class)->panel($c, $viewer),
         ];
     }
 
