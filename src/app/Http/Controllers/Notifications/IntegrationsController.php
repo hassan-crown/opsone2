@@ -6,10 +6,14 @@ use App\Access\Access;
 use App\Access\Permission;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Notifications\UpdateSmtpRequest;
+use App\Http\Requests\Notifications\UpdateWhatsappInboxRequest;
 use App\Http\Requests\Notifications\UpdateWhatsappRequest;
+use App\Inbox\InboxPresenter;
+use App\Inbox\InboxSettings;
 use App\Integrations\FacilityMail;
 use App\Integrations\IntegrationSettings;
 use App\Mail\OrgMessage;
+use App\Models\Branch;
 use App\Models\User;
 use App\Notifications\Channels\SmsChannel;
 use App\Notifications\Channels\WhatsApp\WhatsAppChannel;
@@ -29,7 +33,7 @@ use Throwable;
  */
 class IntegrationsController extends Controller
 {
-    public function edit(Request $request, IntegrationSettings $settings, SmsChannel $sms, WhatsAppSettings $whatsapp, WhatsAppChannel $channel): Response
+    public function edit(Request $request, IntegrationSettings $settings, SmsChannel $sms, WhatsAppSettings $whatsapp, WhatsAppChannel $channel, InboxSettings $inbox): Response
     {
         $this->authorizeManage($request);
 
@@ -45,6 +49,14 @@ class IntegrationsController extends Controller
                 'driver' => (string) config('whatsapp.driver'),
                 'configured' => $channel->isConfigured(),
             ],
+            // AI-3: the WhatsApp inbox on the same facility number; no secret here either.
+            'whatsappInbox' => [
+                'enabled' => $inbox->enabled(),
+                'default_branch_id' => $inbox->defaultBranchId(),
+                'templates' => $inbox->templates(),
+                'webhook_url' => route('webhooks.whatsapp'),
+            ],
+            'branches' => Branch::query()->where('status', 'active')->orderBy('id')->get()->map(fn (Branch $b) => ['id' => $b->id, 'name' => InboxPresenter::branchName($b)])->all(),
             'fallbackMailer' => config('mail.default'),
         ]);
     }
@@ -96,6 +108,16 @@ class IntegrationsController extends Controller
         $settings->save($request->user(), $request->boolean('enabled'), array_values((array) $request->validated('events')));
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('integrations.whatsapp.saved')]);
+
+        return back();
+    }
+
+    public function updateWhatsappInbox(UpdateWhatsappInboxRequest $request, InboxSettings $settings): RedirectResponse
+    {
+        $branch = $request->validated('default_branch_id');
+        $settings->save($request->user(), $request->boolean('enabled'), $branch === null ? null : (int) $branch, array_values((array) $request->validated('templates', [])));
+
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('integrations.whatsapp_inbox.saved')]);
 
         return back();
     }

@@ -49,6 +49,8 @@ declare module '@inertiajs/core' {
                 site: boolean;
                 store: boolean;
                 tickets: boolean;
+                /** AI-3: P-108 and the WhatsApp inbox switched on. */
+                inbox?: boolean;
                 /** P-60/P-61/P-62: needs the `reports` key in HandleInertiaRequests::orgNav(). */
                 reports?: boolean;
                 /** P-60 ∧ P-37 (owner / managers): the owner dashboard. */

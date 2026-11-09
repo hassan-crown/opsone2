@@ -67,10 +67,12 @@ function queriesFor(Closure $request): int
  */
 function staffBudgets(): array
 {
+    // +1 on the owner pages that were at their limit (AI-3): the shared navigation reads the WhatsApp inbox switch once
+    // per request for P-108 holders (RequestCache) — constant, not per row.
     return [
-        'dashboard' => ['/dashboard', 'owner', 22],
-        'orders' => ['/orders', 'owner', 20],
-        'orders filtered' => ['/orders?status=in_progress&page=1', 'owner', 20],
+        'dashboard' => ['/dashboard', 'owner', 23],
+        'orders' => ['/orders', 'owner', 21],
+        'orders filtered' => ['/orders?status=in_progress&page=1', 'owner', 21],
         'orders scoped' => ['/orders', 'sales', 28],
         'customers' => ['/customers', 'owner', 20],
         'search' => ['/search?q=فهد', 'owner', 20],
@@ -95,7 +97,7 @@ function staffBudgets(): array
         // 4 in the dataset): linear in branches, constant in rows.
         'report compare' => ['/reports/compare', 'owner', 120],
         'report exports' => ['/reports/exports', 'owner', 15],
-        'collection report' => ['/reports/collection', 'owner', 22],
+        'collection report' => ['/reports/collection', 'owner', 23],
         'reports scoped' => ['/reports/sales', 'supervisor', 26],
     ];
 }

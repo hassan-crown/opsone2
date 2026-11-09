@@ -10,6 +10,7 @@ use App\Delivery\DeliveryAccess;
 use App\FieldSales\FieldDispatch;
 use App\FieldSales\FieldReps;
 use App\FieldSales\FieldSalesConfig;
+use App\Inbox\InboxAccess;
 use App\Inventory\StockAccess;
 use App\Notifications\NotificationFeed;
 use App\Reports\Dashboard\ExecutiveDashboard;
@@ -133,6 +134,7 @@ class HandleInertiaRequests extends Middleware
             'returns' => ReturnAccess::any($user),
             'site' => Access::can($user, Permission::P55) || Access::can($user, Permission::P56) || Access::can($user, Permission::P100) || Access::can($user, Permission::P101) || Access::can($user, Permission::P107),
             'tickets' => TicketAccess::any($user),
+            'inbox' => InboxAccess::any($user),
             'procurement' => Access::can($user, Permission::P45) || Access::can($user, Permission::P46) || Access::can($user, Permission::P47),
             'store' => Access::can($user, Permission::P91) || Access::can($user, Permission::P92),
         ];

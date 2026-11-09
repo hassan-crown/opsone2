@@ -121,6 +121,8 @@ enum Permission: string
     case P106 = 'P-106';
     // Not in matrix v1.1: marketing and tracking settings of the public site (ADR-0045).
     case P107 = 'P-107';
+    // Not in matrix v1.1: the WhatsApp inbox — read, reply, assign (AI-3, ADR-0030 amendment).
+    case P108 = 'P-108';
 
     public static function fromCode(string $code): ?self
     {

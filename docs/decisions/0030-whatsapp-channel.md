@@ -60,3 +60,74 @@ GET answers Meta's URL verification only with the verify token. Throttled 120/mi
 - Marketing messages are out of scope; only transactional events above.
 - A tenant whose customers never consented outside the app should keep their preferred channel / opt-out data accurate;
   the app does not collect opt-in on the customer's behalf.
+
+## Amendment (2026-11-09) — WhatsApp inbox (AI-3, ADR-0050, Q-72)
+
+Status: accepted (product owner decisions Q-72 and Q-89..Q-96 on 2026-11-09; plan `docs/analysis/ai-v1-plan.md`, Axis 2).
+No model or AI is involved: this is a standalone inbox that later batches (AI-4 onward) build on.
+
+**Account (Q-72).** Each facility uses its **own** Meta WhatsApp Cloud API account and number; messaging cost and
+responsibility stay with the facility. The same environment variables as above serve both notifications and the inbox
+(one deployment per tenant, ADR-0002). The number must be moved from the WhatsApp Business phone app to the Cloud API
+(or a new number used) — the main operational hurdle, handled at onboarding.
+
+**Inbound.** The same signed webhook (`POST /webhooks/whatsapp`, signature checked before parsing, constant-time,
+unsigned or wrong → 403) now also writes every inbound message into `conversations` / `conversation_messages`
+(`App\Inbox\InboundRecorder`), only while the inbox is switched on. Text is encrypted at rest like `customer_messages.body`.
+A change whose `metadata.phone_number_id` is not the configured `WHATSAPP_PHONE_NUMBER_ID` is ignored.
+**Idempotent:** the Meta message id is unique, so a replay or parallel re-delivery stores nothing twice (no second unread
+count, no second download). Reactions and system events are not stored; locations, contacts and other types are stored as
+«unsupported» without content. STOP / إيقاف keeps working as above, inbox on or off.
+
+**Conversations and scope.** One conversation per WhatsApp number (E.164). It is linked to a customer by `customers.mobile`
+on its first message, else it stays an «unknown contact» until staff link it (`ConversationCustomers::link`, needs P-108 on
+the conversation and the right to open the customer, audited). Its branch is the customer's branch — kept in step when the
+customer is transferred — and, for an unknown contact, the owner's «default inbox branch» (or none: then only
+facility-wide grants and the assignee see it). New permission **P-108** «WhatsApp inbox: read, reply and assign»
+(scopes assigned / branches / region / tenant; default roles owner, manager, sales). It is checked server-side against the
+conversation's branch and assignee for the list (`ScopedQuery`), the page, every write and every file download. Reading
+the text needs P-108 rather than P-10 (deviation from the plan's wording): the inbox is the explicit grant for working
+customers' messages, and replying requires reading them.
+
+**Assignment.** P-108 on the conversation; the new assignee must be an active, non-support member who would hold P-108
+over it once assigned. A new conversation takes the linked customer's responsible person. Audited
+(`conversation.assigned`).
+
+**24-hour window.** Counted from the contact's last inbound message (Meta's timestamp, never in the future). Inside it
+staff may send free text; outside it only a template from the owner's list of Meta-approved templates (name, language,
+exact number of body parameters). Enforced when the reply is queued **and again at delivery** (`window_closed`).
+Replies to a customer who opted out are refused. Utility messages inside the window are paid since 2026-10-01 — the
+facility's cost (Q-72).
+
+**Outbound.** `App\Inbox\ReplySender` writes the message (with the composer's one-time UUID key: a double submit returns
+the first message) and queues `SendConversationMessage`: atomic claim queued → sending, provider id saved as soon as
+returned, retryable refusals back to queued (30 s / 2 min / 5 min, 4 attempts), permanent refusals `failed` with Meta's
+code only. Delivery statuses from the webhook move replies forward only. No SMS fallback for inbox replies (staff see the
+failure in the thread). Same at-most-once caveat as notifications. A job the queue gives up on (timeout, killed
+worker) marks its reply `failed` (`job_failed`), and `inbox:fail-stale` (every 15 min) fails a reply still `sending` after
+15 minutes (`stale_sending`) — never re-sent. A concurrent submit with the same key answers with the winner's message.
+A conversation is linked to a customer only while none is linked (checked under the row lock): re-linking would move it
+to another branch's staff.
+
+**Media.** Images (jpeg/png/webp), PDF, audio (ogg/mpeg/mp4/aac/amr) and mp4 video, up to `WHATSAPP_INBOX_MAX_MEDIA_KB`
+(default 16 MB). The declared type is checked on arrival (anything else is `rejected` and never downloaded); the job
+`FetchInboundMedia` re-checks the declared size, downloads only from Meta hosts with the bearer token, and checks the
+actual size (streamed into a capped buffer, redirects not followed) and the detected type of the bytes before storing them as a **private attachment of the conversation**
+(ADR-0006: random name, storage quota, download link re-checks P-108). Media URLs expire, so retries are short; then
+`failed`.
+
+**Switch.** Settings → Integrations (P-02, audited `integrations.whatsapp_inbox_saved`, nothing secret): inbox on/off,
+default branch for unknown numbers, approved reply templates. Off = inbound messages are not stored, the inbox pages
+answer 404, nothing can be sent from them; notifications, statuses and STOP are unaffected.
+
+| Variable | Purpose |
+|---|---|
+| `WHATSAPP_INBOX_MAX_MEDIA_KB` | largest received file kept (default 16384) |
+
+Code: `app/Inbox/*`, `app/Whatsapp/Inbox/*` (transport drivers log / fake / cloud, chosen by `WHATSAPP_DRIVER`),
+`app/Models/Inbox/*`, `InboxController`, `routes/inbox.php`, `resources/js/pages/inbox/*`. Tests:
+`tests/Feature/Inbox/WhatsappInboxTest.php`.
+
+**Not in AI-3 (follow-ups):** staff sending files, closing/archiving conversations, notifying the assignee of a new
+message, a side panel with the customer's orders, and retention/deletion of conversation data (PDPL) beyond the facility
+closure export.

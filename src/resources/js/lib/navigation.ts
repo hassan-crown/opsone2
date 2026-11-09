@@ -25,7 +25,9 @@ import {
     MapPinned,
     Smartphone,
     UsersRound,
+    MessageCircle,
 } from 'lucide-react';
+import InboxController from '@/actions/App/Http/Controllers/Inbox/InboxController';
 import CommissionController from '@/actions/App/Http/Controllers/Commissions/CommissionController';
 import AppointmentRequestController from '@/actions/App/Http/Controllers/AppointmentRequests/AppointmentRequestController';
 import FieldController from '@/actions/App/Http/Controllers/Field/FieldController';
@@ -82,6 +84,7 @@ export type LocalizedNavItem = Omit<NavItem, 'title'> & {
         | 'site'
         | 'store'
         | 'tickets'
+        | 'inbox'
         | 'reports'
         | 'executive';
 };
@@ -178,6 +181,12 @@ export const mainNav: LocalizedNavItem[] = [
         href: TicketController.index(),
         icon: LifeBuoy,
         access: 'tickets',
+    },
+    {
+        label: 'inbox.nav',
+        href: InboxController.index(),
+        icon: MessageCircle,
+        access: 'inbox',
     },
     {
         label: 'customers.nav',

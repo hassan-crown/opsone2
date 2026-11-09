@@ -27,6 +27,9 @@ class IntegrationSetting extends Model
 
     public const WHATSAPP = 'whatsapp';
 
+    /** WhatsApp inbox switch, default branch for unknown contacts and approved reply templates (AI-3). */
+    public const WHATSAPP_INBOX = 'whatsapp_inbox';
+
     protected $guarded = [];
 
     protected function casts(): array
