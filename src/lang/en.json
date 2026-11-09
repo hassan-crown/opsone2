@@ -6871,7 +6871,7 @@
     "ai.privacy.point.minimum": "Only the minimum the task needs is sent, never the facility's full records.",
     "ai.privacy.point.redaction": "Phone numbers, e-mail, ID numbers, IBANs and detailed addresses are replaced by placeholders before sending and restored inside the system only.",
     "ai.privacy.point.no_training": "The data is not used to train models, under the provider's commercial terms.",
-    "ai.privacy.point.no_storage": "The system does not keep the request or reply text; it records usage and cost only.",
+    "ai.privacy.point.no_storage": "The system does not keep the text sent to the provider; suggested drafts are stored encrypted for review, and only usage and cost are recorded.",
     "ai.privacy.point.drafts": "Every output is a draft that reaches the customer only after a staff member approves it.",
     "ai.privacy.point.transfer": "Sending on real data is not activated before the legal review and a data processing agreement with the provider.",
     "ai.privacy.facility_duty": "The facility should update its customer privacy policy to mention this processing before turning on features that read customer data.",

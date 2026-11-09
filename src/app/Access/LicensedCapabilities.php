@@ -15,7 +15,13 @@ use App\Licensing\LicenseStatus;
 final class LicensedCapabilities implements LicenseCapabilities
 {
     /** Capabilities the app gates on (permissions, reports, the store, help articles). Keep in step with the plans. */
-    public const KNOWN = ['ready_goods', 'branch_comparisons', 'marketing_reports', 'ai_core', 'ai_plus'];
+    public const KNOWN = ['ready_goods', 'branch_comparisons', 'marketing_reports'];
+
+    /**
+     * AI capabilities (ADR-0050): `ai_core` = essentials in every plan, `ai_plus` = the «OpsOne الذكي» add-on. Gated by
+     * App\Ai\AiGateway, not by help articles, so they stay out of KNOWN (which drives the help «higher plan» view).
+     */
+    public const AI = ['ai_core', 'ai_plus'];
 
     public function __construct(private readonly CurrentLicense $license) {}
 

@@ -28,7 +28,7 @@ it('reads ai_credits and the AI capabilities from a new license', function () {
     expect(app(LicenseLimits::class)->aiCredits())->toBe(300)
         ->and(app(LicensedCapabilities::class)->allows('ai_core'))->toBeTrue()
         ->and(app(LicensedCapabilities::class)->allows('ai_plus'))->toBeFalse()
-        ->and(LicensedCapabilities::KNOWN)->toContain('ai_core', 'ai_plus');
+        ->and(LicensedCapabilities::AI)->toBe(['ai_core', 'ai_plus']);
 });
 
 it('rejects a malformed ai_credits value', function (mixed $value) {
