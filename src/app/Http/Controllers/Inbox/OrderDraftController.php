@@ -67,13 +67,16 @@ final class OrderDraftController extends Controller
         return response()->json(OrderDraftScreen::pricing($actor, (int) $data['branch_id'], $lines));
     }
 
-    public function confirm(OrderDraftRequest $request, Conversation $conversation, int $draft, ConfirmOrderDraft $confirm): RedirectResponse
+    public function confirm(OrderDraftRequest $request, Conversation $conversation, int $draft, ConfirmOrderDraft $confirm): JsonResponse|RedirectResponse
     {
         $actor = $this->open($request, $conversation);
         $suggestion = $this->draft($actor, $conversation, $draft);
         abort_unless(ConversationToOrderProposer::mayDraft($actor, $conversation), 403);
 
         $ids = $confirm->handle($actor, $conversation->load('customer'), $suggestion, $request->draftData());
+        if ($request->expectsJson()) {
+            return response()->json(['order_ids' => $ids, 'redirect' => route('orders.show', $ids[0])], 201);
+        }
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('inbox.order_draft.created')]);
 
