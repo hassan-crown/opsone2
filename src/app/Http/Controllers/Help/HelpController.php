@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Help;
 
 use App\Access\PermissionCatalogue;
+use App\Ai\Help\HelpAssistant;
 use App\Help\HelpCategory;
 use App\Help\HelpImages;
 use App\Help\HelpPresenter;
@@ -26,7 +27,7 @@ use Symfony\Component\HttpFoundation\BinaryFileResponse;
  */
 class HelpController extends Controller
 {
-    public function index(Request $request): Response
+    public function index(Request $request, HelpAssistant $assistant): Response
     {
         $reader = $this->reader($request);
         $articles = $reader->query()->where('category', '!=', HelpCategory::RoleGuide->value)->orderBy('sort')->orderBy('id')->get();
@@ -40,6 +41,7 @@ class HelpController extends Controller
             'supportContact' => SupportContact::channels(),
             'startHere' => HelpPresenter::startHere($this->user($request)),
             'hasGuide' => $reader->roles() !== [],
+            'assistant' => $assistant->available(),
         ]);
     }
 
