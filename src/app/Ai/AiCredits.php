@@ -114,7 +114,7 @@ final class AiCredits
         return CarbonImmutable::now(self::timezone())->startOfMonth()->utc();
     }
 
-    private static function timezone(): string
+    public static function timezone(): string
     {
         $timezone = Facility::current()?->timezone;
 

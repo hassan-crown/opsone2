@@ -52,3 +52,10 @@ Signed message (`\n` = LF, no trailing newline):
 | 429 | `{"error": "too_many_requests"}` + `Retry-After` | |
 
 Any non-200 leaves the licence state unchanged; record `last_sync_error` and retry at the next scheduled run.
+
+## الكتلة الاختيارية `ai` (C-AI، ADR-0013)
+
+`heartbeat.ai.example.json` هو الـ heartbeat نفسه مع كتلة `ai`: `period` (YYYY-MM بشهر المنشأة)، و`credits_used`، و`cost_usd_micro`،
+و`suggestions_accepted`، و`models[]` (`model`, `input_tokens`, `output_tokens`, `cached_tokens`). الكتلة اختيارية: المنشأة بلا مساعد
+تحذفها، والـ heartbeat بلا `ai` صالح كما كان. مجاميع فقط، ولا حقل نص ولا بيانات عملاء (الأجسام مغلقة). والتقرير الأحدث لنفس
+`period` يستبدل الأقدم.

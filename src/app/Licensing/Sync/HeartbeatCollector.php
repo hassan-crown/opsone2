@@ -3,6 +3,7 @@
 namespace App\Licensing\Sync;
 
 use App\Access\LicenseLimits;
+use App\Ai\AiHeartbeat;
 use App\Licensing\CurrentLicense;
 use App\Operations\Backup\BackupStore;
 use App\Operations\Health\HealthCheck;
@@ -40,11 +41,17 @@ final readonly class HeartbeatCollector
         ],
     ];
 
+    /** The optional `ai` block: monthly totals only (see App\Ai\AiHeartbeat). */
+    public const array AI_FIELDS = ['period', 'credits_used', 'cost_usd_micro', 'suggestions_accepted', 'models'];
+
+    public const array AI_MODEL_FIELDS = ['model', 'input_tokens', 'output_tokens', 'cached_tokens'];
+
     public function __construct(
         private CurrentLicense $license,
         private LicenseLimits $limits,
         private HealthCheck $health,
         private BackupStore $backups,
+        private AiHeartbeat $ai,
     ) {}
 
     /**
@@ -55,6 +62,8 @@ final readonly class HeartbeatCollector
         $snapshot = $this->license->snapshot();
         $payload = $snapshot->payload;
         $checks = self::attempt(fn () => $this->health->run(), []);
+
+        $ai = self::attempt(fn () => $this->ai->block(), null);
 
         return [
             'schema_version' => self::SCHEMA_VERSION,
@@ -91,6 +100,8 @@ final readonly class HeartbeatCollector
                 'disk_free_percent' => self::diskFreePercent(),
                 'clock_skew_seconds' => $clockSkewSeconds,
             ],
+            // Optional (central C-AI): monthly AI totals, omitted when the facility used no AI this month.
+            ...($ai === null ? [] : ['ai' => $ai]),
         ];
     }
 

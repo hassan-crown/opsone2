@@ -200,6 +200,77 @@
                 "clock_skew_seconds"
             ],
             "additionalProperties": false
+        },
+        "ai": {
+            "type": "object",
+            "properties": {
+                "period": {
+                    "type": "string",
+                    "pattern": "^[0-9]{4}-(0[1-9]|1[0-2])$",
+                    "description": "The facility month (YYYY-MM) the totals belong to. A newer report of the same month replaces the older one."
+                },
+                "credits_used": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                },
+                "cost_usd_micro": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 1099511627776,
+                    "description": "Provider cost in millionths of a US dollar."
+                },
+                "suggestions_accepted": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 4294967295
+                },
+                "models": {
+                    "type": "array",
+                    "maxItems": 20,
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "model": {
+                                "type": "string",
+                                "maxLength": 64,
+                                "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+                            },
+                            "input_tokens": {
+                                "type": "integer",
+                                "minimum": 0,
+                                "maximum": 1099511627776
+                            },
+                            "output_tokens": {
+                                "type": "integer",
+                                "minimum": 0,
+                                "maximum": 1099511627776
+                            },
+                            "cached_tokens": {
+                                "type": "integer",
+                                "minimum": 0,
+                                "maximum": 1099511627776
+                            }
+                        },
+                        "required": [
+                            "model",
+                            "input_tokens",
+                            "output_tokens",
+                            "cached_tokens"
+                        ],
+                        "additionalProperties": false
+                    },
+                    "description": "Tokens per model."
+                }
+            },
+            "required": [
+                "period",
+                "credits_used",
+                "cost_usd_micro",
+                "suggestions_accepted",
+                "models"
+            ],
+            "additionalProperties": false
         }
     },
     "required": [
