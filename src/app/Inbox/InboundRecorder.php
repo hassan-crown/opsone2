@@ -2,6 +2,8 @@
 
 namespace App\Inbox;
 
+use App\Ai\Inbox\IntentClassifier;
+use App\Ai\Inbox\Jobs\ClassifyInboundMessage;
 use App\Customers\Phone;
 use App\Inbox\Jobs\FetchInboundMedia;
 use App\Models\Inbox\Conversation;
@@ -16,7 +18,8 @@ use Illuminate\Support\Facades\DB;
  *
  * Idempotent: Meta re-delivers webhooks, so the message id (`wamid…`) is unique in `conversation_messages`; a replay is
  * recognised and changes nothing (no second row, no second unread count, no second media download). The window is
- * opened from Meta's own timestamp of the message, never from a time in the future.
+ * opened from Meta's own timestamp of the message, never from a time in the future. With the AI inbox feature on, the
+ * message is classified on the queue after commit (AI-4); nothing here waits for a model.
  */
 final class InboundRecorder
 {
@@ -26,6 +29,7 @@ final class InboundRecorder
     public function __construct(
         private readonly InboxSettings $settings,
         private readonly ConversationCustomers $customers,
+        private readonly IntentClassifier $classifier,
     ) {}
 
     /**
@@ -90,6 +94,10 @@ final class InboundRecorder
 
         if ($mediaStatus === ConversationMessage::MEDIA_PENDING) {
             FetchInboundMedia::dispatch($message->id);
+        }
+        // AI-4: classified (and maybe drafted for the assignee) on the queue after commit, never here.
+        if ($this->classifier->available()) {
+            ClassifyInboundMessage::dispatch($message->id);
         }
 
         return true;

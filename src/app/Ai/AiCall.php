@@ -2,6 +2,7 @@
 
 namespace App\Ai;
 
+use App\Ai\Contracts\OutputCheck;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 
@@ -14,6 +15,7 @@ use Illuminate\Database\Eloquent\Model;
  *   date and link in the output must come from here (plan §3.2, §3.3).
  * - `untrusted`: customer text, file names, notes — wrapped as data the model must not obey (plan §3.3).
  * - `known`: values to hide that no pattern finds (detailed address, a customer's full name), by kind.
+ * - `checks`: the feature's own output checks (e.g. the inbox's financial check), run before the call is charged.
  */
 final readonly class AiCall
 {
@@ -22,6 +24,7 @@ final readonly class AiCall
      * @param  list<string>  $untrusted
      * @param  array<string, mixed>  $schema  JSON schema of the expected output (structured output)
      * @param  array<string, list<string>>  $known  e.g. ['ADDRESS' => ['حي النرجس، شارع 12، مبنى 4']]
+     * @param  list<OutputCheck>  $checks
      */
     public function __construct(
         public AiTask $task,
@@ -34,5 +37,6 @@ final readonly class AiCall
         public ?User $user = null,
         public ?Model $subject = null,
         public bool $untrustedIsSource = false,
+        public array $checks = [],
     ) {}
 }
