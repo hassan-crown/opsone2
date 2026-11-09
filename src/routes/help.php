@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Help\HelpAssistantController;
 use App\Http\Controllers\Help\HelpController;
 use App\Http\Controllers\Help\SupportRequestController;
 use App\Http\Controllers\SearchController;
@@ -13,6 +14,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('help', [HelpController::class, 'index'])->name('help.index');
+    Route::post('help/assistant', [HelpAssistantController::class, 'ask'])->middleware('throttle:20,1')->name('help.assistant.ask');
     Route::get('help/whats-new', [HelpController::class, 'whatsNew'])->name('help.whats-new');
     Route::get('help/context', [HelpController::class, 'context'])->name('help.context');
     Route::get('help/panel', [HelpController::class, 'panel'])->name('help.panel');
