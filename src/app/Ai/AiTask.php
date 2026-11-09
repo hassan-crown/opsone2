@@ -16,6 +16,7 @@ enum AiTask: string
     case ReplySuggest = 'reply.suggest';
     case OrderDraft = 'order.draft';
     case LeadQualify = 'lead.qualify';
+    case DataPlan = 'data.plan';
     case DataAsk = 'data.ask';
     case QuoteFollowup = 'quote.followup';
     case DigestDaily = 'digest.daily';
@@ -35,7 +36,7 @@ enum AiTask: string
             self::OrderDraft => AiFeature::ConversationToOrder,
             self::AutoreplyIntent => AiFeature::AutoReply,
             self::LeadQualify, self::ContentDraft, self::LostAnalysis => AiFeature::Sales,
-            self::DataAsk => AiFeature::DataQuestions,
+            self::DataAsk, self::DataPlan => AiFeature::DataQuestions,
             self::MeasureRead => AiFeature::Measurements,
         };
     }

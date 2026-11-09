@@ -195,6 +195,9 @@ Schedule::command('whatsapp:remind')->hourly()->withoutOverlapping();
 // ADR-0050: AI drafts nobody acted on expire (status only; payloads stay encrypted until retention rules exist).
 Schedule::command('ai:expire-suggestions')->dailyAt('02:20')->withoutOverlapping();
 
+// AI-8: the morning digest, one queued job per owner / manager (no-op unless the facility turned it on).
+Schedule::command('ai:digest')->dailyAt('05:00')->withoutOverlapping();
+
 // WhatsApp inbox (AI-3): replies whose worker died mid-send are shown as failed, never re-sent.
 Artisan::command('inbox:fail-stale', function () {
     $this->info(sprintf('Marked %d stale inbox reply(ies) failed.', SendConversationMessage::failStale()));

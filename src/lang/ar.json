@@ -6971,6 +6971,8 @@
     "ai.privacy.facility_duty": "على المنشأة تحديث سياسة الخصوصية لعملائها لتذكر هذه المعالجة قبل تفعيل الميزات التي تقرأ بيانات العملاء.",
     "ai.notify.credits_low.title": "اقترب نفاد رصيد الذكاء الاصطناعي",
     "ai.notify.credits_low.body": "استُعمل :used من :limit عملية هذا الشهر.",
+    "ai.notify.digest.title": "ملخص اليوم",
+    "ai.notify.digest.body": ":text",
     "audit.area.ai": "المساعد الذكي",
     "audit.action.ai.settings_changed": "عُدّلت إعدادات المساعد الذكي",
     "audit.action.ai.suggestion_accepted": "اعتُمد اقتراح من المساعد الذكي",
