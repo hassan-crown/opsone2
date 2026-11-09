@@ -14,6 +14,12 @@ use App\Ai\Redaction\Redactor;
  *    or more, must come from the trusted context. Amounts given as `*_halalas` also count in riyals. A link must also be on one of the facility's
  *    own hosts. Placeholders such as [PHONE_1] are ignored. One-digit numbers are free («خطوتان», «3 أيام»).
  *
+ * Strict mode (opt-in per call, `AiCall::strictFacts`; used where the answer states figures — digest, «اسأل بياناتك»):
+ * the date parts of the context (1–31, months, years) do not make numbers «sourced» — a date in the answer must be a
+ * whole `YYYY-MM-DD` date of the context; one-digit numbers are checked too; a percentage (`%`, «نسبة» + number) must
+ * equal a context value whose key says percent/ratio/share; and multiples («ضعف», «أضعاف», «مرتين») are refused,
+ * since no tool provides them. Default mode is unchanged.
+ *
  * Returns the problems found (empty = valid). Messages name paths and kinds, never the offending text.
  */
 final class OutputValidator
@@ -21,9 +27,10 @@ final class OutputValidator
     /**
      * @param  array<string, mixed>  $schema
      * @param  list<string>  $allowedHosts
+     * @param  array<string, true>  $ratios  strict mode: the percent/ratio values of the context (see ratios())
      * @return list<string>
      */
-    public function validate(mixed $output, array $schema, string $sourceCorpus, array $allowedHosts): array
+    public function validate(mixed $output, array $schema, string $sourceCorpus, array $allowedHosts, bool $strict = false, array $ratios = []): array
     {
         $problems = [];
         $this->checkSchema($output, $schema, '$', $problems);
@@ -32,8 +39,9 @@ final class OutputValidator
             return $problems;
         }
 
-        $sources = self::numbersIn($sourceCorpus);
-        $this->checkFacts($output, '$', $sources, $sourceCorpus, array_map('strtolower', $allowedHosts), $problems);
+        $sources = self::numbersIn($strict ? self::withoutDates($sourceCorpus) : $sourceCorpus);
+        $context = $strict ? ['dates' => self::datesIn($sourceCorpus), 'ratios' => $ratios] : null;
+        $this->checkFacts($output, '$', $sources, $sourceCorpus, array_map('strtolower', $allowedHosts), $problems, $context);
 
         return $problems;
     }
@@ -57,6 +65,32 @@ final class OutputValidator
         });
 
         return implode("\n", [(string) json_encode($facts, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), ...$texts, ...$extra]);
+    }
+
+    /**
+     * Numbers of the context stored under a key that says percent, ratio or share (strict mode's percentage sources).
+     *
+     * @param  array<string, mixed>  $facts
+     * @return array<string, true>
+     */
+    public static function ratios(array $facts): array
+    {
+        $out = [];
+        $walk = function (mixed $value, int|string|null $key) use (&$walk, &$out): void {
+            if (is_array($value)) {
+                foreach ($value as $k => $v) {
+                    $walk($v, is_string($k) ? $k : $key);
+                }
+
+                return;
+            }
+            if (is_numeric($value) && is_string($key) && preg_match('/percent|ratio|share/i', $key) === 1) {
+                $out += self::numbersIn((string) abs((float) $value));
+            }
+        };
+        $walk($facts, null);
+
+        return $out;
     }
 
     /**
@@ -155,12 +189,13 @@ final class OutputValidator
      * @param  array<string, true>  $sources
      * @param  list<string>  $hosts
      * @param  list<string>  $problems
+     * @param  array{dates: array<string, true>, ratios: array<string, true>}|null  $strict
      */
-    private function checkFacts(mixed $value, string $path, array $sources, string $corpus, array $hosts, array &$problems): void
+    private function checkFacts(mixed $value, string $path, array $sources, string $corpus, array $hosts, array &$problems, ?array $strict = null): void
     {
         if (is_array($value)) {
             foreach ($value as $key => $item) {
-                $this->checkFacts($item, is_int($key) ? "{$path}[{$key}]" : "{$path}.{$key}", $sources, $corpus, $hosts, $problems);
+                $this->checkFacts($item, is_int($key) ? "{$path}[{$key}]" : "{$path}.{$key}", $sources, $corpus, $hosts, $problems, $strict);
             }
 
             return;
@@ -195,13 +230,56 @@ final class OutputValidator
 
         $text = (string) preg_replace('/\[[A-Z][A-Z_]*_\d+\]/', ' ', $text);
 
+        if ($strict !== null) {
+            foreach (array_keys(self::datesIn($text)) as $date) {
+                if (! isset($strict['dates'][$date])) {
+                    $problems[] = "{$path}: date without a source";
+
+                    return;
+                }
+            }
+            $text = self::withoutDates($text);
+
+            if (preg_match('/ضعف|أضعاف|اضعاف|مرتين/u', $text) === 1) {
+                $problems[] = "{$path}: multiple without a source";
+
+                return;
+            }
+            preg_match_all('/(\d+(?:\.\d+)?)\s*(?:%|٪|بالمئة|بالمائة|في المئة|في المائة)|نسبة[^\d]{0,25}(\d+(?:\.\d+)?)/u', $text, $ratio);
+            foreach (array_filter([...$ratio[1], ...$ratio[2]], fn ($r) => $r !== '') as $r) {
+                if (! isset($strict['ratios'][array_key_first(self::numbersIn((string) $r))])) {
+                    $problems[] = "{$path}: percentage without a source";
+
+                    return;
+                }
+            }
+        }
+
+        $minDigits = $strict === null ? 2 : 1;
         foreach (array_keys(self::numbersIn($text)) as $number) {
-            if (strlen((string) preg_replace('/\D/', '', $number)) >= 2 && ! isset($sources[$number])) {
+            if (strlen((string) preg_replace('/\D/', '', $number)) >= $minDigits && ! isset($sources[$number])) {
                 $problems[] = "{$path}: number or date without a source";
 
                 return;
             }
         }
+    }
+
+    /**
+     * Whole ISO dates of a text (digits folded), as a set.
+     *
+     * @return array<string, true>
+     */
+    private static function datesIn(string $text): array
+    {
+        preg_match_all('/(?<!\d)\d{4}-\d{2}-\d{2}(?!\d)/', Redactor::foldDigits($text), $m);
+
+        return array_fill_keys($m[0], true);
+    }
+
+    private static function withoutDates(string $text): string
+    {
+        return (string) preg_replace('/(?<!\d)\d{4}-\d{2}-\d{2}(?!\d)/', ' ', Redactor::foldDigits($text));
     }
 
     /**
