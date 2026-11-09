@@ -10,6 +10,7 @@ use App\Automation\AutomationTimers;
 use App\EInvoicing\MissingInvoices;
 use App\FieldSales\FieldAssignmentSla;
 use App\Finance\CollectionReminders;
+use App\Inbox\Jobs\SendConversationMessage;
 use App\Models\Membership;
 use App\Models\OutboxMessage;
 use App\Models\SupportRequest;
@@ -193,3 +194,10 @@ Schedule::command('whatsapp:remind')->hourly()->withoutOverlapping();
 
 // ADR-0050: AI drafts nobody acted on expire (status only; payloads stay encrypted until retention rules exist).
 Schedule::command('ai:expire-suggestions')->dailyAt('02:20')->withoutOverlapping();
+
+// WhatsApp inbox (AI-3): replies whose worker died mid-send are shown as failed, never re-sent.
+Artisan::command('inbox:fail-stale', function () {
+    $this->info(sprintf('Marked %d stale inbox reply(ies) failed.', SendConversationMessage::failStale()));
+})->purpose('Mark WhatsApp inbox replies stuck in «sending» as failed');
+
+Schedule::command('inbox:fail-stale')->everyFifteenMinutes()->withoutOverlapping();

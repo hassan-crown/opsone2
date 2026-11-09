@@ -27,4 +27,26 @@ return [
     // Approved template names at Meta. One name per event; the language code (ar / en) picks the translation.
     // Override a name per environment with WHATSAPP_TEMPLATE_<EVENT>, e.g. WHATSAPP_TEMPLATE_QUOTE_READY.
     'template_prefix' => env('WHATSAPP_TEMPLATE_PREFIX', 'opsone_'),
+
+    /*
+    | WhatsApp inbox (AI-3, ADR-0030 amendment): the facility's own Meta number (Q-72) receives customers' messages.
+    | Received media is checked against this allow-list (declared type, size, and the downloaded bytes) before it is
+    | stored as a private attachment; anything else is recorded as «rejected» and never downloaded.
+    */
+    'inbox' => [
+        'max_media_kb' => (int) env('WHATSAPP_INBOX_MAX_MEDIA_KB', 16384),
+        // MIME type => stored extension.
+        'media_types' => [
+            'image/jpeg' => 'jpg',
+            'image/png' => 'png',
+            'image/webp' => 'webp',
+            'application/pdf' => 'pdf',
+            'audio/ogg' => 'ogg',
+            'audio/mpeg' => 'mp3',
+            'audio/mp4' => 'm4a',
+            'audio/aac' => 'aac',
+            'audio/amr' => 'amr',
+            'video/mp4' => 'mp4',
+        ],
+    ],
 ];

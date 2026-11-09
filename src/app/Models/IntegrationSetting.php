@@ -30,6 +30,9 @@ class IntegrationSetting extends Model
     /** AI feature switches (ADR-0050 §5). Never a key: the provider key is environment-only (Q-95). */
     public const AI = 'ai';
 
+    /** WhatsApp inbox switch, default branch for unknown contacts and approved reply templates (AI-3). */
+    public const WHATSAPP_INBOX = 'whatsapp_inbox';
+
     protected $guarded = [];
 
     protected function casts(): array

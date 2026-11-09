@@ -7,7 +7,8 @@ use App\Access\Enums\Scope;
 
 /**
  * Permission catalogue generated from «مصفوفة الصلاحيات» v1.1 (P-01..P-102, plus P-103 from ADR-0035 and P-104 from
- * ADR-0037, P-105/P-106 from ADR-0041, P-107 from ADR-0045).
+ * ADR-0037, P-105/P-106 from ADR-0041, P-107 from ADR-0045, P-108 from the
+ * ADR-0030 amendment).
  *
  * - `audience`: who the action belongs to. Only `staff` and `self` are evaluated by the facility Gate;
  *   `customer`, `public` and `platform` actions are served by their own guards (customer portal, public site,
@@ -993,6 +994,17 @@ final class PermissionCatalogue
             'en' => 'Manage the site\'s marketing and tracking settings',
             'scopes' => ['tenant'],
             'roles' => ['owner'],
+            'capability' => null,
+        ],
+        // Not in matrix v1.1: the WhatsApp inbox (AI-3, ADR-0030 amendment). Reading a conversation's text, replying
+        // and assigning it; scoped by the conversation's branch (the customer's) and assignee.
+        'P-108' => [
+            'group' => 'customers_catalog',
+            'audience' => 'staff',
+            'ar' => 'صندوق محادثات WhatsApp: القراءة والرد والإسناد',
+            'en' => 'WhatsApp inbox: read, reply and assign conversations',
+            'scopes' => ['assigned', 'branches', 'region', 'tenant'],
+            'roles' => ['owner', 'manager', 'sales'],
             'capability' => null,
         ],
     ];
