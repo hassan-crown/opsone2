@@ -12,6 +12,7 @@ use App\Models\Flow;
 use App\Models\Order;
 use App\Money\Money;
 use App\Workflow\FlowTemplates;
+use Closure;
 use Illuminate\Validation\ValidationException;
 
 /**
@@ -55,6 +56,13 @@ final class PaymentPlans
     ];
 
     public const FALLBACK = 'half';
+
+    /**
+     * Stages of a flow that is not published yet, assumed for the duration of assumingFlow() (AI-1 setup proposal).
+     *
+     * @var list<array<string, mixed>>|null
+     */
+    private static ?array $assumedStages = null;
 
     /**
      * Input rules of a plan as the editor sends it: values are text (percent «40» or «33.33», amount «1500.00»).
@@ -131,7 +139,7 @@ final class PaymentPlans
     public static function gateReferences(): array
     {
         $references = [];
-        foreach (Flow::current()?->publishedVersion?->definition['stages'] ?? [] as $stage) {
+        foreach (self::$assumedStages ?? Flow::current()?->publishedVersion?->definition['stages'] ?? [] as $stage) {
             foreach ($stage['actions'] ?? [] as $action) {
                 if (($action['type'] ?? null) === 'payment_check' && ($action['inputs']['basis'] ?? null) === 'due') {
                     $references[] = (string) ($action['inputs']['reference'] ?? '');
@@ -213,6 +221,28 @@ final class PaymentPlans
     }
 
     /**
+     * Runs the callback as if `$stages` were the published flow: stage keys, gate references and the stage of a check
+     * come from them. Used to check and save a configuration draft that belongs to a flow draft not yet published
+     * (AI-1): the release check still runs against the real published flow when the rules are published.
+     *
+     * @template T
+     *
+     * @param  list<array<string, mixed>>  $stages
+     * @param  Closure(): T  $callback
+     * @return T
+     */
+    public static function assumingFlow(array $stages, Closure $callback): mixed
+    {
+        $previous = self::$assumedStages;
+        self::$assumedStages = $stages;
+        try {
+            return $callback();
+        } finally {
+            self::$assumedStages = $previous;
+        }
+    }
+
+    /**
      * Stage keys a `stage.started` trigger may name: the published flow's stages, or the default template's before
      * any flow exists.
      *
@@ -220,7 +250,7 @@ final class PaymentPlans
      */
     public static function stageKeys(): array
     {
-        $stages = Flow::current()?->publishedVersion?->definition['stages'] ?? FlowTemplates::definition(FlowTemplates::DEFAULT)['stages'];
+        $stages = self::$assumedStages ?? Flow::current()?->publishedVersion?->definition['stages'] ?? FlowTemplates::definition(FlowTemplates::DEFAULT)['stages'];
 
         return array_map(fn (array $s) => (string) $s['key'], $stages);
     }
@@ -230,7 +260,7 @@ final class PaymentPlans
      */
     public static function stageOfCheck(string $reference): ?string
     {
-        $stages = Flow::current()?->publishedVersion?->definition['stages'] ?? FlowTemplates::definition(FlowTemplates::DEFAULT)['stages'];
+        $stages = self::$assumedStages ?? Flow::current()?->publishedVersion?->definition['stages'] ?? FlowTemplates::definition(FlowTemplates::DEFAULT)['stages'];
         foreach ($stages as $stage) {
             foreach ($stage['actions'] ?? [] as $action) {
                 if (($action['type'] ?? null) === 'payment_check' && ($action['inputs']['reference'] ?? null) === $reference) {
@@ -277,7 +307,7 @@ final class PaymentPlans
      */
     public static function stageOptions(): array
     {
-        $stages = Flow::current()?->publishedVersion?->definition['stages'] ?? FlowTemplates::definition(FlowTemplates::DEFAULT)['stages'];
+        $stages = self::$assumedStages ?? Flow::current()?->publishedVersion?->definition['stages'] ?? FlowTemplates::definition(FlowTemplates::DEFAULT)['stages'];
         $locale = app()->getLocale();
 
         return array_map(fn (array $s) => ['key' => (string) $s['key'], 'name' => (string) ($s['name'][$locale] ?? $s['name']['ar'] ?? $s['key'])], $stages);

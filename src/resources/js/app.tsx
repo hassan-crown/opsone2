@@ -25,6 +25,9 @@ void createInertiaApp({
                 return [Providers, PortalLayout];
             case name.startsWith('org/setup/'):
                 return [Providers, WizardLayout];
+            // AI-1 setup proposal: a facility screen, not the personal settings layout.
+            case name.startsWith('settings/ai-setup/'):
+                return [Providers, AppLayout];
             case name.startsWith('settings/'):
                 return [Providers, AppLayout, SettingsLayout];
             default:
