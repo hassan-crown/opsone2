@@ -9,13 +9,13 @@
 
 use App\Actions\Catalog\SetCatalogStatus;
 use App\Ai\AiFeature;
+use App\Ai\AiResponse;
 use App\Ai\AiSettings;
 use App\Ai\AiSuggestionStatus;
 use App\Ai\Inbox\SuggestOutcome;
 use App\Ai\Orders\ConversationToOrderProposer;
 use App\Ai\Orders\OrderDraftCatalog;
 use App\Ai\Orders\OrderDraftPricing;
-use App\Ai\AiResponse;
 use App\Catalog\CatalogStatus;
 use App\Inbox\InboxSettings;
 use App\Models\Ai\AiSuggestion;
@@ -72,6 +72,16 @@ function c2oConversation(object $test, string ...$texts): Conversation
             'body' => $text, 'status' => ConversationMessage::RECEIVED, 'occurred_at' => now(),
         ]);
     }
+
+    return $conversation;
+}
+
+function c2oConversationText(Conversation $conversation, string $text): Conversation
+{
+    $conversation->messages()->create([
+        'direction' => ConversationMessage::IN, 'type' => 'text', 'provider_message_id' => 'wamid.'.Str::random(10),
+        'body' => $text, 'status' => ConversationMessage::RECEIVED, 'occurred_at' => now(),
+    ]);
 
     return $conversation;
 }
@@ -272,7 +282,8 @@ it('refuses a unit outside the closed list and sizes in the request outside 1 cm
     $this->fake->respond(c2oAnswer([c2oItem(['width' => 120, 'dimension_unit' => 'inch'])]));
     expect(app(ConversationToOrderProposer::class)->propose($this->managerA, $conversation)->status)->toBe(SuggestOutcome::NO_SUGGESTION);
 
-    $draft = c2oDraft($this, c2oConversation($this, 'أبغى مطبخ ركن عرض 300 سم، و3 مقابض ألمنيوم أسود'));
+    $conversation->messages()->delete();
+    $draft = c2oDraft($this, c2oConversationText($conversation, 'أبغى مطبخ ركن عرض 300 سم، و3 مقابض ألمنيوم أسود'));
     $payload = c2oConfirmPayload($this);
     $payload['lines'][0]['width_cm'] = '4000';
     $this->actingAs($this->managerA)->postJson("/inbox/{$draft->subject_id}/order-draft/{$draft->id}/confirm", $payload)
@@ -325,7 +336,7 @@ it('offers only selectable catalog items of kinds the staff member may open', fu
 // --- Access --------------------------------------------------------------------------------------------------------
 
 it('needs the conversation in scope, P-15, and the draft to be the staff member’s own', function () {
-    $conversation = c2oConversation($this, 'أبغى مطبخ');
+    $conversation = c2oConversation($this, 'أبغى مطبخ ركن عرض 300 سم، و3 مقابض ألمنيوم أسود');
 
     $this->actingAs($this->managerB)->post("/inbox/{$conversation->id}/order-draft")->assertForbidden();
     $this->actingAs($this->executorA)->post("/inbox/{$conversation->id}/order-draft")->assertForbidden();
@@ -372,7 +383,7 @@ it('creates the orders through CreateOrders only when the staff member confirms,
         ->and($orders[1]->lines()->first()->unit_price_minor)->toBe(4500)
         ->and($orders[1]->lines()->first()->catalog_version_id)->not->toBeNull();
 
-    $sources = StateTransition::query()->whereIn('subject_id', $orders->pluck('id'))->where('transition', 'T00')->pluck('source')->unique()->all();
+    $sources = StateTransition::query()->where('subject_type', $orders[0]->getMorphClass())->whereIn('subject_id', $orders->pluck('id'))->where('transition', 'T00')->pluck('source')->unique()->all();
     expect($sources)->toBe(['ai_suggestion']);
 
     // The quantity of the custom line was not in the draft (null → 1); the rest is as proposed.
@@ -485,4 +496,34 @@ it('calls the gateway outside any transaction, and the gateway refuses inside on
 
     expect(fn () => DB::transaction(fn () => app(ConversationToOrderProposer::class)->propose($this->managerA, $conversation)))
         ->toThrow(LogicException::class);
+});
+
+// --- Inbox page ----------------------------------------------------------------------------------------------------
+
+it('offers the draft on the conversation page and opens the review screen after a proposal', function () {
+    $conversation = c2oConversation($this, 'أبغى مطبخ ركن عرض 300 سم، و3 مقابض ألمنيوم أسود');
+
+    $this->actingAs($this->managerA)->get("/inbox/{$conversation->id}")->assertOk()
+        ->assertInertia(fn ($page) => $page->where('orderDraft.available', true)->where('orderDraft.open_id', null));
+    $this->actingAs($this->executorA)->get("/inbox/{$conversation->id}")->assertForbidden();
+
+    $texts = ['[a] customer: '.$conversation->messages()->value('body')];
+    $this->fake->respond(c2oAnswer([c2oItem(['ref' => c2oLabel($this->managerA, $texts, 'custom_product', $this->kitchen->id), 'width' => 300, 'dimension_unit' => 'cm'])]));
+    $response = $this->actingAs($this->managerA)->post("/inbox/{$conversation->id}/order-draft");
+    $draft = AiSuggestion::query()->sole();
+    $response->assertRedirect("/inbox/{$conversation->id}/order-draft/{$draft->id}");
+
+    $this->actingAs($this->managerA)->get("/inbox/{$conversation->id}/order-draft/{$draft->id}")->assertOk()
+        ->assertInertia(fn ($page) => $page->component('inbox/order-draft')
+            ->where('draft.lines.0.product_id', $this->kitchen->id)
+            ->where('draft.lines.0.width_cm', '300')
+            ->where('draft.lines.0.source.text', 'أبغى مطبخ ركن عرض 300 سم، و3 مقابض ألمنيوم أسود')
+            ->where('conversation.customer.id', $this->customer->id));
+    $this->actingAs($this->managerA)->get("/inbox/{$conversation->id}")
+        ->assertInertia(fn ($page) => $page->where('orderDraft.open_id', $draft->id));
+
+    // Switched off: no button, no proposal.
+    app(AiSettings::class)->save($this->org->owner, [AiFeature::ConversationToOrder->value => false]);
+    $this->actingAs($this->managerA)->get("/inbox/{$conversation->id}")
+        ->assertInertia(fn ($page) => $page->where('orderDraft.available', false));
 });

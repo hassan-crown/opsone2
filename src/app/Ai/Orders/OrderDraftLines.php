@@ -37,7 +37,7 @@ final class OrderDraftLines
     public static function fromModel(array $items, OrderDraftCatalog $catalog, array $messages): array
     {
         $lines = [];
-        foreach (array_values($items) as $i => $item) {
+        foreach ($items as $i => $item) {
             $warnings = [];
             $resolved = $catalog->resolve(is_string($item['ref'] ?? null) ? $item['ref'] : null);
             $type = $resolved['type'] ?? null;
@@ -96,6 +96,8 @@ final class OrderDraftLines
 
     /**
      * A positive decimal with at most three places, as a plain string; null when absent or not acceptable.
+     *
+     * @return numeric-string|null
      */
     public static function quantity(mixed $value): ?string
     {
@@ -103,11 +105,14 @@ final class OrderDraftLines
             return null;
         }
         $text = is_float($value) ? rtrim(rtrim(number_format($value, 3, '.', ''), '0'), '.') : trim((string) $value);
-        if (preg_match('/^\d{1,6}(\.\d{1,3})?$/', $text) !== 1 || bccomp($text, '0', 3) <= 0 || bccomp($text, '999999', 3) > 0) {
+        if (preg_match('/^\d{1,6}(\.\d{1,3})?$/', $text) !== 1 || ! is_numeric($text) || bccomp($text, '0', 3) <= 0 || bccomp($text, '999999', 3) > 0) {
             return null;
         }
 
-        return str_contains($text, '.') ? rtrim(rtrim($text, '0'), '.') : (ltrim($text, '0') ?: '0');
+        /** @var numeric-string $plain */
+        $plain = str_contains($text, '.') ? rtrim(rtrim($text, '0'), '.') : (ltrim($text, '0') ?: '0');
+
+        return $plain;
     }
 
     /**
@@ -119,7 +124,7 @@ final class OrderDraftLines
             return null;
         }
         $text = trim((string) $value);
-        if (preg_match('/^\d{1,4}(\.\d)?$/', $text) !== 1) {
+        if (preg_match('/^\d{1,4}(\.\d)?$/', $text) !== 1 || ! is_numeric($text)) {
             return null;
         }
         $mm = (int) bcmul($text, '10', 0);

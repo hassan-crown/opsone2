@@ -45,7 +45,7 @@ final class OrderDraftScreen
         return [
             'conversation' => [
                 'id' => $conversation->id,
-                'title' => $customer?->name ?? $conversation->contact_name ?? $conversation->wa_id,
+                'title' => $customer->name ?? $conversation->contact_name ?? $conversation->wa_id,
                 'customer' => $customer === null ? null : ['id' => $customer->id, 'name' => $customer->name, 'branch_id' => $customer->branch_id],
             ],
             'draft' => [
@@ -58,7 +58,7 @@ final class OrderDraftScreen
 
                     return ConfirmOrderDraft::formLine($line) + [
                         'name' => self::itemName($line['type'] ?? null, (int) ($line['item_id'] ?? 0)),
-                        'option_groups' => ($line['type'] ?? null) === 'custom_product' ? (CatalogProduct::query()->find((int) $line['item_id'])?->option_groups ?? []) : [],
+                        'option_groups' => ($line['type'] ?? null) === 'custom_product' ? (CatalogProduct::query()->find((int) $line['item_id'])->option_groups ?? []) : [],
                         'warnings' => array_values((array) ($line['warnings'] ?? [])),
                         'confidence' => (string) ($line['confidence'] ?? 'low'),
                         'source' => $source === null ? null : ['id' => $source->id, 'text' => mb_substr((string) $source->body, 0, 300)],

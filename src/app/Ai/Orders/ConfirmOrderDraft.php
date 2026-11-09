@@ -80,8 +80,8 @@ final class ConfirmOrderDraft
             ['result' => $result] = $this->create->handle($actor, (string) $data['idempotency_key'], $orderData, self::SOURCE);
             $orderIds = array_map('intval', $result['order_ids']);
 
-            $final = ['lines' => self::fingerprint((array) $data['lines'])];
-            $proposed = ['lines' => self::fingerprint(self::proposedForm((array) ($locked->payload['lines'] ?? [])))];
+            $final = ['lines' => self::fingerprint(array_values((array) $data['lines']))];
+            $proposed = ['lines' => self::fingerprint(self::proposedForm(array_values((array) ($locked->payload['lines'] ?? []))))];
             $this->suggestions->accept($locked, $actor, $final == $proposed ? null : [
                 'need_summary' => $orderData['custom']['need_summary'] ?? null,
                 'lines' => $data['lines'],

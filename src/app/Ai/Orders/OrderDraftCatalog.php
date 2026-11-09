@@ -82,7 +82,7 @@ final class OrderDraftCatalog
             $prefix = 'catalog.'.$label;
             $facts[$prefix.'.name'] = $c['name'];
             $facts[$prefix.'.kind'] = $c['type'] === 'ready_variant' ? 'ready' : 'made_to_order';
-            $facts[$prefix.'.priced_by'] = $c['unit'];
+            $facts[$prefix.'.sold_by'] = $c['unit'];
             if ($c['category'] !== '') {
                 $facts[$prefix.'.category'] = $c['category'];
             }

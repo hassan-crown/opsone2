@@ -132,7 +132,9 @@ export default function OrderDraftPage({
         );
 
         return all.filter(
-            (b) => (!hasReady || ready.has(b.id)) && (!hasCustom || custom.has(b.id)),
+            (b) =>
+                (!hasReady || ready.has(b.id)) &&
+                (!hasCustom || custom.has(b.id)),
         );
     }, [branches, hasReady, hasCustom]);
     const [branchId, setBranchId] = useState<string>(() => {
@@ -264,7 +266,9 @@ export default function OrderDraftPage({
     };
 
     const reject = () =>
-        router.post(OrderDraftController.reject.url([conversation.id, draft.id]));
+        router.post(
+            OrderDraftController.reject.url([conversation.id, draft.id]),
+        );
 
     const lineError = (index: number) =>
         Object.entries(errors)
@@ -300,16 +304,26 @@ export default function OrderDraftPage({
                 <div className="grid gap-4">
                     <Alert variant="info">
                         <Sparkles />
-                        <AlertBody>{t('inbox.order_draft.review_hint')}</AlertBody>
+                        <AlertBody>
+                            {t('inbox.order_draft.review_hint')}
+                        </AlertBody>
                     </Alert>
                     {(failure || otherErrors.length > 0) && (
-                        <Alert variant="danger" role="alert" data-test="form-errors">
-                            <AlertBody>{failure ?? otherErrors.join(' ')}</AlertBody>
+                        <Alert
+                            variant="danger"
+                            role="alert"
+                            data-test="form-errors"
+                        >
+                            <AlertBody>
+                                {failure ?? otherErrors.join(' ')}
+                            </AlertBody>
                         </Alert>
                     )}
                     {conversation.customer === null && (
                         <Alert variant="warning" role="alert">
-                            <AlertBody>{t('inbox.order_draft.no_customer')}</AlertBody>
+                            <AlertBody>
+                                {t('inbox.order_draft.no_customer')}
+                            </AlertBody>
                         </Alert>
                     )}
 
@@ -319,14 +333,21 @@ export default function OrderDraftPage({
 
                             return (
                                 <li key={line.key}>
-                                    <Card className="grid gap-3" data-test="draft-line">
+                                    <Card
+                                        className="grid gap-3"
+                                        data-test="draft-line"
+                                    >
                                         <div className="flex flex-wrap items-start justify-between gap-2">
                                             <div className="min-w-0">
                                                 <p className="font-semibold text-strong">
                                                     {line.type === 'custom_need'
-                                                        ? t('inbox.order_draft.need')
+                                                        ? t(
+                                                              'inbox.order_draft.need',
+                                                          )
                                                         : (line.name ??
-                                                          t('inbox.order_draft.needs_choice'))}
+                                                          t(
+                                                              'inbox.order_draft.needs_choice',
+                                                          ))}
                                                 </p>
                                                 {line.description && (
                                                     <p className="text-caption text-weak">
@@ -337,9 +358,11 @@ export default function OrderDraftPage({
                                             <div className="flex flex-wrap items-center gap-2">
                                                 <Badge
                                                     variant={
-                                                        line.confidence === 'high'
+                                                        line.confidence ===
+                                                        'high'
                                                             ? 'success'
-                                                            : line.confidence === 'medium'
+                                                            : line.confidence ===
+                                                                'medium'
                                                               ? 'info'
                                                               : 'warning'
                                                     }
@@ -354,10 +377,16 @@ export default function OrderDraftPage({
                                                     size="sm"
                                                     onClick={() =>
                                                         setLines((c) =>
-                                                            c.filter((l) => l.key !== line.key),
+                                                            c.filter(
+                                                                (l) =>
+                                                                    l.key !==
+                                                                    line.key,
+                                                            ),
                                                         )
                                                     }
-                                                    aria-label={t('inbox.order_draft.remove')}
+                                                    aria-label={t(
+                                                        'inbox.order_draft.remove',
+                                                    )}
                                                 >
                                                     <Icon icon={Trash2} />
                                                 </Button>
@@ -369,7 +398,8 @@ export default function OrderDraftPage({
                                                 className="border-s-2 border-stroke-weak ps-3 text-caption text-weak"
                                                 data-test="draft-line-source"
                                             >
-                                                {t('inbox.order_draft.source')}: {line.source.text}
+                                                {t('inbox.order_draft.source')}:{' '}
+                                                {line.source.text}
                                             </blockquote>
                                         )}
 
@@ -390,110 +420,182 @@ export default function OrderDraftPage({
                                         {line.type === null ? (
                                             <div className="grid gap-2">
                                                 <div className="flex flex-wrap gap-2">
-                                                    {branches.custom.length > 0 && (
+                                                    {branches.custom.length >
+                                                        0 && (
                                                         <Button
                                                             type="button"
                                                             size="sm"
                                                             variant="secondary"
                                                             onClick={() =>
-                                                                setChoosing(`${line.key}|custom`)
+                                                                setChoosing(
+                                                                    `${line.key}|custom`,
+                                                                )
                                                             }
                                                         >
-                                                            {t('inbox.order_draft.choose_custom')}
+                                                            {t(
+                                                                'inbox.order_draft.choose_custom',
+                                                            )}
                                                         </Button>
                                                     )}
-                                                    {branches.ready.length > 0 && (
+                                                    {branches.ready.length >
+                                                        0 && (
                                                         <Button
                                                             type="button"
                                                             size="sm"
                                                             variant="secondary"
                                                             onClick={() =>
-                                                                setChoosing(`${line.key}|ready`)
+                                                                setChoosing(
+                                                                    `${line.key}|ready`,
+                                                                )
                                                             }
                                                         >
-                                                            {t('inbox.order_draft.choose_ready')}
+                                                            {t(
+                                                                'inbox.order_draft.choose_ready',
+                                                            )}
                                                         </Button>
                                                     )}
                                                 </div>
                                             </div>
                                         ) : null}
-                                        {choosing?.startsWith(`${line.key}|`) && (
+                                        {choosing?.startsWith(
+                                            `${line.key}|`,
+                                        ) && (
                                             <LinePicker
-                                                kind={choosing.endsWith('|ready') ? 'ready' : 'custom'}
-                                                branchId={branchId === '' ? null : Number(branchId)}
-                                                onAdd={(picked) => choose(line.key, picked)}
+                                                kind={
+                                                    choosing.endsWith('|ready')
+                                                        ? 'ready'
+                                                        : 'custom'
+                                                }
+                                                branchId={
+                                                    branchId === ''
+                                                        ? null
+                                                        : Number(branchId)
+                                                }
+                                                onAdd={(picked) =>
+                                                    choose(line.key, picked)
+                                                }
                                             />
                                         )}
 
                                         {line.type !== null && (
                                             <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
                                                 <TextField
-                                                    label={t('inbox.order_draft.quantity')}
+                                                    label={t(
+                                                        'inbox.order_draft.quantity',
+                                                    )}
                                                     type="number"
                                                     inputMode="decimal"
                                                     dir="ltr"
-                                                    min={line.type === 'ready_variant' ? 1 : 0.001}
-                                                    step={line.type === 'ready_variant' ? 1 : 'any'}
+                                                    min={
+                                                        line.type ===
+                                                        'ready_variant'
+                                                            ? 1
+                                                            : 0.001
+                                                    }
+                                                    step={
+                                                        line.type ===
+                                                        'ready_variant'
+                                                            ? 1
+                                                            : 'any'
+                                                    }
                                                     value={line.quantity ?? ''}
                                                     onChange={(e) =>
-                                                        update(line.key, { quantity: e.target.value })
+                                                        update(line.key, {
+                                                            quantity:
+                                                                e.target.value,
+                                                        })
                                                     }
                                                 />
-                                                {line.type === 'custom_product' &&
-                                                    (['width_cm', 'height_cm', 'depth_cm'] as const).map(
-                                                        (dim) => (
-                                                            <TextField
-                                                                key={dim}
-                                                                label={t(
-                                                                    `inbox.order_draft.${dim}` as TranslationKey,
-                                                                )}
-                                                                type="number"
-                                                                inputMode="decimal"
-                                                                dir="ltr"
-                                                                min={1}
-                                                                max={3000}
-                                                                step={0.1}
-                                                                value={line[dim] ?? ''}
-                                                                onChange={(e) =>
-                                                                    update(line.key, {
-                                                                        [dim]: e.target.value,
-                                                                    })
-                                                                }
-                                                                optional
-                                                            />
-                                                        ),
-                                                    )}
+                                                {line.type ===
+                                                    'custom_product' &&
+                                                    (
+                                                        [
+                                                            'width_cm',
+                                                            'height_cm',
+                                                            'depth_cm',
+                                                        ] as const
+                                                    ).map((dim) => (
+                                                        <TextField
+                                                            key={dim}
+                                                            label={t(
+                                                                `inbox.order_draft.${dim}` as TranslationKey,
+                                                            )}
+                                                            type="number"
+                                                            inputMode="decimal"
+                                                            dir="ltr"
+                                                            min={1}
+                                                            max={3000}
+                                                            step={0.1}
+                                                            value={
+                                                                line[dim] ?? ''
+                                                            }
+                                                            onChange={(e) =>
+                                                                update(
+                                                                    line.key,
+                                                                    {
+                                                                        [dim]: e
+                                                                            .target
+                                                                            .value,
+                                                                    },
+                                                                )
+                                                            }
+                                                            optional
+                                                        />
+                                                    ))}
                                             </div>
                                         )}
-                                        {line.type !== null && line.type !== 'ready_variant' && (
-                                            <TextField
-                                                label={t('inbox.order_draft.line_description')}
-                                                value={line.description}
-                                                maxLength={2000}
-                                                onChange={(e) =>
-                                                    update(line.key, { description: e.target.value })
-                                                }
-                                                optional={line.type !== 'custom_need'}
-                                            />
-                                        )}
+                                        {line.type !== null &&
+                                            line.type !== 'ready_variant' && (
+                                                <TextField
+                                                    label={t(
+                                                        'inbox.order_draft.line_description',
+                                                    )}
+                                                    value={line.description}
+                                                    maxLength={2000}
+                                                    onChange={(e) =>
+                                                        update(line.key, {
+                                                            description:
+                                                                e.target.value,
+                                                        })
+                                                    }
+                                                    optional={
+                                                        line.type !==
+                                                        'custom_need'
+                                                    }
+                                                />
+                                            )}
 
                                         {priced && (
                                             <p
                                                 className="flex flex-wrap items-center gap-2 text-caption text-weak"
                                                 data-test="draft-line-price"
                                             >
-                                                {line.type === 'ready_variant' &&
-                                                    priced.line_total_minor != null && (
+                                                {line.type ===
+                                                    'ready_variant' &&
+                                                    priced.line_total_minor !=
+                                                        null && (
                                                         <>
-                                                            {t('inbox.order_draft.line_total')}:{' '}
-                                                            {money(priced.line_total_minor)}
+                                                            {t(
+                                                                'inbox.order_draft.line_total',
+                                                            )}
+                                                            :{' '}
+                                                            {money(
+                                                                priced.line_total_minor,
+                                                            )}
                                                         </>
                                                     )}
-                                                {line.type === 'custom_product' &&
-                                                    priced.reference_minor != null && (
+                                                {line.type ===
+                                                    'custom_product' &&
+                                                    priced.reference_minor !=
+                                                        null && (
                                                         <>
-                                                            {t('inbox.order_draft.reference')}:{' '}
-                                                            {money(priced.reference_minor)}
+                                                            {t(
+                                                                'inbox.order_draft.reference',
+                                                            )}
+                                                            :{' '}
+                                                            {money(
+                                                                priced.reference_minor,
+                                                            )}
                                                         </>
                                                     )}
                                                 {priced.note && (
@@ -506,7 +608,10 @@ export default function OrderDraftPage({
                                             </p>
                                         )}
                                         {lineError(index) && (
-                                            <p className="text-caption text-danger-text" role="alert">
+                                            <p
+                                                className="text-caption text-danger-text"
+                                                role="alert"
+                                            >
                                                 {lineError(index)}
                                             </p>
                                         )}
@@ -542,7 +647,9 @@ export default function OrderDraftPage({
                         {adding && (
                             <LinePicker
                                 kind={adding}
-                                branchId={branchId === '' ? null : Number(branchId)}
+                                branchId={
+                                    branchId === '' ? null : Number(branchId)
+                                }
                                 onAdd={add}
                             />
                         )}
@@ -578,34 +685,63 @@ export default function OrderDraftPage({
                             <CheckboxField
                                 label={t('inbox.order_draft.needs_measurement')}
                                 checked={needsMeasurement}
-                                onChange={(e) => setNeedsMeasurement(e.target.checked)}
+                                onChange={(e) =>
+                                    setNeedsMeasurement(e.target.checked)
+                                }
                             />
                         </>
                     )}
 
-                    {pricing && (pricing.money.ready || pricing.money.custom) && (
-                        <dl className="grid gap-2 text-control" data-test="draft-totals">
-                            {hasReady && pricing.ready_total_minor != null && (
-                                <div className="flex justify-between gap-2">
-                                    <dt>{t('inbox.order_draft.ready_total')}</dt>
-                                    <dd>{money(pricing.ready_total_minor)}</dd>
-                                </div>
-                            )}
-                            {hasCustom && pricing.reference_total_minor != null && (
-                                <div className="flex justify-between gap-2">
-                                    <dt>{t('inbox.order_draft.reference_total')}</dt>
-                                    <dd>{money(pricing.reference_total_minor)}</dd>
-                                </div>
-                            )}
-                            <p className="text-caption text-weak">
-                                {t('inbox.order_draft.prices_hint')}
-                            </p>
-                        </dl>
-                    )}
+                    {pricing &&
+                        (pricing.money.ready || pricing.money.custom) && (
+                            <dl
+                                className="grid gap-2 text-control"
+                                data-test="draft-totals"
+                            >
+                                {hasReady &&
+                                    pricing.ready_total_minor != null && (
+                                        <div className="flex justify-between gap-2">
+                                            <dt>
+                                                {t(
+                                                    'inbox.order_draft.ready_total',
+                                                )}
+                                            </dt>
+                                            <dd>
+                                                {money(
+                                                    pricing.ready_total_minor,
+                                                )}
+                                            </dd>
+                                        </div>
+                                    )}
+                                {hasCustom &&
+                                    pricing.reference_total_minor != null && (
+                                        <div className="flex justify-between gap-2">
+                                            <dt>
+                                                {t(
+                                                    'inbox.order_draft.reference_total',
+                                                )}
+                                            </dt>
+                                            <dd>
+                                                {money(
+                                                    pricing.reference_total_minor,
+                                                )}
+                                            </dd>
+                                        </div>
+                                    )}
+                                <p className="text-caption text-weak">
+                                    {t('inbox.order_draft.prices_hint')}
+                                </p>
+                            </dl>
+                        )}
 
                     {unresolved > 0 && (
-                        <p className="text-caption text-warning-text" role="status">
-                            {t('inbox.order_draft.unresolved', { n: unresolved })}
+                        <p
+                            className="text-caption text-warning-text"
+                            role="status"
+                        >
+                            {t('inbox.order_draft.unresolved', {
+                                n: unresolved,
+                            })}
                         </p>
                     )}
                     <Button

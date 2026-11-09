@@ -3,11 +3,11 @@
 namespace App\Ai\Orders;
 
 use App\Catalog\MinorUnits;
+use App\Models\Catalog\CatalogProduct;
+use App\Models\Catalog\CatalogReadyVariant;
 use App\Money\Money;
 use App\Money\MoneyOverflow;
 use App\Money\Rounding;
-use App\Models\Catalog\CatalogProduct;
-use App\Models\Catalog\CatalogReadyVariant;
 
 /**
  * Every amount on a conversation draft, computed by the server from the catalog as it is now (AI-5, «السعر من
