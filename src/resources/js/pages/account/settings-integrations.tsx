@@ -1,6 +1,7 @@
 import { Form, Head, router } from '@inertiajs/react';
 import { useState } from 'react';
 import IntegrationsController from '@/actions/App/Http/Controllers/Notifications/IntegrationsController';
+import { InboxSettingsSection } from '@/components/inbox/inbox-settings-section';
 import { SelectField, TextField } from '@/components/opsone/field';
 import { PageHeader } from '@/components/opsone/page-header';
 import { Badge } from '@/components/ui/badge';
@@ -10,6 +11,7 @@ import { formatDateTime } from '@/lib/format';
 import { useLocale, useT } from '@/lib/i18n';
 import type { TranslationKey } from '@/lib/i18n';
 import { edit } from '@/routes/integrations';
+import type { InboxSettingsProps } from '@/types/inbox';
 import { home } from '@/routes/settings';
 
 type Smtp = {
@@ -38,6 +40,8 @@ type Whatsapp = {
 type Props = {
     smtp: Smtp;
     whatsapp: Whatsapp;
+    whatsappInbox: InboxSettingsProps;
+    branches: { id: number; name: string }[];
     smtpPorts: number[];
     sms: { configured: boolean; driver: 'log' | null };
     fallbackMailer: string;
@@ -85,6 +89,8 @@ export default function SettingsIntegrations({
     smtpPorts,
     sms,
     whatsapp,
+    whatsappInbox,
+    branches,
     fallbackMailer,
 }: Props) {
     const t = useT();
@@ -391,6 +397,11 @@ export default function SettingsIntegrations({
                         {t('integrations.whatsapp.save')}
                     </Button>
                 </section>
+
+                <InboxSettingsSection
+                    inbox={whatsappInbox}
+                    branches={branches}
+                />
 
                 <section className="space-y-3 border-t border-stroke-weak pt-8">
                     <div className="flex flex-wrap items-center justify-between gap-2">

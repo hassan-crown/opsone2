@@ -29,6 +29,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('settings/integrations/smtp/enable', [IntegrationsController::class, 'enableSmtp'])->name('integrations.smtp.enable');
     Route::post('settings/integrations/smtp/disable', [IntegrationsController::class, 'disableSmtp'])->name('integrations.smtp.disable');
     Route::put('settings/integrations/whatsapp', [IntegrationsController::class, 'updateWhatsapp'])->name('integrations.whatsapp.update');
+    Route::put('settings/integrations/whatsapp-inbox', [IntegrationsController::class, 'updateWhatsappInbox'])->name('integrations.whatsapp-inbox.update');
 });
 
 // WhatsApp (Meta) webhook (ADR-0030): no session and no CSRF — the body's HMAC signature (GET: the verify token) is the proof.
