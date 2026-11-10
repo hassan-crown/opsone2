@@ -5,7 +5,7 @@
  * transfers, ready-order confirmations (reservations), deliveries (issues), returns (receipt + inspection), and
  * partial / full cancellations runs — accepted or refused — every balance equals the sum of its movements, on hand
  * never goes below zero or below what is reserved, reservations never exceed what they hold, and a refused step
- * leaves the journal unchanged. The seed is printed on failure so a sequence can be replayed (STOCK_SEED=…).
+ * leaves the journal unchanged. Seeds are fixed by default (deterministic CI); the seed is printed on failure so a sequence can be replayed (STOCK_SEED=…), and STOCK_RANDOM=1 explores random sequences.
  */
 
 use App\Access\Exceptions\InvalidTransition;
@@ -137,7 +137,10 @@ function invariantPick(array $orders): Order
 }
 
 it('keeps every balance equal to its journal and never negative over random P7 sequences', function (int $round) {
-    $seed = (int) (getenv('STOCK_SEED') ?: random_int(1, PHP_INT_MAX >> 16)) + $round;
+    // Deterministic by default so CI never flakes on the "enough steps went through" floor below (an unlucky random
+    // sequence once landed on exactly 10). STOCK_SEED=n replays/explores one base seed; STOCK_RANDOM=1 explores freely.
+    $base = getenv('STOCK_SEED') ?: (getenv('STOCK_RANDOM') ? random_int(1, PHP_INT_MAX >> 16) : 1000);
+    $seed = (int) $base + $round;
     mt_srand($seed);
 
     $f = returnFixture(20, 3, 1);
