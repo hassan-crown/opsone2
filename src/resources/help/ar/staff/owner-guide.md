@@ -18,6 +18,7 @@ order: 1
 - قراءة التقارير ومقارنة الفروع وتصدير البيانات ومراجعة سجل التدقيق.
 - الإدارة المالية العليا: الدفعات والقبض والاسترداد والنزاعات والشطب والعمولات والفوترة الإلكترونية.
 - ضبط قواعد العمل ومسار التشغيل والأتمتة ونشرها كإصدارات.
+- تشغيل صندوق واتساب، وتفعيل ميزات الذكاء الاصطناعي ومتابعة رصيدها، وتفعيل الرد الآلي (وهو للمالك وحده).
 
 تظهر لك كل الصفحات من القائمة الجانبية ومن «الإعدادات». ما لا تملكه ميزة في ترخيص منشأتك يظهر معطّلًا مع سببه.
 
@@ -62,6 +63,14 @@ order: 1
 - [نشر الإصدارات والرجوع عنها](article:owner-rules-releases)
 - [قواعد الأتمتة](article:owner-automation-rules)
 - [مسار التشغيل](article:owner-flow-settings)
+
+**واتساب والذكاء الاصطناعي**
+- [تشغيل صندوق واتساب وقوالبه](article:owner-whatsapp-inbox-setup) و[متابعة المحادثات](article:inbox-work-conversations) و[إسناد محادثة وربطها بعميل](article:inbox-assign-and-link-customer)
+- [تفعيل ميزات الذكاء الاصطناعي ومتابعة الرصيد](article:owner-ai-settings-credits)
+- [الرد الآلي الآمن](article:owner-ai-auto-reply) (للمالك وحده)
+- [مسودة مسار وقواعد من وصف آليتك](article:owner-ai-setup-proposal)
+- [الرد المقترح](article:inbox-ai-suggested-reply) و[مسودة طلب من المحادثة](article:inbox-conversation-to-order) و[العميل الجديد](article:inbox-new-lead-assistant) و[الملخص اليومي](article:ai-daily-digest)
+- [اسأل الدليل](article:ask-the-guide-assistant) و[كيف يعمل الذكاء الاصطناعي وما لا يفعله](article:ai-how-it-works)
 
 لمهام الفريق اليومية يعمل المدير بدليله: [دليل المدير](article:manager-guide).
 
